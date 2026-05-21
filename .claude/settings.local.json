@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls \"c:\\\\Users\\\\SURFACE\\\\Downloads\\\\fitquest_2\" 2>&1)",
+      "Read(//c/Users/SURFACE/Downloads/fitquest_2/**)",
+      "Bash(npm install *)",
+      "Bash(npx tsc *)",
+      "Bash(npm run *)",
+      "Bash(mkdir -p \"c:\\\\Users\\\\SURFACE\\\\Downloads\\\\fitquest_2\\\\fitquest\\\\src\\\\app\\\\treinos\\\\[id]\" && echo ok)",
+      "Bash(node -e \"const m = require\\('@anthropic-ai/sdk/package.json'\\); console.log\\(m.version\\)\")",
+      "Bash(git init *)",
+      "Bash(git branch *)",
+      "Bash(git add *)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\SURFACE\\Downloads\\fitquest_2\\fitquest\\src\\app\\treinos"
+    ]
+  }
+}
