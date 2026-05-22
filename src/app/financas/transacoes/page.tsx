@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { AppShell } from '@/components/layout/app-shell'
@@ -36,11 +37,13 @@ export default async function TransacoesPage() {
           <p className="text-text-secondary">Todas as suas movimentações em um só lugar.</p>
         </div>
 
-        <TransactionsView
-          transactions={txRes.data ?? []}
-          accounts={accRes.data ?? []}
-          categories={catRes.data ?? []}
-        />
+        <Suspense fallback={<div className="text-text-secondary">Carregando...</div>}>
+          <TransactionsView
+            transactions={txRes.data ?? []}
+            accounts={accRes.data ?? []}
+            categories={catRes.data ?? []}
+          />
+        </Suspense>
       </div>
     </AppShell>
   )
