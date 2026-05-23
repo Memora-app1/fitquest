@@ -5,6 +5,25 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 
+function friendlyError(message: string): string {
+  if (message.includes('already registered') || message.includes('already been registered')) {
+    return 'Este email já tem uma conta. Tente fazer login.'
+  }
+  if (message.includes('Database error') || message.includes('saving new user')) {
+    return 'Erro ao criar perfil. Tente novamente em alguns segundos.'
+  }
+  if (message.includes('Invalid email')) {
+    return 'Email inválido. Verifique o endereço digitado.'
+  }
+  if (message.includes('Password should be')) {
+    return 'A senha precisa ter no mínimo 6 caracteres.'
+  }
+  if (message.includes('rate limit') || message.includes('too many')) {
+    return 'Muitas tentativas. Aguarde um minuto e tente novamente.'
+  }
+  return 'Ocorreu um erro. Tente novamente.'
+}
+
 export default function SignupPage() {
   const router = useRouter()
   const [name, setName] = useState('')
@@ -35,16 +54,13 @@ export default function SignupPage() {
       email,
       password,
       options: {
-        data: { name },
+        data: { name: name.trim() || email.split('@')[0] },
       },
     })
 
     if (signUpError) {
-      setError(
-        signUpError.message.includes('already registered')
-          ? 'Este email já está cadastrado.'
-          : signUpError.message
-      )
+      console.error('[signup] error:', signUpError.message, signUpError)
+      setError(friendlyError(signUpError.message))
       setLoading(false)
       return
     }
@@ -158,8 +174,8 @@ export default function SignupPage() {
 
         <p className="text-xs text-text-muted text-center">
           Ao criar conta, você concorda com nossos{' '}
-          <Link href="/termos" className="underline">Termos</Link> e{' '}
-          <Link href="/privacidade" className="underline">Privacidade</Link>.
+          <Link href="/termos" className="underline">Termos de Uso</Link> e{' '}
+          <Link href="/privacidade" className="underline">Política de Privacidade</Link>.
         </p>
       </div>
     </main>

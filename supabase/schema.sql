@@ -33,8 +33,8 @@ CREATE TABLE profiles (
   subscription_started_at TIMESTAMPTZ,
   subscription_end TIMESTAMPTZ,
   trial_end TIMESTAMPTZ DEFAULT (NOW() + INTERVAL '7 days'),
-  mp_subscription_id TEXT,
-  mp_customer_id TEXT,
+  stripe_subscription_id TEXT,
+  stripe_customer_id TEXT,
   
   -- Onboarding
   onboarding_completed BOOLEAN DEFAULT FALSE,
@@ -524,21 +524,37 @@ CREATE TRIGGER set_calendar_events_updated_at BEFORE UPDATE ON calendar_events
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- Trigger: criar profile automaticamente ao criar auth.user
-CREATE OR REPLACE FUNCTION handle_new_user()
+-- FIXED 2026-05-23: search_path explícito, NULLIF para string vazia, campos explícitos
+CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
+DECLARE
+  v_name TEXT;
 BEGIN
-  INSERT INTO profiles (id, name)
-  VALUES (
-    NEW.id,
-    COALESCE(NEW.raw_user_meta_data->>'name', split_part(NEW.email, '@', 1))
+  v_name := COALESCE(
+    NULLIF(TRIM(NEW.raw_user_meta_data->>'name'), ''),
+    split_part(NEW.email, '@', 1),
+    'Usuário'
   );
+
+  INSERT INTO public.profiles (
+    id, name, subscription_status, trial_end,
+    xp_total, level, streak_current, streak_longest,
+    perfect_days, onboarding_completed, weekly_target
+  ) VALUES (
+    NEW.id, v_name, 'trial', NOW() + INTERVAL '7 days',
+    0, 1, 0, 0, 0, FALSE, 4
+  );
+
   RETURN NEW;
+EXCEPTION WHEN OTHERS THEN
+  RAISE EXCEPTION 'handle_new_user falhou para user %: % (SQLSTATE: %)',
+    NEW.id, SQLERRM, SQLSTATE;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE FUNCTION handle_new_user();
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
 -- Function: calcula level a partir do XP total
 CREATE OR REPLACE FUNCTION calculate_level(xp INTEGER)
