@@ -27,7 +27,7 @@ export default async function PerfilPage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('*')
+    .select('name, subscription_status, subscription_plan, trial_end, subscription_end, created_at')
     .eq('id', user.id)
     .single()
 

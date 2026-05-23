@@ -14,7 +14,7 @@ export default async function MetasFinanceirasPage() {
 
   const { data: goals } = await supabase
     .from('finance_goals')
-    .select('*')
+    .select('id, user_id, title, icon, color, target_amount, current_amount, deadline, monthly_target, status, completed_at, created_at')
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
 

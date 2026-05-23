@@ -11,7 +11,7 @@ export default async function ScorePage() {
   if (!user) redirect('/login')
 
   const [profileRes, achievementsRes, xpLastWeekRes, workoutsCountRes, tasksCountRes] = await Promise.all([
-    supabase.from('profiles').select('*').eq('id', user.id).single(),
+    supabase.from('profiles').select('level, xp_total, streak_current, streak_longest, perfect_days').eq('id', user.id).single(),
     supabase
       .from('user_achievements')
       .select('unlocked_at, achievement:achievements(*)')

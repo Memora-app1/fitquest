@@ -12,7 +12,7 @@ export default async function ContasPage() {
 
   const { data: accounts } = await supabase
     .from('finance_accounts')
-    .select('*')
+    .select('id, user_id, name, type, icon, color, current_balance, credit_limit, closing_day, due_day, is_active, created_at')
     .eq('user_id', user.id)
     .order('created_at')
 

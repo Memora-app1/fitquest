@@ -23,7 +23,7 @@ export default async function HabitosPage({
   const [habitsRes, logsRes, weekLogsRes] = await Promise.all([
     supabase
       .from('habits')
-      .select('*')
+      .select('id, user_id, name, description, icon, color, category, target_type, target_value, target_period, target_unit, frequency_per_week, reminder_time, xp_per_completion, display_order, is_active, created_at, updated_at')
       .eq('user_id', user.id)
       .eq('is_active', true)
       .order('display_order'),

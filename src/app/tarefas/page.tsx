@@ -13,7 +13,7 @@ export default async function TarefasPage() {
 
   const { data: tasks } = await supabase
     .from('tasks')
-    .select('*')
+    .select('id, user_id, list_id, title, description, status, display_order, urgent, important, due_date, reminder_at, estimated_minutes, completed_at, google_event_id, recurrence_rule, parent_task_id, xp_reward, created_at, updated_at')
     .eq('user_id', user.id)
     .not('status', 'eq', 'archived')
     .order('display_order')
