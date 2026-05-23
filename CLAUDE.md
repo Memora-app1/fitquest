@@ -206,6 +206,92 @@ Sidebar 240px à esquerda, com sub-itens quando aplicável.
 
 ---
 
+## 🧠 Skills Disponíveis (Modos de Trabalho)
+
+O projeto tem 3 skills instaladas em `.claude/skills/`. Use a ferramenta `Skill` para ativá-las.
+
+### `/arquiteto` — Análise Arquitetural e Escalabilidade
+Use para: "o que você acha do projeto", "vai escalar?", "onde está o gargalo", "o que falta para 10k usuários", "como organizar melhor".
+CTO + Arquiteto + Product Strategist. Lê TUDO antes de opinar. Cada proposta tem arquivo, linha e impacto real.
+
+### `/banco` — Banco de Dados e PostgreSQL
+Use para: queries, índices, RLS, migrations, N+1, "tá lento no banco", "RLS não funciona", "dados de outro usuário aparece".
+DBA sênior PostgreSQL + Supabase. Mapeia TODAS as queries, entrega SQL 100% pronto para executar.
+
+### `/deploy` — Deploy e Infraestrutura
+Use para: Vercel, produção, .env, "colocar no ar", "build falhou no Vercel", domínio, DNS, webhook, cron, headers de segurança.
+DevOps 12 anos. Entrega comandos exatos, configs prontas e plano de rollback.
+
+### `/debug` — Corrigir Erros (95% na 1ª tentativa)
+Use para: erros, stack trace, tela branca, "não funciona", "deu erro", hydration error, TypeScript error, redirect infinito.
+Vai direto à causa raiz. Especialidade em auth, Next.js App Router e Supabase.
+
+### `/performance` — Otimização de Performance
+Use para: Lighthouse, Core Web Vitals, LCP/INP/CLS, bundle size, re-renders, "tá lento", "carrega devagar".
+Mobile-first. Foca em impacto real e mensurável.
+
+### `/refactor` — Refatoração de Código
+Use para: "refatora", "limpa o código", "componente gigante", "código duplicado", "dívida técnica", "tá bagunçado".
+Nunca perde funcionalidade. Nunca entrega parcial. Nunca refatora sem ler o arquivo completo.
+
+### `/auditoria` — Revisão Completa do Projeto
+Use para: "revisa tudo", "audita o projeto", "o que está errado", "tem bug crítico?", "o projeto está seguro?", pré-lançamento.
+Arquiteto + DBA + segurança + qualidade. Entrega roadmap priorizado.
+
+### `/feature` — Criar Feature Nova (planejamento + código)
+Use para: criar algo que não existe — nova página, funcionalidade, fluxo, integração.
+Não começa a codar na 1ª mensagem — entende → planeja → executa. Código 100% completo.
+
+### `/prompt-mestre` — Criar e Otimizar Prompts
+Use para: "cria um prompt para", "melhora esse prompt", system prompt, prompts de imagem, "como peço para a IA fazer X".
+Domina Claude, GPT-4o, Gemini, Midjourney, DALL-E, Flux.
+
+---
+
+### `/fitquest-architect` — Criar Features
+Use para: criar página, componente, API route, tabela no banco, integração, qualquer implementação nova.
+Palavras-chave: "cria", "implementa", "adiciona", "faz", "monta", "quero", "preciso de".
+**Lê obrigatoriamente antes de codar:** CLAUDE.md → types.ts → xp.ts → middleware.ts → globals.css → tailwind.config.ts
+
+Contém:
+- Schema completo de 20+ tabelas com campos detalhados
+- Tabela XP completa (14 ações com valores e condições)
+- 8 levels com faixas de XP e títulos
+- Design system completo (cores, classes, animações, fontes)
+- Padrões de código prontos (API Route, Page, Client Component, Modal, SQL Migration)
+- Workflow de 6 etapas para implementação: Análise → Schema → API → Componentes → Página → Integração
+- Navegação completa (sidebar + bottom nav + todas as rotas)
+- 18 instruções negativas invioláveis
+
+### `/fitquest-doctor` — Diagnosticar e Corrigir
+Use para: erro, bug, tela branca, dados não aparecendo, build quebrando, warning TypeScript, "não funciona", "deu erro", health check, performance, segurança, validação pré-deploy.
+**Nunca tente corrigir sem usar esta skill — diagnóstico primeiro.**
+
+Contém:
+- Protocolo de 5 passos: Evidências → Classificação → Diagnóstico → Correção → Verificação
+- 10 classes de problema (BUILD_TS, BUILD_NEXT, RUNTIME_SERVER, RUNTIME_CLIENT, DATA_EMPTY, DATA_WRONG, AUTH_FLOW, STYLE_BREAK, PERF, DEPLOY)
+- Flowcharts de diagnóstico para auth, dados, performance
+- Health Check completo v2.0 (10 categorias, 65+ verificações)
+- 8 erros conhecidos do FitQuest com soluções prontas
+- Formato padronizado de relatório de correção
+- 12 instruções negativas
+
+### `/fitquest-shipper` — Deploy e Infraestrutura
+Use para: setup inicial, npm run dev, deploy, Vercel, variáveis de ambiente, domínio, webhook, cron, Mercado Pago, migração de banco, lançamento.
+**Esta skill cuida de TUDO entre "tenho código" e "usuários pagando".**
+
+Contém:
+- Fase 1: Setup do zero (7 passos detalhados)
+- Fase 2: Troubleshooting de 15 problemas comuns com soluções
+- Fase 3: Pré-deploy checklist completo (6 seções, 30+ verificações)
+- Fase 4: Deploy no Vercel passo a passo (domínio, env vars, webhook MP)
+- Fase 5: Smoke test de produção (8 seções, 30+ checks)
+- Fase 6: Otimizações pré-launch (SEO, performance targets, monitoramento)
+- Targets: Lighthouse Mobile > 80, LCP < 2.5s, Bundle < 200KB
+- 12 instruções negativas de deploy
+
+---
+
 ## 🚨 Coisas Críticas para Lembrar
 
 - ❌ **NUNCA** rode `xp` ou `streak` no client — sempre server

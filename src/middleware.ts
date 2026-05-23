@@ -56,6 +56,16 @@ export async function middleware(request: NextRequest) {
     return response
   }
 
+  // Cron jobs — verifica CRON_SECRET ANTES de checar autenticação
+  // Vercel chama crons sem sessão de usuário
+  if (pathname.startsWith('/api/cron/')) {
+    const authHeader = request.headers.get('authorization')
+    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+      return NextResponse.json({ error: 'forbidden' }, { status: 403 })
+    }
+    return response
+  }
+
   // Não autenticado — redireciona pra login
   if (!user) {
     if (pathname.startsWith('/api/')) {
@@ -68,15 +78,6 @@ export async function middleware(request: NextRequest) {
 
   // Rotas que só requerem auth (não subscription)
   if (AUTH_ONLY_ROUTES.some((route) => pathname.startsWith(route))) {
-    return response
-  }
-
-  // Cron jobs — verifica CRON_SECRET no header
-  if (pathname.startsWith('/api/cron/')) {
-    const authHeader = request.headers.get('authorization')
-    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-      return NextResponse.json({ error: 'forbidden' }, { status: 403 })
-    }
     return response
   }
 
