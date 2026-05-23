@@ -136,7 +136,7 @@ export default async function PlanosPage() {
         </div>
 
         <div className="text-center text-sm text-text-muted space-y-2 pt-8">
-          <p>🔒 Pagamento seguro via Mercado Pago</p>
+          <p>🔒 Pagamento seguro via Stripe</p>
           <p>💳 Aceitamos Pix, cartão de crédito e boleto</p>
           <p>↩️ Garantia de 7 dias — devolução do valor sem perguntas</p>
         </div>

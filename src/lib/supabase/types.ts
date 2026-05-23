@@ -57,8 +57,8 @@ export interface Profile {
   subscription_started_at: string | null
   subscription_end: string | null
   trial_end: string | null
-  mp_subscription_id: string | null
-  mp_customer_id: string | null
+  stripe_subscription_id: string | null
+  stripe_customer_id: string | null
   onboarding_completed: boolean
   primary_goal: string | null
   weekly_target: number
