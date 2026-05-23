@@ -10,10 +10,43 @@
       "Bash(node -e \"const m = require\\('@anthropic-ai/sdk/package.json'\\); console.log\\(m.version\\)\")",
       "Bash(git init *)",
       "Bash(git branch *)",
-      "Bash(git add *)"
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git remote *)",
+      "Bash(git push *)",
+      "Bash(mkdir -p \"c:\\\\Users\\\\SURFACE\\\\Downloads\\\\fitquest_2\\\\fitquest\\\\.claude\\\\skills\" && echo \"criado\")",
+      "Bash(ls \"c:\\\\Users\\\\SURFACE\\\\Downloads\\\\\" | grep -i fitquest-skills; ls \"c:\\\\Users\\\\SURFACE\\\\Desktop\\\\\" 2>/dev/null | grep -i fitquest-skills; echo \"busca concluida\")",
+      "Read(//c/Users/SURFACE/**)",
+      "Read(//mnt/c/Users/SURFACE/**)",
+      "Bash(mkdir -p /mnt/c/Users/SURFACE/Downloads/fitquest_2/fitquest/.claude/skills/fitquest-architect)",
+      "Bash(mkdir -p /mnt/c/Users/SURFACE/Downloads/fitquest_2/fitquest/.claude/skills/fitquest-doctor)",
+      "Bash(mkdir -p /mnt/c/Users/SURFACE/Downloads/fitquest_2/fitquest/.claude/skills/fitquest-shipper)",
+      "Bash(mkdir -p \"c:\\\\Users\\\\SURFACE\\\\Downloads\\\\fitquest_2\\\\fitquest\\\\.claude\\\\skills\\\\fitquest-architect\")",
+      "Bash(mkdir -p \"c:\\\\Users\\\\SURFACE\\\\Downloads\\\\fitquest_2\\\\fitquest\\\\.claude\\\\skills\\\\fitquest-doctor\")",
+      "Bash(mkdir -p \"c:\\\\Users\\\\SURFACE\\\\Downloads\\\\fitquest_2\\\\fitquest\\\\.claude\\\\skills\\\\fitquest-shipper\")",
+      "Bash(cp -r \"c:/Users/SURFACE/Downloads/fitquest-skills/fitquest-skills/fitquest-architect\" \"c:/Users/SURFACE/Downloads/fitquest_2/fitquest/.claude/skills/\")",
+      "Bash(cp -r \"c:/Users/SURFACE/Downloads/fitquest-skills/fitquest-skills/fitquest-doctor\" \"c:/Users/SURFACE/Downloads/fitquest_2/fitquest/.claude/skills/\")",
+      "Bash(cp -r \"c:/Users/SURFACE/Downloads/fitquest-skills/fitquest-skills/fitquest-shipper\" \"c:/Users/SURFACE/Downloads/fitquest_2/fitquest/.claude/skills/\")",
+      "Bash(findstr /i \"autoprefixer\\\\|postcss\\\\b\")",
+      "Bash(dir node_modules)",
+      "Bash(findstr autoprefixer *)",
+      "Bash(dir /b /s src)",
+      "Bash(findstr env *)",
+      "PowerShell(cd \"c:\\\\Users\\\\SURFACE\\\\Downloads\\\\fitquest_2\\\\fitquest\"; $pkg = Get-Content package.json | ConvertFrom-Json; $deps = $pkg.dependencies.PSObject.Properties.Name; $devDeps = $pkg.devDependencies.PSObject.Properties.Name; $required = @\\(\"next\",\"react\",\"react-dom\",\"typescript\",\"@types/node\",\"@types/react\",\"@types/react-dom\",\"tailwindcss\",\"postcss\",\"autoprefixer\",\"@supabase/ssr\",\"@supabase/supabase-js\",\"@anthropic-ai/sdk\",\"mercadopago\",\"zod\",\"lucide-react\",\"clsx\",\"tailwind-merge\",\"tailwindcss-animate\",\"date-fns\",\"recharts\",\"@dnd-kit/core\",\"@dnd-kit/sortable\",\"@dnd-kit/utilities\"\\); foreach \\($r in $required\\) { if \\($deps -contains $r\\) { \"✅ deps: $r\" } elseif \\($devDeps -contains $r\\) { \"⚠️ devDeps \\(MOVER\\): $r\" } else { \"❌ AUSENTE: $r\" } })",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000)",
+      "Bash(cp -r \"C:/Users/SURFACE/Downloads/fitquest-skills/fitquest-skills/arquiteto\" \"C:/Users/SURFACE/Downloads/fitquest_2/fitquest/.claude/skills/arquiteto\")",
+      "Bash(cp -r \"C:/Users/SURFACE/Downloads/fitquest-skills/fitquest-skills/banco\" \"C:/Users/SURFACE/Downloads/fitquest_2/fitquest/.claude/skills/banco\")",
+      "Bash(cp -r \"C:/Users/SURFACE/Downloads/fitquest-skills/fitquest-skills/deploy\" \"C:/Users/SURFACE/Downloads/fitquest_2/fitquest/.claude/skills/deploy\")",
+      "Bash(cp -r \"C:/Users/SURFACE/Downloads/fitquest-skills/fitquest-skills/debug\" \"C:/Users/SURFACE/Downloads/fitquest_2/fitquest/.claude/skills/debug\")",
+      "Bash(cp -r \"C:/Users/SURFACE/Downloads/fitquest-skills/fitquest-skills/performance\" \"C:/Users/SURFACE/Downloads/fitquest_2/fitquest/.claude/skills/performance\")",
+      "Bash(node -e \"const p = require\\('./package.json'\\); console.log\\('Next.js:', p.dependencies.next\\)\")",
+      "Bash(npm audit *)",
+      "Bash(del src\\\\middleware.ts)",
+      "Bash(powershell -Command \"Remove-Item 'c:\\\\Users\\\\SURFACE\\\\Downloads\\\\fitquest_2\\\\fitquest\\\\src\\\\middleware.ts' -Force; Write-Host 'Deleted'\")"
     ],
     "additionalDirectories": [
-      "c:\\Users\\SURFACE\\Downloads\\fitquest_2\\fitquest\\src\\app\\treinos"
+      "c:\\Users\\SURFACE\\Downloads\\fitquest_2\\fitquest\\src\\app\\treinos",
+      "c:\\Users\\SURFACE\\Downloads\\fitquest_2\\fitquest\\.claude"
     ]
   }
 }

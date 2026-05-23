@@ -144,7 +144,7 @@ Toda concessão de XP passa por `lib/xp.ts → grantXP(userId, amount, reason, s
 | `annual` | R$ 306,60/ano (R$ 25,55/mês) |
 | `lifetime` | R$ 597,00 único |
 
-Middleware (`src/middleware.ts`) verifica em CADA request que entra em `/(app)/*`.
+Proxy (`src/proxy.ts`) verifica em CADA request que entra em `/(app)/*`. (Next.js 16 renomeou middleware → proxy)
 
 ---
 

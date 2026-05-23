@@ -1,5 +1,5 @@
 /**
- * Middleware do Next.js
+ * Proxy do Next.js (anteriormente middleware.ts)
  * Responsabilidades:
  * 1. Renovar sessão Supabase em todas as requests
  * 2. Proteger rotas /(app)/* — redireciona pra /login se não autenticado
@@ -23,7 +23,7 @@ const PUBLIC_ROUTES = [
 // Rotas que requerem auth MAS não requerem subscription ativa
 const AUTH_ONLY_ROUTES = ['/planos', '/perfil', '/onboarding', '/api/checkout']
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request })
 
   const supabase = createServerClient(
