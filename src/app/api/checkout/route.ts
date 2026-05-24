@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { stripe, STRIPE_PRICES, type StripePlan } from '@/lib/stripe'
+import { getStripe, getStripePrices, type StripePlan } from '@/lib/stripe'
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient()
@@ -18,11 +18,12 @@ export async function POST(req: NextRequest) {
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
   const isLifetime = plan === 'lifetime'
+  const prices = getStripePrices()
 
   try {
-    const session = await stripe.checkout.sessions.create({
+    const session = await getStripe().checkout.sessions.create({
       mode: isLifetime ? 'payment' : 'subscription',
-      line_items: [{ price: STRIPE_PRICES[plan], quantity: 1 }],
+      line_items: [{ price: prices[plan], quantity: 1 }],
       customer_email: user.email,
       client_reference_id: user.id,
       metadata: { user_id: user.id, plan },

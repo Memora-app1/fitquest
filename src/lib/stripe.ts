@@ -1,12 +1,25 @@
 import Stripe from 'stripe'
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
+// Singleton lazy-initialized — NÃO instancia no module level
+// O build do Next.js avalia módulos sem env vars de runtime disponíveis.
+// Se instanciar aqui, quebra com "Neither apiKey nor config.authenticator".
+let _stripe: Stripe | null = null
 
-// Price IDs criados no Stripe Dashboard → Products
-export const STRIPE_PRICES = {
-  monthly: process.env.STRIPE_PRICE_MONTHLY!,
-  annual: process.env.STRIPE_PRICE_ANNUAL!,
-  lifetime: process.env.STRIPE_PRICE_LIFETIME!,
-} as const
+export function getStripe(): Stripe {
+  if (_stripe) return _stripe
+  const key = process.env.STRIPE_SECRET_KEY
+  if (!key) throw new Error('STRIPE_SECRET_KEY não configurado no Vercel ou .env.local')
+  _stripe = new Stripe(key)
+  return _stripe
+}
 
-export type StripePlan = keyof typeof STRIPE_PRICES
+// Price IDs — lidos em runtime dentro das funções, não no module level
+export function getStripePrices() {
+  return {
+    monthly: process.env.STRIPE_PRICE_MONTHLY!,
+    annual: process.env.STRIPE_PRICE_ANNUAL!,
+    lifetime: process.env.STRIPE_PRICE_LIFETIME!,
+  } as const
+}
+
+export type StripePlan = 'monthly' | 'annual' | 'lifetime'
