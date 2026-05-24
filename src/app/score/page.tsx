@@ -1,8 +1,14 @@
 import type { Metadata } from 'next'
+import dynamicImport from 'next/dynamic'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { AppShell } from '@/components/layout/app-shell'
 import { getLevelInfo, getXpProgressToNextLevel } from '@/lib/xp'
+
+const XpChart = dynamicImport(() => import('@/components/score/xp-chart').then((m) => m.XpChart), {
+  ssr: false,
+  loading: () => <div className="h-40 bg-bg-elevated rounded-xl animate-pulse" />,
+})
 
 export const metadata: Metadata = {
   title: 'Seu Score',
@@ -38,6 +44,23 @@ export default async function ScorePage() {
   const levelInfo = getLevelInfo(profile.level)
   const progress = getXpProgressToNextLevel(profile.xp_total)
   const xpThisWeek = (xpLastWeekRes.data ?? []).reduce((s, t) => s + (t.amount || 0), 0)
+
+  // Agrupar XP por dia para o gráfico
+  const DAY_LABELS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
+  const xpByDay: Record<string, number> = {}
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date()
+    d.setDate(d.getDate() - i)
+    xpByDay[d.toISOString().split('T')[0]!] = 0
+  }
+  for (const tx of xpLastWeekRes.data ?? []) {
+    const key = tx.created_at.split('T')[0]
+    if (key && key in xpByDay) xpByDay[key] = (xpByDay[key] ?? 0) + (tx.amount || 0)
+  }
+  const dailyXp = Object.entries(xpByDay).map(([date, xp]) => ({
+    day: DAY_LABELS[new Date(date + 'T12:00:00').getDay()]!,
+    xp,
+  }))
 
   return (
     <AppShell>
@@ -80,6 +103,12 @@ export default async function ScorePage() {
           <StatCard label="Conquistas" value={`${achievementsRes.data?.length ?? 0}`} />
           <StatCard label="Nível atual" value={`${profile.level}/8`} />
         </div>
+
+        {/* XP Chart */}
+        <section className="card p-6">
+          <h2 className="text-lg font-bold mb-4">XP — últimos 7 dias</h2>
+          <XpChart data={dailyXp} />
+        </section>
 
         {/* Conquistas */}
         <section>

@@ -1,10 +1,19 @@
 import type { Metadata } from 'next'
+import dynamicImport from 'next/dynamic'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { AppShell } from '@/components/layout/app-shell'
 import { formatBRL } from '@/lib/utils'
 import Link from 'next/link'
 import { Plus, TrendingUp, TrendingDown, Wallet } from 'lucide-react'
+
+const SpendingChart = dynamicImport(
+  () => import('@/components/financas/spending-chart').then((m) => m.SpendingChart),
+  {
+    ssr: false,
+    loading: () => <div className="h-32 bg-bg-elevated rounded-xl animate-pulse" />,
+  }
+)
 
 export const metadata: Metadata = {
   title: 'Finanças',
@@ -22,7 +31,7 @@ export default async function FinancasPage() {
   const firstDay = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`
   const lastDay = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-31`
 
-  const [accountsRes, monthTxRes, recentTxRes, upcomingTxRes] = await Promise.all([
+  const [accountsRes, monthTxRes, recentTxRes, upcomingTxRes, catTxRes, catsRes] = await Promise.all([
     supabase
       .from('finance_accounts')
       .select('id, name, type, icon, color, current_balance')
@@ -46,9 +55,22 @@ export default async function FinancasPage() {
       .select('id, description, amount, transaction_date')
       .eq('user_id', user.id)
       .eq('is_paid', false)
-      .gte('transaction_date', new Date().toISOString().split('T')[0])
+      .gte('transaction_date', now.toISOString().split('T')[0]!)
       .order('transaction_date')
       .limit(5),
+    // Gastos por categoria no mês
+    supabase
+      .from('transactions')
+      .select('category_id, amount')
+      .eq('user_id', user.id)
+      .eq('type', 'expense')
+      .eq('is_paid', true)
+      .gte('transaction_date', firstDay)
+      .lte('transaction_date', lastDay),
+    supabase
+      .from('finance_categories')
+      .select('id, name, icon, color')
+      .or(`user_id.eq.${user.id},is_global.eq.true`),
   ])
 
   const accounts = accountsRes.data ?? []
@@ -58,6 +80,21 @@ export default async function FinancasPage() {
   const income = monthTx.filter((t) => t.type === 'income').reduce((s, t) => s + Number(t.amount), 0)
   const expense = monthTx.filter((t) => t.type === 'expense').reduce((s, t) => s + Number(t.amount), 0)
   const net = income - expense
+
+  // Agrupar gastos por categoria
+  const catMap = new Map((catsRes.data ?? []).map((c) => [c.id, c]))
+  const spendByCategory = new Map<string, number>()
+  for (const tx of catTxRes.data ?? []) {
+    if (!tx.category_id) continue
+    spendByCategory.set(tx.category_id, (spendByCategory.get(tx.category_id) ?? 0) + Number(tx.amount))
+  }
+  const categorySpend = Array.from(spendByCategory.entries())
+    .map(([id, amount]) => {
+      const cat = catMap.get(id)
+      return { name: cat?.name ?? 'Outro', icon: cat?.icon ?? '💸', amount, color: cat?.color ?? '#FF4D00' }
+    })
+    .sort((a, b) => b.amount - a.amount)
+    .slice(0, 6)
 
   return (
     <AppShell>
@@ -97,10 +134,19 @@ export default async function FinancasPage() {
             </div>
             <div className="heading-display text-3xl text-brand-red">{formatBRL(expense)}</div>
             <div className={`text-xs mt-1 ${net >= 0 ? 'text-brand-green' : 'text-brand-red'}`}>
-              Saldo: {formatBRL(net)}
+              Saldo do mês: {formatBRL(net)}
             </div>
           </div>
         </div>
+
+        {/* Gastos por categoria */}
+        <section className="card p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold">Gastos por categoria</h2>
+            <span className="text-xs text-text-muted">Este mês</span>
+          </div>
+          <SpendingChart data={categorySpend} />
+        </section>
 
         {/* Contas */}
         <section>
