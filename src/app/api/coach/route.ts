@@ -8,15 +8,42 @@ const bodySchema = z.object({
   message: z.string().min(1).max(2000),
 })
 
+const DAILY_MESSAGE_LIMIT = 50
+
 export async function POST(req: NextRequest) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
 
+  // Rate limit: máx 50 mensagens/usuário/dia (custo Anthropic)
+  const todayStart = new Date()
+  todayStart.setHours(0, 0, 0, 0)
+  const { count } = await supabase
+    .from('ai_messages')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', user.id)
+    .eq('role', 'user')
+    .gte('created_at', todayStart.toISOString())
+  if ((count ?? 0) >= DAILY_MESSAGE_LIMIT) {
+    return NextResponse.json(
+      { error: 'daily_limit_reached', limit: DAILY_MESSAGE_LIMIT },
+      { status: 429 }
+    )
+  }
+
   const parsed = bodySchema.safeParse(await req.json())
   if (!parsed.success) return NextResponse.json({ error: 'invalid_input' }, { status: 400 })
 
   const { conversationId, message } = parsed.data
+
+  // Verificar que a conversa pertence ao user autenticado
+  const { data: convo } = await supabase
+    .from('ai_conversations')
+    .select('id')
+    .eq('id', conversationId)
+    .eq('user_id', user.id)
+    .maybeSingle()
+  if (!convo) return NextResponse.json({ error: 'conversation_not_found' }, { status: 404 })
 
   // Buscar contexto completo do usuário em paralelo
   const today = new Date().toISOString().split('T')[0]

@@ -1,9 +1,19 @@
+import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Check } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
+
+export const metadata: Metadata = {
+  title: 'Planos e Preços',
+  description: 'Escolha o plano FitQuest ideal para você. Mensal R$37, Anual R$25,55/mês ou Vitalício R$597. 7 dias grátis. Cancele quando quiser.',
+  openGraph: {
+    title: 'FitQuest — Planos e Preços',
+    description: 'R$37/mês ou R$597 uma vez. Fitness, produtividade e finanças gamificados.',
+  },
+}
 
 const PLANS = [
   {
@@ -135,10 +145,44 @@ export default async function PlanosPage() {
           ))}
         </div>
 
-        <div className="text-center text-sm text-text-muted space-y-2 pt-8">
-          <p>🔒 Pagamento seguro via Stripe</p>
-          <p>💳 Aceitamos Pix, cartão de crédito e boleto</p>
-          <p>↩️ Garantia de 7 dias — devolução do valor sem perguntas</p>
+        {/* Trust badges */}
+        <div className="flex flex-wrap justify-center gap-6 text-sm text-text-muted pt-4">
+          <span>🔒 Pagamento seguro via Stripe</span>
+          <span>💳 Pix · cartão · boleto</span>
+          <span>↩️ Garantia de 7 dias sem perguntas</span>
+          <span>❌ Cancele a qualquer momento</span>
+        </div>
+
+        {/* FAQ de conversão */}
+        <div className="max-w-2xl mx-auto space-y-4 pt-4">
+          <h2 className="heading-display text-2xl text-center mb-6">Perguntas frequentes</h2>
+          {[
+            {
+              q: 'Posso cancelar a qualquer hora?',
+              a: 'Sim. Planos mensais e anuais podem ser cancelados a qualquer momento. Você mantém acesso até o fim do período pago.',
+            },
+            {
+              q: 'O trial é realmente grátis?',
+              a: 'Sim, 7 dias sem cobrar nada. No plano anual o trial começa automaticamente. Não pedimos cartão para começar — só quando você decidir assinar.',
+            },
+            {
+              q: 'Qual plano é o melhor?',
+              a: 'Para a maioria das pessoas, o Anual é a melhor escolha: 31% de desconto, 7 dias grátis e menos uma decisão de renovação por mês.',
+            },
+            {
+              q: 'O vitalício inclui features futuras?',
+              a: 'Sim. Pagou uma vez, tem tudo para sempre — incluindo todas as features que viermos a lançar.',
+            },
+            {
+              q: 'E se eu não gostar?',
+              a: 'Garantia de 7 dias corridos. Basta enviar um email e devolvemos 100% do valor. Sem burocracia.',
+            },
+          ].map(({ q, a }) => (
+            <div key={q} className="card p-5 space-y-2">
+              <p className="font-semibold text-white">{q}</p>
+              <p className="text-sm text-text-secondary">{a}</p>
+            </div>
+          ))}
         </div>
       </div>
     </main>
