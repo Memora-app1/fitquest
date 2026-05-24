@@ -12,6 +12,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { Sidebar } from './sidebar'
 import { BottomNav } from './bottom-nav'
+import { PushPrompt } from '@/components/push-prompt'
 
 export async function AppShell({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -42,6 +43,7 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
       <Sidebar profile={profile} />
       <main className="flex-1 pb-20 md:pb-0">{children}</main>
       <BottomNav />
+      <PushPrompt />
     </div>
   )
 }
