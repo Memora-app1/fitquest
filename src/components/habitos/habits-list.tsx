@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 import { Check, Plus, X } from 'lucide-react'
+import { useXpToast, XpToastContainer } from '@/components/xp-toast'
 
 interface Habit {
   id: string
@@ -39,6 +40,7 @@ export function HabitsList({
   const [, startTransition] = useTransition()
   const [showCreate, setShowCreate] = useState(initialShowCreate)
   const [optimistic, setOptimistic] = useState(loggedToday)
+  const { toasts, showXp } = useXpToast()
 
   async function toggle(id: string) {
     if (optimistic.has(id)) return
@@ -55,7 +57,14 @@ export function HabitsList({
       if (!res.ok) {
         next.delete(id)
         setOptimistic(new Set(next))
-      } else router.refresh()
+      } else {
+        const data = await res.json()
+        showXp(data.xpEarned ?? 0, {
+          perfectDay: data.perfectDay,
+          leveledUp: data.leveledUp ? data.newLevel : undefined,
+        })
+        router.refresh()
+      }
     })
   }
 
@@ -90,6 +99,7 @@ export function HabitsList({
 
   return (
     <>
+      <XpToastContainer toasts={toasts} />
       <div className="flex justify-end">
         <button onClick={() => setShowCreate(true)} className="btn-primary">
           <Plus size={18} className="inline mr-1" /> Novo hábito
