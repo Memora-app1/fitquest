@@ -1,8 +1,13 @@
+import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import { AppShell } from '@/components/layout/app-shell'
 import Link from 'next/link'
 import { formatDateBR } from '@/lib/utils'
+
+export const metadata: Metadata = {
+  title: 'Detalhe do Treino',
+}
 import { ArrowLeft, Dumbbell, Zap, Trophy } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'

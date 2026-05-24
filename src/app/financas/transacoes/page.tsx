@@ -1,8 +1,14 @@
+import type { Metadata } from 'next'
 import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { AppShell } from '@/components/layout/app-shell'
 import { TransactionsView } from '@/components/financas/transactions-view'
+
+export const metadata: Metadata = {
+  title: 'Transações',
+  description: 'Histórico completo de receitas e despesas.',
+}
 
 export const dynamic = 'force-dynamic'
 

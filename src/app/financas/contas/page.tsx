@@ -1,7 +1,13 @@
+import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { AppShell } from '@/components/layout/app-shell'
 import { AccountsManager } from '@/components/financas/accounts-manager'
+
+export const metadata: Metadata = {
+  title: 'Contas',
+  description: 'Gerencie suas contas bancárias e cartões no FitQuest.',
+}
 
 export const dynamic = 'force-dynamic'
 

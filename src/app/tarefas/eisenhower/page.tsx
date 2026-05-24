@@ -1,8 +1,14 @@
+import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { AppShell } from '@/components/layout/app-shell'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
+
+export const metadata: Metadata = {
+  title: 'Matriz Eisenhower',
+  description: 'Priorize suas tarefas pela Matriz Eisenhower — urgente vs importante.',
+}
 
 export const dynamic = 'force-dynamic'
 

@@ -1,7 +1,13 @@
+import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { AppShell } from '@/components/layout/app-shell'
 import { FinanceGoalsList } from '@/components/financas/finance-goals-list'
+
+export const metadata: Metadata = {
+  title: 'Metas Financeiras',
+  description: 'Defina e acompanhe suas metas financeiras no FitQuest.',
+}
 
 export const dynamic = 'force-dynamic'
 
