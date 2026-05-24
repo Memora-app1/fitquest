@@ -1,8 +1,14 @@
+import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { AppShell } from '@/components/layout/app-shell'
 import Link from 'next/link'
 import { formatDateBR } from '@/lib/utils'
+
+export const metadata: Metadata = {
+  title: 'Perfil',
+  description: 'Gerencie sua conta, assinatura e preferências do FitQuest.',
+}
 
 export const dynamic = 'force-dynamic'
 

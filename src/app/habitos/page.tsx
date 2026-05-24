@@ -1,8 +1,14 @@
+import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { AppShell } from '@/components/layout/app-shell'
 import { todayString } from '@/lib/utils'
 import { HabitsList } from '@/components/habitos/habits-list'
+
+export const metadata: Metadata = {
+  title: 'Hábitos',
+  description: 'Acompanhe seus hábitos diários, mantenha sua sequência e ganhe XP a cada dia consistente.',
+}
 
 export const dynamic = 'force-dynamic'
 

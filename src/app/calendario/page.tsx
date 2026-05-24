@@ -1,6 +1,12 @@
+import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { AppShell } from '@/components/layout/app-shell'
+
+export const metadata: Metadata = {
+  title: 'Calendário',
+  description: 'Visualize seus eventos, tarefas com prazo e compromissos em um único calendário.',
+}
 
 export const dynamic = 'force-dynamic'
 

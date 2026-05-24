@@ -1,7 +1,13 @@
+import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { AppShell } from '@/components/layout/app-shell'
 import { CoachChat } from '@/components/coach/coach-chat'
+
+export const metadata: Metadata = {
+  title: 'Coach IA',
+  description: 'Seu assistente de IA que conhece toda sua vida — fitness, tarefas e finanças em um só lugar.',
+}
 
 export const dynamic = 'force-dynamic'
 

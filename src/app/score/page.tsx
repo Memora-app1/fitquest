@@ -1,7 +1,13 @@
+import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { AppShell } from '@/components/layout/app-shell'
 import { getLevelInfo, getXpProgressToNextLevel } from '@/lib/xp'
+
+export const metadata: Metadata = {
+  title: 'Seu Score',
+  description: 'Acompanhe seu nível, XP total, streak e conquistas desbloqueadas no FitQuest.',
+}
 
 export const dynamic = 'force-dynamic'
 

@@ -10,10 +10,16 @@
  * - Quick actions
  */
 
+import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { AppShell } from '@/components/layout/app-shell'
+
+export const metadata: Metadata = {
+  title: 'Dashboard',
+  description: 'Visão geral do seu Life OS — hábitos, tarefas, finanças e XP em um único painel.',
+}
 import { XpWidget } from '@/components/dashboard/xp-widget'
 import { StreakWidget } from '@/components/dashboard/streak-widget'
 import { HabitsToday } from '@/components/dashboard/habits-today'

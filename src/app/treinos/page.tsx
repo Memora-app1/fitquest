@@ -1,9 +1,15 @@
+import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { AppShell } from '@/components/layout/app-shell'
 import Link from 'next/link'
 import { formatRelativeDate } from '@/lib/utils'
 import { Plus, Dumbbell } from 'lucide-react'
+
+export const metadata: Metadata = {
+  title: 'Treinos',
+  description: 'Registre seus treinos, acompanhe séries, repetições e bata recordes pessoais.',
+}
 
 export const dynamic = 'force-dynamic'
 

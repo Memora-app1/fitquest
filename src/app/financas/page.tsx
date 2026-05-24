@@ -1,9 +1,15 @@
+import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { AppShell } from '@/components/layout/app-shell'
 import { formatBRL } from '@/lib/utils'
 import Link from 'next/link'
 import { Plus, TrendingUp, TrendingDown, Wallet } from 'lucide-react'
+
+export const metadata: Metadata = {
+  title: 'Finanças',
+  description: 'Controle gastos, receitas e metas financeiras. Saiba exatamente onde seu dinheiro vai.',
+}
 
 export const dynamic = 'force-dynamic'
 

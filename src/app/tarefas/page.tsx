@@ -1,8 +1,14 @@
+import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { AppShell } from '@/components/layout/app-shell'
 import { KanbanBoard } from '@/components/tarefas/kanban-board'
 import Link from 'next/link'
+
+export const metadata: Metadata = {
+  title: 'Tarefas',
+  description: 'Organize suas tarefas com Kanban e Matriz Eisenhower. Foque no que importa.',
+}
 
 export const dynamic = 'force-dynamic'
 
