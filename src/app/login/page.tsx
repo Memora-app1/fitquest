@@ -29,10 +29,18 @@ function LoginContent() {
   const searchParams = useSearchParams()
   const redirectTo = searchParams.get('redirect') ?? '/dashboard'
 
+  const callbackError = searchParams.get('error')
+
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(
+    callbackError === 'confirmation_failed'
+      ? 'Link de confirmação expirado ou inválido. Solicite um novo abaixo.'
+      : callbackError === 'missing_code'
+        ? 'Link inválido. Tente entrar com seu email e senha.'
+        : null
+  )
   const [emailNotConfirmed, setEmailNotConfirmed] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {

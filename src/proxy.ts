@@ -53,7 +53,11 @@ export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname
 
   // Rotas públicas — sempre permite
-  if (PUBLIC_ROUTES.includes(pathname) || pathname.startsWith('/api/webhook/')) {
+  if (
+    PUBLIC_ROUTES.includes(pathname) ||
+    pathname.startsWith('/api/webhook/') ||
+    pathname.startsWith('/auth/')
+  ) {
     return response
   }
 
