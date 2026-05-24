@@ -30,7 +30,12 @@ import { getGreeting, todayString } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ checkout?: string }>
+}) {
+  const { checkout } = await searchParams
   const supabase = await createClient()
   const {
     data: { user },
@@ -93,6 +98,17 @@ export default async function DashboardPage() {
   return (
     <AppShell>
       <div className="p-4 md:p-8 max-w-6xl mx-auto space-y-6">
+
+        {/* Checkout success banner */}
+        {checkout === 'success' && (
+          <div className="bg-brand-green/10 border border-brand-green/30 rounded-xl p-4 flex items-center gap-3">
+            <span className="text-2xl">🎉</span>
+            <div>
+              <p className="font-semibold text-brand-green">Assinatura ativada com sucesso!</p>
+              <p className="text-sm text-text-secondary">Bem-vindo ao FitQuest Premium. Curta todos os recursos.</p>
+            </div>
+          </div>
+        )}
 
         {/* Trial banner — aparece quando ≤ 3 dias restantes */}
         {trialDaysLeft !== null && trialDaysLeft <= 3 && (

@@ -46,21 +46,25 @@ export function CoachChat({
       body: JSON.stringify({ conversationId, message: input }),
     })
 
+    const data = await res.json()
+
     if (!res.ok) {
+      const errorContent =
+        res.status === 429 && data.error === 'daily_limit_reached'
+          ? `⚠️ Você atingiu o limite de ${data.limit} mensagens por dia. O limite é renovado à meia-noite.`
+          : '❌ Desculpe, deu erro. Tenta novamente?'
       setMessages((prev) => [
         ...prev,
         {
           id: crypto.randomUUID(),
           role: 'assistant',
-          content: '❌ Desculpe, deu erro. Tenta novamente?',
+          content: errorContent,
           created_at: new Date().toISOString(),
         },
       ])
       setLoading(false)
       return
     }
-
-    const data = await res.json()
     setMessages((prev) => [
       ...prev,
       {

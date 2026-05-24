@@ -65,7 +65,12 @@ const PLANS = [
   },
 ]
 
-export default async function PlanosPage() {
+export default async function PlanosPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ checkout?: string; error?: string }>
+}) {
+  const { checkout, error: errorParam } = await searchParams
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
@@ -79,6 +84,18 @@ export default async function PlanosPage() {
   return (
     <main className="min-h-screen p-6">
       <div className="max-w-6xl mx-auto space-y-8 py-12">
+        {errorParam === 'checkout' && (
+          <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 text-center text-red-400">
+            Algo deu errado no pagamento. Tente novamente ou entre em contato com o suporte.
+          </div>
+        )}
+
+        {checkout === 'cancelled' && (
+          <div className="bg-brand-orange/10 border border-brand-orange/30 rounded-xl p-4 text-center text-brand-orange">
+            Pagamento cancelado. Você pode tentar novamente quando quiser.
+          </div>
+        )}
+
         <div className="text-center space-y-3">
           <Link href="/dashboard" className="inline-block heading-display text-3xl gradient-text">
             ⚡ FitQuest
