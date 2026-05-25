@@ -251,71 +251,104 @@ export default async function WorkoutDetailPage({
 
         {/* Exercise groups */}
         {exerciseGroups.length === 0 ? (
-          <div className="card p-8 text-center text-text-muted">
-            <Dumbbell size={32} className="mx-auto mb-3 opacity-40" />
-            Nenhuma série registrada
+          <div
+            className="rounded-2xl p-10 text-center"
+            style={{ background: 'rgba(13,24,41,0.7)', border: '1px solid rgba(255,255,255,0.06)' }}
+          >
+            <Dumbbell size={36} className="mx-auto mb-3 opacity-30" />
+            <p className="text-text-muted">Nenhuma série registrada</p>
           </div>
         ) : (
           <div className="space-y-4">
             {exerciseGroups.map((group) => (
-              <div key={group.name} className="card p-4 space-y-3">
-                <div className="flex items-center gap-2">
-                  <Dumbbell size={17} className="text-brand-orange" />
-                  <h3 className="font-bold text-base">{group.name}</h3>
-                  <div className="ml-auto flex items-center gap-3 text-xs text-text-muted">
-                    {group.maxWeight > 0 && (
-                      <span className="text-brand-purple font-medium">
-                        max {group.maxWeight}kg
-                      </span>
-                    )}
-                    {group.totalVolume > 0 && (
-                      <span>
-                        vol {Math.round(group.totalVolume)}kg
-                      </span>
-                    )}
-                    <span>{group.sets.length} sets</span>
-                  </div>
-                </div>
-
-                {/* Sets table header */}
-                <div className="grid grid-cols-4 text-xs text-text-muted px-3 pb-1 border-b border-white/5">
-                  <span>Set</span>
-                  <span className="text-center">Peso</span>
-                  <span className="text-center">Reps</span>
-                  <span className="text-right">Vol</span>
-                </div>
-
-                <div className="space-y-1.5">
-                  {group.sets.map((set) => {
-                    const setVolume =
-                      set.weight_kg && set.reps ? Math.round(set.weight_kg * set.reps) : null
-                    return (
-                      <div
-                        key={set.id}
-                        className={`grid grid-cols-4 items-center rounded-lg px-3 py-2 text-sm ${
-                          set.is_personal_record
-                            ? 'bg-brand-gold/10 border border-brand-gold/20'
-                            : 'bg-bg'
-                        }`}
+              <div
+                key={group.name}
+                className="rounded-2xl p-5 space-y-4 relative overflow-hidden"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(255,77,0,0.05) 0%, rgba(13,24,41,0.98) 100%)',
+                  border: '1px solid rgba(255,77,0,0.15)',
+                }}
+              >
+                <div
+                  className="absolute -top-3 -right-3 w-12 h-12 rounded-full pointer-events-none blur-xl"
+                  style={{ background: 'rgba(255,77,0,0.12)' }}
+                />
+                <div className="relative z-10">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div
+                      className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+                      style={{ background: 'rgba(255,77,0,0.15)', border: '1px solid rgba(255,77,0,0.3)' }}
+                    >
+                      <Dumbbell size={16} style={{ color: '#FF4D00' }} />
+                    </div>
+                    <h3 className="font-bold text-base flex-1">{group.name}</h3>
+                    <div className="flex items-center gap-2 text-xs flex-shrink-0">
+                      {group.maxWeight > 0 && (
+                        <span
+                          className="font-semibold px-2 py-1 rounded-lg"
+                          style={{ background: 'rgba(124,58,237,0.12)', color: '#7C3AED' }}
+                        >
+                          max {group.maxWeight}kg
+                        </span>
+                      )}
+                      {group.totalVolume > 0 && (
+                        <span className="text-text-muted">
+                          {Math.round(group.totalVolume)}kg vol
+                        </span>
+                      )}
+                      <span
+                        className="px-2 py-1 rounded-lg text-text-muted"
+                        style={{ background: 'rgba(255,255,255,0.06)' }}
                       >
-                        <span className="text-text-muted flex items-center gap-1">
-                          {set.set_number}
-                          {set.is_personal_record && (
-                            <Trophy size={11} className="text-brand-gold" />
-                          )}
-                        </span>
-                        <span className="text-center font-medium">
-                          {set.weight_kg !== null ? `${set.weight_kg}kg` : '—'}
-                        </span>
-                        <span className="text-center text-text-secondary">
-                          {set.reps !== null ? `× ${set.reps}` : '—'}
-                        </span>
-                        <span className="text-right text-text-muted text-xs">
-                          {setVolume ? `${setVolume}kg` : '—'}
-                        </span>
-                      </div>
-                    )
-                  })}
+                        {group.sets.length} sets
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Sets table header */}
+                  <div
+                    className="grid grid-cols-4 text-xs text-text-muted px-3 pb-2 mb-1"
+                    style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
+                  >
+                    <span>Set</span>
+                    <span className="text-center">Peso</span>
+                    <span className="text-center">Reps</span>
+                    <span className="text-right">Vol</span>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    {group.sets.map((set) => {
+                      const setVolume =
+                        set.weight_kg && set.reps ? Math.round(set.weight_kg * set.reps) : null
+                      return (
+                        <div
+                          key={set.id}
+                          className="grid grid-cols-4 items-center rounded-xl px-3 py-2.5 text-sm"
+                          style={
+                            set.is_personal_record
+                              ? { background: 'rgba(245,200,66,0.08)', border: '1px solid rgba(245,200,66,0.2)' }
+                              : { background: 'rgba(255,255,255,0.03)' }
+                          }
+                        >
+                          <span className="text-text-muted flex items-center gap-1.5">
+                            {set.set_number}
+                            {set.is_personal_record && (
+                              <Trophy size={11} className="text-brand-gold" />
+                            )}
+                          </span>
+                          <span className="text-center font-semibold">
+                            {set.weight_kg !== null ? `${set.weight_kg}kg` : '—'}
+                          </span>
+                          <span className="text-center text-text-secondary">
+                            {set.reps !== null ? `× ${set.reps}` : '—'}
+                          </span>
+                          <span className="text-right text-text-muted text-xs">
+                            {setVolume ? `${setVolume}kg` : '—'}
+                          </span>
+                        </div>
+                      )
+                    })}
+                  </div>
                 </div>
               </div>
             ))}
