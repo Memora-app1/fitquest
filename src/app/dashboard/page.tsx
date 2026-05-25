@@ -75,7 +75,7 @@ export default async function DashboardPage({
       .not('status', 'eq', 'archived')
       .order('urgent', { ascending: false })
       .order('important', { ascending: false })
-      .limit(3),
+      .limit(5),
     supabase
       .from('transactions')
       .select('id, description, amount, transaction_date')
@@ -110,6 +110,7 @@ export default async function DashboardPage({
   const habits = habitsRes.data ?? []
   const habitLogsToday = new Set(habitLogsRes.data?.map((l) => l.habit_id) ?? [])
   const weekHabitLogs = weekHabitLogsRes.data ?? []
+  const activeDays = [...new Set(weekHabitLogs.map((l) => l.logged_date))]
   const tasks = tasksRes.data ?? []
   const transactions = transactionsRes.data ?? []
   const xpFeed = xpFeedRes.data ?? []
@@ -178,7 +179,7 @@ export default async function DashboardPage({
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <XpWidget xpTotal={profile.xp_total} level={profile.level} />
-          <StreakWidget current={profile.streak_current} longest={profile.streak_longest} />
+          <StreakWidget current={profile.streak_current} longest={profile.streak_longest} activeDays={activeDays} />
         </div>
 
         {/* Quick Actions */}

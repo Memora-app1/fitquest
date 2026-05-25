@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { AppShell } from '@/components/layout/app-shell'
-import { CoachChat } from '@/components/coach/coach-chat'
+import { CoachLayout } from '@/components/coach/coach-layout'
 
 export const metadata: Metadata = {
   title: 'Coach IA',
@@ -11,49 +11,70 @@ export const metadata: Metadata = {
 
 export const dynamic = 'force-dynamic'
 
-export default async function CoachPage() {
+export default async function CoachPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ conv?: string }>
+}) {
+  const { conv } = await searchParams
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  // Buscar ou criar conversa ativa (a mais recente)
-  let { data: conversation } = await supabase
+  // Buscar todas as conversas do usuário
+  const { data: allConversations } = await supabase
     .from('ai_conversations')
-    .select('id, title')
+    .select('id, title, last_message_at, created_at')
     .eq('user_id', user.id)
     .order('last_message_at', { ascending: false })
-    .limit(1)
-    .maybeSingle()
+    .limit(30)
 
-  if (!conversation) {
+  const conversations = allConversations ?? []
+
+  // Determinar conversa ativa
+  let activeConversationId: string | null = null
+
+  if (conv) {
+    // Verificar que a conversa pedida pertence ao usuário
+    const found = conversations.find((c) => c.id === conv)
+    if (found) activeConversationId = found.id
+  }
+
+  // Fallback para a mais recente
+  if (!activeConversationId && conversations.length > 0) {
+    activeConversationId = conversations[0]!.id
+  }
+
+  // Se ainda não tem nenhuma, criar uma
+  if (!activeConversationId) {
     const { data: newConv } = await supabase
       .from('ai_conversations')
       .insert({ user_id: user.id, title: 'Nova conversa' })
-      .select('id, title')
+      .select('id, title, last_message_at, created_at')
       .single()
-    conversation = newConv
+
+    if (newConv) {
+      conversations.unshift(newConv)
+      activeConversationId = newConv.id
+    }
   }
 
-  if (!conversation) redirect('/dashboard')
+  if (!activeConversationId) redirect('/dashboard')
 
+  // Buscar mensagens da conversa ativa
   const { data: messages } = await supabase
     .from('ai_messages')
     .select('id, role, content, created_at')
-    .eq('conversation_id', conversation.id)
+    .eq('conversation_id', activeConversationId)
     .order('created_at')
 
   return (
     <AppShell>
-      <div className="h-[calc(100vh-80px)] md:h-screen flex flex-col">
-        <div className="p-4 md:p-6 border-b border-border">
-          <h1 className="heading-display text-2xl md:text-3xl">🤖 Coach IA</h1>
-          <p className="text-sm text-text-secondary">
-            Seu assistente pessoal — sabe tudo sobre seus hábitos, treinos, tarefas e finanças.
-          </p>
-        </div>
-
-        <CoachChat conversationId={conversation.id} initialMessages={messages ?? []} />
-      </div>
+      <CoachLayout
+        conversations={conversations}
+        activeConversationId={activeConversationId}
+        initialMessages={messages ?? []}
+      />
     </AppShell>
   )
 }
