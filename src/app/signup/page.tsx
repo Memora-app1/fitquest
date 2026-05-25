@@ -183,8 +183,19 @@ export default function SignupPage() {
             </Link>
           </div>
 
-          <div className="card-glow p-8 space-y-5">
-            <div className="space-y-1">
+          <div
+            className="rounded-2xl p-8 space-y-5 relative overflow-hidden"
+            style={{
+              background: 'linear-gradient(135deg, rgba(124,58,237,0.07) 0%, rgba(13,24,41,0.99) 100%)',
+              border: '1px solid rgba(124,58,237,0.25)',
+              boxShadow: '0 24px 60px rgba(0,0,0,0.4), 0 0 40px rgba(124,58,237,0.06)',
+            }}
+          >
+            <div
+              className="absolute -top-8 -right-8 w-32 h-32 rounded-full pointer-events-none"
+              style={{ background: 'radial-gradient(circle, rgba(124,58,237,0.12) 0%, transparent 70%)' }}
+            />
+            <div className="space-y-1 relative z-10">
               <h1 className="text-2xl font-bold">Criar conta grátis</h1>
               <p className="text-text-secondary text-sm">7 dias grátis · Sem cartão necessário</p>
             </div>
