@@ -22,7 +22,7 @@ export default async function TreinosPage() {
 
   const thirtyDaysAgo = new Date(Date.now() - 30 * 86400000).toISOString()
 
-  const [workoutsRes, statsRes] = await Promise.all([
+  const [workoutsRes, statsRes, prRes] = await Promise.all([
     supabase
       .from('workouts')
       .select('id, title, started_at, finished_at, total_volume_kg, total_sets, xp_earned, is_personal_record_session')
@@ -33,11 +33,33 @@ export default async function TreinosPage() {
       .from('workouts')
       .select('id, xp_earned, total_volume_kg, is_personal_record_session, started_at')
       .eq('user_id', user.id),
+    supabase
+      .from('workout_sets')
+      .select('exercise_id, weight_kg, exercises(name)')
+      .eq('user_id', user.id)
+      .gt('weight_kg', 0)
+      .order('weight_kg', { ascending: false })
+      .limit(200),
   ])
 
   const workouts = workoutsRes.data ?? []
   const allWorkouts = statsRes.data ?? []
   const recentWorkouts = allWorkouts.filter((w) => w.started_at >= thirtyDaysAgo)
+
+  // Calcular PRs por exercício: peso máximo por exercício
+  type PrRow = { exercise_id: string; weight_kg: number; exercises: { name: string } | null }
+  const rawPrs = (prRes.data ?? []) as unknown as PrRow[]
+  const prMap = new Map<string, { name: string; weight: number }>()
+  for (const row of rawPrs) {
+    if (!row.exercises?.name) continue
+    const existing = prMap.get(row.exercise_id)
+    if (!existing || row.weight_kg > existing.weight) {
+      prMap.set(row.exercise_id, { name: row.exercises.name, weight: Number(row.weight_kg) })
+    }
+  }
+  const topPrs = [...prMap.values()]
+    .sort((a, b) => b.weight - a.weight)
+    .slice(0, 6)
 
   const totalWorkouts = allWorkouts.length
   const totalXp = allWorkouts.reduce((sum, w) => sum + (w.xp_earned ?? 0), 0)
@@ -149,6 +171,27 @@ export default async function TreinosPage() {
               </div>
             </div>
           </>
+        )}
+
+        {/* Best lifts / PRs */}
+        {topPrs.length > 0 && (
+          <div className="card p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Trophy size={16} className="text-brand-gold" />
+              <span className="font-semibold text-sm">Melhores Recordes Pessoais</span>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+              {topPrs.map((pr) => (
+                <div
+                  key={pr.name}
+                  className="bg-bg-elevated border border-border rounded-xl p-3 flex items-center justify-between gap-2"
+                >
+                  <span className="text-sm truncate text-text-secondary">{pr.name}</span>
+                  <span className="font-bold text-brand-gold shrink-0 text-sm">{pr.weight}kg</span>
+                </div>
+              ))}
+            </div>
+          </div>
         )}
 
         {/* Workout list */}

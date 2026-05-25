@@ -96,3 +96,46 @@ export async function GET(req: NextRequest) {
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ transactions: data })
 }
+
+export async function PATCH(req: NextRequest) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+
+  const body = await req.json() as { id?: string; is_paid?: boolean; description?: string; amount?: number }
+  if (!body.id) return NextResponse.json({ error: 'missing_id' }, { status: 400 })
+
+  const allowed: Record<string, unknown> = {}
+  if (body.is_paid !== undefined) allowed.is_paid = body.is_paid
+  if (body.description !== undefined) allowed.description = String(body.description).slice(0, 200)
+  if (body.amount !== undefined) allowed.amount = Number(body.amount)
+
+  const { data, error } = await supabase
+    .from('transactions')
+    .update(allowed)
+    .eq('id', body.id)
+    .eq('user_id', user.id)
+    .select()
+    .single()
+
+  if (error || !data) return NextResponse.json({ error: error?.message ?? 'not_found' }, { status: 500 })
+  return NextResponse.json({ transaction: data })
+}
+
+export async function DELETE(req: NextRequest) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+
+  const id = req.nextUrl.searchParams.get('id')
+  if (!id) return NextResponse.json({ error: 'missing_id' }, { status: 400 })
+
+  const { error } = await supabase
+    .from('transactions')
+    .delete()
+    .eq('id', id)
+    .eq('user_id', user.id)
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json({ success: true })
+}
