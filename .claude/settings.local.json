@@ -63,7 +63,11 @@
       "Bash(grep -v \"//.*any\\\\|companyName\\\\|extraordinary\\\\|itenary\\\\|sanctuary\\\\|voluntary\\\\|contrary\\\\|January\\\\|February\\\\|binary\\\\|primary\\\\|ancillary\\\\|commentary\")",
       "Bash(echo \"TS_EXIT:$?\")",
       "Bash(git reset *)",
-      "Bash(npm list *)"
+      "Bash(npm list *)",
+      "Bash(Get-ChildItem -Recurse .claude/skills)",
+      "Bash(Select-Object FullName)",
+      "PowerShell(Get-ChildItem \"C:\\\\Users\\\\SURFACE\\\\Downloads\\\\claude-skills\" -Recurse | Select-Object FullName | ForEach-Object { $_.FullName.Replace\\(\"C:\\\\Users\\\\SURFACE\\\\Downloads\\\\claude-skills\\\\\",\"\"\\) })",
+      "PowerShell(Compress-Archive -Path \"C:\\\\Users\\\\SURFACE\\\\Downloads\\\\claude-skills\" -DestinationPath \"C:\\\\Users\\\\SURFACE\\\\Downloads\\\\claude-skills.zip\" -Force; Write-Output \"ZIP criado: $\\(\\(Get-Item 'C:\\\\Users\\\\SURFACE\\\\Downloads\\\\claude-skills.zip'\\).Length / 1KB\\) KB\")"
     ],
     "additionalDirectories": [
       "c:\\Users\\SURFACE\\Downloads\\fitquest_2\\fitquest\\src\\app\\treinos",

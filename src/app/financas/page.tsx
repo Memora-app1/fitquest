@@ -1,19 +1,11 @@
 import type { Metadata } from 'next'
-import dynamicImport from 'next/dynamic'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { AppShell } from '@/components/layout/app-shell'
 import { formatBRL } from '@/lib/utils'
 import Link from 'next/link'
 import { Plus, TrendingUp, TrendingDown, Wallet } from 'lucide-react'
-
-const SpendingChart = dynamicImport(
-  () => import('@/components/financas/spending-chart').then((m) => m.SpendingChart),
-  {
-    ssr: false,
-    loading: () => <div className="h-32 bg-bg-elevated rounded-xl animate-pulse" />,
-  }
-)
+import { SpendingChartLazy as SpendingChart } from '@/components/financas/spending-chart-lazy'
 
 export const metadata: Metadata = {
   title: 'Finanças',

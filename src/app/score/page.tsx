@@ -1,14 +1,9 @@
 import type { Metadata } from 'next'
-import dynamicImport from 'next/dynamic'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { AppShell } from '@/components/layout/app-shell'
 import { getLevelInfo, getXpProgressToNextLevel } from '@/lib/xp'
-
-const XpChart = dynamicImport(() => import('@/components/score/xp-chart').then((m) => m.XpChart), {
-  ssr: false,
-  loading: () => <div className="h-40 bg-bg-elevated rounded-xl animate-pulse" />,
-})
+import { XpChartLazy as XpChart } from '@/components/score/xp-chart-lazy'
 
 export const metadata: Metadata = {
   title: 'Seu Score',
