@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import { AppShell } from '@/components/layout/app-shell'
 import { NovoTreinoForm } from '@/components/treinos/novo-treino-form'
 
@@ -10,7 +11,9 @@ export const metadata: Metadata = {
 export default function NovoTreinoPage() {
   return (
     <AppShell>
-      <NovoTreinoForm />
+      <Suspense fallback={<div className="p-8 text-text-secondary">Carregando...</div>}>
+        <NovoTreinoForm />
+      </Suspense>
     </AppShell>
   )
 }

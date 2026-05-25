@@ -204,3 +204,23 @@ export async function POST(req: NextRequest) {
     isPR: hasPR,
   })
 }
+
+// DELETE /api/treinos?id=...
+export async function DELETE(req: NextRequest) {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+
+  const id = req.nextUrl.searchParams.get('id')
+  if (!id) return NextResponse.json({ error: 'missing_id' }, { status: 400 })
+
+  // Delete sets first (FK constraint)
+  await supabase.from('workout_sets').delete().eq('workout_id', id).eq('user_id', user.id)
+
+  const { error } = await supabase.from('workouts').delete().eq('id', id).eq('user_id', user.id)
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  return NextResponse.json({ success: true })
+}
