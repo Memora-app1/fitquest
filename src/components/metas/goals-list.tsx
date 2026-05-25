@@ -154,126 +154,161 @@ export function GoalsList({ initialGoals }: { initialGoals: Goal[] }) {
             const isPaused = goal.status === 'paused'
             const isOverdue = goal.deadline && new Date(goal.deadline) < new Date() && !isCompleted
 
+            // Color based on state
+            const accentColor = isCompleted
+              ? '#00FF88'
+              : isOverdue
+              ? '#EF4444'
+              : isPaused
+              ? '#8899BB'
+              : progress >= 75
+              ? '#F5C842'
+              : '#FF4D00'
+
+            const progressBarStyle = isCompleted
+              ? { background: 'linear-gradient(90deg, #00FF88, #00CC6A)' }
+              : progress >= 75
+              ? { background: 'linear-gradient(90deg, #F5C842, #FF4D00)' }
+              : { background: 'linear-gradient(90deg, #FF4D00, #7C3AED)' }
+
             return (
               <div
                 key={goal.id}
-                className={cn(
-                  'card p-5 space-y-4',
-                  isCompleted && 'opacity-80',
-                  isPaused && 'opacity-60'
-                )}
+                className={cn('rounded-2xl p-5 space-y-4 relative overflow-hidden transition-all', isPaused && 'opacity-60')}
+                style={{
+                  background: isCompleted
+                    ? 'linear-gradient(135deg, rgba(0,255,136,0.06) 0%, rgba(13,24,41,0.98) 100%)'
+                    : isOverdue
+                    ? 'linear-gradient(135deg, rgba(239,68,68,0.06) 0%, rgba(13,24,41,0.98) 100%)'
+                    : 'rgba(13,24,41,0.8)',
+                  border: `1px solid ${accentColor}25`,
+                  boxShadow: isCompleted ? `0 0 20px rgba(0,255,136,0.08)` : 'none',
+                }}
               >
-                {/* Header */}
-                <div className="flex items-start gap-3">
-                  <div className="text-3xl w-12 h-12 bg-bg-elevated rounded-xl flex items-center justify-center shrink-0">
-                    {goal.icon ?? '🎯'}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h3 className={cn('font-bold truncate', isCompleted && 'line-through text-text-muted')}>
-                        {goal.title}
-                      </h3>
-                      {isCompleted && <CheckCircle2 size={16} className="text-brand-green shrink-0" />}
-                      {isPaused && <Pause size={14} className="text-text-muted shrink-0" />}
-                    </div>
-                    {goal.description && (
-                      <p className="text-xs text-text-secondary mt-0.5 line-clamp-2">{goal.description}</p>
-                    )}
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-xs bg-bg-elevated px-2 py-0.5 rounded-full text-text-muted capitalize">
-                        {GOAL_CATEGORIES.find((c) => c.value === goal.category)?.label ?? goal.category}
-                      </span>
-                      {goal.deadline && (
-                        <span className={cn(
-                          'text-xs px-2 py-0.5 rounded-full',
-                          isOverdue
-                            ? 'bg-brand-red/20 text-brand-red'
-                            : 'bg-bg-elevated text-text-muted'
-                        )}>
-                          <Flag size={10} className="inline mr-0.5" />
-                          {formatDeadline(goal.deadline)}
-                        </span>
-                      )}
-                    </div>
-                  </div>
+                {/* Subtle glow corner */}
+                <div
+                  className="absolute -top-6 -right-6 w-20 h-20 rounded-full pointer-events-none blur-xl"
+                  style={{ backgroundColor: accentColor, opacity: 0.08 }}
+                />
 
-                  {/* Menu actions */}
-                  {!isCompleted && (
-                    <div className="flex gap-1 shrink-0">
+                <div className="relative z-10 space-y-4">
+                  {/* Header */}
+                  <div className="flex items-start gap-3">
+                    <div
+                      className="text-3xl w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
+                      style={{ background: `${accentColor}15`, border: `1px solid ${accentColor}25` }}
+                    >
+                      {goal.icon ?? '🎯'}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <h3 className={cn('font-bold truncate', isCompleted && 'text-text-muted')}>
+                          {goal.title}
+                        </h3>
+                        {isCompleted && <CheckCircle2 size={16} className="text-brand-green shrink-0" />}
+                        {isPaused && <Pause size={14} className="text-text-muted shrink-0" />}
+                      </div>
+                      {goal.description && (
+                        <p className="text-xs text-text-secondary mt-0.5 line-clamp-2">{goal.description}</p>
+                      )}
+                      <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                        <span className="text-xs bg-bg-elevated px-2 py-0.5 rounded-full text-text-muted capitalize">
+                          {GOAL_CATEGORIES.find((c) => c.value === goal.category)?.label ?? goal.category}
+                        </span>
+                        {goal.deadline && (
+                          <span
+                            className="text-xs px-2 py-0.5 rounded-full flex items-center gap-0.5"
+                            style={
+                              isOverdue
+                                ? { background: 'rgba(239,68,68,0.15)', color: '#EF4444' }
+                                : { background: 'rgba(255,255,255,0.06)', color: '#8899BB' }
+                            }
+                          >
+                            <Flag size={9} />
+                            {formatDeadline(goal.deadline)}
+                          </span>
+                        )}
+                        {progress >= 75 && !isCompleted && (
+                          <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'rgba(245,200,66,0.15)', color: '#F5C842' }}>
+                            🔥 Quase lá!
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Quick update button */}
+                    {!isCompleted && (
                       <button
                         onClick={() => setUpdateGoal(goal)}
                         title="Atualizar progresso"
-                        className="w-8 h-8 bg-bg-elevated rounded-lg flex items-center justify-center text-text-muted hover:text-brand-gold transition-colors"
+                        className="w-8 h-8 rounded-lg flex items-center justify-center text-text-muted hover:text-brand-gold transition-colors shrink-0"
+                        style={{ background: 'rgba(255,255,255,0.05)' }}
                       >
-                        {isPaused ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                        <ChevronUp size={14} />
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Progress bar */}
+                  <div>
+                    <div className="flex justify-between text-xs mb-2">
+                      <span className="text-text-muted">
+                        {goal.current_value.toLocaleString('pt-BR')}
+                        <span className="text-text-muted/60"> / {goal.target_value.toLocaleString('pt-BR')} {goal.unit}</span>
+                      </span>
+                      <span className="font-bold" style={{ color: accentColor }}>
+                        {progress}%
+                      </span>
+                    </div>
+                    <div className="h-2.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                      <div
+                        className="h-full rounded-full transition-all duration-500"
+                        style={{ width: `${progress}%`, ...progressBarStyle }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Actions row */}
+                  {!isCompleted && (
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setUpdateGoal(goal)}
+                        className="btn-primary flex-1 text-sm py-2"
+                      >
+                        Atualizar
+                      </button>
+                      <button
+                        onClick={() => handleComplete(goal)}
+                        title="Marcar como concluída"
+                        className="px-3 py-2 rounded-xl hover:opacity-80 transition-all text-sm font-semibold"
+                        style={{ background: 'rgba(0,255,136,0.15)', color: '#00FF88' }}
+                      >
+                        ✓
+                      </button>
+                      <button
+                        onClick={() => handleTogglePause(goal)}
+                        title={isPaused ? 'Retomar' : 'Pausar'}
+                        className="px-3 py-2 bg-bg-elevated text-text-muted rounded-xl hover:bg-border transition-colors"
+                      >
+                        {isPaused ? <ChevronUp size={14} /> : <Pause size={14} />}
+                      </button>
+                      <button
+                        onClick={() => handleDelete(goal.id)}
+                        title="Remover"
+                        className="px-3 py-2 bg-bg-elevated text-text-muted rounded-xl hover:text-brand-red hover:bg-brand-red/10 transition-colors"
+                      >
+                        <Trash2 size={14} />
                       </button>
                     </div>
                   )}
+
+                  {isCompleted && goal.completed_at && (
+                    <div className="text-xs text-brand-green flex items-center gap-1">
+                      <CheckCircle2 size={12} />
+                      Concluída em {new Date(goal.completed_at).toLocaleDateString('pt-BR')}
+                    </div>
+                  )}
                 </div>
-
-                {/* Progress bar */}
-                <div>
-                  <div className="flex justify-between text-xs mb-1.5">
-                    <span className="text-text-muted">
-                      {goal.current_value.toLocaleString('pt-BR')} / {goal.target_value.toLocaleString('pt-BR')} {goal.unit}
-                    </span>
-                    <span className={cn(
-                      'font-bold',
-                      isCompleted ? 'text-brand-green' : 'text-text-secondary'
-                    )}>
-                      {progress}%
-                    </span>
-                  </div>
-                  <div className="h-2.5 bg-bg-elevated rounded-full overflow-hidden">
-                    <div
-                      className={cn(
-                        'h-full rounded-full transition-all duration-500',
-                        isCompleted ? 'bg-brand-green' : 'bg-gradient-brand'
-                      )}
-                      style={{ width: `${progress}%` }}
-                    />
-                  </div>
-                </div>
-
-                {/* Actions row */}
-                {!isCompleted && (
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setUpdateGoal(goal)}
-                      className="btn-primary flex-1 text-sm py-2"
-                    >
-                      Atualizar progresso
-                    </button>
-                    <button
-                      onClick={() => handleComplete(goal)}
-                      title="Marcar como concluída"
-                      className="px-3 py-2 bg-brand-green/20 text-brand-green rounded-xl hover:bg-brand-green/30 transition-colors text-sm"
-                    >
-                      ✓ Concluir
-                    </button>
-                    <button
-                      onClick={() => handleTogglePause(goal)}
-                      title={isPaused ? 'Retomar' : 'Pausar'}
-                      className="px-3 py-2 bg-bg-elevated text-text-muted rounded-xl hover:bg-border transition-colors"
-                    >
-                      {isPaused ? <ChevronUp size={14} /> : <Pause size={14} />}
-                    </button>
-                    <button
-                      onClick={() => handleDelete(goal.id)}
-                      title="Remover"
-                      className="px-3 py-2 bg-bg-elevated text-text-muted rounded-xl hover:text-brand-red hover:bg-brand-red/10 transition-colors"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
-                )}
-
-                {isCompleted && goal.completed_at && (
-                  <div className="text-xs text-brand-green flex items-center gap-1">
-                    <CheckCircle2 size={12} />
-                    Concluída em {new Date(goal.completed_at).toLocaleDateString('pt-BR')}
-                  </div>
-                )}
               </div>
             )
           })}
