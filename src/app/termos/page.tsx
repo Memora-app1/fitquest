@@ -1,247 +1,392 @@
 import Link from 'next/link'
+import { Shield, FileText, CreditCard, RefreshCw, AlertTriangle, Scale, Mail } from 'lucide-react'
 
 export const metadata = {
   title: 'Termos de Uso — FitQuest',
   description: 'Termos e condições de uso do FitQuest.',
 }
 
+const SECTIONS = [
+  { id: 'aceitacao', num: '01', title: 'Aceitação dos Termos' },
+  { id: 'servico', num: '02', title: 'Descrição do Serviço' },
+  { id: 'cadastro', num: '03', title: 'Cadastro e Conta' },
+  { id: 'pagamentos', num: '04', title: 'Planos e Pagamentos' },
+  { id: 'trial', num: '05', title: 'Trial e Cancelamento' },
+  { id: 'reembolsos', num: '06', title: 'Reembolsos' },
+  { id: 'propriedade', num: '07', title: 'Propriedade Intelectual' },
+  { id: 'conteudo', num: '08', title: 'Conteúdo do Usuário' },
+  { id: 'uso', num: '09', title: 'Uso Aceitável' },
+  { id: 'responsabilidade', num: '10', title: 'Limitação de Responsabilidade' },
+  { id: 'suspensao', num: '11', title: 'Suspensão e Encerramento' },
+  { id: 'modificacoes', num: '12', title: 'Modificações dos Termos' },
+  { id: 'lei', num: '13', title: 'Lei Aplicável e Foro' },
+  { id: 'contato', num: '14', title: 'Contato' },
+]
+
 export default function TermosPage() {
   return (
-    <main className="min-h-screen p-6">
-      <div className="max-w-3xl mx-auto py-12 space-y-10">
+    <main className="min-h-screen">
+      {/* Hero header */}
+      <div
+        className="relative py-16 px-6 overflow-hidden"
+        style={{ background: 'linear-gradient(135deg, #050914 0%, #0D1829 100%)' }}
+      >
+        {/* Decorative glows */}
+        <div className="absolute top-0 left-1/4 w-64 h-64 bg-brand-orange/5 blur-[80px] rounded-full pointer-events-none" />
+        <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-brand-purple/5 blur-[80px] rounded-full pointer-events-none" />
 
-        {/* Header */}
-        <div className="space-y-3">
-          <Link href="/" className="inline-block heading-display text-2xl gradient-text">
+        <div className="max-w-3xl mx-auto relative z-10">
+          <Link href="/" className="inline-block heading-display text-2xl gradient-text mb-6">
             ⚡ FitQuest
           </Link>
-          <h1 className="heading-display text-4xl">Termos de Uso</h1>
-          <p className="text-text-secondary text-sm">
-            Última atualização: 23 de maio de 2026
-          </p>
-          <p className="text-text-secondary">
-            Leia com atenção antes de criar sua conta. Ao utilizar o FitQuest, você concorda com estes termos.
-          </p>
+          <div className="flex items-start gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-brand-orange/10 border border-brand-orange/20 flex items-center justify-center shrink-0">
+              <FileText size={24} className="text-brand-orange" />
+            </div>
+            <div>
+              <h1 className="heading-display text-4xl md:text-5xl">Termos de Uso</h1>
+              <p className="text-text-secondary mt-2">
+                Última atualização: <strong className="text-white">23 de maio de 2026</strong>
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-6 p-4 rounded-xl border border-brand-purple/20 bg-brand-purple/5 text-sm text-text-secondary leading-relaxed">
+            <span className="text-white font-semibold">Leia com atenção.</span>{' '}
+            Ao utilizar o FitQuest, você concorda com estes termos. Se não concordar, não utilize o serviço.
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-3xl mx-auto px-6 py-12">
+        {/* Table of contents */}
+        <div className="card p-5 mb-10">
+          <p className="text-xs font-bold text-text-muted uppercase tracking-widest mb-3">Índice</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
+            {SECTIONS.map((s) => (
+              <a
+                key={s.id}
+                href={`#${s.id}`}
+                className="flex items-center gap-2 text-sm text-text-secondary hover:text-brand-orange transition-colors py-1 group"
+              >
+                <span className="font-mono text-[10px] text-text-muted group-hover:text-brand-orange/60">{s.num}</span>
+                {s.title}
+              </a>
+            ))}
+          </div>
         </div>
 
-        <hr className="border-white/10" />
+        <div className="space-y-12">
 
-        {/* 1 */}
-        <section className="space-y-3">
-          <h2 className="text-xl font-bold text-brand-orange">1. Aceitação dos Termos</h2>
-          <p className="text-text-secondary leading-relaxed">
-            Ao acessar ou utilizar o FitQuest — disponível em fitquest-app1.vercel.app e domínios associados — você declara ter lido, compreendido e concordado com estes Termos de Uso e com nossa{' '}
-            <Link href="/privacidade" className="text-brand-orange underline">Política de Privacidade</Link>.
-            Se não concordar com qualquer parte destes termos, não utilize o serviço.
-          </p>
-          <p className="text-text-secondary leading-relaxed">
-            Estes termos constituem um contrato legal entre você (&ldquo;Usuário&rdquo;) e o FitQuest (&ldquo;nós&rdquo;, &ldquo;nos&rdquo; ou &ldquo;nosso&rdquo;), regido pelas leis da República Federativa do Brasil.
-          </p>
-        </section>
-
-        {/* 2 */}
-        <section className="space-y-3">
-          <h2 className="text-xl font-bold text-brand-orange">2. Descrição do Serviço</h2>
-          <p className="text-text-secondary leading-relaxed">
-            O FitQuest é um sistema de gestão de vida gamificado (&ldquo;Life OS&rdquo;) que integra em uma única plataforma:
-          </p>
-          <ul className="list-disc list-inside space-y-1 text-text-secondary pl-4">
-            <li><strong className="text-white">Fitness:</strong> registro de hábitos saudáveis, treinos com séries/repetições e recordes pessoais</li>
-            <li><strong className="text-white">Produtividade:</strong> gerenciamento de tarefas em Kanban e Matriz Eisenhower</li>
-            <li><strong className="text-white">Finanças:</strong> controle de transações, contas e metas financeiras</li>
-            <li><strong className="text-white">Coach IA:</strong> assistente de inteligência artificial contextualizado com seus dados, desenvolvido com tecnologia da Anthropic</li>
-          </ul>
-          <p className="text-text-secondary leading-relaxed">
-            O sistema de gamificação atribui XP (pontos de experiência) por cada ação completada, evoluindo seu nível e desbloqueando conquistas. O FitQuest é fornecido &ldquo;como está&rdquo; e pode ser alterado, atualizado ou descontinuado a qualquer momento, com aviso prévio de 30 dias nos casos de descontinuação.
-          </p>
-        </section>
-
-        {/* 3 */}
-        <section className="space-y-3">
-          <h2 className="text-xl font-bold text-brand-orange">3. Cadastro e Conta</h2>
-          <p className="text-text-secondary leading-relaxed">
-            Para utilizar o FitQuest, você deve:
-          </p>
-          <ul className="list-disc list-inside space-y-1 text-text-secondary pl-4">
-            <li>Ter no mínimo <strong className="text-white">18 anos</strong> de idade</li>
-            <li>Fornecer informações verdadeiras, precisas e atualizadas</li>
-            <li>Manter um endereço de email válido e acessível</li>
-            <li>Manter a confidencialidade da sua senha</li>
-          </ul>
-          <p className="text-text-secondary leading-relaxed">
-            Você é responsável por todas as atividades realizadas em sua conta. Notifique-nos imediatamente em caso de acesso não autorizado. Reservamo-nos o direito de encerrar contas que violem estes termos ou que contenham informações falsas.
-          </p>
-          <p className="text-text-secondary leading-relaxed">
-            É permitida apenas uma conta por pessoa. A criação de contas falsas, múltiplas contas para circumventar restrições ou contas em nome de terceiros sem autorização é proibida.
-          </p>
-        </section>
-
-        {/* 4 */}
-        <section className="space-y-3">
-          <h2 className="text-xl font-bold text-brand-orange">4. Planos e Pagamentos</h2>
-          <p className="text-text-secondary leading-relaxed">
-            O FitQuest oferece os seguintes planos pagos, com preços em Reais (BRL):
-          </p>
-          <div className="card p-4 space-y-2">
-            <div className="flex justify-between">
-              <span className="font-medium">Mensal</span>
-              <span className="text-brand-orange font-bold">R$ 37,00/mês</span>
+          {/* 1 */}
+          <section id="aceitacao" className="scroll-mt-6">
+            <SectionHeader num="01" title="Aceitação dos Termos" />
+            <div className="space-y-3 text-text-secondary leading-relaxed">
+              <p>
+                Ao acessar ou utilizar o FitQuest — disponível em <span className="text-white">fitquest-app1.vercel.app</span> e domínios associados — você declara ter lido, compreendido e concordado com estes Termos de Uso e com nossa{' '}
+                <Link href="/privacidade" className="text-brand-orange underline hover:text-brand-orange/80 transition-colors">Política de Privacidade</Link>.
+              </p>
+              <p>
+                Estes termos constituem um contrato legal entre você (&ldquo;Usuário&rdquo;) e o FitQuest (&ldquo;nós&rdquo;, &ldquo;nos&rdquo; ou &ldquo;nosso&rdquo;), regido pelas leis da República Federativa do Brasil.
+              </p>
             </div>
-            <div className="flex justify-between">
-              <span className="font-medium">Anual</span>
-              <span className="text-brand-orange font-bold">R$ 306,60/ano (R$ 25,55/mês)</span>
+          </section>
+
+          {/* 2 */}
+          <section id="servico" className="scroll-mt-6">
+            <SectionHeader num="02" title="Descrição do Serviço" />
+            <div className="space-y-3 text-text-secondary leading-relaxed">
+              <p>O FitQuest é um sistema de gestão de vida gamificado (&ldquo;Life OS&rdquo;) que integra em uma única plataforma:</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 my-4">
+                {[
+                  { emoji: '💪', title: 'Fitness', desc: 'Hábitos, treinos com séries/repetições e recordes pessoais' },
+                  { emoji: '✅', title: 'Produtividade', desc: 'Tarefas em Kanban e Matriz Eisenhower' },
+                  { emoji: '💰', title: 'Finanças', desc: 'Controle de transações, contas e metas financeiras' },
+                  { emoji: '🤖', title: 'Coach IA', desc: 'Assistente contextualizado, desenvolvido com tecnologia Anthropic' },
+                ].map((item) => (
+                  <div key={item.title} className="card p-3 flex gap-3 items-start">
+                    <span className="text-xl">{item.emoji}</span>
+                    <div>
+                      <div className="font-semibold text-white text-sm">{item.title}</div>
+                      <div className="text-xs text-text-muted mt-0.5">{item.desc}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <p>
+                O sistema de gamificação atribui XP (pontos de experiência) por cada ação completada, evoluindo seu nível e desbloqueando conquistas. O FitQuest é fornecido &ldquo;como está&rdquo; e pode ser alterado, atualizado ou descontinuado a qualquer momento, com aviso prévio de 30 dias nos casos de descontinuação.
+              </p>
             </div>
-            <div className="flex justify-between">
-              <span className="font-medium">Vitalício</span>
-              <span className="text-brand-orange font-bold">R$ 597,00 (pagamento único)</span>
+          </section>
+
+          {/* 3 */}
+          <section id="cadastro" className="scroll-mt-6">
+            <SectionHeader num="03" title="Cadastro e Conta" />
+            <div className="space-y-3 text-text-secondary leading-relaxed">
+              <p>Para utilizar o FitQuest, você deve:</p>
+              <ul className="space-y-2 pl-4">
+                {[
+                  'Ter no mínimo 18 anos de idade',
+                  'Fornecer informações verdadeiras, precisas e atualizadas',
+                  'Manter um endereço de email válido e acessível',
+                  'Manter a confidencialidade da sua senha',
+                ].map((item) => (
+                  <li key={item} className="flex gap-2">
+                    <span className="text-brand-orange mt-1 shrink-0">▸</span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <p>
+                Você é responsável por todas as atividades realizadas em sua conta. Notifique-nos imediatamente em caso de acesso não autorizado. É permitida apenas uma conta por pessoa.
+              </p>
             </div>
-          </div>
-          <p className="text-text-secondary leading-relaxed">
-            Os pagamentos são processados pela <strong className="text-white">Stripe</strong>, plataforma de pagamentos segura. Aceitamos cartão de crédito e outros métodos disponibilizados pela Stripe. O FitQuest não armazena dados de cartão — eles ficam exclusivamente com a Stripe.
-          </p>
-          <p className="text-text-secondary leading-relaxed">
-            Os planos mensais e anuais são cobrados automaticamente na data de renovação. O plano vitalício é uma compra única sem cobranças futuras. Os preços podem ser alterados com aviso prévio de 30 dias por email.
-          </p>
-        </section>
+          </section>
 
-        {/* 5 */}
-        <section className="space-y-3">
-          <h2 className="text-xl font-bold text-brand-orange">5. Trial de 7 Dias e Cancelamento</h2>
-          <p className="text-text-secondary leading-relaxed">
-            Todo novo usuário recebe <strong className="text-white">7 dias de acesso gratuito</strong> a todas as funcionalidades do FitQuest. Após o período de trial, é necessário assinar um dos planos para continuar acessando.
-          </p>
-          <p className="text-text-secondary leading-relaxed">
-            O cancelamento pode ser realizado a qualquer momento. Após o cancelamento, você mantém o acesso até o fim do período já pago. Não há cobrança de multa ou taxa de cancelamento. Para cancelar, entre em contato pelo email de suporte ou acesse as configurações da conta.
-          </p>
-        </section>
+          {/* 4 */}
+          <section id="pagamentos" className="scroll-mt-6">
+            <SectionHeader num="04" title="Planos e Pagamentos" icon={<CreditCard size={18} />} />
+            <div className="space-y-4 text-text-secondary leading-relaxed">
+              <p>O FitQuest oferece os seguintes planos pagos, com preços em Reais (BRL):</p>
 
-        {/* 6 */}
-        <section className="space-y-3">
-          <h2 className="text-xl font-bold text-brand-orange">6. Reembolsos</h2>
-          <p className="text-text-secondary leading-relaxed">
-            Em conformidade com o <strong className="text-white">Código de Defesa do Consumidor (Lei 8.078/90), Art. 49</strong>, compras realizadas pela internet têm direito a arrependimento e reembolso integral em até <strong className="text-white">7 dias corridos</strong> a partir da data da compra, sem necessidade de justificativa.
-          </p>
-          <p className="text-text-secondary leading-relaxed">
-            Para solicitar reembolso, envie um email para nosso suporte com o assunto &ldquo;Reembolso&rdquo; e o email da conta. O estorno é processado em até 7 dias úteis, dependendo do método de pagamento.
-          </p>
-          <p className="text-text-secondary leading-relaxed">
-            Após o período de 7 dias, não realizamos reembolsos proporcionais por cancelamento antecipado, exceto em caso de falha comprovada do serviço por períodos superiores a 24 horas.
-          </p>
-        </section>
+              {/* Pricing table */}
+              <div className="rounded-2xl border border-border overflow-hidden">
+                <div className="grid grid-cols-3 text-center">
+                  <div className="p-4 border-r border-border border-b">
+                    <div className="text-sm font-semibold text-white">Mensal</div>
+                    <div className="heading-display text-2xl text-brand-orange mt-1">R$ 37</div>
+                    <div className="text-xs text-text-muted">por mês</div>
+                  </div>
+                  <div className="p-4 border-r border-border border-b relative bg-brand-purple/5">
+                    <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-[10px] font-bold bg-brand-purple text-white px-2 py-0.5 rounded-full whitespace-nowrap">
+                      MAIS POPULAR
+                    </div>
+                    <div className="text-sm font-semibold text-white">Anual</div>
+                    <div className="heading-display text-2xl text-brand-purple mt-1">R$ 25,55</div>
+                    <div className="text-xs text-text-muted">por mês · R$ 306,60/ano</div>
+                  </div>
+                  <div className="p-4 border-b">
+                    <div className="text-sm font-semibold text-white">Vitalício</div>
+                    <div className="heading-display text-2xl text-brand-gold mt-1">R$ 597</div>
+                    <div className="text-xs text-text-muted">pagamento único</div>
+                  </div>
+                </div>
+                <div className="p-4 bg-bg text-xs text-text-muted text-center">
+                  Planos mensais e anuais são cobrados automaticamente na data de renovação.
+                </div>
+              </div>
 
-        {/* 7 */}
-        <section className="space-y-3">
-          <h2 className="text-xl font-bold text-brand-orange">7. Direitos de Uso e Propriedade Intelectual</h2>
-          <p className="text-text-secondary leading-relaxed">
-            O FitQuest concede a você uma licença limitada, não exclusiva, não transferível e revogável para usar o serviço para fins pessoais e não comerciais.
-          </p>
-          <p className="text-text-secondary leading-relaxed">
-            Todo o conteúdo do FitQuest — incluindo design, código, textos, logotipos, algoritmos de gamificação e sistema de IA — é de propriedade exclusiva do FitQuest ou de seus licenciantes e está protegido por leis de propriedade intelectual brasileiras e internacionais.
-          </p>
-          <p className="text-text-secondary leading-relaxed">
-            É expressamente proibido: reproduzir, distribuir, modificar, criar obras derivadas, revender, sublicenciar ou explorar comercialmente qualquer parte do serviço sem autorização prévia por escrito.
-          </p>
-        </section>
+              <div className="flex gap-3 p-4 rounded-xl bg-brand-green/5 border border-brand-green/20">
+                <Shield size={18} className="text-brand-green shrink-0 mt-0.5" />
+                <p className="text-sm text-text-secondary">
+                  Os pagamentos são processados pelo <strong className="text-white">Mercado Pago</strong>, plataforma de pagamentos segura certificada pelo Banco Central do Brasil. O FitQuest não armazena dados de cartão — eles ficam exclusivamente com o Mercado Pago. Aceitamos cartão de crédito, débito, Pix e boleto conforme disponibilidade.
+                </p>
+              </div>
 
-        {/* 8 */}
-        <section className="space-y-3">
-          <h2 className="text-xl font-bold text-brand-orange">8. Conteúdo do Usuário</h2>
-          <p className="text-text-secondary leading-relaxed">
-            Todos os dados inseridos por você no FitQuest — incluindo hábitos, treinos, tarefas, transações financeiras, metas e conversas com o Coach IA — são de sua propriedade.
-          </p>
-          <p className="text-text-secondary leading-relaxed">
-            Ao usar o serviço, você nos concede uma licença limitada para processar e armazenar seus dados com a única finalidade de fornecer o serviço contratado. Não vendemos nem compartilhamos seus dados com terceiros para fins comerciais, exceto conforme descrito na Política de Privacidade.
-          </p>
-          <p className="text-text-secondary leading-relaxed">
-            Você pode exportar ou solicitar a exclusão dos seus dados a qualquer momento, conforme seus direitos descritos na Política de Privacidade.
-          </p>
-        </section>
+              <p>Os preços podem ser alterados com aviso prévio de 30 dias por email.</p>
+            </div>
+          </section>
 
-        {/* 9 */}
-        <section className="space-y-3">
-          <h2 className="text-xl font-bold text-brand-orange">9. Uso Aceitável</h2>
-          <p className="text-text-secondary leading-relaxed">É <strong className="text-white">proibido</strong> utilizar o FitQuest para:</p>
-          <ul className="list-disc list-inside space-y-1 text-text-secondary pl-4">
-            <li>Realizar engenharia reversa, descompilar ou extrair o código-fonte</li>
-            <li>Tentar obter acesso não autorizado a sistemas ou dados de outros usuários</li>
-            <li>Enviar, armazenar ou transmitir conteúdo ilegal, abusivo ou difamatório</li>
-            <li>Utilizar bots, scrapers ou automações para acessar o serviço</li>
-            <li>Revender, sublicenciar ou oferecer o acesso a terceiros</li>
-            <li>Sobrecarregar intencionalmente a infraestrutura do serviço</li>
-            <li>Criar contas falsas ou se passar por outras pessoas</li>
-          </ul>
-          <p className="text-text-secondary leading-relaxed">
-            Violações podem resultar em suspensão ou encerramento imediato da conta, sem direito a reembolso.
-          </p>
-        </section>
+          {/* 5 */}
+          <section id="trial" className="scroll-mt-6">
+            <SectionHeader num="05" title="Trial de 7 Dias e Cancelamento" />
+            <div className="space-y-3 text-text-secondary leading-relaxed">
+              <div className="p-4 rounded-xl bg-brand-orange/5 border border-brand-orange/20">
+                <p className="text-white font-semibold">🎁 7 dias grátis</p>
+                <p className="text-sm mt-1 text-text-secondary">
+                  Todo novo usuário recebe 7 dias de acesso gratuito a todas as funcionalidades. Após o período, é necessário assinar um plano para continuar.
+                </p>
+              </div>
+              <p>
+                O cancelamento pode ser realizado a qualquer momento. Após o cancelamento, você mantém o acesso até o fim do período já pago. <strong className="text-white">Não há cobrança de multa ou taxa de cancelamento.</strong>
+              </p>
+            </div>
+          </section>
 
-        {/* 10 */}
-        <section className="space-y-3">
-          <h2 className="text-xl font-bold text-brand-orange">10. Limitação de Responsabilidade</h2>
-          <p className="text-text-secondary leading-relaxed">
-            O FitQuest é uma ferramenta de suporte à organização pessoal e não substitui orientação médica, nutricional, financeira ou psicológica profissional. As informações e funcionalidades do Coach IA são para fins informativos e motivacionais.
-          </p>
-          <p className="text-text-secondary leading-relaxed">
-            Na máxima extensão permitida por lei, o FitQuest não se responsabiliza por danos indiretos, incidentais, especiais ou consequenciais decorrentes do uso ou impossibilidade de uso do serviço. Nossa responsabilidade total não excederá o valor pago pelo usuário nos últimos 3 meses.
-          </p>
-          <p className="text-text-secondary leading-relaxed">
-            Não garantimos que o serviço estará disponível ininterruptamente. Realizamos manutenções programadas com aviso prévio e nos esforçamos para atingir 99,5% de uptime mensal.
-          </p>
-        </section>
+          {/* 6 */}
+          <section id="reembolsos" className="scroll-mt-6">
+            <SectionHeader num="06" title="Reembolsos" icon={<RefreshCw size={18} />} />
+            <div className="space-y-3 text-text-secondary leading-relaxed">
+              <div className="p-4 rounded-xl bg-brand-purple/5 border border-brand-purple/20">
+                <p className="font-semibold text-white">⚖️ Direito de Arrependimento — CDC Art. 49</p>
+                <p className="text-sm mt-1">
+                  Compras realizadas pela internet têm direito a reembolso integral em até <strong className="text-white">7 dias corridos</strong> a partir da data da compra, sem necessidade de justificativa.
+                </p>
+              </div>
+              <p>
+                Para solicitar reembolso, envie um email para nosso suporte com o assunto &ldquo;Reembolso&rdquo; e o email da conta. O estorno é processado em até 7 dias úteis, dependendo do método de pagamento.
+              </p>
+              <p>
+                Após o período de 7 dias, não realizamos reembolsos proporcionais por cancelamento antecipado, exceto em caso de falha comprovada do serviço por períodos superiores a 24 horas.
+              </p>
+            </div>
+          </section>
 
-        {/* 11 */}
-        <section className="space-y-3">
-          <h2 className="text-xl font-bold text-brand-orange">11. Suspensão e Encerramento</h2>
-          <p className="text-text-secondary leading-relaxed">
-            Podemos suspender ou encerrar sua conta imediatamente em caso de: violação destes termos, atividade fraudulenta, uso abusivo ou solicitação de autoridade competente.
-          </p>
-          <p className="text-text-secondary leading-relaxed">
-            Você pode encerrar sua conta a qualquer momento. Após o encerramento, seus dados serão mantidos por 30 dias (para possibilitar a recuperação) e então excluídos permanentemente, conforme nossa Política de Privacidade.
-          </p>
-        </section>
+          {/* 7 */}
+          <section id="propriedade" className="scroll-mt-6">
+            <SectionHeader num="07" title="Direitos de Uso e Propriedade Intelectual" />
+            <div className="space-y-3 text-text-secondary leading-relaxed">
+              <p>
+                O FitQuest concede a você uma licença limitada, não exclusiva, não transferível e revogável para usar o serviço para fins pessoais e não comerciais.
+              </p>
+              <p>
+                Todo o conteúdo do FitQuest — incluindo design, código, textos, logotipos, algoritmos de gamificação e sistema de IA — é de propriedade exclusiva do FitQuest ou de seus licenciantes, protegido por leis de propriedade intelectual brasileiras e internacionais.
+              </p>
+              <div className="flex gap-3 p-4 rounded-xl bg-brand-red/5 border border-brand-red/20">
+                <AlertTriangle size={18} className="text-brand-red shrink-0 mt-0.5" />
+                <p className="text-sm">
+                  É expressamente <strong className="text-white">proibido</strong> reproduzir, distribuir, modificar, revender ou explorar comercialmente qualquer parte do serviço sem autorização prévia por escrito.
+                </p>
+              </div>
+            </div>
+          </section>
 
-        {/* 12 */}
-        <section className="space-y-3">
-          <h2 className="text-xl font-bold text-brand-orange">12. Modificações dos Termos</h2>
-          <p className="text-text-secondary leading-relaxed">
-            Podemos atualizar estes Termos de Uso periodicamente. Mudanças significativas serão comunicadas por email com pelo menos <strong className="text-white">15 dias de antecedência</strong>. O uso continuado do serviço após essa data implica aceitação dos novos termos.
-          </p>
-          <p className="text-text-secondary leading-relaxed">
-            A data da última atualização está sempre indicada no início deste documento.
-          </p>
-        </section>
+          {/* 8 */}
+          <section id="conteudo" className="scroll-mt-6">
+            <SectionHeader num="08" title="Conteúdo do Usuário" />
+            <div className="space-y-3 text-text-secondary leading-relaxed">
+              <p>
+                Todos os dados inseridos por você — hábitos, treinos, tarefas, transações financeiras, metas e conversas com o Coach IA — são de <strong className="text-white">sua propriedade</strong>.
+              </p>
+              <p>
+                Ao usar o serviço, você nos concede uma licença limitada para processar e armazenar seus dados com a única finalidade de fornecer o serviço contratado. Não vendemos nem compartilhamos seus dados com terceiros para fins comerciais.
+              </p>
+              <p>
+                Você pode exportar ou solicitar a exclusão dos seus dados a qualquer momento, conforme seus direitos descritos na Política de Privacidade.
+              </p>
+            </div>
+          </section>
 
-        {/* 13 */}
-        <section className="space-y-3">
-          <h2 className="text-xl font-bold text-brand-orange">13. Lei Aplicável e Foro</h2>
-          <p className="text-text-secondary leading-relaxed">
-            Estes Termos são regidos pelas leis da República Federativa do Brasil. Para resolução de conflitos, fica eleito o foro da comarca de <strong className="text-white">São Paulo/SP</strong>, com renúncia expressa a qualquer outro, por mais privilegiado que seja.
-          </p>
-          <p className="text-text-secondary leading-relaxed">
-            Tentaremos sempre resolver disputas de forma amigável antes de qualquer medida judicial.
-          </p>
-        </section>
+          {/* 9 */}
+          <section id="uso" className="scroll-mt-6">
+            <SectionHeader num="09" title="Uso Aceitável" />
+            <div className="space-y-3 text-text-secondary leading-relaxed">
+              <p>É <strong className="text-white">proibido</strong> utilizar o FitQuest para:</p>
+              <ul className="space-y-2 pl-4">
+                {[
+                  'Realizar engenharia reversa, descompilar ou extrair o código-fonte',
+                  'Tentar obter acesso não autorizado a sistemas ou dados de outros usuários',
+                  'Enviar, armazenar ou transmitir conteúdo ilegal, abusivo ou difamatório',
+                  'Utilizar bots, scrapers ou automações para acessar o serviço',
+                  'Revender, sublicenciar ou oferecer o acesso a terceiros',
+                  'Sobrecarregar intencionalmente a infraestrutura do serviço',
+                  'Criar contas falsas ou se passar por outras pessoas',
+                ].map((item) => (
+                  <li key={item} className="flex gap-2">
+                    <span className="text-brand-red mt-1 shrink-0">✕</span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="text-sm">
+                Violações podem resultar em suspensão ou encerramento imediato da conta, sem direito a reembolso.
+              </p>
+            </div>
+          </section>
 
-        {/* 14 */}
-        <section className="space-y-3">
-          <h2 className="text-xl font-bold text-brand-orange">14. Contato</h2>
-          <p className="text-text-secondary leading-relaxed">
-            Para dúvidas, sugestões ou solicitações relacionadas a estes Termos:
-          </p>
-          <div className="card p-4 space-y-1 text-text-secondary">
-            <p><strong className="text-white">FitQuest</strong></p>
-            <p>Email: <a href="mailto:suporte@fitquest.app" className="text-brand-orange underline">suporte@fitquest.app</a></p>
-            <p>Site: fitquest-app1.vercel.app</p>
-          </div>
-        </section>
+          {/* 10 */}
+          <section id="responsabilidade" className="scroll-mt-6">
+            <SectionHeader num="10" title="Limitação de Responsabilidade" icon={<AlertTriangle size={18} />} />
+            <div className="space-y-3 text-text-secondary leading-relaxed">
+              <p>
+                O FitQuest é uma ferramenta de suporte à organização pessoal e <strong className="text-white">não substitui</strong> orientação médica, nutricional, financeira ou psicológica profissional. As informações do Coach IA são para fins informativos e motivacionais.
+              </p>
+              <p>
+                Na máxima extensão permitida por lei, o FitQuest não se responsabiliza por danos indiretos, incidentais ou consequenciais. Nossa responsabilidade total não excederá o valor pago nos últimos 3 meses.
+              </p>
+              <p>
+                Realizamos manutenções programadas com aviso prévio e nos esforçamos para atingir <strong className="text-white">99,5% de uptime mensal</strong>.
+              </p>
+            </div>
+          </section>
 
-        <hr className="border-white/10" />
+          {/* 11 */}
+          <section id="suspensao" className="scroll-mt-6">
+            <SectionHeader num="11" title="Suspensão e Encerramento" />
+            <div className="space-y-3 text-text-secondary leading-relaxed">
+              <p>
+                Podemos suspender ou encerrar sua conta imediatamente em caso de: violação destes termos, atividade fraudulenta, uso abusivo ou solicitação de autoridade competente.
+              </p>
+              <p>
+                Você pode encerrar sua conta a qualquer momento. Após o encerramento, seus dados serão mantidos por <strong className="text-white">30 dias</strong> (para possibilitar a recuperação) e então excluídos permanentemente.
+              </p>
+            </div>
+          </section>
 
-        <div className="flex gap-4 text-sm text-text-muted">
-          <Link href="/" className="hover:text-white transition-colors">← Voltar ao início</Link>
-          <Link href="/privacidade" className="hover:text-white transition-colors">Política de Privacidade →</Link>
+          {/* 12 */}
+          <section id="modificacoes" className="scroll-mt-6">
+            <SectionHeader num="12" title="Modificações dos Termos" />
+            <div className="space-y-3 text-text-secondary leading-relaxed">
+              <p>
+                Podemos atualizar estes Termos periodicamente. Mudanças significativas serão comunicadas por email com pelo menos <strong className="text-white">15 dias de antecedência</strong>.
+              </p>
+              <p>
+                O uso continuado do serviço após a data de vigência implica aceitação dos novos termos. A data da última atualização está sempre indicada no início deste documento.
+              </p>
+            </div>
+          </section>
+
+          {/* 13 */}
+          <section id="lei" className="scroll-mt-6">
+            <SectionHeader num="13" title="Lei Aplicável e Foro" icon={<Scale size={18} />} />
+            <div className="space-y-3 text-text-secondary leading-relaxed">
+              <p>
+                Estes Termos são regidos pelas leis da República Federativa do Brasil. Para resolução de conflitos, fica eleito o foro da comarca de <strong className="text-white">São Paulo/SP</strong>, com renúncia a qualquer outro, por mais privilegiado que seja.
+              </p>
+              <p>
+                Tentaremos sempre resolver disputas de forma amigável antes de qualquer medida judicial.
+              </p>
+            </div>
+          </section>
+
+          {/* 14 */}
+          <section id="contato" className="scroll-mt-6">
+            <SectionHeader num="14" title="Contato" icon={<Mail size={18} />} />
+            <div className="space-y-3 text-text-secondary leading-relaxed">
+              <p>Para dúvidas, sugestões ou solicitações relacionadas a estes Termos:</p>
+              <div className="card p-5 space-y-2">
+                <p className="text-white font-bold text-lg">⚡ FitQuest</p>
+                <p>
+                  Email:{' '}
+                  <a href="mailto:suporte@fitquest.app" className="text-brand-orange underline hover:text-brand-orange/80 transition-colors">
+                    suporte@fitquest.app
+                  </a>
+                </p>
+                <p>Site: fitquest-app1.vercel.app</p>
+                <p className="text-text-muted text-xs">Respondemos em até 2 dias úteis.</p>
+              </div>
+            </div>
+          </section>
+
+        </div>
+
+        <hr className="border-white/10 my-10" />
+
+        <div className="flex flex-wrap gap-4 text-sm text-text-muted">
+          <Link href="/" className="hover:text-white transition-colors flex items-center gap-1">
+            ← Voltar ao início
+          </Link>
+          <Link href="/privacidade" className="hover:text-white transition-colors flex items-center gap-1">
+            Política de Privacidade →
+          </Link>
         </div>
       </div>
     </main>
+  )
+}
+
+function SectionHeader({ num, title, icon }: { num: string; title: string; icon?: React.ReactNode }) {
+  return (
+    <div className="flex items-center gap-3 mb-4">
+      <span className="font-mono text-xs text-brand-orange/60 font-bold shrink-0">{num}</span>
+      <div
+        className="h-px flex-1"
+        style={{ background: 'linear-gradient(90deg, rgba(255,77,0,0.4) 0%, transparent 100%)' }}
+      />
+      <h2 className="text-lg font-bold flex items-center gap-2 shrink-0">
+        {icon && <span className="text-brand-orange">{icon}</span>}
+        {title}
+      </h2>
+    </div>
   )
 }
