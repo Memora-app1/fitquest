@@ -168,12 +168,46 @@ export default async function DashboardPage({
           </div>
         )}
 
-        {/* Greeting */}
-        <header className="space-y-1">
-          <p className="text-text-secondary">{getGreeting()},</p>
-          <h1 className="text-3xl md:text-4xl font-bold">
-            {profile.name} <span className="text-2xl">👋</span>
-          </h1>
+        {/* Greeting Hero */}
+        <header
+          className="rounded-2xl p-6 relative overflow-hidden"
+          style={{
+            background: 'linear-gradient(135deg, rgba(124,58,237,0.08) 0%, rgba(13,24,41,0.98) 60%, rgba(255,77,0,0.05) 100%)',
+            border: '1px solid rgba(124,58,237,0.2)',
+          }}
+        >
+          <div
+            className="absolute -top-8 -right-8 w-40 h-40 rounded-full pointer-events-none"
+            style={{ background: 'radial-gradient(circle, rgba(124,58,237,0.12) 0%, transparent 70%)' }}
+          />
+          <div className="relative z-10 flex items-center justify-between flex-wrap gap-4">
+            <div>
+              <p className="text-text-secondary text-sm">{getGreeting()},</p>
+              <h1 className="text-3xl md:text-4xl font-bold mt-0.5">
+                {profile.name} <span className="text-2xl">👋</span>
+              </h1>
+            </div>
+            <div className="flex items-center gap-3">
+              <div
+                className="px-3 py-1.5 rounded-xl text-xs font-bold"
+                style={{ background: 'rgba(124,58,237,0.15)', border: '1px solid rgba(124,58,237,0.3)', color: '#9F5AF7' }}
+              >
+                Lv {profile.level}
+              </div>
+              {profile.streak_current > 0 && (
+                <div
+                  className="px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1"
+                  style={{
+                    background: profile.streak_current >= 7 ? 'rgba(255,77,0,0.15)' : 'rgba(255,255,255,0.06)',
+                    border: `1px solid ${profile.streak_current >= 7 ? 'rgba(255,77,0,0.4)' : 'rgba(255,255,255,0.1)'}`,
+                    color: profile.streak_current >= 7 ? '#FF4D00' : '#8899BB',
+                  }}
+                >
+                  🔥 {profile.streak_current}d
+                </div>
+              )}
+            </div>
+          </div>
         </header>
 
         {/* Stats Grid */}
