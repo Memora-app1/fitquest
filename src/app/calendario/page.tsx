@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { AppShell } from '@/components/layout/app-shell'
 import { CalendarClient } from '@/components/calendario/calendar-client'
+import { CalendarDays } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Calendário',
@@ -55,18 +56,35 @@ export default async function CalendarioPage() {
     <AppShell>
       <div className="p-4 md:p-8 max-w-5xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between flex-wrap gap-4">
-          <div>
-            <h1 className="heading-display text-4xl">Calendário</h1>
-            <p className="text-text-secondary">
-              Tarefas com prazo e eventos em uma visão mensal.
-            </p>
+        <div
+          className="rounded-2xl p-6 relative overflow-hidden"
+          style={{
+            background: 'linear-gradient(135deg, rgba(59,130,246,0.08) 0%, rgba(13,24,41,0.98) 60%, rgba(124,58,237,0.05) 100%)',
+            border: '1px solid rgba(59,130,246,0.2)',
+          }}
+        >
+          <div
+            className="absolute -top-8 -right-8 w-40 h-40 rounded-full pointer-events-none"
+            style={{ background: 'radial-gradient(circle, rgba(59,130,246,0.12) 0%, transparent 70%)' }}
+          />
+          <div className="relative z-10 flex items-center justify-between flex-wrap gap-4">
+            <div>
+              <h1 className="heading-display text-4xl md:text-5xl flex items-center gap-3">
+                <CalendarDays size={36} className="text-blue-400" />
+                Calendário
+              </h1>
+              <p className="text-text-secondary mt-1">
+                {(eventsRes.data?.length ?? 0) + (tasksRes.data?.length ?? 0) > 0
+                  ? `${tasksRes.data?.length ?? 0} tarefa${(tasksRes.data?.length ?? 0) !== 1 ? 's' : ''} com prazo este mês`
+                  : 'Tarefas com prazo e eventos em uma visão mensal.'}
+              </p>
+            </div>
+            {!hasIntegration && (
+              <button className="btn-ghost text-sm opacity-50 cursor-not-allowed" disabled>
+                🔗 Google Agenda (em breve)
+              </button>
+            )}
           </div>
-          {!hasIntegration && (
-            <button className="btn-ghost text-sm opacity-50 cursor-not-allowed" disabled>
-              🔗 Conectar Google Agenda (em breve)
-            </button>
-          )}
         </div>
 
         {/* Calendar grid */}
