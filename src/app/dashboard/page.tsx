@@ -10,6 +10,7 @@ import { TasksToday } from '@/components/dashboard/tasks-today'
 import { FinanceAlerts } from '@/components/dashboard/finance-alerts'
 import { QuickActions } from '@/components/dashboard/quick-actions'
 import { ActivityFeed } from '@/components/dashboard/activity-feed'
+import { WeekProgress } from '@/components/dashboard/week-progress'
 import { getGreeting, todayString } from '@/lib/utils'
 
 export const metadata: Metadata = {
@@ -33,50 +34,70 @@ export default async function DashboardPage({
 
   const today = todayString()
   const twoDaysAgo = new Date(Date.now() - 48 * 3600000).toISOString()
+  const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString().split('T')[0]!
 
-  const [profileRes, habitsRes, habitLogsRes, tasksRes, transactionsRes, xpFeedRes] =
-    await Promise.all([
-      supabase
-        .from('profiles')
-        .select('name, xp_total, level, streak_current, streak_longest, subscription_status, trial_end')
-        .eq('id', user.id)
-        .single(),
-      supabase
-        .from('habits')
-        .select('id, name, icon, color, xp_per_completion')
-        .eq('user_id', user.id)
-        .eq('is_active', true)
-        .order('display_order'),
-      supabase
-        .from('habit_logs')
-        .select('habit_id')
-        .eq('user_id', user.id)
-        .eq('logged_date', today),
-      supabase
-        .from('tasks')
-        .select('id, title, urgent, important, due_date')
-        .eq('user_id', user.id)
-        .not('status', 'eq', 'done')
-        .not('status', 'eq', 'archived')
-        .order('urgent', { ascending: false })
-        .order('important', { ascending: false })
-        .limit(3),
-      supabase
-        .from('transactions')
-        .select('id, description, amount, transaction_date')
-        .eq('user_id', user.id)
-        .eq('is_paid', false)
-        .gte('transaction_date', today)
-        .order('transaction_date')
-        .limit(5),
-      supabase
-        .from('xp_transactions')
-        .select('id, amount, reason, source_type, created_at')
-        .eq('user_id', user.id)
-        .gte('created_at', twoDaysAgo)
-        .order('created_at', { ascending: false })
-        .limit(10),
-    ])
+  const [
+    profileRes,
+    habitsRes,
+    habitLogsRes,
+    weekHabitLogsRes,
+    tasksRes,
+    transactionsRes,
+    xpFeedRes,
+    weekXpRes,
+  ] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('name, xp_total, level, streak_current, streak_longest, subscription_status, trial_end')
+      .eq('id', user.id)
+      .single(),
+    supabase
+      .from('habits')
+      .select('id, name, icon, color, xp_per_completion')
+      .eq('user_id', user.id)
+      .eq('is_active', true)
+      .order('display_order'),
+    supabase
+      .from('habit_logs')
+      .select('habit_id')
+      .eq('user_id', user.id)
+      .eq('logged_date', today),
+    supabase
+      .from('habit_logs')
+      .select('habit_id, logged_date')
+      .eq('user_id', user.id)
+      .gte('logged_date', sevenDaysAgo),
+    supabase
+      .from('tasks')
+      .select('id, title, urgent, important, due_date')
+      .eq('user_id', user.id)
+      .not('status', 'eq', 'done')
+      .not('status', 'eq', 'archived')
+      .order('urgent', { ascending: false })
+      .order('important', { ascending: false })
+      .limit(3),
+    supabase
+      .from('transactions')
+      .select('id, description, amount, transaction_date')
+      .eq('user_id', user.id)
+      .eq('is_paid', false)
+      .gte('transaction_date', today)
+      .order('transaction_date')
+      .limit(5),
+    supabase
+      .from('xp_transactions')
+      .select('id, amount, reason, source_type, created_at')
+      .eq('user_id', user.id)
+      .gte('created_at', twoDaysAgo)
+      .order('created_at', { ascending: false })
+      .limit(10),
+    supabase
+      .from('xp_transactions')
+      .select('amount, created_at')
+      .eq('user_id', user.id)
+      .gte('created_at', sevenDaysAgo)
+      .order('created_at', { ascending: true }),
+  ])
 
   const profile = profileRes.data
   if (!profile) redirect('/onboarding')
@@ -88,9 +109,18 @@ export default async function DashboardPage({
 
   const habits = habitsRes.data ?? []
   const habitLogsToday = new Set(habitLogsRes.data?.map((l) => l.habit_id) ?? [])
+  const weekHabitLogs = weekHabitLogsRes.data ?? []
   const tasks = tasksRes.data ?? []
   const transactions = transactionsRes.data ?? []
   const xpFeed = xpFeedRes.data ?? []
+
+  // Build daily XP for sparkline
+  const xpByDay = new Map<string, number>()
+  for (const tx of weekXpRes.data ?? []) {
+    const day = tx.created_at.split('T')[0]!
+    xpByDay.set(day, (xpByDay.get(day) ?? 0) + (tx.amount ?? 0))
+  }
+  const weekXpData = Array.from(xpByDay.entries()).map(([date, xp]) => ({ date, xp }))
 
   return (
     <AppShell>
@@ -154,17 +184,34 @@ export default async function DashboardPage({
         {/* Quick Actions */}
         <QuickActions />
 
-        {/* Main content grid */}
+        {/* Main content grid — 3 cols on large screens */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left col: habits + tasks */}
           <div className="lg:col-span-2 space-y-6">
             <HabitsToday habits={habits} loggedToday={habitLogsToday} />
             <TasksToday tasks={tasks} />
+            {/* Week progress — show below tasks on mobile, spans both columns */}
+            <div className="lg:hidden">
+              <WeekProgress
+                habits={habits}
+                weekLogs={weekHabitLogs}
+                weekXp={weekXpData}
+                streakCurrent={profile.streak_current}
+              />
+            </div>
           </div>
 
-          {/* Right col: activity feed */}
-          <div>
+          {/* Right col: activity + week progress on desktop */}
+          <div className="space-y-6">
             <ActivityFeed transactions={xpFeed} />
+            <div className="hidden lg:block">
+              <WeekProgress
+                habits={habits}
+                weekLogs={weekHabitLogs}
+                weekXp={weekXpData}
+                streakCurrent={profile.streak_current}
+              />
+            </div>
           </div>
         </div>
 
