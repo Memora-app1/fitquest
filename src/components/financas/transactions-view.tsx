@@ -133,21 +133,35 @@ export function TransactionsView({
       {/* Stats bar */}
       {localTxs.length > 0 && (
         <div className="grid grid-cols-3 gap-3">
-          <div className="card p-4 text-center">
+          <div
+            className="rounded-2xl p-4 text-center"
+            style={{ background: 'linear-gradient(135deg, rgba(0,255,136,0.07) 0%, rgba(13,24,41,0.98) 100%)', border: '1px solid rgba(0,255,136,0.18)' }}
+          >
             <div className="flex items-center justify-center gap-1.5 text-brand-green mb-1">
               <TrendingUp size={14} />
               <span className="text-xs uppercase tracking-wide">Receitas</span>
             </div>
             <div className="heading-display text-xl text-brand-green">{formatBRL(totalIncome)}</div>
           </div>
-          <div className="card p-4 text-center">
+          <div
+            className="rounded-2xl p-4 text-center"
+            style={{ background: 'linear-gradient(135deg, rgba(239,68,68,0.07) 0%, rgba(13,24,41,0.98) 100%)', border: '1px solid rgba(239,68,68,0.18)' }}
+          >
             <div className="flex items-center justify-center gap-1.5 text-brand-red mb-1">
               <TrendingDown size={14} />
               <span className="text-xs uppercase tracking-wide">Despesas</span>
             </div>
             <div className="heading-display text-xl text-brand-red">{formatBRL(totalExpense)}</div>
           </div>
-          <div className="card p-4 text-center">
+          <div
+            className="rounded-2xl p-4 text-center"
+            style={{
+              background: net >= 0
+                ? 'linear-gradient(135deg, rgba(0,255,136,0.07) 0%, rgba(13,24,41,0.98) 100%)'
+                : 'linear-gradient(135deg, rgba(239,68,68,0.07) 0%, rgba(13,24,41,0.98) 100%)',
+              border: net >= 0 ? '1px solid rgba(0,255,136,0.18)' : '1px solid rgba(239,68,68,0.18)',
+            }}
+          >
             <div className="flex items-center justify-center gap-1.5 text-text-secondary mb-1">
               <Minus size={14} />
               <span className="text-xs uppercase tracking-wide">Saldo</span>
@@ -206,23 +220,37 @@ export function TransactionsView({
 
       {/* Empty state */}
       {filtered.length === 0 && (
-        <div className="card p-12 text-center">
-          {localTxs.length === 0 ? (
-            <>
-              <div className="text-4xl mb-3">💸</div>
-              <h3 className="text-xl font-bold mb-1">Nenhuma transação ainda</h3>
-              <p className="text-text-secondary mb-4">Registre suas movimentações pra ganhar XP</p>
-              <button onClick={() => setShowNew(true)} className="btn-primary">
-                Adicionar primeira transação
-              </button>
-            </>
-          ) : (
-            <>
-              <div className="text-4xl mb-3">🔍</div>
-              <h3 className="text-xl font-bold mb-1">Nada encontrado</h3>
-              <p className="text-text-secondary">Tente outro filtro ou termo de busca</p>
-            </>
-          )}
+        <div
+          className="rounded-2xl p-12 text-center relative overflow-hidden"
+          style={{
+            background: localTxs.length === 0
+              ? 'linear-gradient(135deg, rgba(255,77,0,0.06) 0%, rgba(13,24,41,0.98) 100%)'
+              : 'linear-gradient(135deg, rgba(124,58,237,0.06) 0%, rgba(13,24,41,0.98) 100%)',
+            border: localTxs.length === 0 ? '1px solid rgba(255,77,0,0.18)' : '1px solid rgba(124,58,237,0.18)',
+          }}
+        >
+          <div
+            className="absolute -top-6 -right-6 w-24 h-24 rounded-full pointer-events-none blur-xl"
+            style={{ background: localTxs.length === 0 ? 'rgba(255,77,0,0.12)' : 'rgba(124,58,237,0.12)' }}
+          />
+          <div className="relative z-10">
+            {localTxs.length === 0 ? (
+              <>
+                <div className="text-4xl mb-3">💸</div>
+                <h3 className="text-xl font-bold mb-1">Nenhuma transação ainda</h3>
+                <p className="text-text-secondary mb-4">Registre suas movimentações pra ganhar XP</p>
+                <button onClick={() => setShowNew(true)} className="btn-primary">
+                  Adicionar primeira transação
+                </button>
+              </>
+            ) : (
+              <>
+                <div className="text-4xl mb-3">🔍</div>
+                <h3 className="text-xl font-bold mb-1">Nada encontrado</h3>
+                <p className="text-text-secondary">Tente outro filtro ou termo de busca</p>
+              </>
+            )}
+          </div>
         </div>
       )}
 
@@ -261,11 +289,12 @@ export function TransactionsView({
                     return (
                       <div
                         key={tx.id}
-                        className={cn(
-                          'group card p-3.5 flex items-center gap-3 transition-all',
-                          !tx.is_paid && 'border-border/50 opacity-80',
-                          isDeleting && 'opacity-30'
-                        )}
+                        className="group rounded-xl p-3.5 flex items-center gap-3 transition-all"
+                        style={{
+                          background: 'rgba(255,255,255,0.03)',
+                          border: tx.is_paid ? '1px solid rgba(255,255,255,0.07)' : '1px solid rgba(255,255,255,0.04)',
+                          opacity: isDeleting ? 0.3 : tx.is_paid ? 1 : 0.75,
+                        }}
                       >
                         {/* Category icon */}
                         <div
@@ -370,8 +399,17 @@ export function TransactionsView({
 // ─── NoAccount ────────────────────────────────────────────────────────────────
 function NoAccountModal({ onClose }: { onClose: () => void }) {
   return (
-    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-      <div className="card-glow w-full max-w-md p-6 space-y-4 text-center">
+    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" style={{ backdropFilter: 'blur(4px)' }}>
+      <div
+        className="w-full max-w-md p-6 space-y-4 text-center rounded-2xl relative overflow-hidden"
+        style={{
+          background: 'linear-gradient(135deg, rgba(124,58,237,0.1) 0%, rgba(13,24,41,0.99) 100%)',
+          border: '1px solid rgba(124,58,237,0.3)',
+          boxShadow: '0 24px 60px rgba(0,0,0,0.6)',
+        }}
+      >
+        <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full pointer-events-none blur-xl" style={{ background: 'rgba(124,58,237,0.2)' }} />
+        <div className="relative z-10">
         <h2 className="text-xl font-bold">Cadastre uma conta primeiro</h2>
         <p className="text-text-secondary">
           Você precisa ter pelo menos 1 conta cadastrada antes de registrar transações.
@@ -379,6 +417,7 @@ function NoAccountModal({ onClose }: { onClose: () => void }) {
         <div className="flex gap-2">
           <button onClick={onClose} className="btn-ghost flex-1">Voltar</button>
           <a href="/financas/contas" className="btn-primary flex-1">Cadastrar conta</a>
+        </div>
         </div>
       </div>
     </div>
@@ -445,9 +484,17 @@ function NewTransactionModal({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/60 z-50 flex items-end md:items-center justify-center p-4 overflow-y-auto">
-      <div className="card-glow w-full max-w-md p-6 space-y-4 my-4 animate-slide-up">
-        <div className="flex justify-between items-center">
+    <div className="fixed inset-0 bg-black/60 z-50 flex items-end md:items-center justify-center p-4 overflow-y-auto" style={{ backdropFilter: 'blur(4px)' }}>
+      <div
+        className="w-full max-w-md p-6 space-y-4 my-4 animate-slide-up rounded-2xl relative overflow-hidden"
+        style={{
+          background: 'linear-gradient(135deg, rgba(255,77,0,0.08) 0%, rgba(13,24,41,0.99) 100%)',
+          border: '1px solid rgba(255,77,0,0.25)',
+          boxShadow: '0 24px 60px rgba(0,0,0,0.6)',
+        }}
+      >
+        <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full pointer-events-none blur-xl" style={{ background: 'rgba(255,77,0,0.12)' }} />
+        <div className="flex justify-between items-center relative z-10">
           <h2 className="text-xl font-bold">Nova transação</h2>
           <button onClick={onClose} className="text-text-muted hover:text-white"><X size={20} /></button>
         </div>

@@ -115,13 +115,22 @@ export function HabitsList({
   if (habits.length === 0) {
     return (
       <>
-        <div className="card p-8 text-center">
-          <div className="text-5xl mb-3">🎯</div>
-          <h3 className="text-xl font-bold mb-1">Nenhum hábito ainda</h3>
-          <p className="text-text-secondary mb-4">Crie seu primeiro hábito pra começar a ganhar XP</p>
-          <button onClick={() => setShowCreate(true)} className="btn-primary">
-            <Plus size={18} className="inline mr-1" /> Criar primeiro hábito
-          </button>
+        <div
+          className="rounded-2xl p-8 text-center relative overflow-hidden"
+          style={{
+            background: 'linear-gradient(135deg, rgba(124,58,237,0.07) 0%, rgba(13,24,41,0.98) 100%)',
+            border: '1px solid rgba(124,58,237,0.2)',
+          }}
+        >
+          <div className="absolute -top-4 -right-4 w-20 h-20 rounded-full pointer-events-none blur-xl" style={{ background: 'rgba(124,58,237,0.2)' }} />
+          <div className="relative z-10">
+            <div className="text-5xl mb-3">🎯</div>
+            <h3 className="text-xl font-bold mb-1">Nenhum hábito ainda</h3>
+            <p className="text-text-secondary mb-4">Crie seu primeiro hábito pra começar a ganhar XP</p>
+            <button onClick={() => setShowCreate(true)} className="btn-primary">
+              <Plus size={18} className="inline mr-1" /> Criar primeiro hábito
+            </button>
+          </div>
         </div>
         {showCreate && (
           <CreateHabitModal
@@ -390,8 +399,16 @@ function CreateHabitModal({
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end md:items-center justify-center p-4">
-      <div className="card-glow w-full max-w-md p-6 space-y-4 animate-slide-up">
-        <div className="flex items-center justify-between">
+      <div
+        className="w-full max-w-md p-6 space-y-4 animate-slide-up rounded-2xl relative overflow-hidden"
+        style={{
+          background: 'linear-gradient(135deg, rgba(255,77,0,0.08) 0%, rgba(13,24,41,0.99) 100%)',
+          border: '1px solid rgba(255,77,0,0.25)',
+          boxShadow: '0 24px 60px rgba(0,0,0,0.5)',
+        }}
+      >
+        <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full pointer-events-none blur-xl" style={{ background: 'rgba(255,77,0,0.15)' }} />
+        <div className="flex items-center justify-between relative z-10">
           <h2 className="text-xl font-bold">Novo hábito</h2>
           <button onClick={onClose} className="text-text-muted hover:text-white transition-colors">
             <X size={20} />
@@ -525,8 +542,16 @@ function EditHabitModal({
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end md:items-center justify-center p-4">
-      <div className="card-glow w-full max-w-md p-6 space-y-4 animate-slide-up">
-        <div className="flex items-center justify-between">
+      <div
+        className="w-full max-w-md p-6 space-y-4 animate-slide-up rounded-2xl relative overflow-hidden"
+        style={{
+          background: 'linear-gradient(135deg, rgba(124,58,237,0.08) 0%, rgba(13,24,41,0.99) 100%)',
+          border: '1px solid rgba(124,58,237,0.25)',
+          boxShadow: '0 24px 60px rgba(0,0,0,0.5)',
+        }}
+      >
+        <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full pointer-events-none blur-xl" style={{ background: 'rgba(124,58,237,0.15)' }} />
+        <div className="flex items-center justify-between relative z-10">
           <h2 className="text-xl font-bold">Editar hábito</h2>
           <button onClick={onClose} className="text-text-muted hover:text-white transition-colors">
             <X size={20} />
