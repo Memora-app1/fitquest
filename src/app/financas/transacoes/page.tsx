@@ -4,6 +4,8 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { AppShell } from '@/components/layout/app-shell'
 import { TransactionsView } from '@/components/financas/transactions-view'
+import { formatBRL } from '@/lib/utils'
+import { TrendingUp, TrendingDown, ArrowLeftRight } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Transações',
@@ -35,17 +37,119 @@ export default async function TransacoesPage() {
       .or(`user_id.eq.${user.id},is_global.eq.true`),
   ])
 
+  const transactions = txRes.data ?? []
+  const totalIncome = transactions.filter((t) => t.type === 'income').reduce((s, t) => s + Number(t.amount), 0)
+  const totalExpense = transactions.filter((t) => t.type === 'expense').reduce((s, t) => s + Number(t.amount), 0)
+  const balance = totalIncome - totalExpense
+  const isPositive = balance >= 0
+
   return (
     <AppShell>
       <div className="p-4 md:p-8 max-w-5xl mx-auto space-y-6">
-        <div>
-          <h1 className="heading-display text-4xl">Transações</h1>
-          <p className="text-text-secondary">Todas as suas movimentações em um só lugar.</p>
+
+        {/* ── Hero Header ─────────────────────────────────────────────── */}
+        <div
+          className="rounded-2xl p-6 relative overflow-hidden"
+          style={{
+            background: isPositive
+              ? 'linear-gradient(135deg, rgba(0,255,136,0.08) 0%, rgba(13,24,41,0.98) 60%, rgba(124,58,237,0.04) 100%)'
+              : 'linear-gradient(135deg, rgba(239,68,68,0.07) 0%, rgba(13,24,41,0.98) 60%, rgba(124,58,237,0.04) 100%)',
+            border: isPositive ? '1px solid rgba(0,255,136,0.18)' : '1px solid rgba(239,68,68,0.18)',
+          }}
+        >
+          <div
+            className="absolute -top-8 -right-8 w-40 h-40 rounded-full pointer-events-none"
+            style={{
+              background: isPositive
+                ? 'radial-gradient(circle, rgba(0,255,136,0.12) 0%, transparent 70%)'
+                : 'radial-gradient(circle, rgba(239,68,68,0.1) 0%, transparent 70%)',
+            }}
+          />
+          <div className="relative z-10">
+            <h1 className="heading-display text-4xl md:text-5xl">Transações</h1>
+            <p className="text-text-secondary mt-1">
+              {transactions.length > 0
+                ? `${transactions.length} movimentações`
+                : 'Todas as suas movimentações em um só lugar.'}
+            </p>
+          </div>
         </div>
+
+        {/* ── Quick Stats ─────────────────────────────────────────────── */}
+        {transactions.length > 0 && (
+          <div className="grid grid-cols-3 gap-3">
+            <div
+              className="rounded-2xl p-4 relative overflow-hidden"
+              style={{
+                background: 'linear-gradient(135deg, rgba(0,255,136,0.08) 0%, rgba(13,24,41,0.98) 100%)',
+                border: '1px solid rgba(0,255,136,0.2)',
+              }}
+            >
+              <div
+                className="absolute -top-4 -right-4 w-14 h-14 rounded-full pointer-events-none blur-xl"
+                style={{ background: 'rgba(0,255,136,0.2)' }}
+              />
+              <div className="relative z-10">
+                <div className="flex items-center gap-1.5 mb-1.5">
+                  <TrendingUp size={12} className="text-brand-green" />
+                  <span className="text-xs text-text-muted uppercase tracking-wider">Receitas</span>
+                </div>
+                <div className="heading-display text-xl text-brand-green">{formatBRL(totalIncome)}</div>
+              </div>
+            </div>
+
+            <div
+              className="rounded-2xl p-4 relative overflow-hidden"
+              style={{
+                background: 'linear-gradient(135deg, rgba(239,68,68,0.07) 0%, rgba(13,24,41,0.98) 100%)',
+                border: '1px solid rgba(239,68,68,0.2)',
+              }}
+            >
+              <div
+                className="absolute -top-4 -right-4 w-14 h-14 rounded-full pointer-events-none blur-xl"
+                style={{ background: 'rgba(239,68,68,0.2)' }}
+              />
+              <div className="relative z-10">
+                <div className="flex items-center gap-1.5 mb-1.5">
+                  <TrendingDown size={12} className="text-brand-red" />
+                  <span className="text-xs text-text-muted uppercase tracking-wider">Despesas</span>
+                </div>
+                <div className="heading-display text-xl text-brand-red">{formatBRL(totalExpense)}</div>
+              </div>
+            </div>
+
+            <div
+              className="rounded-2xl p-4 relative overflow-hidden"
+              style={{
+                background: isPositive
+                  ? 'linear-gradient(135deg, rgba(124,58,237,0.08) 0%, rgba(13,24,41,0.98) 100%)'
+                  : 'linear-gradient(135deg, rgba(239,68,68,0.06) 0%, rgba(13,24,41,0.98) 100%)',
+                border: isPositive ? '1px solid rgba(124,58,237,0.2)' : '1px solid rgba(239,68,68,0.15)',
+              }}
+            >
+              <div
+                className="absolute -top-4 -right-4 w-14 h-14 rounded-full pointer-events-none blur-xl"
+                style={{ background: isPositive ? 'rgba(124,58,237,0.2)' : 'rgba(239,68,68,0.15)' }}
+              />
+              <div className="relative z-10">
+                <div className="flex items-center gap-1.5 mb-1.5">
+                  <ArrowLeftRight size={12} className={isPositive ? 'text-brand-purple' : 'text-brand-red'} />
+                  <span className="text-xs text-text-muted uppercase tracking-wider">Saldo</span>
+                </div>
+                <div
+                  className="heading-display text-xl"
+                  style={{ color: isPositive ? '#7C3AED' : '#EF4444' }}
+                >
+                  {isPositive ? '+' : ''}{formatBRL(balance)}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         <Suspense fallback={<div className="text-text-secondary">Carregando...</div>}>
           <TransactionsView
-            transactions={txRes.data ?? []}
+            transactions={transactions}
             accounts={accRes.data ?? []}
             categories={catRes.data ?? []}
           />

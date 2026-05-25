@@ -114,18 +114,33 @@ export default async function ScorePage() {
       <div className="p-4 md:p-8 max-w-5xl mx-auto space-y-8">
 
         {/* Page header */}
-        <div className="flex items-start justify-between">
-          <div>
-            <h1 className="heading-display text-4xl">Seu Score</h1>
-            <p className="text-text-secondary mt-1">Sua evolução em números.</p>
-          </div>
-          {xpThisWeek > 0 && (
-            <div className="flex items-center gap-2 text-sm bg-brand-gold/10 border border-brand-gold/20 px-3 py-2 rounded-xl">
-              <TrendingUp size={14} className="text-brand-gold" />
-              <span className="font-bold text-brand-gold">+{xpThisWeek.toLocaleString('pt-BR')} XP</span>
-              <span className="text-text-muted">essa semana</span>
+        <div
+          className="rounded-2xl p-6 relative overflow-hidden"
+          style={{
+            background: `linear-gradient(135deg, ${levelColor}0D 0%, rgba(13,24,41,0.98) 60%, rgba(124,58,237,0.04) 100%)`,
+            border: `1px solid ${levelColor}25`,
+          }}
+        >
+          <div
+            className="absolute -top-8 -right-8 w-40 h-40 rounded-full pointer-events-none"
+            style={{ background: `radial-gradient(circle, ${levelColor}15 0%, transparent 70%)` }}
+          />
+          <div className="relative z-10 flex items-start justify-between flex-wrap gap-4">
+            <div>
+              <h1 className="heading-display text-4xl md:text-5xl">Seu Score</h1>
+              <p className="text-text-secondary mt-1">Sua evolução em números.</p>
             </div>
-          )}
+            {xpThisWeek > 0 && (
+              <div
+                className="flex items-center gap-2 text-sm px-3 py-2 rounded-xl"
+                style={{ background: 'rgba(245,200,66,0.1)', border: '1px solid rgba(245,200,66,0.25)' }}
+              >
+                <TrendingUp size={14} className="text-brand-gold" />
+                <span className="font-bold text-brand-gold">+{xpThisWeek.toLocaleString('pt-BR')} XP</span>
+                <span className="text-text-muted">essa semana</span>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Level hero */}
@@ -276,10 +291,19 @@ export default async function ScorePage() {
         </div>
 
         {/* XP Chart */}
-        <section className="card p-6">
+        <section
+          className="rounded-2xl p-6"
+          style={{
+            background: 'linear-gradient(135deg, rgba(245,200,66,0.06) 0%, rgba(13,24,41,0.98) 100%)',
+            border: '1px solid rgba(245,200,66,0.15)',
+          }}
+        >
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-bold">XP — últimos 7 dias</h2>
-            <span className="text-sm text-brand-gold font-bold">
+            <span
+              className="text-sm font-bold px-3 py-1 rounded-xl"
+              style={{ background: 'rgba(245,200,66,0.12)', border: '1px solid rgba(245,200,66,0.25)', color: '#F5C842' }}
+            >
               +{xpThisWeek.toLocaleString('pt-BR')} XP
             </span>
           </div>
@@ -408,12 +432,16 @@ function StatCard({
 }) {
   return (
     <div
-      className="card p-4 relative overflow-hidden transition-transform hover:scale-[1.01]"
-      style={{ borderColor: `${accent}20` }}
+      className="rounded-2xl p-4 relative overflow-hidden transition-all hover:scale-[1.02]"
+      style={{
+        background: `linear-gradient(135deg, ${accent}0D 0%, rgba(13,24,41,0.98) 100%)`,
+        border: `1px solid ${accent}22`,
+        boxShadow: `0 4px 16px ${accent}06`,
+      }}
     >
       <div
-        className="absolute -top-4 -right-4 w-16 h-16 rounded-full blur-xl pointer-events-none opacity-20"
-        style={{ backgroundColor: accent }}
+        className="absolute -top-4 -right-4 w-16 h-16 rounded-full blur-xl pointer-events-none"
+        style={{ backgroundColor: accent, opacity: 0.15 }}
       />
       <div className="flex items-center gap-2 mb-2 relative z-10">
         {icon}
