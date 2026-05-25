@@ -14,11 +14,13 @@ import {
   Target,
   User,
   LogOut,
+  Flag,
 } from 'lucide-react'
 
 const NAV_ITEMS = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/habitos', label: 'Hábitos', icon: Target },
+  { href: '/metas', label: 'Metas', icon: Flag },
   { href: '/treinos', label: 'Treinos', icon: Dumbbell },
   { href: '/tarefas', label: 'Tarefas', icon: CheckSquare },
   { href: '/financas', label: 'Finanças', icon: Wallet },
