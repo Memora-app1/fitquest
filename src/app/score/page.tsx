@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation'
 import { AppShell } from '@/components/layout/app-shell'
 import { getLevelInfo, getXpProgressToNextLevel } from '@/lib/xp'
 import { XpChartLazy as XpChart } from '@/components/score/xp-chart-lazy'
-import { Lock } from 'lucide-react'
+import { Lock, Zap, Flame, Star, Trophy, Dumbbell, CheckSquare, Target, TrendingUp } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Seu Score',
@@ -13,11 +13,21 @@ export const metadata: Metadata = {
 
 export const dynamic = 'force-dynamic'
 
-const RARITY_STYLES: Record<string, { label: string; class: string }> = {
-  common: { label: 'Comum', class: 'text-text-muted' },
-  rare: { label: 'Raro', class: 'text-brand-blue' },
-  epic: { label: 'Épico', class: 'text-brand-purple' },
-  legendary: { label: 'Lendário', class: 'text-brand-gold' },
+const RARITY_CONFIG: Record<string, { label: string; color: string; glow: string; badge: string }> = {
+  common:    { label: 'Comum',   color: '#8899BB', glow: 'rgba(136,153,187,0.15)', badge: 'text-text-muted bg-bg-elevated' },
+  rare:      { label: 'Raro',    color: '#3B82F6', glow: 'rgba(59,130,246,0.2)',   badge: 'text-blue-400 bg-blue-500/10' },
+  epic:      { label: 'Épico',   color: '#7C3AED', glow: 'rgba(124,58,237,0.25)',  badge: 'text-brand-purple bg-brand-purple/10' },
+  legendary: { label: 'Lendário', color: '#F5C842', glow: 'rgba(245,200,66,0.3)',  badge: 'text-brand-gold bg-brand-gold/10' },
+}
+
+// Builds the SVG arc path for the circular progress ring
+function buildArcPath(cx: number, cy: number, r: number, pct: number) {
+  const angle = (pct / 100) * 360
+  const rad = (angle - 90) * (Math.PI / 180)
+  const x = cx + r * Math.cos(rad)
+  const y = cy + r * Math.sin(rad)
+  const large = angle > 180 ? 1 : 0
+  return `M ${cx} ${cy - r} A ${r} ${r} 0 ${large} 1 ${x} ${y}`
 }
 
 export default async function ScorePage() {
@@ -91,87 +101,240 @@ export default async function ScorePage() {
     xp,
   }))
 
+  const levelColors: Record<number, string> = {
+    1: '#8899BB', 2: '#7C3AED', 3: '#3B82F6', 4: '#00FF88',
+    5: '#FF4D00', 6: '#EC4899', 7: '#F5C842', 8: '#F5C842',
+  }
+  const levelColor = levelColors[profile.level] ?? '#F5C842'
+
+  const arcPath = buildArcPath(60, 60, 50, progress.percentage)
+
   return (
     <AppShell>
       <div className="p-4 md:p-8 max-w-5xl mx-auto space-y-8">
-        <div>
-          <h1 className="heading-display text-4xl">Seu Score</h1>
-          <p className="text-text-secondary">Sua evolução em números.</p>
+
+        {/* Page header */}
+        <div className="flex items-start justify-between">
+          <div>
+            <h1 className="heading-display text-4xl">Seu Score</h1>
+            <p className="text-text-secondary mt-1">Sua evolução em números.</p>
+          </div>
+          {xpThisWeek > 0 && (
+            <div className="flex items-center gap-2 text-sm bg-brand-gold/10 border border-brand-gold/20 px-3 py-2 rounded-xl">
+              <TrendingUp size={14} className="text-brand-gold" />
+              <span className="font-bold text-brand-gold">+{xpThisWeek.toLocaleString('pt-BR')} XP</span>
+              <span className="text-text-muted">essa semana</span>
+            </div>
+          )}
         </div>
 
         {/* Level hero */}
-        <div className="card-glow p-8 text-center">
-          <div className="text-7xl mb-3">{levelInfo.emoji}</div>
-          <div className="heading-display text-5xl gradient-text">{levelInfo.title}</div>
-          <div className="text-text-secondary mt-1 font-medium">Level {profile.level} de 8</div>
+        <div
+          className="card-glow p-8 relative overflow-hidden"
+          style={{
+            background: `radial-gradient(ellipse at 30% 50%, ${levelColor}10 0%, transparent 60%), #0D1829`,
+          }}
+        >
+          {/* Decorative glow */}
+          <div
+            className="absolute -top-8 -right-8 w-48 h-48 rounded-full blur-[60px] pointer-events-none opacity-30"
+            style={{ backgroundColor: levelColor }}
+          />
 
-          <div className="mt-6 max-w-md mx-auto">
-            <div className="flex justify-between text-xs text-text-muted mb-1.5">
-              <span>{profile.xp_total.toLocaleString('pt-BR')} XP</span>
-              {progress.needed > 0 && (
-                <span>{(progress.needed - progress.current).toLocaleString('pt-BR')} XP para nível {profile.level + 1}</span>
+          <div className="flex flex-col md:flex-row items-center gap-8">
+            {/* Circular arc progress */}
+            <div className="relative shrink-0">
+              <svg width="120" height="120" className="rotate-0">
+                {/* Track */}
+                <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="8" />
+                {/* Progress arc */}
+                {progress.percentage > 0 && (
+                  <path
+                    d={arcPath}
+                    fill="none"
+                    stroke={levelColor}
+                    strokeWidth="8"
+                    strokeLinecap="round"
+                    style={{ filter: `drop-shadow(0 0 8px ${levelColor})` }}
+                  />
+                )}
+              </svg>
+              {/* Center content */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <div className="text-3xl">{levelInfo.emoji}</div>
+                <div className="heading-display text-lg leading-tight" style={{ color: levelColor }}>
+                  Nv {profile.level}
+                </div>
+              </div>
+            </div>
+
+            {/* Level info */}
+            <div className="flex-1 text-center md:text-left">
+              <div className="text-text-muted text-sm uppercase tracking-widest mb-1">Nível {profile.level} de 8</div>
+              <div className="heading-display text-5xl md:text-6xl gradient-text leading-none mb-3">
+                {levelInfo.title}
+              </div>
+
+              {progress.needed > 0 ? (
+                <div className="space-y-2 max-w-md">
+                  <div className="flex justify-between text-xs text-text-muted">
+                    <span className="flex items-center gap-1">
+                      <Zap size={11} className="text-brand-gold" />
+                      {profile.xp_total.toLocaleString('pt-BR')} XP
+                    </span>
+                    <span style={{ color: levelColor }}>
+                      {(progress.needed - progress.current).toLocaleString('pt-BR')} XP até nível {profile.level + 1}
+                    </span>
+                  </div>
+                  <div className="h-2.5 bg-bg-elevated rounded-full overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all duration-700 relative"
+                      style={{
+                        width: `${progress.percentage}%`,
+                        background: `linear-gradient(90deg, ${levelColor}99, ${levelColor})`,
+                        boxShadow: `0 0 10px ${levelColor}60`,
+                      }}
+                    />
+                  </div>
+                  <div className="text-xs text-text-muted">{progress.percentage}% para o próximo nível</div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 text-brand-gold font-bold">
+                  <Trophy size={18} />
+                  Nível máximo alcançado!
+                </div>
               )}
             </div>
-            <div className="h-4 bg-bg-elevated rounded-full overflow-hidden">
-              <div
-                className="h-full bg-gradient-brand transition-all duration-500"
-                style={{ width: `${progress.percentage}%` }}
-              />
+
+            {/* XP total badge */}
+            <div className="text-center md:text-right shrink-0">
+              <div className="heading-display text-4xl text-brand-gold">
+                {profile.xp_total.toLocaleString('pt-BR')}
+              </div>
+              <div className="text-xs text-text-muted uppercase tracking-widest">XP Total</div>
             </div>
-            {progress.needed === 0 && (
-              <div className="text-brand-gold font-bold text-sm mt-2">🏆 Nível máximo alcançado!</div>
-            )}
           </div>
         </div>
 
         {/* Stats grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <StatCard label="Streak atual" value={`🔥 ${profile.streak_current}`} sub="dias" />
-          <StatCard label="Recorde" value={`${profile.streak_longest}`} sub="dias" />
-          <StatCard label="XP essa semana" value={`+${xpThisWeek.toLocaleString('pt-BR')}`} />
-          <StatCard label="Dias perfeitos" value={`${profile.perfect_days}`} />
-          <StatCard label="Treinos" value={`${workoutsCountRes.count ?? 0}`} />
-          <StatCard label="Tarefas concluídas" value={`${tasksCountRes.count ?? 0}`} />
-          <StatCard label="Hábitos registrados" value={`${habitsCountRes.count ?? 0}`} />
           <StatCard
+            icon={<Flame size={20} className="text-brand-orange" />}
+            label="Streak atual"
+            value={`${profile.streak_current}`}
+            sub="dias"
+            accent="#FF4D00"
+            prefix="🔥"
+          />
+          <StatCard
+            icon={<Flame size={20} className="text-brand-red" />}
+            label="Recorde"
+            value={`${profile.streak_longest}`}
+            sub="dias"
+            accent="#EF4444"
+          />
+          <StatCard
+            icon={<Star size={20} className="text-brand-gold" />}
+            label="Dias perfeitos"
+            value={`${profile.perfect_days}`}
+            sub="completos"
+            accent="#F5C842"
+          />
+          <StatCard
+            icon={<Trophy size={20} className="text-brand-purple" />}
             label="Conquistas"
             value={`${unlockedAchievements.length}/${allAchievements.length}`}
+            sub="desbloqueadas"
+            accent="#7C3AED"
+          />
+          <StatCard
+            icon={<Dumbbell size={20} className="text-brand-green" />}
+            label="Treinos"
+            value={`${workoutsCountRes.count ?? 0}`}
+            accent="#00FF88"
+          />
+          <StatCard
+            icon={<CheckSquare size={20} className="text-brand-purple" />}
+            label="Tarefas"
+            value={`${tasksCountRes.count ?? 0}`}
+            sub="concluídas"
+            accent="#7C3AED"
+          />
+          <StatCard
+            icon={<Target size={20} className="text-brand-orange" />}
+            label="Hábitos"
+            value={`${habitsCountRes.count ?? 0}`}
+            sub="registrados"
+            accent="#FF4D00"
+          />
+          <StatCard
+            icon={<Zap size={20} className="text-brand-gold" />}
+            label="XP essa semana"
+            value={`+${xpThisWeek.toLocaleString('pt-BR')}`}
+            accent="#F5C842"
           />
         </div>
 
         {/* XP Chart */}
         <section className="card p-6">
-          <h2 className="text-lg font-bold mb-4">XP — últimos 7 dias</h2>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-lg font-bold">XP — últimos 7 dias</h2>
+            <span className="text-sm text-brand-gold font-bold">
+              +{xpThisWeek.toLocaleString('pt-BR')} XP
+            </span>
+          </div>
           <XpChart data={dailyXp} />
         </section>
 
-        {/* Conquistas desbloqueadas */}
+        {/* Unlocked achievements */}
         {unlockedAchievements.length > 0 && (
           <section>
             <div className="flex items-center gap-3 mb-4">
               <h2 className="text-2xl font-bold">Conquistas</h2>
-              <span className="text-sm bg-brand-gold/20 text-brand-gold px-3 py-0.5 rounded-full font-medium">
+              <span className="text-sm bg-brand-gold/20 text-brand-gold px-3 py-0.5 rounded-full font-bold border border-brand-gold/20">
                 {unlockedAchievements.length} desbloqueadas
               </span>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {unlockedAchievements.map((a) => {
-                const rarityStyle = RARITY_STYLES[a.rarity] ?? RARITY_STYLES.common!
+                const cfg = RARITY_CONFIG[a.rarity] ?? RARITY_CONFIG.common!
                 const unlockedAt = unlockedDates.get(a.id)
                 return (
-                  <div key={a.id} className="card p-4 text-center relative overflow-hidden">
+                  <div
+                    key={a.id}
+                    className="card p-4 text-center relative overflow-hidden transition-transform hover:scale-[1.02]"
+                    style={{
+                      border: `1px solid ${cfg.color}30`,
+                      boxShadow: `0 0 20px ${cfg.glow}`,
+                    }}
+                  >
+                    {/* Rarity glow background */}
+                    <div
+                      className="absolute inset-0 opacity-5 pointer-events-none"
+                      style={{ background: `radial-gradient(circle at 50% 30%, ${cfg.color} 0%, transparent 70%)` }}
+                    />
+
+                    {/* Rarity badge */}
                     <div className="absolute top-2 right-2">
-                      <span className={`text-[10px] font-bold uppercase ${rarityStyle.class}`}>
-                        {rarityStyle.label}
+                      <span className={`text-[9px] font-bold uppercase px-1.5 py-0.5 rounded-full ${cfg.badge}`}>
+                        {cfg.label}
                       </span>
                     </div>
-                    <div className="text-4xl mb-2 mt-1">{a.icon}</div>
-                    <div className="font-bold text-sm">{a.name}</div>
-                    <div className="text-xs text-text-muted mt-1 line-clamp-2">{a.description}</div>
-                    <div className="text-xs text-brand-gold mt-2 font-medium">+{a.xp_reward} XP</div>
+
+                    <div className="text-4xl mb-2 mt-2 relative z-10">{a.icon}</div>
+                    <div className="font-bold text-sm relative z-10">{a.name}</div>
+                    <div className="text-xs text-text-muted mt-1 line-clamp-2 relative z-10">{a.description}</div>
+                    <div className="mt-2 relative z-10">
+                      <span
+                        className="text-xs font-bold px-2 py-0.5 rounded-full"
+                        style={{ color: cfg.color, backgroundColor: `${cfg.color}15` }}
+                      >
+                        +{a.xp_reward} XP
+                      </span>
+                    </div>
                     {unlockedAt && (
-                      <div className="text-[10px] text-text-muted mt-1">
-                        {new Date(unlockedAt).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
+                      <div className="text-[10px] text-text-muted mt-1.5 relative z-10">
+                        {new Date(unlockedAt).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: '2-digit' })}
                       </div>
                     )}
                   </div>
@@ -181,7 +344,7 @@ export default async function ScorePage() {
           </section>
         )}
 
-        {/* Conquistas bloqueadas */}
+        {/* Locked achievements */}
         {lockedAchievements.length > 0 && (
           <section>
             <div className="flex items-center gap-3 mb-4">
@@ -192,17 +355,22 @@ export default async function ScorePage() {
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {lockedAchievements.map((a) => {
-                const rarityStyle = RARITY_STYLES[a.rarity] ?? RARITY_STYLES.common!
+                const cfg = RARITY_CONFIG[a.rarity] ?? RARITY_CONFIG.common!
                 return (
-                  <div key={a.id} className="card p-4 text-center opacity-50 relative">
+                  <div
+                    key={a.id}
+                    className="card p-4 text-center relative overflow-hidden opacity-45 hover:opacity-60 transition-opacity"
+                  >
                     <div className="absolute top-2 right-2">
                       <Lock size={12} className="text-text-muted" />
                     </div>
-                    <div className="text-4xl mb-2 mt-1 grayscale">{a.icon}</div>
+                    <div className="text-4xl mb-2 mt-2 grayscale">{a.icon}</div>
                     <div className="font-bold text-sm text-text-secondary">{a.name}</div>
                     <div className="text-xs text-text-muted mt-1 line-clamp-2">{a.description}</div>
-                    <div className={`text-[10px] mt-2 font-bold uppercase ${rarityStyle.class}`}>
-                      {rarityStyle.label} · +{a.xp_reward} XP
+                    <div className="mt-2">
+                      <span className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded-full ${cfg.badge}`}>
+                        {cfg.label} · +{a.xp_reward} XP
+                      </span>
                     </div>
                   </div>
                 )
@@ -212,9 +380,10 @@ export default async function ScorePage() {
         )}
 
         {allAchievements.length === 0 && (
-          <div className="card p-8 text-center text-text-secondary">
-            <div className="text-4xl mb-3">🏆</div>
-            <p>Nenhuma conquista cadastrada ainda. Continue jogando para desbloquear!</p>
+          <div className="card p-10 text-center text-text-secondary">
+            <div className="text-5xl mb-4">🏆</div>
+            <p className="font-medium">Nenhuma conquista cadastrada ainda.</p>
+            <p className="text-sm text-text-muted mt-1">Continue usando o FitQuest para desbloquear conquistas!</p>
           </div>
         )}
       </div>
@@ -222,12 +391,38 @@ export default async function ScorePage() {
   )
 }
 
-function StatCard({ label, value, sub }: { label: string; value: string; sub?: string }) {
+function StatCard({
+  icon,
+  label,
+  value,
+  sub,
+  accent,
+  prefix,
+}: {
+  icon: React.ReactNode
+  label: string
+  value: string
+  sub?: string
+  accent: string
+  prefix?: string
+}) {
   return (
-    <div className="card p-4">
-      <div className="text-xs text-text-muted uppercase tracking-wider">{label}</div>
-      <div className="heading-display text-3xl mt-1">{value}</div>
-      {sub && <div className="text-xs text-text-secondary">{sub}</div>}
+    <div
+      className="card p-4 relative overflow-hidden transition-transform hover:scale-[1.01]"
+      style={{ borderColor: `${accent}20` }}
+    >
+      <div
+        className="absolute -top-4 -right-4 w-16 h-16 rounded-full blur-xl pointer-events-none opacity-20"
+        style={{ backgroundColor: accent }}
+      />
+      <div className="flex items-center gap-2 mb-2 relative z-10">
+        {icon}
+        <span className="text-xs text-text-muted uppercase tracking-wider">{label}</span>
+      </div>
+      <div className="heading-display text-3xl leading-tight relative z-10">
+        {prefix}{value}
+      </div>
+      {sub && <div className="text-xs text-text-secondary mt-0.5 relative z-10">{sub}</div>}
     </div>
   )
 }
