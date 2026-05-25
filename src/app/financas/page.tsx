@@ -345,8 +345,13 @@ export default async function FinancasPage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {/* Net balance */}
           <div
-            className="card p-4 relative overflow-hidden"
-            style={{ borderColor: net >= 0 ? 'rgba(0,255,136,0.2)' : 'rgba(255,77,0,0.2)' }}
+            className="rounded-2xl p-4 relative overflow-hidden"
+            style={{
+              background: net >= 0
+                ? 'linear-gradient(135deg, rgba(0,255,136,0.07) 0%, rgba(13,24,41,0.98) 100%)'
+                : 'linear-gradient(135deg, rgba(255,77,0,0.07) 0%, rgba(13,24,41,0.98) 100%)',
+              border: net >= 0 ? '1px solid rgba(0,255,136,0.2)' : '1px solid rgba(255,77,0,0.2)',
+            }}
           >
             <div
               className="absolute -top-4 -right-4 w-16 h-16 rounded-full pointer-events-none blur-xl"
@@ -363,14 +368,18 @@ export default async function FinancasPage() {
 
           {/* Savings rate */}
           <div
-            className="card p-4 relative overflow-hidden"
+            className="rounded-2xl p-4 relative overflow-hidden"
             style={{
-              borderColor:
-                savingsRate >= 20
-                  ? 'rgba(0,255,136,0.2)'
-                  : savingsRate >= 0
-                  ? 'rgba(245,200,66,0.2)'
-                  : 'rgba(255,77,0,0.2)',
+              background: savingsRate >= 20
+                ? 'linear-gradient(135deg, rgba(0,255,136,0.07) 0%, rgba(13,24,41,0.98) 100%)'
+                : savingsRate >= 0
+                ? 'linear-gradient(135deg, rgba(245,200,66,0.07) 0%, rgba(13,24,41,0.98) 100%)'
+                : 'linear-gradient(135deg, rgba(255,77,0,0.07) 0%, rgba(13,24,41,0.98) 100%)',
+              border: savingsRate >= 20
+                ? '1px solid rgba(0,255,136,0.2)'
+                : savingsRate >= 0
+                ? '1px solid rgba(245,200,66,0.2)'
+                : '1px solid rgba(255,77,0,0.2)',
             }}
           >
             <div
@@ -407,7 +416,13 @@ export default async function FinancasPage() {
           </div>
 
           {/* Daily average */}
-          <div className="card p-4 relative overflow-hidden" style={{ borderColor: 'rgba(255,77,0,0.15)' }}>
+          <div
+            className="rounded-2xl p-4 relative overflow-hidden"
+            style={{
+              background: 'linear-gradient(135deg, rgba(255,77,0,0.06) 0%, rgba(13,24,41,0.98) 100%)',
+              border: '1px solid rgba(255,77,0,0.18)',
+            }}
+          >
             <div
               className="absolute -top-4 -right-4 w-16 h-16 rounded-full pointer-events-none blur-xl"
               style={{ background: 'rgba(255,77,0,0.08)' }}
@@ -420,7 +435,13 @@ export default async function FinancasPage() {
           </div>
 
           {/* Month progress */}
-          <div className="card p-4 relative overflow-hidden" style={{ borderColor: 'rgba(124,58,237,0.15)' }}>
+          <div
+            className="rounded-2xl p-4 relative overflow-hidden"
+            style={{
+              background: 'linear-gradient(135deg, rgba(124,58,237,0.06) 0%, rgba(13,24,41,0.98) 100%)',
+              border: '1px solid rgba(124,58,237,0.18)',
+            }}
+          >
             <div
               className="absolute -top-4 -right-4 w-16 h-16 rounded-full pointer-events-none blur-xl"
               style={{ background: 'rgba(124,58,237,0.08)' }}
@@ -442,7 +463,13 @@ export default async function FinancasPage() {
 
         {/* ── Spending Chart ───────────────────────────────────────────── */}
         {categorySpend.length > 0 && (
-          <section className="card p-6">
+          <section
+            className="rounded-2xl p-6 relative overflow-hidden"
+            style={{
+              background: 'linear-gradient(135deg, rgba(124,58,237,0.05) 0%, rgba(13,24,41,0.98) 100%)',
+              border: '1px solid rgba(124,58,237,0.15)',
+            }}
+          >
             <div className="flex items-center justify-between mb-5">
               <div>
                 <h2 className="text-xl font-bold">Gastos por categoria</h2>
@@ -494,7 +521,13 @@ export default async function FinancasPage() {
           </div>
 
           {accounts.length === 0 ? (
-            <div className="card p-8 text-center">
+            <div
+              className="rounded-2xl p-8 text-center relative overflow-hidden"
+              style={{
+                background: 'linear-gradient(135deg, rgba(124,58,237,0.06) 0%, rgba(13,24,41,0.98) 100%)',
+                border: '1px solid rgba(124,58,237,0.15)',
+              }}
+            >
               <div className="text-4xl mb-3">🏦</div>
               <p className="text-text-secondary mb-4">Você ainda não cadastrou nenhuma conta</p>
               <Link href="/financas/contas" className="btn-primary inline-block">
@@ -506,8 +539,11 @@ export default async function FinancasPage() {
               {accounts.slice(0, 3).map((a) => (
                 <div
                   key={a.id}
-                  className="card p-5 relative overflow-hidden hover:scale-[1.01] transition-transform"
-                  style={{ borderColor: `${a.color}30` }}
+                  className="rounded-2xl p-5 relative overflow-hidden hover:scale-[1.01] transition-transform"
+                  style={{
+                    background: `linear-gradient(135deg, ${a.color}0D 0%, rgba(13,24,41,0.98) 100%)`,
+                    border: `1px solid ${a.color}30`,
+                  }}
                 >
                   <div
                     className="absolute -top-4 -right-4 w-20 h-20 rounded-full pointer-events-none blur-xl"
@@ -538,7 +574,11 @@ export default async function FinancasPage() {
               {accounts.length > 3 && (
                 <Link
                   href="/financas/contas"
-                  className="card p-5 flex items-center justify-center text-text-muted hover:text-brand-orange transition-colors border-dashed gap-2"
+                  className="rounded-2xl p-5 flex items-center justify-center text-text-muted hover:text-brand-orange transition-all gap-2"
+                  style={{
+                    background: 'rgba(255,77,0,0.04)',
+                    border: '1px dashed rgba(255,77,0,0.25)',
+                  }}
                 >
                   <Plus size={16} />
                   <span>{accounts.length - 3} conta{accounts.length - 3 !== 1 ? 's' : ''} a mais</span>
@@ -618,7 +658,13 @@ export default async function FinancasPage() {
                 Ver todas <ArrowRight size={13} />
               </Link>
             </div>
-            <div className="card overflow-hidden">
+            <div
+              className="rounded-2xl overflow-hidden"
+              style={{
+                background: 'rgba(13,24,41,0.8)',
+                border: '1px solid rgba(255,255,255,0.06)',
+              }}
+            >
               {recentTxRes.data.map((tx, i) => {
                 const cat = catMap.get(tx.category_id ?? '')
                 const isLast = i === recentTxRes.data!.length - 1

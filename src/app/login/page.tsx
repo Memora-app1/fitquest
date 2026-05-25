@@ -198,7 +198,18 @@ function LoginContent() {
             </Link>
           </div>
 
-          <div className="card-glow p-8 space-y-6">
+          <div
+            className="rounded-2xl p-8 space-y-6 relative overflow-hidden"
+            style={{
+              background: 'linear-gradient(135deg, rgba(255,77,0,0.06) 0%, rgba(13,24,41,0.99) 100%)',
+              border: '1px solid rgba(255,77,0,0.2)',
+              boxShadow: '0 24px 60px rgba(0,0,0,0.4), 0 0 40px rgba(255,77,0,0.06)',
+            }}
+          >
+            <div
+              className="absolute -top-8 -right-8 w-32 h-32 rounded-full pointer-events-none"
+              style={{ background: 'radial-gradient(circle, rgba(255,77,0,0.1) 0%, transparent 70%)' }}
+            />
             <div className="space-y-1">
               <h1 className="text-2xl font-bold">Bem-vindo de volta</h1>
               <p className="text-text-secondary text-sm">Entre e continue sua evolução</p>
