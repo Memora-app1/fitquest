@@ -1,15 +1,5 @@
 'use client'
 
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  Cell,
-  ResponsiveContainer,
-} from 'recharts'
-
 interface CategorySpend {
   name: string
   icon: string
@@ -17,24 +7,8 @@ interface CategorySpend {
   color: string
 }
 
-interface CustomTooltipProps {
-  active?: boolean
-  payload?: Array<{ value: number; payload: CategorySpend }>
-}
-
 function formatBRL(v: number) {
-  return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })
-}
-
-function CustomTooltip({ active, payload }: CustomTooltipProps) {
-  if (!active || !payload?.length) return null
-  const item = payload[0]!
-  return (
-    <div className="bg-bg-card border border-border rounded-xl px-3 py-2 text-sm">
-      <p className="font-bold text-white">{item.payload.icon} {item.payload.name}</p>
-      <p className="text-brand-red">{formatBRL(item.value)}</p>
-    </div>
-  )
+  return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 }
 
 export function SpendingChart({ data }: { data: CategorySpend[] }) {
@@ -46,40 +20,44 @@ export function SpendingChart({ data }: { data: CategorySpend[] }) {
     )
   }
 
+  const total = data.reduce((sum, d) => sum + d.amount, 0)
+  const max = data[0]?.amount ?? 1
+
   return (
-    <ResponsiveContainer width="100%" height={Math.max(120, data.length * 36)}>
-      <BarChart
-        data={data}
-        layout="vertical"
-        margin={{ top: 0, right: 8, left: 0, bottom: 0 }}
-      >
-        <XAxis type="number" hide />
-        <YAxis
-          type="category"
-          dataKey="name"
-          tick={({ x, y, payload }) => {
-            const item = data.find((d) => d.name === payload.value)
-            return (
-              <text x={x} y={y} fill="#8899BB" fontSize={12} textAnchor="end" dominantBaseline="middle">
-                {item?.icon} {payload.value}
-              </text>
-            )
-          }}
-          width={100}
-          axisLine={false}
-          tickLine={false}
-        />
-        <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,77,0,0.06)' }} />
-        <Bar dataKey="amount" radius={[0, 6, 6, 0]}>
-          {data.map((entry, i) => (
-            <Cell
-              key={i}
-              fill={entry.color || '#FF4D00'}
-              fillOpacity={0.85}
-            />
-          ))}
-        </Bar>
-      </BarChart>
-    </ResponsiveContainer>
+    <div className="space-y-3">
+      {data.map((item, i) => {
+        const pct = total > 0 ? Math.round((item.amount / total) * 100) : 0
+        const barWidth = Math.round((item.amount / max) * 100)
+
+        return (
+          <div key={i} className="group">
+            <div className="flex items-center justify-between mb-1.5">
+              <div className="flex items-center gap-2">
+                <span className="text-base">{item.icon}</span>
+                <span className="text-sm font-medium text-white">{item.name}</span>
+                <span
+                  className="text-[10px] font-bold px-1.5 py-0.5 rounded-full"
+                  style={{ backgroundColor: `${item.color}22`, color: item.color }}
+                >
+                  {pct}%
+                </span>
+              </div>
+              <span className="text-sm font-bold text-white">{formatBRL(item.amount)}</span>
+            </div>
+            <div className="h-2.5 bg-bg-elevated rounded-full overflow-hidden">
+              <div
+                className="h-full rounded-full transition-all duration-700"
+                style={{ width: `${barWidth}%`, backgroundColor: item.color, opacity: 0.85 }}
+              />
+            </div>
+          </div>
+        )
+      })}
+
+      <div className="pt-2 border-t border-border flex items-center justify-between text-sm">
+        <span className="text-text-muted">Total gasto em {data.length} categoria{data.length !== 1 ? 's' : ''}</span>
+        <span className="font-bold text-brand-red">{formatBRL(total)}</span>
+      </div>
+    </div>
   )
 }

@@ -8,15 +8,16 @@ interface XpTransaction {
   created_at: string
 }
 
-const SOURCE_ICONS: Record<string, string> = {
-  habit: '🎯',
-  workout: '💪',
-  task: '✅',
-  perfect_day: '⭐',
-  streak_milestone: '🔥',
-  achievement: '🏆',
-  finance_goal: '💰',
-  system: '⚡',
+const SOURCE_CONFIG: Record<string, { icon: string; color: string; label: string }> = {
+  habit:            { icon: '🎯', color: '#FF4D00', label: 'Hábito' },
+  workout:          { icon: '💪', color: '#00FF88', label: 'Treino' },
+  task:             { icon: '✅', color: '#7C3AED', label: 'Tarefa' },
+  perfect_day:      { icon: '⭐', color: '#F5C842', label: 'Dia perfeito' },
+  streak_milestone: { icon: '🔥', color: '#FF4D00', label: 'Streak' },
+  achievement:      { icon: '🏆', color: '#F5C842', label: 'Conquista' },
+  finance_goal:     { icon: '💰', color: '#00FF88', label: 'Meta' },
+  transaction:      { icon: '💳', color: '#3B82F6', label: 'Finanças' },
+  system:           { icon: '⚡', color: '#F5C842', label: 'Sistema' },
 }
 
 function timeAgo(date: string): string {
@@ -24,7 +25,6 @@ function timeAgo(date: string): string {
   const mins = Math.floor(diff / 60000)
   const hours = Math.floor(diff / 3600000)
   const days = Math.floor(diff / 86400000)
-
   if (days > 0) return `${days}d atrás`
   if (hours > 0) return `${hours}h atrás`
   if (mins > 0) return `${mins}min atrás`
@@ -32,6 +32,8 @@ function timeAgo(date: string): string {
 }
 
 export function ActivityFeed({ transactions }: { transactions: XpTransaction[] }) {
+  const totalXpShown = transactions.reduce((sum, t) => sum + (t.amount || 0), 0)
+
   if (transactions.length === 0) {
     return (
       <div className="card p-6">
@@ -39,9 +41,10 @@ export function ActivityFeed({ transactions }: { transactions: XpTransaction[] }
           <Zap size={18} className="text-brand-gold" />
           <h2 className="font-bold">Atividade Recente</h2>
         </div>
-        <div className="text-center py-6">
-          <div className="text-3xl mb-2">🌱</div>
-          <p className="text-text-muted text-sm">Comece a ganhar XP registrando seus primeiros hábitos!</p>
+        <div className="text-center py-8">
+          <div className="text-4xl mb-3">🌱</div>
+          <p className="text-text-secondary text-sm font-medium">Nenhuma atividade ainda</p>
+          <p className="text-text-muted text-xs mt-1">Registre um hábito ou complete uma tarefa para ganhar XP</p>
         </div>
       </div>
     )
@@ -49,30 +52,51 @@ export function ActivityFeed({ transactions }: { transactions: XpTransaction[] }
 
   return (
     <div className="card p-6">
-      <div className="flex items-center gap-2 mb-4">
-        <Zap size={18} className="text-brand-gold" />
-        <h2 className="font-bold">Atividade Recente</h2>
-        <span className="text-xs text-text-muted ml-auto">Últimas 48h</span>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <Zap size={18} className="text-brand-gold" />
+          <h2 className="font-bold">Atividade Recente</h2>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-text-muted">48h</span>
+          <span className="text-xs bg-brand-gold/20 text-brand-gold font-bold px-2 py-0.5 rounded-full">
+            +{totalXpShown} XP
+          </span>
+        </div>
       </div>
 
-      <div className="space-y-2">
-        {transactions.map((tx) => (
-          <div
-            key={tx.id}
-            className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-bg-elevated transition-colors"
-          >
-            <div className="text-xl w-8 text-center shrink-0">
-              {SOURCE_ICONS[tx.source_type] ?? '⚡'}
+      <div className="space-y-1">
+        {transactions.map((tx) => {
+          const cfg = SOURCE_CONFIG[tx.source_type] ?? SOURCE_CONFIG.system!
+          return (
+            <div
+              key={tx.id}
+              className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-bg-elevated transition-colors group"
+            >
+              <div
+                className="w-9 h-9 rounded-xl flex items-center justify-center text-base shrink-0"
+                style={{ backgroundColor: `${cfg.color}18` }}
+              >
+                {cfg.icon}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium truncate">{tx.reason}</div>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <span
+                    className="text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded-full"
+                    style={{ backgroundColor: `${cfg.color}18`, color: cfg.color }}
+                  >
+                    {cfg.label}
+                  </span>
+                  <span className="text-[10px] text-text-muted">{timeAgo(tx.created_at)}</span>
+                </div>
+              </div>
+              <div className="text-brand-gold font-bold text-sm shrink-0">
+                +{tx.amount} XP
+              </div>
             </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium truncate">{tx.reason}</div>
-              <div className="text-xs text-text-muted">{timeAgo(tx.created_at)}</div>
-            </div>
-            <div className="text-brand-gold font-bold text-sm shrink-0">
-              +{tx.amount} XP
-            </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
     </div>
   )
