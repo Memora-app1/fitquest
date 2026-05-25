@@ -4,7 +4,7 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
-import { Check, Plus, X, Trash2, MoreVertical, Pencil } from 'lucide-react'
+import { Check, Plus, X, Trash2, MoreVertical, Pencil, Flame, Zap } from 'lucide-react'
 import { useXpToast, XpToastContainer } from '@/components/xp-toast'
 
 interface Habit {
@@ -86,7 +86,7 @@ export function HabitsList({
   function getLast30Days(habitId: string): boolean[] {
     const out: boolean[] = []
     const logsByDate = new Set(
-      weekLogs.filter((l) => l.habit_id === habitId).map((l) => l.logged_date)
+      weekLogs.filter((l) => l.habit_id === habitId).map((l) => l.logged_date),
     )
     for (let i = 29; i >= 0; i--) {
       const d = new Date()
@@ -96,11 +96,27 @@ export function HabitsList({
     return out
   }
 
+  // Compute consecutive streak from today backwards
+  function getCurrentStreak(habitId: string): number {
+    const logsByDate = new Set(
+      weekLogs.filter((l) => l.habit_id === habitId).map((l) => l.logged_date),
+    )
+    let streak = 0
+    const d = new Date()
+    while (true) {
+      const key = d.toISOString().split('T')[0]!
+      if (!logsByDate.has(key)) break
+      streak++
+      d.setDate(d.getDate() - 1)
+    }
+    return streak
+  }
+
   if (habits.length === 0) {
     return (
       <>
         <div className="card p-8 text-center">
-          <div className="text-4xl mb-3">🎯</div>
+          <div className="text-5xl mb-3">🎯</div>
           <h3 className="text-xl font-bold mb-1">Nenhum hábito ainda</h3>
           <p className="text-text-secondary mb-4">Crie seu primeiro hábito pra começar a ganhar XP</p>
           <button onClick={() => setShowCreate(true)} className="btn-primary">
@@ -121,8 +137,8 @@ export function HabitsList({
     <>
       <XpToastContainer toasts={toasts} />
       <div className="flex justify-end">
-        <button onClick={() => setShowCreate(true)} className="btn-primary">
-          <Plus size={18} className="inline mr-1" /> Novo hábito
+        <button onClick={() => setShowCreate(true)} className="btn-primary flex items-center gap-2">
+          <Plus size={18} /> Novo hábito
         </button>
       </div>
 
@@ -130,92 +146,169 @@ export function HabitsList({
         {habits.map((h) => {
           const done = optimistic.has(h.id)
           const last30 = getLast30Days(h.id)
-          const streak30 = last30.filter(Boolean).length
+          const total30 = last30.filter(Boolean).length
+          const currentStreak = getCurrentStreak(h.id)
           const isDeleting = deletingId === h.id
+          const pct30 = Math.round((total30 / 30) * 100)
 
           return (
-            <div key={h.id} className={cn('card p-4 transition-opacity', isDeleting && 'opacity-40')}>
-              <div className="flex items-center gap-3 mb-3">
-                <div
-                  className="text-2xl w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
-                  style={{ backgroundColor: `${h.color}20` }}
-                >
-                  {h.icon}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="font-bold truncate">{h.name}</div>
-                  <div className="text-xs text-text-muted flex items-center gap-2">
-                    <span>{h.frequency_per_week}x/semana · +{h.xp_per_completion} XP</span>
-                    {streak30 > 0 && (
-                      <span className="text-brand-orange">🔥 {streak30}/30</span>
-                    )}
-                  </div>
-                </div>
+            <div
+              key={h.id}
+              className={cn(
+                'rounded-2xl p-5 relative overflow-hidden transition-all',
+                done && 'opacity-90',
+                isDeleting && 'opacity-40',
+              )}
+              style={{
+                background: done
+                  ? `linear-gradient(135deg, ${h.color}10 0%, rgba(13,24,41,0.98) 100%)`
+                  : 'rgba(13,24,41,0.8)',
+                border: `1px solid ${done ? h.color + '40' : 'rgba(255,255,255,0.06)'}`,
+                boxShadow: done ? `0 0 20px ${h.color}15` : 'none',
+              }}
+            >
+              {/* Color glow top-right */}
+              <div
+                className="absolute -top-6 -right-6 w-24 h-24 rounded-full pointer-events-none blur-xl transition-opacity"
+                style={{ backgroundColor: h.color, opacity: done ? 0.15 : 0.06 }}
+              />
 
-                {/* Actions */}
-                <div className="flex items-center gap-2 shrink-0">
-                  <button
-                    onClick={() => toggle(h.id)}
-                    disabled={done || isDeleting}
-                    className={cn(
-                      'px-3 py-1.5 rounded-xl font-medium transition-all text-sm',
-                      done
-                        ? 'bg-brand-green/20 text-brand-green'
-                        : 'bg-gradient-brand text-white hover:opacity-90'
-                    )}
+              <div className="relative z-10">
+                {/* Top row: icon + name + actions */}
+                <div className="flex items-center gap-3 mb-4">
+                  <div
+                    className="text-2xl w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-all"
+                    style={{
+                      backgroundColor: done ? `${h.color}25` : `${h.color}15`,
+                      border: `1px solid ${h.color}30`,
+                    }}
                   >
-                    {done ? (
-                      <>
-                        <Check size={14} className="inline" /> Feito
-                      </>
-                    ) : (
-                      '+ Registrar'
-                    )}
-                  </button>
+                    {h.icon}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-bold truncate flex items-center gap-2">
+                      {h.name}
+                      {done && (
+                        <span
+                          className="text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wider"
+                          style={{ background: `${h.color}20`, color: h.color }}
+                        >
+                          ✓ Feito hoje
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-xs text-text-muted flex items-center gap-2 mt-0.5">
+                      <span>{h.frequency_per_week}x/semana</span>
+                      <span>·</span>
+                      <span className="flex items-center gap-0.5 text-brand-gold">
+                        <Zap size={10} fill="currentColor" />
+                        +{h.xp_per_completion} XP
+                      </span>
+                      {currentStreak > 0 && (
+                        <>
+                          <span>·</span>
+                          <span className="flex items-center gap-0.5 text-brand-orange">
+                            <Flame size={10} />
+                            {currentStreak} dias
+                          </span>
+                        </>
+                      )}
+                    </div>
+                  </div>
 
-                  {/* More menu */}
-                  <div className="relative">
+                  {/* Actions */}
+                  <div className="flex items-center gap-2 shrink-0">
                     <button
-                      onClick={() => setOpenMenu(openMenu === h.id ? null : h.id)}
-                      className="w-8 h-8 rounded-lg bg-bg-elevated flex items-center justify-center text-text-muted hover:text-white hover:bg-border transition-colors"
+                      onClick={() => toggle(h.id)}
+                      disabled={done || isDeleting}
+                      className={cn(
+                        'px-3 py-1.5 rounded-xl font-semibold transition-all text-sm flex items-center gap-1.5',
+                        done
+                          ? 'cursor-default'
+                          : 'hover:opacity-90 active:scale-95',
+                      )}
+                      style={
+                        done
+                          ? { background: `${h.color}20`, color: h.color }
+                          : { background: h.color, color: '#050914' }
+                      }
                     >
-                      <MoreVertical size={14} />
+                      {done ? (
+                        <>
+                          <Check size={14} /> Feito
+                        </>
+                      ) : (
+                        '+ Registrar'
+                      )}
                     </button>
 
-                    {openMenu === h.id && (
-                      <div className="absolute right-0 top-10 bg-bg-card border border-border rounded-xl shadow-xl z-20 w-40 overflow-hidden">
-                        <button
-                          onClick={() => { setEditHabit(h); setOpenMenu(null) }}
-                          className="flex items-center gap-2 w-full px-4 py-3 text-sm hover:bg-bg-elevated transition-colors"
+                    {/* More menu */}
+                    <div className="relative">
+                      <button
+                        onClick={() => setOpenMenu(openMenu === h.id ? null : h.id)}
+                        className="w-8 h-8 rounded-lg bg-bg-elevated flex items-center justify-center text-text-muted hover:text-white hover:bg-border transition-colors"
+                      >
+                        <MoreVertical size={14} />
+                      </button>
+
+                      {openMenu === h.id && (
+                        <div className="absolute right-0 top-10 bg-bg-card border border-border rounded-xl shadow-xl z-20 w-40 overflow-hidden">
+                          <button
+                            onClick={() => {
+                              setEditHabit(h)
+                              setOpenMenu(null)
+                            }}
+                            className="flex items-center gap-2 w-full px-4 py-3 text-sm hover:bg-bg-elevated transition-colors"
+                          >
+                            <Pencil size={14} className="text-brand-orange" />
+                            Editar
+                          </button>
+                          <button
+                            onClick={() => deleteHabit(h.id)}
+                            className="flex items-center gap-2 w-full px-4 py-3 text-sm text-brand-red hover:bg-brand-red/10 transition-colors"
+                          >
+                            <Trash2 size={14} />
+                            Remover
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Contribution graph + stats */}
+                <div className="space-y-1.5">
+                  <div className="flex gap-0.5">
+                    {last30.map((d, i) => (
+                      <div
+                        key={i}
+                        className="flex-1 h-3 rounded-sm transition-all"
+                        style={{
+                          backgroundColor: d ? h.color : '#152238',
+                          opacity: d ? (i > 24 ? 1 : i > 14 ? 0.85 : 0.7) : 1,
+                        }}
+                        title={d ? 'Feito' : 'Não feito'}
+                      />
+                    ))}
+                  </div>
+                  <div className="flex items-center justify-between text-xs text-text-muted">
+                    <span>30 dias atrás</span>
+                    <div className="flex items-center gap-3">
+                      <span>
+                        <span style={{ color: h.color }} className="font-bold">{total30}</span>
+                        /30 dias ·{' '}
+                        <span
+                          className="font-semibold"
+                          style={{ color: pct30 >= 80 ? '#00FF88' : pct30 >= 50 ? '#F5C842' : '#FF4D00' }}
                         >
-                          <Pencil size={14} className="text-brand-orange" />
-                          Editar
-                        </button>
-                        <button
-                          onClick={() => deleteHabit(h.id)}
-                          className="flex items-center gap-2 w-full px-4 py-3 text-sm text-brand-red hover:bg-brand-red/10 transition-colors"
-                        >
-                          <Trash2 size={14} />
-                          Remover
-                        </button>
-                      </div>
-                    )}
+                          {pct30}%
+                        </span>
+                      </span>
+                    </div>
+                    <span>Hoje</span>
                   </div>
                 </div>
               </div>
-
-              {/* Contribution graph dos últimos 30 dias */}
-              <div className="flex gap-0.5">
-                {last30.map((d, i) => (
-                  <div
-                    key={i}
-                    className="flex-1 h-3 rounded-sm"
-                    style={{ backgroundColor: d ? h.color : '#152238' }}
-                    title={d ? 'Feito' : 'Não feito'}
-                  />
-                ))}
-              </div>
-              <div className="text-xs text-text-muted mt-1">Últimos 30 dias · {streak30} completados</div>
             </div>
           )
         })}
@@ -223,10 +316,7 @@ export function HabitsList({
 
       {/* Backdrop para fechar menus */}
       {openMenu && (
-        <div
-          className="fixed inset-0 z-10"
-          onClick={() => setOpenMenu(null)}
-        />
+        <div className="fixed inset-0 z-10" onClick={() => setOpenMenu(null)} />
       )}
 
       {showCreate && (
@@ -241,7 +331,7 @@ export function HabitsList({
           habit={editHabit}
           onClose={() => setEditHabit(null)}
           onSaved={(updated) => {
-            setHabits((prev) => prev.map((h) => h.id === updated.id ? updated : h))
+            setHabits((prev) => prev.map((h) => (h.id === updated.id ? updated : h)))
             setEditHabit(null)
           }}
         />
@@ -299,23 +389,23 @@ function CreateHabitModal({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/60 z-50 flex items-end md:items-center justify-center p-4">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end md:items-center justify-center p-4">
       <div className="card-glow w-full max-w-md p-6 space-y-4 animate-slide-up">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-bold">Novo hábito</h2>
-          <button onClick={onClose} className="text-text-muted hover:text-white">
+          <button onClick={onClose} className="text-text-muted hover:text-white transition-colors">
             <X size={20} />
           </button>
         </div>
 
-        <form onSubmit={submit} className="space-y-4">
+        <form onSubmit={submit} className="space-y-5">
           <div>
-            <label className="text-sm text-text-secondary block mb-2">Nome</label>
+            <label className="text-sm text-text-secondary block mb-2">Nome do hábito</label>
             <input
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Ex: Treinar, Beber água..."
+              placeholder="Ex: Treinar, Beber água, Meditar..."
               className="input w-full"
               maxLength={100}
             />
@@ -331,8 +421,15 @@ function CreateHabitModal({
                   onClick={() => setIcon(i)}
                   className={cn(
                     'w-10 h-10 rounded-lg text-xl flex items-center justify-center transition-all',
-                    icon === i ? 'bg-brand-orange/30 ring-2 ring-brand-orange' : 'bg-bg-elevated'
+                    icon === i
+                      ? 'ring-2 scale-110'
+                      : 'bg-bg-elevated hover:bg-border',
                   )}
+                  style={
+                    icon === i
+                      ? { background: `${color}20`, boxShadow: `0 0 0 2px ${color}` }
+                      : {}
+                  }
                 >
                   {i}
                 </button>
@@ -348,11 +445,12 @@ function CreateHabitModal({
                   key={c}
                   type="button"
                   onClick={() => setColor(c)}
-                  className={cn(
-                    'w-10 h-10 rounded-lg transition-all',
-                    color === c && 'ring-2 ring-white scale-110'
-                  )}
-                  style={{ backgroundColor: c }}
+                  className="w-10 h-10 rounded-lg transition-all"
+                  style={{
+                    backgroundColor: c,
+                    boxShadow: color === c ? `0 0 0 3px rgba(255,255,255,0.9), 0 0 12px ${c}60` : 'none',
+                    transform: color === c ? 'scale(1.15)' : 'scale(1)',
+                  }}
                 />
               ))}
             </div>
@@ -360,7 +458,10 @@ function CreateHabitModal({
 
           <div>
             <label className="text-sm text-text-secondary block mb-2">
-              Frequência: {freq}x/semana
+              Frequência:{' '}
+              <span className="text-white font-bold">
+                {freq === 7 ? 'Todo dia' : `${freq}x/semana`}
+              </span>
             </label>
             <input
               type="range"
@@ -368,12 +469,20 @@ function CreateHabitModal({
               max={7}
               value={freq}
               onChange={(e) => setFreq(Number(e.target.value))}
-              className="w-full"
+              className="w-full accent-brand-orange"
             />
+            <div className="flex justify-between text-xs text-text-muted mt-1">
+              <span>1x/sem</span>
+              <span>Todo dia</span>
+            </div>
           </div>
 
-          <button type="submit" disabled={loading || !name} className="btn-primary w-full">
-            {loading ? 'Criando...' : 'Criar hábito'}
+          <button
+            type="submit"
+            disabled={loading || !name}
+            className="btn-primary w-full"
+          >
+            {loading ? 'Criando...' : '+ Criar hábito'}
           </button>
         </form>
       </div>
@@ -415,18 +524,18 @@ function EditHabitModal({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/60 z-50 flex items-end md:items-center justify-center p-4">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end md:items-center justify-center p-4">
       <div className="card-glow w-full max-w-md p-6 space-y-4 animate-slide-up">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-bold">Editar hábito</h2>
-          <button onClick={onClose} className="text-text-muted hover:text-white">
+          <button onClick={onClose} className="text-text-muted hover:text-white transition-colors">
             <X size={20} />
           </button>
         </div>
 
-        <form onSubmit={submit} className="space-y-4">
+        <form onSubmit={submit} className="space-y-5">
           <div>
-            <label className="text-sm text-text-secondary block mb-2">Nome</label>
+            <label className="text-sm text-text-secondary block mb-2">Nome do hábito</label>
             <input
               required
               value={name}
@@ -446,8 +555,13 @@ function EditHabitModal({
                   onClick={() => setIcon(i)}
                   className={cn(
                     'w-10 h-10 rounded-lg text-xl flex items-center justify-center transition-all',
-                    icon === i ? 'bg-brand-orange/30 ring-2 ring-brand-orange' : 'bg-bg-elevated'
+                    icon === i ? 'scale-110' : 'bg-bg-elevated hover:bg-border',
                   )}
+                  style={
+                    icon === i
+                      ? { background: `${color}20`, boxShadow: `0 0 0 2px ${color}` }
+                      : {}
+                  }
                 >
                   {i}
                 </button>
@@ -463,11 +577,12 @@ function EditHabitModal({
                   key={c}
                   type="button"
                   onClick={() => setColor(c)}
-                  className={cn(
-                    'w-10 h-10 rounded-lg transition-all',
-                    color === c && 'ring-2 ring-white scale-110'
-                  )}
-                  style={{ backgroundColor: c }}
+                  className="w-10 h-10 rounded-lg transition-all"
+                  style={{
+                    backgroundColor: c,
+                    boxShadow: color === c ? `0 0 0 3px rgba(255,255,255,0.9), 0 0 12px ${c}60` : 'none',
+                    transform: color === c ? 'scale(1.15)' : 'scale(1)',
+                  }}
                 />
               ))}
             </div>
@@ -475,7 +590,10 @@ function EditHabitModal({
 
           <div>
             <label className="text-sm text-text-secondary block mb-2">
-              Frequência: {freq}x/semana
+              Frequência:{' '}
+              <span className="text-white font-bold">
+                {freq === 7 ? 'Todo dia' : `${freq}x/semana`}
+              </span>
             </label>
             <input
               type="range"
@@ -483,8 +601,12 @@ function EditHabitModal({
               max={7}
               value={freq}
               onChange={(e) => setFreq(Number(e.target.value))}
-              className="w-full"
+              className="w-full accent-brand-orange"
             />
+            <div className="flex justify-between text-xs text-text-muted mt-1">
+              <span>1x/sem</span>
+              <span>Todo dia</span>
+            </div>
           </div>
 
           <div className="flex gap-2">
@@ -492,7 +614,7 @@ function EditHabitModal({
               Cancelar
             </button>
             <button type="submit" disabled={loading || !name} className="btn-primary flex-1">
-              {loading ? 'Salvando...' : 'Salvar alterações'}
+              {loading ? 'Salvando...' : 'Salvar'}
             </button>
           </div>
         </form>
