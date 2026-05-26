@@ -2,9 +2,10 @@
 
 import { useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { Plus, X, Check, Trash2, AlertCircle, Star, Clock, SkipForward, Zap } from 'lucide-react'
+import { Plus, X, Check, Trash2, AlertCircle, Star, Clock, SkipForward } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { Task, TaskStatus } from '@/lib/supabase/types'
+import { useXpToast, XpToastContainer } from '@/components/xp-toast'
 
 const QUADRANTS = [
   {
@@ -81,11 +82,6 @@ interface EisenhowerTask {
   due_date: string | null
 }
 
-interface XpToast {
-  id: string
-  amount: number
-}
-
 const QUADRANT_RGB: Record<string, string> = {
   do: '239,68,68',
   schedule: '0,255,136',
@@ -97,14 +93,8 @@ export function EisenhowerBoard({ initialTasks }: { initialTasks: EisenhowerTask
   const router = useRouter()
   const [tasks, setTasks] = useState<EisenhowerTask[]>(initialTasks)
   const [showNew, setShowNew] = useState<QuadrantId | null>(null)
-  const [toasts, setToasts] = useState<XpToast[]>([])
   const [loadingIds, setLoadingIds] = useState<Set<string>>(new Set())
-
-  function addToast(amount: number) {
-    const id = crypto.randomUUID()
-    setToasts((prev) => [...prev, { id, amount }])
-    setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 2500)
-  }
+  const { toasts, showXp } = useXpToast()
 
   function setLoading(id: string, loading: boolean) {
     setLoadingIds((prev) => {
@@ -129,13 +119,13 @@ export function EisenhowerBoard({ initialTasks }: { initialTasks: EisenhowerTask
 
     if (res.ok) {
       const data = await res.json() as { xpEarned?: number }
-      if (data.xpEarned) addToast(data.xpEarned)
+      if (data.xpEarned) showXp(data.xpEarned)
       router.refresh()
     } else {
       setTasks((prev) => prev.map((t) => t.id === task.id ? { ...t, status: task.status } : t))
     }
     setLoading(task.id, false)
-  }, [loadingIds, router])
+  }, [loadingIds, router, showXp])
 
   const moveTask = useCallback(async (task: EisenhowerTask, quadrant: typeof QUADRANTS[number]) => {
     if (loadingIds.has(task.id)) return
@@ -184,17 +174,7 @@ export function EisenhowerBoard({ initialTasks }: { initialTasks: EisenhowerTask
 
   return (
     <div className="space-y-4">
-      {/* XP Toasts */}
-      <div className="fixed top-4 right-4 z-50 space-y-2 pointer-events-none">
-        {toasts.map((t) => (
-          <div
-            key={t.id}
-            className="flex items-center gap-2 bg-brand-gold text-black font-bold px-4 py-2 rounded-xl shadow-lg animate-[slide-up_0.3s_ease]"
-          >
-            <Zap size={16} />+{t.amount} XP
-          </div>
-        ))}
-      </div>
+      <XpToastContainer toasts={toasts} />
 
       {/* Quadrant grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

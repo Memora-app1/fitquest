@@ -15,30 +15,26 @@ import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-
 import { CSS } from '@dnd-kit/utilities'
 import { useRouter } from 'next/navigation'
 import {
-  Plus, X, AlertCircle, GripVertical, Check, Trash2, Zap, Calendar,
-  ChevronRight,
+  Plus, X, AlertCircle, GripVertical, Check, Trash2, Calendar,
+  ChevronRight, ListTodo, Loader2, CheckCircle2, Zap,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { Task, TaskStatus } from '@/lib/supabase/types'
+import { useXpToast, XpToastContainer } from '@/components/xp-toast'
 
-const COLUMNS: { id: TaskStatus; title: string; color: string; bg: string; rgb: string }[] = [
-  { id: 'todo', title: 'A Fazer', color: 'border-t-text-muted', bg: 'bg-bg-elevated/30', rgb: '136,153,187' },
-  { id: 'doing', title: 'Fazendo', color: 'border-t-brand-purple', bg: 'bg-brand-purple/5', rgb: '124,58,237' },
-  { id: 'done', title: 'Feito', color: 'border-t-brand-green', bg: 'bg-brand-green/5', rgb: '0,255,136' },
+const COLUMNS: { id: TaskStatus; title: string; rgb: string; emptyIcon: typeof ListTodo; emptyMsg: string }[] = [
+  { id: 'todo',  title: 'A Fazer',  rgb: '136,153,187', emptyIcon: ListTodo,     emptyMsg: 'Sem tarefas — tudo limpo!' },
+  { id: 'doing', title: 'Fazendo',  rgb: '124,58,237',  emptyIcon: Loader2,      emptyMsg: 'Nada em andamento' },
+  { id: 'done',  title: 'Feito',    rgb: '0,255,136',   emptyIcon: CheckCircle2, emptyMsg: 'Nada concluído ainda' },
 ]
-
-interface XpToast {
-  id: string
-  amount: number
-}
 
 export function KanbanBoard({ initialTasks }: { initialTasks: Task[] }) {
   const router = useRouter()
   const [tasks, setTasks] = useState<Task[]>(initialTasks)
   const [activeId, setActiveId] = useState<string | null>(null)
   const [showNew, setShowNew] = useState<TaskStatus | null>(null)
-  const [toasts, setToasts] = useState<XpToast[]>([])
   const [loadingIds, setLoadingIds] = useState<Set<string>>(new Set())
+  const { toasts, showXp } = useXpToast()
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }))
 
@@ -48,12 +44,6 @@ export function KanbanBoard({ initialTasks }: { initialTasks: Task[] }) {
       loading ? next.add(id) : next.delete(id)
       return next
     })
-  }
-
-  function addToast(amount: number) {
-    const id = crypto.randomUUID()
-    setToasts((prev) => [...prev, { id, amount }])
-    setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 2500)
   }
 
   function handleDragStart(e: DragStartEvent) {
@@ -96,7 +86,7 @@ export function KanbanBoard({ initialTasks }: { initialTasks: Task[] }) {
       setTasks(initialTasks)
     } else if (isCompletingNow) {
       const data = await res.json() as { xpEarned?: number }
-      if (data.xpEarned) addToast(data.xpEarned)
+      if (data.xpEarned) showXp(data.xpEarned)
       router.refresh()
     }
   }
@@ -117,13 +107,13 @@ export function KanbanBoard({ initialTasks }: { initialTasks: Task[] }) {
 
     if (res.ok) {
       const data = await res.json() as { xpEarned?: number }
-      if (data.xpEarned) addToast(data.xpEarned)
+      if (data.xpEarned) showXp(data.xpEarned)
       router.refresh()
     } else {
       setTasks((prev) => prev.map((t) => t.id === task.id ? { ...t, status: task.status, completed_at: task.completed_at } : t))
     }
     setTaskLoading(task.id, false)
-  }, [loadingIds, router])
+  }, [loadingIds, router, showXp])
 
   const deleteTask = useCallback(async (id: string) => {
     if (loadingIds.has(id)) return
@@ -148,31 +138,44 @@ export function KanbanBoard({ initialTasks }: { initialTasks: Task[] }) {
   const totalDone = tasks.filter((t) => t.status === 'done').length
   const totalActive = tasks.filter((t) => t.status !== 'done').length
 
+  const totalAll = tasks.length
+  const completionPct = totalAll > 0 ? Math.round((totalDone / totalAll) * 100) : 0
+
   return (
     <div className="space-y-4">
-      {/* XP Toasts */}
-      <div className="fixed top-4 right-4 z-50 space-y-2 pointer-events-none">
-        {toasts.map((t) => (
-          <div
-            key={t.id}
-            className="flex items-center gap-2 bg-brand-gold text-black font-bold px-4 py-2 rounded-xl shadow-lg animate-[slide-up_0.3s_ease]"
-          >
-            <Zap size={16} />+{t.amount} XP
-          </div>
-        ))}
-      </div>
+      <XpToastContainer toasts={toasts} />
 
       {/* Summary bar */}
       {tasks.length > 0 && (
-        <div className="flex items-center gap-4 text-sm text-text-secondary">
-          <span>{totalActive} ativas</span>
-          <span>·</span>
-          <span className="text-brand-green">{totalDone} concluídas</span>
-          {totalDone > 0 && totalActive + totalDone > 0 && (
-            <>
-              <span>·</span>
-              <span>{Math.round((totalDone / (totalActive + totalDone)) * 100)}% feito</span>
-            </>
+        <div className="space-y-2">
+          <div className="flex items-center gap-4 text-sm text-text-secondary">
+            <span>{totalActive} ativas</span>
+            <span>·</span>
+            <span className="text-brand-green font-medium">{totalDone} concluídas</span>
+            {totalDone > 0 && totalAll > 0 && (
+              <>
+                <span>·</span>
+                <span className="font-bold" style={{ color: completionPct >= 80 ? '#00FF88' : completionPct >= 50 ? '#F5C842' : '#8899BB' }}>
+                  {completionPct}% feito
+                </span>
+              </>
+            )}
+          </div>
+          {/* Overall progress bar */}
+          {totalDone > 0 && (
+            <div className="h-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)' }}>
+              <div
+                className="h-full rounded-full transition-all duration-700"
+                style={{
+                  width: `${completionPct}%`,
+                  background: completionPct >= 80
+                    ? 'linear-gradient(90deg, #00FF88, #00CC6A)'
+                    : completionPct >= 50
+                    ? 'linear-gradient(90deg, #F5C842, #FF9500)'
+                    : 'linear-gradient(90deg, #7C3AED, #9F5AF7)',
+                }}
+              />
+            </div>
           )}
         </div>
       )}
@@ -186,6 +189,7 @@ export function KanbanBoard({ initialTasks }: { initialTasks: Task[] }) {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {COLUMNS.map((col) => {
             const colTasks = tasks.filter((t) => t.status === col.id)
+            const EmptyIcon = col.emptyIcon
             return (
               <div
                 key={col.id}
@@ -193,22 +197,35 @@ export function KanbanBoard({ initialTasks }: { initialTasks: Task[] }) {
                 style={{
                   background: `linear-gradient(135deg, rgba(${col.rgb},0.07) 0%, rgba(13,24,41,0.98) 100%)`,
                   border: `1px solid rgba(${col.rgb},0.2)`,
-                  borderTop: `3px solid rgba(${col.rgb},0.55)`,
                 }}
               >
+                {/* Colored top border */}
+                <div
+                  className="absolute top-0 left-0 right-0 h-0.5 rounded-t-2xl"
+                  style={{ background: `rgba(${col.rgb},0.7)` }}
+                />
+
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-bold text-base">
-                    {col.title}
-                    <span className="text-text-muted text-sm font-normal ml-1.5">
-                      ({colTasks.length})
-                    </span>
-                  </h3>
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-bold text-base">{col.title}</h3>
+                    {colTasks.length > 0 && (
+                      <span
+                        className="text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[22px] text-center"
+                        style={{ background: `rgba(${col.rgb},0.15)`, color: `rgb(${col.rgb})` }}
+                      >
+                        {colTasks.length}
+                      </span>
+                    )}
+                  </div>
                   <button
                     onClick={() => setShowNew(col.id)}
-                    className="text-text-muted hover:text-brand-orange transition-colors"
+                    className="w-7 h-7 rounded-lg flex items-center justify-center text-text-muted hover:text-white transition-colors"
+                    style={{}}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = `rgba(${col.rgb},0.15)`; e.currentTarget.style.color = `rgb(${col.rgb})` }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = ''; e.currentTarget.style.color = '' }}
                     title="Adicionar tarefa"
                   >
-                    <Plus size={18} />
+                    <Plus size={15} />
                   </button>
                 </div>
 
@@ -219,8 +236,9 @@ export function KanbanBoard({ initialTasks }: { initialTasks: Task[] }) {
                 >
                   <div className="space-y-2 min-h-[100px]" id={col.id}>
                     {colTasks.length === 0 && (
-                      <div className="text-text-muted text-sm text-center py-8 opacity-60">
-                        {col.id === 'todo' ? 'Sem tarefas — ótimo!' : col.id === 'doing' ? 'Nada em andamento' : 'Nada concluído ainda'}
+                      <div className="flex flex-col items-center justify-center py-10 gap-2 opacity-40">
+                        <EmptyIcon size={20} style={{ color: `rgb(${col.rgb})` }} />
+                        <span className="text-text-muted text-xs">{col.emptyMsg}</span>
                       </div>
                     )}
                     {colTasks.map((t) => (
