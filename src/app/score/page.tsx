@@ -145,9 +145,11 @@ export default async function ScorePage() {
 
         {/* Level hero */}
         <div
-          className="card-glow p-8 relative overflow-hidden"
+          className="rounded-2xl p-8 relative overflow-hidden"
           style={{
             background: `radial-gradient(ellipse at 30% 50%, ${levelColor}10 0%, transparent 60%), #0D1829`,
+            border: `1px solid ${levelColor}30`,
+            boxShadow: `0 24px 60px rgba(0,0,0,0.5), 0 0 40px ${levelColor}08`,
           }}
         >
           {/* Decorative glow */}
@@ -326,8 +328,9 @@ export default async function ScorePage() {
                 return (
                   <div
                     key={a.id}
-                    className="card p-4 text-center relative overflow-hidden transition-transform hover:scale-[1.02]"
+                    className="rounded-2xl p-4 text-center relative overflow-hidden transition-transform hover:scale-[1.02]"
                     style={{
+                      background: `linear-gradient(135deg, ${cfg.color}0A 0%, rgba(13,24,41,0.98) 100%)`,
                       border: `1px solid ${cfg.color}30`,
                       boxShadow: `0 0 20px ${cfg.glow}`,
                     }}
@@ -383,7 +386,11 @@ export default async function ScorePage() {
                 return (
                   <div
                     key={a.id}
-                    className="card p-4 text-center relative overflow-hidden opacity-45 hover:opacity-60 transition-opacity"
+                    className="rounded-2xl p-4 text-center relative overflow-hidden opacity-45 hover:opacity-60 transition-opacity"
+                    style={{
+                      background: 'rgba(255,255,255,0.02)',
+                      border: '1px solid rgba(255,255,255,0.06)',
+                    }}
                   >
                     <div className="absolute top-2 right-2">
                       <Lock size={12} className="text-text-muted" />
@@ -404,7 +411,13 @@ export default async function ScorePage() {
         )}
 
         {allAchievements.length === 0 && (
-          <div className="card p-10 text-center text-text-secondary">
+          <div
+            className="rounded-2xl p-10 text-center text-text-secondary"
+            style={{
+              background: 'linear-gradient(135deg, rgba(245,200,66,0.07) 0%, rgba(13,24,41,0.99) 100%)',
+              border: '1px solid rgba(245,200,66,0.2)',
+            }}
+          >
             <div className="text-5xl mb-4">🏆</div>
             <p className="font-medium">Nenhuma conquista cadastrada ainda.</p>
             <p className="text-sm text-text-muted mt-1">Continue usando o FitQuest para desbloquear conquistas!</p>
