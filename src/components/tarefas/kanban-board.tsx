@@ -21,10 +21,10 @@ import {
 import { cn } from '@/lib/utils'
 import type { Task, TaskStatus } from '@/lib/supabase/types'
 
-const COLUMNS: { id: TaskStatus; title: string; color: string; bg: string }[] = [
-  { id: 'todo', title: 'A Fazer', color: 'border-t-text-muted', bg: 'bg-bg-elevated/30' },
-  { id: 'doing', title: 'Fazendo', color: 'border-t-brand-purple', bg: 'bg-brand-purple/5' },
-  { id: 'done', title: 'Feito', color: 'border-t-brand-green', bg: 'bg-brand-green/5' },
+const COLUMNS: { id: TaskStatus; title: string; color: string; bg: string; rgb: string }[] = [
+  { id: 'todo', title: 'A Fazer', color: 'border-t-text-muted', bg: 'bg-bg-elevated/30', rgb: '136,153,187' },
+  { id: 'doing', title: 'Fazendo', color: 'border-t-brand-purple', bg: 'bg-brand-purple/5', rgb: '124,58,237' },
+  { id: 'done', title: 'Feito', color: 'border-t-brand-green', bg: 'bg-brand-green/5', rgb: '0,255,136' },
 ]
 
 interface XpToast {
@@ -187,7 +187,15 @@ export function KanbanBoard({ initialTasks }: { initialTasks: Task[] }) {
           {COLUMNS.map((col) => {
             const colTasks = tasks.filter((t) => t.status === col.id)
             return (
-              <div key={col.id} className={cn('card p-4 border-t-4', col.color, col.bg)}>
+              <div
+                key={col.id}
+                className="rounded-2xl p-4 relative overflow-hidden"
+                style={{
+                  background: `linear-gradient(135deg, rgba(${col.rgb},0.07) 0%, rgba(13,24,41,0.98) 100%)`,
+                  border: `1px solid rgba(${col.rgb},0.2)`,
+                  borderTop: `3px solid rgba(${col.rgb},0.55)`,
+                }}
+              >
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="font-bold text-base">
                     {col.title}
@@ -429,9 +437,17 @@ function NewTaskModal({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/60 z-50 flex items-end md:items-center justify-center p-4">
-      <div className="card-glow w-full max-w-md p-6 space-y-4">
-        <div className="flex items-center justify-between">
+    <div className="fixed inset-0 bg-black/60 z-50 flex items-end md:items-center justify-center p-4" style={{ backdropFilter: 'blur(4px)' }}>
+      <div
+        className="w-full max-w-md p-6 space-y-4 rounded-2xl relative overflow-hidden"
+        style={{
+          background: 'linear-gradient(135deg, rgba(255,77,0,0.08) 0%, rgba(13,24,41,0.99) 100%)',
+          border: '1px solid rgba(255,77,0,0.25)',
+          boxShadow: '0 24px 60px rgba(0,0,0,0.5)',
+        }}
+      >
+        <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full pointer-events-none blur-xl" style={{ background: 'rgba(255,77,0,0.12)' }} />
+        <div className="flex items-center justify-between relative z-10">
           <h2 className="text-xl font-bold">Nova tarefa</h2>
           <button onClick={onClose} className="text-text-muted hover:text-white transition-colors">
             <X size={20} />

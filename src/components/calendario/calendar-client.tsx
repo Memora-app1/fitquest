@@ -193,7 +193,13 @@ export function CalendarClient({
       </div>
 
       {/* Calendar grid */}
-      <div className="card overflow-hidden">
+      <div
+        className="rounded-2xl overflow-hidden"
+        style={{
+          background: 'linear-gradient(135deg, rgba(124,58,237,0.06) 0%, rgba(13,24,41,0.98) 100%)',
+          border: '1px solid rgba(124,58,237,0.2)',
+        }}
+      >
         {/* Weekday headers */}
         <div className="grid grid-cols-7 border-b border-border">
           {WEEKDAYS.map((wd) => (
@@ -326,8 +332,26 @@ export function CalendarClient({
       </div>
 
       {/* Day detail panel */}
-      <div className="card p-5">
-        <div className="flex items-center justify-between mb-4">
+      <div
+        className="rounded-2xl p-5 relative overflow-hidden"
+        style={{
+          background: selectedDay === todayStr || !selectedDay
+            ? 'linear-gradient(135deg, rgba(255,77,0,0.06) 0%, rgba(13,24,41,0.98) 100%)'
+            : 'linear-gradient(135deg, rgba(124,58,237,0.06) 0%, rgba(13,24,41,0.98) 100%)',
+          border: selectedDay === todayStr || !selectedDay
+            ? '1px solid rgba(255,77,0,0.18)'
+            : '1px solid rgba(124,58,237,0.18)',
+        }}
+      >
+        <div
+          className="absolute -top-4 -right-4 w-16 h-16 rounded-full pointer-events-none blur-xl"
+          style={{
+            background: selectedDay === todayStr || !selectedDay
+              ? 'rgba(255,77,0,0.15)'
+              : 'rgba(124,58,237,0.15)',
+          }}
+        />
+        <div className="flex items-center justify-between mb-4 relative z-10">
           <h3 className="font-bold text-base capitalize">{focusDayLabel}</h3>
           {focusDay === todayStr && (
             <span className="text-xs bg-brand-orange/20 text-brand-orange px-2 py-0.5 rounded-full font-medium">
