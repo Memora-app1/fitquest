@@ -112,18 +112,30 @@ export default function DashboardLoading() {
         ))}
       </div>
 
-      {/* Quick Actions skeleton */}
-      <div className="grid grid-cols-4 gap-3">
-        {[0, 1, 2, 3].map((i) => (
-          <div
-            key={i}
-            className="rounded-2xl p-4 animate-pulse text-center"
-            style={{ background: 'rgba(21,34,56,0.4)', border: '1px solid rgba(255,255,255,0.04)', minHeight: 80 }}
-          >
-            <div className="w-8 h-8 rounded-xl mx-auto mb-2" style={{ background: 'rgba(255,255,255,0.06)' }} />
-            <div className="h-2.5 w-12 rounded-full mx-auto" style={{ background: 'rgba(255,255,255,0.05)' }} />
-          </div>
-        ))}
+      {/* Quick Actions skeleton — 5 items matching QuickActions component */}
+      <div>
+        <div className="h-2.5 w-20 rounded-full mb-3 animate-pulse" style={{ background: 'rgba(255,255,255,0.05)' }} />
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+          {[
+            'rgba(255,77,0,0.08)',
+            'rgba(124,58,237,0.08)',
+            'rgba(0,255,136,0.08)',
+            'rgba(245,200,66,0.08)',
+            'rgba(59,130,246,0.08)',
+          ].map((bg, i) => (
+            <div
+              key={i}
+              className="rounded-2xl p-4 animate-pulse flex flex-col items-center gap-2.5 text-center"
+              style={{ background: bg, border: '1px solid rgba(255,255,255,0.05)', minHeight: 96 }}
+            >
+              <div className="w-12 h-12 rounded-xl" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.06)' }} />
+              <div className="space-y-1 w-full">
+                <div className="h-2.5 rounded-full mx-auto w-3/4" style={{ background: 'rgba(255,255,255,0.07)' }} />
+                <div className="h-2 rounded-full mx-auto w-2/3" style={{ background: 'rgba(255,255,255,0.04)' }} />
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Main grid skeleton */}
@@ -166,22 +178,44 @@ export default function DashboardLoading() {
 
         {/* Right col */}
         <div className="space-y-6">
-          {/* Activity feed skeleton */}
+          {/* Activity feed skeleton — timeline layout with dot + stem */}
           <div
-            className="rounded-2xl p-5 animate-pulse space-y-3"
-            style={{ background: 'rgba(21,34,56,0.5)', border: '1px solid rgba(245,200,66,0.08)', minHeight: 200 }}
+            className="rounded-2xl p-5 animate-pulse"
+            style={{
+              background: 'linear-gradient(135deg, rgba(245,200,66,0.05) 0%, rgba(13,24,41,0.98) 100%)',
+              border: '1px solid rgba(245,200,66,0.1)',
+            }}
           >
-            <ShimmerRow widths={['1rem', '6rem']} />
-            {[0, 1, 2, 3].map((i) => (
-              <div key={i} className="flex items-center gap-3 py-1.5">
-                <div className="w-8 h-8 rounded-lg" style={{ background: 'rgba(255,255,255,0.06)' }} />
-                <div className="flex-1 space-y-1">
-                  <div className="h-2.5 w-3/4 rounded-full" style={{ background: 'rgba(255,255,255,0.06)' }} />
-                  <div className="h-2 w-1/2 rounded-full" style={{ background: 'rgba(255,255,255,0.04)' }} />
+            <div className="flex items-center justify-between mb-4">
+              <ShimmerRow widths={['1rem', '7rem']} />
+              <div className="h-4 w-12 rounded-full" style={{ background: 'rgba(245,200,66,0.1)' }} />
+            </div>
+            {/* Group header */}
+            <div className="h-2.5 w-10 rounded-full mb-3" style={{ background: 'rgba(255,255,255,0.04)' }} />
+            {/* Timeline entries */}
+            <div className="space-y-0">
+              {[
+                { color: 'rgba(255,77,0,0.8)', w: '70%', xp: 48 },
+                { color: 'rgba(124,58,237,0.8)', w: '55%', xp: 36 },
+                { color: 'rgba(0,255,136,0.8)', w: '80%', xp: 48 },
+                { color: 'rgba(245,200,66,0.7)', w: '60%', xp: 36 },
+              ].map(({ color, w, xp }, i) => (
+                <div key={i} className="flex items-start gap-3 py-2">
+                  {/* Dot + stem */}
+                  <div className="flex flex-col items-center shrink-0 mt-1">
+                    <div className="w-1.5 h-1.5 rounded-full" style={{ background: color }} />
+                    {i < 3 && <div className="w-px flex-1 min-h-[20px]" style={{ background: 'rgba(255,255,255,0.06)' }} />}
+                  </div>
+                  <div className="flex-1 min-w-0 flex items-center gap-2 pb-1">
+                    <div className="flex-1 space-y-1">
+                      <div className="h-2.5 rounded-full" style={{ background: 'rgba(255,255,255,0.07)', width: w }} />
+                      <div className="h-2 w-16 rounded-full" style={{ background: 'rgba(255,255,255,0.04)' }} />
+                    </div>
+                    <div className="h-4 w-10 rounded-lg shrink-0" style={{ background: 'rgba(245,200,66,0.1)', border: '1px solid rgba(245,200,66,0.14)' }} />
+                  </div>
                 </div>
-                <div className="w-10 h-4 rounded-full" style={{ background: 'rgba(245,200,66,0.1)' }} />
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </div>
