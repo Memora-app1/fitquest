@@ -75,7 +75,15 @@ export default function NovaSenhaPage() {
     return (
       <main className="min-h-screen flex items-center justify-center p-6">
         <div className="w-full max-w-md animate-slide-up">
-          <div className="card-glow p-8 text-center space-y-4">
+          <div
+            className="p-8 text-center space-y-4 rounded-2xl relative overflow-hidden"
+            style={{
+              background: 'linear-gradient(135deg, rgba(0,255,136,0.07) 0%, rgba(13,24,41,0.99) 100%)',
+              border: '1px solid rgba(0,255,136,0.25)',
+              boxShadow: '0 24px 60px rgba(0,0,0,0.5)',
+            }}
+          >
+            <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full pointer-events-none blur-xl" style={{ background: 'rgba(0,255,136,0.12)' }} />
             <div className="w-20 h-20 rounded-full bg-brand-green/10 border border-brand-green/30 flex items-center justify-center mx-auto">
               <CheckCircle2 size={36} className="text-brand-green" />
             </div>
@@ -103,7 +111,15 @@ export default function NovaSenhaPage() {
           </Link>
         </div>
 
-        <div className="card-glow p-8 space-y-6">
+        <div
+          className="p-8 space-y-6 rounded-2xl relative overflow-hidden"
+          style={{
+            background: 'linear-gradient(135deg, rgba(124,58,237,0.08) 0%, rgba(13,24,41,0.99) 100%)',
+            border: '1px solid rgba(124,58,237,0.25)',
+            boxShadow: '0 24px 60px rgba(0,0,0,0.5)',
+          }}
+        >
+          <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(124,58,237,0.12) 0%, transparent 70%)' }} />
           {/* Header */}
           <div className="flex items-start gap-4">
             <div className="w-12 h-12 rounded-xl bg-brand-purple/10 flex items-center justify-center shrink-0">

@@ -13,28 +13,28 @@ const FEATURES = [
     title: 'Fitness & Hábitos',
     desc: 'Registre treinos com sets/reps, bata recordes pessoais e construa hábitos com streak de fogo. Cada rep conta.',
     tag: 'XP por série',
-    color: 'border-brand-orange/30 hover:border-brand-orange/60',
+    rgb: '255,77,0',
   },
   {
     icon: '✅',
     title: 'Produtividade',
     desc: 'Kanban completo + Matriz Eisenhower. Identifique o que é urgente, importante e elimine o ruído da sua vida.',
     tag: 'XP por tarefa',
-    color: 'border-brand-purple/30 hover:border-brand-purple/60',
+    rgb: '124,58,237',
   },
   {
     icon: '💰',
     title: 'Controle Financeiro',
     desc: 'Registre receitas, despesas e metas. Saiba sua taxa de poupança, veja onde seu dinheiro vai e evolua.',
     tag: 'XP por registro',
-    color: 'border-brand-green/30 hover:border-brand-green/60',
+    rgb: '0,255,136',
   },
   {
     icon: '🤖',
     title: 'Coach IA',
     desc: 'Assistente que conhece TODA sua vida — cruza seus dados de fitness, tarefas e finanças para conselhos reais.',
     tag: 'Anthropic Claude',
-    color: 'border-brand-gold/30 hover:border-brand-gold/60',
+    rgb: '245,200,66',
   },
 ]
 
@@ -44,26 +44,29 @@ const HOW_IT_WORKS = [
     title: 'Registre sua vida',
     desc: 'Treinos, hábitos, tarefas e finanças em um único lugar. Mobile-first, rápido de usar.',
     icon: '📝',
+    rgb: '255,77,0',
   },
   {
     step: '02',
     title: 'Ganhe XP por tudo',
     desc: 'Cada ação real vira XP. Completar hábito, terminar tarefa, registrar gasto — tudo recompensado.',
     icon: '⚡',
+    rgb: '124,58,237',
   },
   {
     step: '03',
     title: 'Suba de nível',
     desc: 'De Iniciante a FitQuest Master. Desbloqueie conquistas e mantenha sua sequência acesa.',
     icon: '🏆',
+    rgb: '245,200,66',
   },
 ]
 
 const LEVELS = [
-  { level: 1, title: 'Iniciante', range: '0–500 XP', emoji: '🌱' },
-  { level: 3, title: 'Consistente', range: '1.500–3.500 XP', emoji: '⚡' },
-  { level: 5, title: 'Guerreiro', range: '7.000–12.000 XP', emoji: '🔥' },
-  { level: 8, title: 'FitQuest Master', range: '35.000+ XP', emoji: '👑' },
+  { level: 1, title: 'Iniciante', range: '0–500 XP', emoji: '🌱', rgb: '0,255,136' },
+  { level: 3, title: 'Consistente', range: '1.500–3.500 XP', emoji: '⚡', rgb: '255,77,0' },
+  { level: 5, title: 'Guerreiro', range: '7.000–12.000 XP', emoji: '🔥', rgb: '239,68,68' },
+  { level: 8, title: 'FitQuest Master', range: '35.000+ XP', emoji: '👑', rgb: '245,200,66' },
 ]
 
 const TESTIMONIALS = [
@@ -72,18 +75,21 @@ const TESTIMONIALS = [
     author: 'Lucas M.',
     role: 'Engenheiro de Software',
     emoji: '💻',
+    rgb: '255,77,0',
   },
   {
     text: 'A Matriz Eisenhower mudou minha semana. O Coach IA cruzou meu burnout com meus gastos e fez sentido na hora.',
     author: 'Ana C.',
     role: 'Gestora de Produto',
     emoji: '📊',
+    rgb: '124,58,237',
   },
   {
     text: 'O sistema de XP parece bobo, mas funciona. Entrar no app virou hábito porque a recompensa é imediata.',
     author: 'Rafael S.',
     role: 'Personal Trainer',
     emoji: '🏋️',
+    rgb: '0,255,136',
   },
 ]
 
@@ -171,7 +177,12 @@ export default function LandingPage() {
             {HOW_IT_WORKS.map((step, i) => (
               <div
                 key={step.step}
-                className="relative card p-8 text-center space-y-4 hover:border-brand-orange/30 transition-all"
+                className="relative p-8 text-center space-y-4 transition-all rounded-2xl overflow-hidden"
+                style={{
+                  background: `linear-gradient(135deg, rgba(${step.rgb},0.07) 0%, rgba(13,24,41,0.98) 100%)`,
+                  border: `1px solid rgba(${step.rgb},0.2)`,
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+                }}
               >
                 {i < 2 && (
                   <div className="hidden md:block absolute top-1/2 -right-3 text-border text-2xl z-10">→</div>
@@ -199,16 +210,24 @@ export default function LandingPage() {
             {FEATURES.map((f) => (
               <div
                 key={f.title}
-                className={`card p-8 space-y-4 transition-all ${f.color}`}
+                className="p-8 space-y-4 transition-all rounded-2xl relative overflow-hidden"
+                style={{
+                  background: `linear-gradient(135deg, rgba(${f.rgb},0.08) 0%, rgba(13,24,41,0.98) 100%)`,
+                  border: `1px solid rgba(${f.rgb},0.25)`,
+                  boxShadow: '0 12px 40px rgba(0,0,0,0.35)',
+                }}
               >
-                <div className="flex items-center justify-between">
-                  <span className="text-4xl">{f.icon}</span>
-                  <span className="text-xs bg-white/5 border border-white/10 px-2.5 py-1 rounded-full text-text-muted">
-                    {f.tag}
-                  </span>
+                <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full pointer-events-none blur-xl" style={{ background: `rgba(${f.rgb},0.15)` }} />
+                <div className="relative z-10">
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-4xl">{f.icon}</span>
+                    <span className="text-xs bg-white/5 border border-white/10 px-2.5 py-1 rounded-full text-text-muted">
+                      {f.tag}
+                    </span>
+                  </div>
+                  <h3 className="text-xl font-bold mb-3">{f.title}</h3>
+                  <p className="text-text-secondary leading-relaxed">{f.desc}</p>
                 </div>
-                <h3 className="text-xl font-bold">{f.title}</h3>
-                <p className="text-text-secondary leading-relaxed">{f.desc}</p>
               </div>
             ))}
           </div>
@@ -234,7 +253,11 @@ export default function LandingPage() {
             {LEVELS.map((l) => (
               <div
                 key={l.level}
-                className="card p-5 text-center space-y-2 hover:border-brand-gold/40 transition-colors"
+                className="p-5 text-center space-y-2 transition-all rounded-2xl"
+                style={{
+                  background: `linear-gradient(135deg, rgba(${l.rgb},0.07) 0%, rgba(13,24,41,0.98) 100%)`,
+                  border: `1px solid rgba(${l.rgb},0.2)`,
+                }}
               >
                 <div className="text-3xl">{l.emoji}</div>
                 <div className="text-xs text-text-muted font-mono">LVL {l.level}</div>
@@ -245,7 +268,13 @@ export default function LandingPage() {
           </div>
 
           {/* XP preview */}
-          <div className="card p-6 space-y-4">
+          <div
+            className="p-6 space-y-4 rounded-2xl"
+            style={{
+              background: 'linear-gradient(135deg, rgba(245,200,66,0.07) 0%, rgba(13,24,41,0.99) 100%)',
+              border: '1px solid rgba(245,200,66,0.2)',
+            }}
+          >
             <div className="text-sm text-text-secondary font-medium mb-2">Exemplo de XP em uma semana típica:</div>
             <div className="space-y-2">
               {[
@@ -280,7 +309,15 @@ export default function LandingPage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {TESTIMONIALS.map((t) => (
-              <div key={t.author} className="card p-6 space-y-4">
+              <div
+                key={t.author}
+                className="p-6 space-y-4 rounded-2xl relative overflow-hidden"
+                style={{
+                  background: `linear-gradient(135deg, rgba(${t.rgb},0.07) 0%, rgba(13,24,41,0.98) 100%)`,
+                  border: `1px solid rgba(${t.rgb},0.2)`,
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+                }}
+              >
                 <div className="text-3xl">{t.emoji}</div>
                 <p className="text-text-secondary leading-relaxed text-sm">
                   &ldquo;{t.text}&rdquo;

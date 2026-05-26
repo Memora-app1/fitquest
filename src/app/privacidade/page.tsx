@@ -61,7 +61,13 @@ export default function PrivacidadePage() {
       <div className="max-w-3xl mx-auto px-6 py-12">
 
         {/* Table of contents */}
-        <div className="card p-5 mb-10">
+        <div
+          className="p-5 mb-10 rounded-2xl"
+          style={{
+            background: 'linear-gradient(135deg, rgba(124,58,237,0.08) 0%, rgba(13,24,41,0.99) 100%)',
+            border: '1px solid rgba(124,58,237,0.2)',
+          }}
+        >
           <p className="text-xs font-bold text-text-muted uppercase tracking-widest mb-3">Índice</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
             {SECTIONS.map((s) => (
@@ -86,7 +92,13 @@ export default function PrivacidadePage() {
               <p>
                 O <strong className="text-white">FitQuest</strong> é o controlador dos seus dados pessoais, responsável pelas decisões sobre o tratamento dessas informações nos termos da LGPD.
               </p>
-              <div className="card p-4 space-y-2">
+              <div
+                className="p-4 space-y-2 rounded-xl"
+                style={{
+                  background: 'rgba(124,58,237,0.07)',
+                  border: '1px solid rgba(124,58,237,0.2)',
+                }}
+              >
                 <p className="font-bold text-white text-lg">⚡ FitQuest</p>
                 <p>Email: <a href="mailto:privacidade@fitquest.app" className="text-brand-purple underline hover:text-brand-purple/80 transition-colors">privacidade@fitquest.app</a></p>
                 <p>Site: fitquest-app1.vercel.app</p>
@@ -126,7 +138,11 @@ export default function PrivacidadePage() {
                     { emoji: '💰', title: 'Finanças', desc: 'Contas, transações, categorias, metas financeiras' },
                     { emoji: '⚡', title: 'Gamificação', desc: 'XP, nível, streak, conquistas desbloqueadas' },
                   ].map((item) => (
-                    <div key={item.title} className="card p-3 flex gap-2.5 items-start text-sm">
+                    <div
+                      key={item.title}
+                      className="p-3 flex gap-2.5 items-start text-sm rounded-xl"
+                      style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}
+                    >
                       <span className="text-lg">{item.emoji}</span>
                       <div>
                         <div className="font-medium text-white">{item.title}</div>
@@ -225,7 +241,11 @@ export default function PrivacidadePage() {
                   { base: 'Legítimo interesse (Art. 7º, IX)', desc: 'Para segurança, prevenção de fraudes e melhoria do serviço' },
                   { base: 'Obrigação legal (Art. 7º, II)', desc: 'Para cumprir exigências fiscais e regulatórias' },
                 ].map((item) => (
-                  <div key={item.base} className="card p-3 flex gap-3 items-start text-sm">
+                  <div
+                    key={item.base}
+                    className="p-3 flex gap-3 items-start text-sm rounded-xl"
+                    style={{ background: 'rgba(124,58,237,0.06)', border: '1px solid rgba(124,58,237,0.15)' }}
+                  >
                     <span className="text-brand-purple mt-0.5 shrink-0">⚖️</span>
                     <div>
                       <span className="font-semibold text-white">{item.base}</span>
@@ -282,7 +302,11 @@ export default function PrivacidadePage() {
                     emoji: '📅',
                   },
                 ].map((p) => (
-                  <div key={p.name} className="card p-4">
+                  <div
+                    key={p.name}
+                    className="p-4 rounded-xl"
+                    style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}
+                  >
                     <div className="flex items-center gap-2 mb-1">
                       <span className="text-lg">{p.emoji}</span>
                       <span className="font-semibold text-white">{p.name}</span>
@@ -335,7 +359,11 @@ export default function PrivacidadePage() {
                   { right: 'Oposição', desc: 'Opor-se ao tratamento por legítimo interesse' },
                   { right: 'Informação', desc: 'Saber com quais entidades compartilhamos seus dados' },
                 ].map((r) => (
-                  <div key={r.right} className="card p-3 text-sm">
+                  <div
+                    key={r.right}
+                    className="p-3 text-sm rounded-xl"
+                    style={{ background: 'rgba(124,58,237,0.06)', border: '1px solid rgba(124,58,237,0.15)' }}
+                  >
                     <div className="font-semibold text-white">{r.right}</div>
                     <div className="text-text-muted text-xs mt-0.5">{r.desc}</div>
                   </div>
@@ -407,7 +435,10 @@ export default function PrivacidadePage() {
               <p>
                 Nos termos da LGPD (Art. 41), o responsável pelo tratamento de dados pessoais do FitQuest pode ser contactado em:
               </p>
-              <div className="card p-4 space-y-2">
+              <div
+                className="p-4 space-y-2 rounded-xl"
+                style={{ background: 'rgba(124,58,237,0.07)', border: '1px solid rgba(124,58,237,0.2)' }}
+              >
                 <p className="font-bold text-white">DPO — FitQuest</p>
                 <p>Email: <a href="mailto:privacidade@fitquest.app" className="text-brand-purple underline hover:text-brand-purple/80 transition-colors">privacidade@fitquest.app</a></p>
                 <p className="text-xs text-text-muted">Prazo de resposta: até 15 dias úteis</p>
@@ -433,7 +464,13 @@ export default function PrivacidadePage() {
             <SectionHeader num="13" title="Contato" icon={<Mail size={18} />} />
             <div className="space-y-3 text-text-secondary leading-relaxed">
               <p>Para qualquer questão relacionada a privacidade, proteção de dados ou exercício dos seus direitos:</p>
-              <div className="card p-5 space-y-2">
+              <div
+                className="p-5 space-y-2 rounded-xl"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(124,58,237,0.08) 0%, rgba(13,24,41,0.99) 100%)',
+                  border: '1px solid rgba(124,58,237,0.25)',
+                }}
+              >
                 <p className="font-bold text-white text-lg">🛡️ FitQuest — Privacidade</p>
                 <p>Email: <a href="mailto:privacidade@fitquest.app" className="text-brand-purple underline hover:text-brand-purple/80 transition-colors">privacidade@fitquest.app</a></p>
                 <p className="text-xs text-text-muted">Respondemos em até 15 dias úteis conforme a LGPD</p>

@@ -60,7 +60,13 @@ export default function TermosPage() {
 
       <div className="max-w-3xl mx-auto px-6 py-12">
         {/* Table of contents */}
-        <div className="card p-5 mb-10">
+        <div
+          className="p-5 mb-10 rounded-2xl"
+          style={{
+            background: 'linear-gradient(135deg, rgba(255,77,0,0.07) 0%, rgba(13,24,41,0.99) 100%)',
+            border: '1px solid rgba(255,77,0,0.2)',
+          }}
+        >
           <p className="text-xs font-bold text-text-muted uppercase tracking-widest mb-3">Índice</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
             {SECTIONS.map((s) => (
@@ -104,7 +110,11 @@ export default function TermosPage() {
                   { emoji: '💰', title: 'Finanças', desc: 'Controle de transações, contas e metas financeiras' },
                   { emoji: '🤖', title: 'Coach IA', desc: 'Assistente contextualizado, desenvolvido com tecnologia Anthropic' },
                 ].map((item) => (
-                  <div key={item.title} className="card p-3 flex gap-3 items-start">
+                  <div
+                    key={item.title}
+                    className="p-3 flex gap-3 items-start rounded-xl"
+                    style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}
+                  >
                     <span className="text-xl">{item.emoji}</span>
                     <div>
                       <div className="font-semibold text-white text-sm">{item.title}</div>
@@ -344,7 +354,13 @@ export default function TermosPage() {
             <SectionHeader num="14" title="Contato" icon={<Mail size={18} />} />
             <div className="space-y-3 text-text-secondary leading-relaxed">
               <p>Para dúvidas, sugestões ou solicitações relacionadas a estes Termos:</p>
-              <div className="card p-5 space-y-2">
+              <div
+                className="p-5 space-y-2 rounded-xl"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(255,77,0,0.08) 0%, rgba(13,24,41,0.99) 100%)',
+                  border: '1px solid rgba(255,77,0,0.25)',
+                }}
+              >
                 <p className="text-white font-bold text-lg">⚡ FitQuest</p>
                 <p>
                   Email:{' '}

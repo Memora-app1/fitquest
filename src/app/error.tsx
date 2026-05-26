@@ -16,7 +16,15 @@ export default function GlobalError({
 
   return (
     <main className="min-h-screen flex items-center justify-center p-6">
-      <div className="card-glow w-full max-w-md p-10 text-center space-y-6 animate-slide-up">
+      <div
+        className="w-full max-w-md p-10 text-center space-y-6 animate-slide-up rounded-2xl relative overflow-hidden"
+        style={{
+          background: 'linear-gradient(135deg, rgba(239,68,68,0.08) 0%, rgba(13,24,41,0.99) 100%)',
+          border: '1px solid rgba(239,68,68,0.25)',
+          boxShadow: '0 24px 60px rgba(0,0,0,0.5)',
+        }}
+      >
+        <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full pointer-events-none blur-xl" style={{ background: 'rgba(239,68,68,0.15)' }} />
         <div className="text-6xl">⚠️</div>
         <div className="space-y-2">
           <h1 className="text-2xl font-bold">Algo deu errado</h1>

@@ -42,7 +42,15 @@ export default function RecuperarSenhaPage() {
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-96 h-96 bg-brand-green/5 blur-[100px] rounded-full pointer-events-none" />
 
         <div className="w-full max-w-md relative z-10 animate-slide-up">
-          <div className="card-glow p-8 space-y-6 text-center">
+          <div
+            className="p-8 space-y-6 text-center rounded-2xl relative overflow-hidden"
+            style={{
+              background: 'linear-gradient(135deg, rgba(0,255,136,0.07) 0%, rgba(13,24,41,0.99) 100%)',
+              border: '1px solid rgba(0,255,136,0.25)',
+              boxShadow: '0 24px 60px rgba(0,0,0,0.5)',
+            }}
+          >
+            <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full pointer-events-none blur-xl" style={{ background: 'rgba(0,255,136,0.12)' }} />
             {/* Icon */}
             <div className="w-20 h-20 rounded-full bg-brand-green/10 border border-brand-green/30 flex items-center justify-center mx-auto">
               <CheckCircle2 size={36} className="text-brand-green" />
@@ -111,7 +119,15 @@ export default function RecuperarSenhaPage() {
           </Link>
         </div>
 
-        <div className="card-glow p-8 space-y-6">
+        <div
+          className="p-8 space-y-6 rounded-2xl relative overflow-hidden"
+          style={{
+            background: 'linear-gradient(135deg, rgba(255,77,0,0.08) 0%, rgba(13,24,41,0.99) 100%)',
+            border: '1px solid rgba(255,77,0,0.25)',
+            boxShadow: '0 24px 60px rgba(0,0,0,0.5)',
+          }}
+        >
+          <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(255,77,0,0.1) 0%, transparent 70%)' }} />
           {/* Header */}
           <div className="flex items-start gap-4">
             <div className="w-12 h-12 rounded-xl bg-brand-orange/10 flex items-center justify-center shrink-0">

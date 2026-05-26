@@ -47,7 +47,15 @@ export function PushPrompt() {
 
   return (
     <div className="fixed bottom-20 md:bottom-6 left-4 right-4 md:left-auto md:right-6 md:max-w-sm z-50">
-      <div className="card-glow p-4 flex gap-4 items-start animate-slide-up">
+      <div
+        className="p-4 flex gap-4 items-start animate-slide-up rounded-2xl relative overflow-hidden"
+        style={{
+          background: 'linear-gradient(135deg, rgba(245,200,66,0.08) 0%, rgba(13,24,41,0.99) 100%)',
+          border: '1px solid rgba(245,200,66,0.25)',
+          boxShadow: '0 12px 40px rgba(0,0,0,0.6)',
+        }}
+      >
+        <div className="absolute -top-4 -right-4 w-16 h-16 rounded-full pointer-events-none blur-xl" style={{ background: 'rgba(245,200,66,0.15)' }} />
         <span className="text-2xl shrink-0">🔔</span>
         <div className="flex-1 min-w-0">
           <p className="font-semibold text-sm">Ativar notificações?</p>

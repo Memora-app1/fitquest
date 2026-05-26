@@ -23,10 +23,10 @@ const TARGETS = [
 ]
 
 const MODULES = [
-  { value: 'fitness', label: 'Fitness & Hábitos', icon: '💪', desc: 'Treinos, séries, hábitos diários' },
-  { value: 'productivity', label: 'Tarefas', icon: '✅', desc: 'Kanban + Matriz Eisenhower' },
-  { value: 'finance', label: 'Finanças', icon: '💰', desc: 'Gastos, receitas e metas' },
-  { value: 'coach', label: 'Coach IA', icon: '🤖', desc: 'Assistente com contexto total' },
+  { value: 'fitness', label: 'Fitness & Hábitos', icon: '💪', desc: 'Treinos, séries, hábitos diários', rgb: '255,77,0' },
+  { value: 'productivity', label: 'Tarefas', icon: '✅', desc: 'Kanban + Matriz Eisenhower', rgb: '124,58,237' },
+  { value: 'finance', label: 'Finanças', icon: '💰', desc: 'Gastos, receitas e metas', rgb: '0,255,136' },
+  { value: 'coach', label: 'Coach IA', icon: '🤖', desc: 'Assistente com contexto total', rgb: '245,200,66' },
 ]
 
 const TOTAL_STEPS = 4
@@ -96,7 +96,15 @@ export default function OnboardingPage() {
           </div>
         )}
 
-        <div className="card-glow p-6 md:p-8 space-y-6 animate-fade-in">
+        <div
+          className="p-6 md:p-8 space-y-6 animate-fade-in rounded-2xl relative overflow-hidden"
+          style={{
+            background: 'linear-gradient(135deg, rgba(255,77,0,0.08) 0%, rgba(13,24,41,0.99) 100%)',
+            border: '1px solid rgba(255,77,0,0.2)',
+            boxShadow: '0 24px 60px rgba(0,0,0,0.5)',
+          }}
+        >
+          <div className="absolute -top-8 -right-8 w-40 h-40 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(255,77,0,0.1) 0%, transparent 70%)' }} />
           {/* ── Step 1: Welcome ── */}
           {step === 1 && (
             <div className="text-center space-y-6">
@@ -111,7 +119,14 @@ export default function OnboardingPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 {MODULES.map((m) => (
-                  <div key={m.value} className="card p-3 text-left">
+                  <div
+                    key={m.value}
+                    className="p-3 text-left rounded-xl"
+                    style={{
+                      background: `rgba(${m.rgb},0.06)`,
+                      border: `1px solid rgba(${m.rgb},0.2)`,
+                    }}
+                  >
                     <div className="text-2xl mb-1">{m.icon}</div>
                     <div className="font-semibold text-sm">{m.label}</div>
                     <div className="text-xs text-text-muted mt-0.5">{m.desc}</div>
@@ -210,7 +225,13 @@ export default function OnboardingPage() {
               </div>
 
               {/* Visual week preview */}
-              <div className="card p-4">
+              <div
+                className="p-4 rounded-xl"
+                style={{
+                  background: 'rgba(255,255,255,0.03)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                }}
+              >
                 <div className="text-xs text-text-muted mb-2">Sua semana vai parecer assim:</div>
                 <div className="flex gap-1.5">
                   {['S', 'T', 'Q', 'Q', 'S', 'S', 'D'].map((day, i) => {
@@ -281,7 +302,13 @@ export default function OnboardingPage() {
                 </div>
               </div>
 
-              <div className="card p-4 border-brand-gold/30 bg-brand-gold/5">
+              <div
+                className="p-4 rounded-xl"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(245,200,66,0.1) 0%, rgba(13,24,41,0.95) 100%)',
+                  border: '1px solid rgba(245,200,66,0.3)',
+                }}
+              >
                 <div className="flex items-center gap-3">
                   <span className="text-2xl">⚡</span>
                   <div>
