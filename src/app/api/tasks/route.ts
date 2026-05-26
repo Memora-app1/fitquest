@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
-import { grantXP, tryUnlockAchievement, XP_REWARDS } from '@/lib/xp'
+import { XP_REWARDS } from '@/lib/xp'
+import { grantXP, tryUnlockAchievement } from '@/lib/xp-server'
 import { updateUserStreak } from '@/lib/streak'
 
 const createSchema = z.object({

@@ -9,7 +9,8 @@
  */
 
 import { createServiceClient } from '@/lib/supabase/server'
-import { grantXP, tryUnlockAchievement, XP_REWARDS } from './xp'
+import { XP_REWARDS } from './xp'
+import { grantXP, tryUnlockAchievement } from './xp-server'
 
 /**
  * Verifica se o usuário teve atividade num dia específico

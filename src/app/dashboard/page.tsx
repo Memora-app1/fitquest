@@ -11,6 +11,7 @@ import { FinanceAlerts } from '@/components/dashboard/finance-alerts'
 import { QuickActions } from '@/components/dashboard/quick-actions'
 import { ActivityFeed } from '@/components/dashboard/activity-feed'
 import { WeekProgress } from '@/components/dashboard/week-progress'
+import { LifeScore } from '@/components/dashboard/life-score'
 import { getGreeting, todayString } from '@/lib/utils'
 
 export const metadata: Metadata = {
@@ -123,6 +124,28 @@ export default async function DashboardPage({
   }
   const weekXpData = Array.from(xpByDay.entries()).map(([date, xp]) => ({ date, xp }))
 
+  // Life Score computation
+  const habitsTotal = habits.length
+  const habitsCompleted = habitLogsToday.size
+  const habitsScore = habitsTotal > 0 ? Math.round((habitsCompleted / habitsTotal) * 100) : 50
+
+  const xpToday = xpFeed
+    .filter((t) => t.created_at.startsWith(today))
+    .reduce((s, t) => s + (t.amount ?? 0), 0)
+  const xpScore = Math.min(Math.round(xpToday / 5), 100) // 500 XP = 100 points
+
+  const streakScore = Math.min(profile.streak_current * 10, 100) // 10 days = 100 points
+
+  const criticalTasks = tasks.filter((t) => t.urgent && t.important).length
+  const taskScore = Math.max(0, 100 - criticalTasks * 25) // 4 critical tasks → 0 points
+
+  const totalScore = Math.round(
+    habitsScore * 0.40 +
+    streakScore * 0.25 +
+    xpScore    * 0.20 +
+    taskScore  * 0.15
+  )
+
   return (
     <AppShell>
       <div className="p-4 md:p-8 max-w-6xl mx-auto space-y-6">
@@ -215,6 +238,20 @@ export default async function DashboardPage({
           <XpWidget xpTotal={profile.xp_total} level={profile.level} />
           <StreakWidget current={profile.streak_current} longest={profile.streak_longest} activeDays={activeDays} />
         </div>
+
+        {/* Life Score */}
+        <LifeScore
+          totalScore={totalScore}
+          habitsScore={habitsScore}
+          streakScore={streakScore}
+          xpScore={xpScore}
+          taskScore={taskScore}
+          streakCurrent={profile.streak_current}
+          habitsCompleted={habitsCompleted}
+          habitsTotal={habitsTotal}
+          xpToday={xpToday}
+          criticalTasks={criticalTasks}
+        />
 
         {/* Quick Actions */}
         <QuickActions />

@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
-import { grantXP, XP_REWARDS } from '@/lib/xp'
+import { XP_REWARDS } from '@/lib/xp'
+import { grantXP } from '@/lib/xp-server'
 
 const setEntrySchema = z.object({
   exercise_name: z.string().min(1).max(100).trim(),
