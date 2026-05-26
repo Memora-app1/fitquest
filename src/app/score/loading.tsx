@@ -149,29 +149,78 @@ export default function ScoreLoading() {
         <StatCard accent="#00FF88" />
       </div>
 
-      {/* XP chart */}
+      {/* XP chart — matches xp-chart.tsx layout: stats row + bars + footer legend */}
       <div
-        className="rounded-2xl p-5 animate-pulse"
-        style={{ background: 'rgba(13,24,41,0.7)', border: '1px solid rgba(255,255,255,0.06)', minHeight: 180 }}
+        className="rounded-2xl p-5 space-y-4 animate-pulse"
+        style={{ background: 'rgba(13,24,41,0.7)', border: '1px solid rgba(255,255,255,0.06)' }}
       >
-        <div className="flex items-center justify-between mb-4">
-          <ShimmerRow widths={['1rem', '7rem']} />
+        <div className="flex items-center justify-between">
+          <ShimmerRow widths={['1rem', '9rem']} />
           <div className="h-2.5 w-16 rounded-full" style={{ background: 'rgba(255,255,255,0.04)' }} />
         </div>
-        {/* Sparkline */}
-        <div className="flex items-end gap-3 h-24">
-          {[40, 80, 55, 90, 30, 70, 65].map((h, i) => (
-            <div key={i} className="flex-1 flex flex-col items-center gap-1.5">
-              <div
-                className="w-full rounded-t-md"
-                style={{
-                  height: `${h}%`,
-                  background: 'linear-gradient(180deg, rgba(245,200,66,0.3) 0%, rgba(245,200,66,0.1) 100%)',
-                }}
-              />
-              <div className="h-2 w-5 rounded-full" style={{ background: 'rgba(255,255,255,0.05)' }} />
+
+        {/* 3 stat cards */}
+        <div className="grid grid-cols-3 gap-2">
+          {[
+            { accent: '245,200,66' },
+            { accent: '255,77,0' },
+            { accent: '0,255,136' },
+          ].map(({ accent }, i) => (
+            <div
+              key={i}
+              className="rounded-xl p-3 text-center"
+              style={{
+                background: `linear-gradient(135deg, rgba(${accent},0.06) 0%, rgba(13,24,41,0.98) 100%)`,
+                border: `1px solid rgba(${accent},0.16)`,
+              }}
+            >
+              <div className="h-4 w-14 rounded-lg mx-auto mb-1.5" style={{ background: `rgba(${accent},0.14)` }} />
+              <div className="h-2.5 w-16 rounded-full mx-auto" style={{ background: 'rgba(255,255,255,0.05)' }} />
             </div>
           ))}
+        </div>
+
+        {/* Bar chart */}
+        <div className="flex items-end gap-3 h-28 px-1">
+          {[40, 60, 30, 85, 50, 70, 55].map((h, i) => (
+            <div key={i} className="flex-1 flex flex-col items-center gap-2">
+              <div
+                className="w-full rounded-t-lg"
+                style={{
+                  height: `${h}%`,
+                  background: i === 6
+                    ? 'linear-gradient(180deg, rgba(255,77,0,0.5) 0%, rgba(255,77,0,0.25) 100%)'
+                    : i === 3
+                    ? 'linear-gradient(180deg, rgba(245,200,66,0.4) 0%, rgba(245,200,66,0.15) 100%)'
+                    : 'linear-gradient(180deg, rgba(124,58,237,0.35) 0%, rgba(124,58,237,0.12) 100%)',
+                }}
+              />
+              <div
+                className="h-2 rounded-full"
+                style={{
+                  width: i === 6 ? 28 : 20,
+                  background: i === 6 ? 'rgba(255,77,0,0.3)' : 'rgba(255,255,255,0.05)',
+                }}
+              />
+            </div>
+          ))}
+        </div>
+
+        {/* Footer legend */}
+        <div className="flex items-center justify-between px-1">
+          <div className="flex items-center gap-3">
+            {[
+              { color: 'rgba(255,77,0,0.7)', w: 36 },
+              { color: 'rgba(245,200,66,0.5)', w: 46 },
+              { color: 'rgba(124,58,237,0.5)', w: 50 },
+            ].map(({ color, w }, i) => (
+              <div key={i} className="flex items-center gap-1">
+                <div className="w-2.5 h-2.5 rounded-sm" style={{ background: color }} />
+                <div className="h-2 rounded-full" style={{ background: 'rgba(255,255,255,0.05)', width: w }} />
+              </div>
+            ))}
+          </div>
+          <div className="h-2 w-32 rounded-full" style={{ background: 'rgba(255,255,255,0.04)' }} />
         </div>
       </div>
 
