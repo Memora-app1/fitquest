@@ -127,21 +127,30 @@ export function GoalsList({ initialGoals }: { initialGoals: Goal[] }) {
 
       {/* Empty state */}
       {filtered.length === 0 && (
-        <div className="card p-12 text-center">
-          <div className="text-5xl mb-4">🎯</div>
-          <h3 className="text-xl font-bold mb-2">
-            {filter === 'active' ? 'Nenhuma meta ativa' : 'Nenhuma meta aqui'}
-          </h3>
-          <p className="text-text-secondary mb-4">
-            {filter === 'active'
-              ? 'Crie sua primeira meta para começar a acompanhar seu progresso'
-              : 'Nada aqui ainda'}
-          </p>
-          {filter === 'active' && (
-            <button onClick={() => setShowCreate(true)} className="btn-primary">
-              Criar primeira meta
-            </button>
-          )}
+        <div
+          className="rounded-2xl p-12 text-center relative overflow-hidden"
+          style={{
+            background: 'linear-gradient(135deg, rgba(255,77,0,0.06) 0%, rgba(13,24,41,0.98) 100%)',
+            border: '1px solid rgba(255,77,0,0.2)',
+          }}
+        >
+          <div className="absolute -top-4 -right-4 w-20 h-20 rounded-full pointer-events-none blur-xl" style={{ background: 'rgba(255,77,0,0.2)' }} />
+          <div className="relative z-10">
+            <div className="text-5xl mb-4">🎯</div>
+            <h3 className="text-xl font-bold mb-2">
+              {filter === 'active' ? 'Nenhuma meta ativa' : 'Nenhuma meta aqui'}
+            </h3>
+            <p className="text-text-secondary mb-4">
+              {filter === 'active'
+                ? 'Crie sua primeira meta para começar a acompanhar seu progresso'
+                : 'Nada aqui ainda'}
+            </p>
+            {filter === 'active' && (
+              <button onClick={() => setShowCreate(true)} className="btn-primary">
+                Criar primeira meta
+              </button>
+            )}
+          </div>
         </div>
       )}
 
@@ -384,9 +393,17 @@ function CreateGoalModal({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/60 z-50 flex items-end md:items-center justify-center p-4">
-      <div className="card-glow w-full max-w-lg p-6 space-y-4 animate-slide-up max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between">
+    <div className="fixed inset-0 bg-black/60 z-50 flex items-end md:items-center justify-center p-4" style={{ backdropFilter: 'blur(4px)' }}>
+      <div
+        className="w-full max-w-lg p-6 space-y-4 animate-slide-up max-h-[90vh] overflow-y-auto rounded-2xl relative overflow-hidden"
+        style={{
+          background: 'linear-gradient(135deg, rgba(245,200,66,0.07) 0%, rgba(13,24,41,0.99) 100%)',
+          border: '1px solid rgba(245,200,66,0.25)',
+          boxShadow: '0 24px 60px rgba(0,0,0,0.5)',
+        }}
+      >
+        <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full pointer-events-none blur-xl" style={{ background: 'rgba(245,200,66,0.15)' }} />
+        <div className="flex items-center justify-between relative z-10">
           <h2 className="text-xl font-bold">Nova meta</h2>
           <button onClick={onClose} className="text-text-muted hover:text-white">
             <X size={20} />
@@ -540,9 +557,17 @@ function UpdateProgressModal({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-      <div className="card-glow w-full max-w-sm p-6 space-y-4 animate-slide-up">
-        <div className="flex items-center justify-between">
+    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" style={{ backdropFilter: 'blur(4px)' }}>
+      <div
+        className="w-full max-w-sm p-6 space-y-4 animate-slide-up rounded-2xl relative overflow-hidden"
+        style={{
+          background: 'linear-gradient(135deg, rgba(0,255,136,0.07) 0%, rgba(13,24,41,0.99) 100%)',
+          border: '1px solid rgba(0,255,136,0.25)',
+          boxShadow: '0 24px 60px rgba(0,0,0,0.5)',
+        }}
+      >
+        <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full pointer-events-none blur-xl" style={{ background: 'rgba(0,255,136,0.12)' }} />
+        <div className="flex items-center justify-between relative z-10">
           <h2 className="text-lg font-bold">Atualizar progresso</h2>
           <button onClick={onClose} className="text-text-muted hover:text-white">
             <X size={20} />

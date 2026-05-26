@@ -86,6 +86,13 @@ interface XpToast {
   amount: number
 }
 
+const QUADRANT_RGB: Record<string, string> = {
+  do: '239,68,68',
+  schedule: '0,255,136',
+  delegate: '245,200,66',
+  eliminate: '136,153,187',
+}
+
 export function EisenhowerBoard({ initialTasks }: { initialTasks: EisenhowerTask[] }) {
   const router = useRouter()
   const [tasks, setTasks] = useState<EisenhowerTask[]>(initialTasks)
@@ -195,7 +202,15 @@ export function EisenhowerBoard({ initialTasks }: { initialTasks: EisenhowerTask
           const qTasks = getQuadrantTasks(q)
           const Icon = q.icon
           return (
-            <div key={q.id} className={cn('card p-5 border-t-4', q.borderColor, q.bgColor)}>
+            <div
+              key={q.id}
+              className="rounded-2xl p-5 relative overflow-hidden"
+              style={{
+                background: `linear-gradient(135deg, rgba(${QUADRANT_RGB[q.id]},0.07) 0%, rgba(13,24,41,0.98) 100%)`,
+                border: `1px solid rgba(${QUADRANT_RGB[q.id]},0.2)`,
+                borderTop: `3px solid rgba(${QUADRANT_RGB[q.id]},0.6)`,
+              }}
+            >
               {/* Header */}
               <div className="mb-4">
                 <div className="flex items-center justify-between">
@@ -247,7 +262,13 @@ export function EisenhowerBoard({ initialTasks }: { initialTasks: EisenhowerTask
 
       {/* Done tasks summary */}
       {doneTasks.length > 0 && (
-        <div className="card p-4">
+        <div
+          className="rounded-2xl p-4"
+          style={{
+            background: 'linear-gradient(135deg, rgba(0,255,136,0.06) 0%, rgba(13,24,41,0.98) 100%)',
+            border: '1px solid rgba(0,255,136,0.18)',
+          }}
+        >
           <div className="flex items-center gap-2 mb-3">
             <Check size={16} className="text-brand-green" />
             <span className="font-semibold text-sm text-brand-green">Concluídas hoje</span>
@@ -271,7 +292,13 @@ export function EisenhowerBoard({ initialTasks }: { initialTasks: EisenhowerTask
       )}
 
       {/* Tip */}
-      <div className="card p-4 text-sm text-text-secondary border border-brand-green/20">
+      <div
+        className="rounded-2xl p-4 text-sm text-text-secondary"
+        style={{
+          background: 'linear-gradient(135deg, rgba(124,58,237,0.06) 0%, rgba(13,24,41,0.98) 100%)',
+          border: '1px solid rgba(0,255,136,0.2)',
+        }}
+      >
         💡 <strong className="text-white">Foque no quadrante verde</strong> — Importantes + não urgentes são onde você cresce de verdade. O quadrante vermelho é onde você sobrevive.
       </div>
 
@@ -441,9 +468,20 @@ function NewTaskModal({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/60 z-50 flex items-end md:items-center justify-center p-4">
-      <div className="card-glow w-full max-w-md p-6 space-y-4">
-        <div className="flex items-center justify-between">
+    <div className="fixed inset-0 bg-black/60 z-50 flex items-end md:items-center justify-center p-4" style={{ backdropFilter: 'blur(4px)' }}>
+      <div
+        className="w-full max-w-md p-6 space-y-4 rounded-2xl relative overflow-hidden"
+        style={{
+          background: `linear-gradient(135deg, rgba(${QUADRANT_RGB[quadrantId]},0.09) 0%, rgba(13,24,41,0.99) 100%)`,
+          border: `1px solid rgba(${QUADRANT_RGB[quadrantId]},0.3)`,
+          boxShadow: '0 24px 60px rgba(0,0,0,0.5)',
+        }}
+      >
+        <div
+          className="absolute -top-6 -right-6 w-24 h-24 rounded-full pointer-events-none blur-xl"
+          style={{ background: `rgba(${QUADRANT_RGB[quadrantId]},0.15)` }}
+        />
+        <div className="flex items-center justify-between relative z-10">
           <div>
             <h2 className="text-xl font-bold">Nova tarefa</h2>
             <div className={cn('text-sm mt-0.5', quadrant.textColor)}>
