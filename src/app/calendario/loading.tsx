@@ -1,12 +1,159 @@
-export default function CalendarioLoading() {
+function ShimmerRow({ widths }: { widths: string[] }) {
   return (
-    <div className="p-4 md:p-8 max-w-4xl mx-auto space-y-6 animate-pulse">
-      <div className="h-10 w-36 bg-card rounded" />
-      <div className="h-24 bg-card rounded-2xl" />
-      <div className="space-y-3">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="h-16 bg-card rounded-xl" />
+    <div className="flex gap-2 items-center">
+      {widths.map((w, i) => (
+        <div
+          key={i}
+          className="animate-pulse rounded-full h-3"
+          style={{ background: 'rgba(21,34,56,0.9)', width: w }}
+        />
+      ))}
+    </div>
+  )
+}
+
+function EventRow({ accent }: { accent: string }) {
+  const widths = ['65%', '80%', '55%', '75%', '60%', '70%']
+  const w = widths[Math.floor(Math.random() * widths.length)]
+  return (
+    <div
+      className="flex items-center gap-3 px-4 py-3.5 animate-pulse"
+    >
+      <div
+        className="w-1 self-stretch rounded-full shrink-0"
+        style={{ background: accent, opacity: 0.6 }}
+      />
+      <div className="w-10 h-10 rounded-xl shrink-0" style={{ background: `${accent}12` }} />
+      <div className="flex-1 space-y-1.5 min-w-0">
+        <div className="h-3.5 rounded-full" style={{ background: 'rgba(255,255,255,0.08)', width: w }} />
+        <div className="flex gap-2">
+          <div className="h-2.5 w-20 rounded-full" style={{ background: 'rgba(255,255,255,0.04)' }} />
+          <div className="h-2.5 w-14 rounded-full" style={{ background: `${accent}15` }} />
+        </div>
+      </div>
+      <div className="h-6 w-14 rounded-full shrink-0" style={{ background: `${accent}10`, border: `1px solid ${accent}18` }} />
+    </div>
+  )
+}
+
+export default function CalendarioLoading() {
+  const eventAccents = ['#7C3AED', '#FF4D00', '#00FF88', '#F5C842', '#3B82F6', '#7C3AED']
+  const dayLabels = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
+
+  return (
+    <div className="p-4 md:p-8 max-w-4xl mx-auto space-y-6">
+
+      {/* Hero header */}
+      <div
+        className="rounded-2xl p-6 relative overflow-hidden animate-pulse"
+        style={{
+          background: 'linear-gradient(135deg, rgba(59,130,246,0.08) 0%, rgba(13,24,41,0.98) 60%, rgba(124,58,237,0.05) 100%)',
+          border: '1px solid rgba(59,130,246,0.2)',
+        }}
+      >
+        <div
+          className="absolute -top-8 -right-8 w-36 h-36 rounded-full pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(59,130,246,0.12) 0%, transparent 70%)' }}
+        />
+        <div className="relative z-10 flex items-start justify-between flex-wrap gap-4">
+          <div className="space-y-2">
+            <div className="h-10 w-36 rounded-xl" style={{ background: 'rgba(255,255,255,0.08)' }} />
+            <div className="h-3 w-48 rounded-full" style={{ background: 'rgba(255,255,255,0.05)' }} />
+          </div>
+          <div className="flex gap-2">
+            <div className="h-9 w-28 rounded-xl" style={{ background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.22)' }} />
+            <div className="h-9 w-24 rounded-xl" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }} />
+          </div>
+        </div>
+      </div>
+
+      {/* Month/week nav */}
+      <div
+        className="rounded-2xl p-4 animate-pulse"
+        style={{ background: 'rgba(13,24,41,0.7)', border: '1px solid rgba(255,255,255,0.06)' }}
+      >
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl" style={{ background: 'rgba(255,255,255,0.06)' }} />
+            <div className="h-5 w-32 rounded-full" style={{ background: 'rgba(255,255,255,0.09)' }} />
+            <div className="w-8 h-8 rounded-xl" style={{ background: 'rgba(255,255,255,0.06)' }} />
+          </div>
+          <div className="flex gap-1.5">
+            <div className="h-8 w-16 rounded-xl" style={{ background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.2)' }} />
+            <div className="h-8 w-16 rounded-xl" style={{ background: 'rgba(255,255,255,0.04)' }} />
+            <div className="h-8 w-16 rounded-xl" style={{ background: 'rgba(255,255,255,0.04)' }} />
+          </div>
+        </div>
+
+        {/* Day headers */}
+        <div className="grid grid-cols-7 gap-1 mb-2">
+          {dayLabels.map((d) => (
+            <div key={d} className="text-center">
+              <div className="h-2.5 w-6 rounded-full mx-auto" style={{ background: 'rgba(255,255,255,0.05)' }} />
+            </div>
+          ))}
+        </div>
+
+        {/* Calendar grid — 5 weeks */}
+        {Array.from({ length: 5 }).map((_, week) => (
+          <div key={week} className="grid grid-cols-7 gap-1 mb-1">
+            {Array.from({ length: 7 }).map((_, day) => {
+              const cellNum = week * 7 + day
+              const isToday = cellNum === 17
+              const hasEvent = [3, 7, 10, 14, 17, 21, 24, 26, 30].includes(cellNum)
+              const isOtherMonth = cellNum < 2 || cellNum > 31
+
+              return (
+                <div
+                  key={day}
+                  className="aspect-square rounded-xl flex flex-col items-center justify-center gap-0.5 relative"
+                  style={{
+                    background: isToday
+                      ? 'rgba(59,130,246,0.15)'
+                      : 'rgba(255,255,255,0.02)',
+                    border: isToday
+                      ? '2px solid rgba(59,130,246,0.5)'
+                      : '1px solid rgba(255,255,255,0.03)',
+                    opacity: isOtherMonth ? 0.3 : 1,
+                  }}
+                >
+                  <div
+                    className="w-5 h-5 rounded-full"
+                    style={{
+                      background: isToday
+                        ? 'rgba(59,130,246,0.3)'
+                        : 'rgba(255,255,255,0.05)',
+                    }}
+                  />
+                  {hasEvent && (
+                    <div className="flex gap-0.5">
+                      <div className="w-1 h-1 rounded-full" style={{ background: 'rgba(124,58,237,0.6)' }} />
+                      {cellNum === 17 && <div className="w-1 h-1 rounded-full" style={{ background: 'rgba(255,77,0,0.6)' }} />}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
         ))}
+      </div>
+
+      {/* Upcoming events */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between animate-pulse">
+          <ShimmerRow widths={['1rem', '8rem']} />
+          <div className="h-5 w-14 rounded-full" style={{ background: 'rgba(255,255,255,0.05)' }} />
+        </div>
+        <div
+          className="rounded-2xl overflow-hidden animate-pulse"
+          style={{ border: '1px solid rgba(255,255,255,0.06)' }}
+        >
+          {eventAccents.map((accent, i) => (
+            <div key={i} style={{ borderBottom: i < eventAccents.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
+              <EventRow accent={accent} />
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   )
