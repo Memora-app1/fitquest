@@ -12,7 +12,9 @@ import { QuickActions } from '@/components/dashboard/quick-actions'
 import { ActivityFeed } from '@/components/dashboard/activity-feed'
 import { WeekProgress } from '@/components/dashboard/week-progress'
 import { LifeScore } from '@/components/dashboard/life-score'
+import { InsightsWidget } from '@/components/dashboard/insights-widget'
 import { getGreeting, todayString } from '@/lib/utils'
+import { getXpProgressToNextLevel } from '@/lib/xp'
 
 export const metadata: Metadata = {
   title: 'Dashboard',
@@ -49,7 +51,7 @@ export default async function DashboardPage({
   ] = await Promise.all([
     supabase
       .from('profiles')
-      .select('name, xp_total, level, streak_current, streak_longest, subscription_status, trial_end')
+      .select('name, xp_total, level, streak_current, streak_longest, subscription_status, trial_end, perfect_days')
       .eq('id', user.id)
       .single(),
     supabase
@@ -145,6 +147,10 @@ export default async function DashboardPage({
     xpScore    * 0.20 +
     taskScore  * 0.15
   )
+
+  // Insights widget data
+  const xpProgress = getXpProgressToNextLevel(profile.xp_total)
+  const xpToNextLevel = xpProgress.needed > 0 ? xpProgress.needed - xpProgress.current : 0
 
   return (
     <AppShell>
@@ -251,6 +257,22 @@ export default async function DashboardPage({
           habitsTotal={habitsTotal}
           xpToday={xpToday}
           criticalTasks={criticalTasks}
+        />
+
+        {/* Insights — smart contextual tips based on today's data */}
+        <InsightsWidget
+          habitsTotal={habitsTotal}
+          habitsCompleted={habitsCompleted}
+          streakCurrent={profile.streak_current}
+          streakLongest={profile.streak_longest}
+          xpTotal={profile.xp_total}
+          xpToNextLevel={xpToNextLevel}
+          level={profile.level}
+          criticalTasks={criticalTasks}
+          totalTasks={tasks.length}
+          xpToday={xpToday}
+          upcomingBills={transactions.length}
+          perfectDays={profile.perfect_days ?? 0}
         />
 
         {/* Quick Actions */}
