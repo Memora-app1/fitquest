@@ -1,0 +1,374 @@
+import { createClient } from '@/lib/supabase/server'
+import { CalendarDays } from 'lucide-react'
+
+interface LogRow {
+  habit_id: string
+  logged_date: string
+}
+
+interface HabitRow {
+  id: string
+}
+
+function toISO(d: Date): string {
+  return d.toISOString().split('T')[0]!
+}
+
+const MONTH_LABELS = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
+const DOW_LABELS = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S']
+
+export async function HabitYearHeatmap({ userId }: { userId: string }) {
+  const supabase = await createClient()
+
+  const now = new Date()
+  const todayStr = toISO(now)
+
+  // 365 days back from today
+  const yearAgo = new Date(now.getTime() - 364 * 86400000)
+  const yearAgoStr = toISO(yearAgo)
+
+  const [habitsRes, logsRes] = await Promise.all([
+    supabase
+      .from('habits')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('is_active', true),
+    supabase
+      .from('habit_logs')
+      .select('habit_id, logged_date')
+      .eq('user_id', userId)
+      .gte('logged_date', yearAgoStr)
+      .lte('logged_date', todayStr),
+  ])
+
+  const habits = (habitsRes.data ?? []) as HabitRow[]
+  const logs = (logsRes.data ?? []) as LogRow[]
+
+  if (habits.length === 0) return null
+
+  const totalHabits = habits.length
+
+  // Group logs by date → count unique habit_ids done
+  const logsByDate = new Map<string, Set<string>>()
+  for (const l of logs) {
+    if (!logsByDate.has(l.logged_date)) logsByDate.set(l.logged_date, new Set())
+    logsByDate.get(l.logged_date)!.add(l.habit_id)
+  }
+
+  // Build the 365-day grid starting from the Sunday that contains yearAgo
+  // We want a 52+ week grid, starting on Sunday
+  const gridStart = new Date(yearAgo)
+  const startDow = gridStart.getDay() // 0=Sun
+  gridStart.setDate(gridStart.getDate() - startDow) // go back to Sunday
+
+  // Build weeks array
+  interface DayCell {
+    dateStr: string
+    count: number
+    total: number
+    pct: number        // 0-100
+    isFuture: boolean
+    isToday: boolean
+    inRange: boolean   // within yearAgo..today
+  }
+
+  const weeks: DayCell[][] = []
+  const cursor = new Date(gridStart)
+
+  // Month label positions: [weekIndex, monthLabel]
+  const monthMarkers: { weekIdx: number; label: string }[] = []
+  let lastMonth = -1
+
+  while (cursor <= now) {
+    const week: DayCell[] = []
+    for (let d = 0; d < 7; d++) {
+      const dateStr = toISO(cursor)
+      const isFuture = dateStr > todayStr
+      const isToday = dateStr === todayStr
+      const inRange = dateStr >= yearAgoStr && dateStr <= todayStr
+      const done = logsByDate.get(dateStr)?.size ?? 0
+      const pct = inRange && !isFuture ? Math.round((done / totalHabits) * 100) : 0
+
+      week.push({
+        dateStr,
+        count: done,
+        total: totalHabits,
+        pct,
+        isFuture,
+        isToday,
+        inRange,
+      })
+
+      // Month label when month changes
+      if (d === 0 && !isFuture && inRange) {
+        const m = cursor.getMonth()
+        if (m !== lastMonth) {
+          monthMarkers.push({ weekIdx: weeks.length, label: MONTH_LABELS[m]! })
+          lastMonth = m
+        }
+      }
+
+      cursor.setDate(cursor.getDate() + 1)
+    }
+    weeks.push(week)
+  }
+
+  // Stats
+  const activeDays = Array.from(logsByDate.entries())
+    .filter(([d]) => d >= yearAgoStr && d <= todayStr && logsByDate.get(d)!.size > 0)
+    .length
+
+  const perfectDays = Array.from(logsByDate.entries())
+    .filter(([d]) => d >= yearAgoStr && d <= todayStr && logsByDate.get(d)!.size >= totalHabits)
+    .length
+
+  const totalLogs = logs.filter(l => l.logged_date >= yearAgoStr && l.logged_date <= todayStr).length
+
+  // Current streak (days back from today with at least 1 log)
+  let currentStreak = 0
+  const streakCursor = new Date(now)
+  while (true) {
+    const ds = toISO(streakCursor)
+    if (ds < yearAgoStr) break
+    const done = logsByDate.get(ds)?.size ?? 0
+    if (done === 0) break
+    currentStreak++
+    streakCursor.setDate(streakCursor.getDate() - 1)
+  }
+
+  // Longest streak in the year
+  let longestStreak = 0
+  let tempStreak = 0
+  const d = new Date(yearAgo)
+  while (toISO(d) <= todayStr) {
+    const ds = toISO(d)
+    const done = logsByDate.get(ds)?.size ?? 0
+    if (done > 0) {
+      tempStreak++
+      if (tempStreak > longestStreak) longestStreak = tempStreak
+    } else {
+      tempStreak = 0
+    }
+    d.setDate(d.getDate() + 1)
+  }
+
+  // Color based on pct
+  function cellColor(cell: DayCell): string {
+    if (!cell.inRange || cell.isFuture) return 'rgba(255,255,255,0.04)'
+    if (cell.pct === 0) return 'rgba(255,255,255,0.06)'
+    if (cell.pct <= 25) return 'rgba(0,255,136,0.15)'
+    if (cell.pct <= 50) return 'rgba(0,255,136,0.30)'
+    if (cell.pct <= 75) return 'rgba(0,255,136,0.55)'
+    return '#00FF88'
+  }
+
+  function cellBorder(cell: DayCell): string {
+    if (cell.isToday) return '1px solid rgba(245,200,66,0.8)'
+    if (!cell.inRange || cell.isFuture) return '1px solid transparent'
+    if (cell.pct >= 100) return '1px solid rgba(0,255,136,0.4)'
+    return '1px solid transparent'
+  }
+
+  return (
+    <div
+      className="rounded-2xl p-5 md:p-6 relative overflow-hidden"
+      style={{
+        background: 'linear-gradient(135deg, rgba(0,255,136,0.05) 0%, rgba(13,24,41,0.98) 60%, rgba(124,58,237,0.04) 100%)',
+        border: '1px solid rgba(0,255,136,0.12)',
+      }}
+    >
+      <div
+        className="absolute -top-8 -right-8 w-40 h-40 rounded-full pointer-events-none blur-3xl"
+        style={{ background: 'rgba(0,255,136,0.06)' }}
+      />
+
+      <div className="relative z-10 space-y-5">
+
+        {/* ── Header ────────────────────────────────────────────────────── */}
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <div
+                className="w-6 h-6 rounded-lg flex items-center justify-center"
+                style={{ background: 'rgba(0,255,136,0.12)', border: '1px solid rgba(0,255,136,0.22)' }}
+              >
+                <CalendarDays size={12} style={{ color: '#00FF88' }} />
+              </div>
+              <span className="text-xs font-bold uppercase tracking-widest text-text-muted">
+                Consistência — 365 dias
+              </span>
+            </div>
+            <h2 className="text-xl font-black leading-tight">Mapa Anual de Hábitos</h2>
+            <p className="text-sm text-text-muted mt-0.5">
+              {totalHabits} hábito{totalHabits !== 1 ? 's' : ''} ativos · {activeDays} dia{activeDays !== 1 ? 's' : ''} com registros
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3 flex-wrap">
+            <div className="text-right">
+              <div className="text-2xl font-black" style={{ color: '#00FF88' }}>{currentStreak}</div>
+              <div className="text-[10px] text-text-muted uppercase tracking-wider">streak atual</div>
+            </div>
+            <div
+              className="w-px h-8 rounded-full"
+              style={{ background: 'rgba(255,255,255,0.1)' }}
+            />
+            <div className="text-right">
+              <div className="text-2xl font-black text-white">{longestStreak}</div>
+              <div className="text-[10px] text-text-muted uppercase tracking-wider">recorde</div>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Heatmap Grid ──────────────────────────────────────────────── */}
+        <div className="overflow-x-auto pb-1">
+          <div style={{ minWidth: `${weeks.length * 13}px` }}>
+
+            {/* Month labels */}
+            <div className="flex mb-1" style={{ paddingLeft: '20px' }}>
+              {weeks.map((_, wi) => {
+                const marker = monthMarkers.find(m => m.weekIdx === wi)
+                return (
+                  <div
+                    key={wi}
+                    className="text-[9px] text-text-muted"
+                    style={{ width: '13px', flexShrink: 0 }}
+                  >
+                    {marker ? marker.label : ''}
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* Grid: 7 rows (DOW) × N weeks */}
+            <div className="flex gap-0">
+              {/* DOW labels */}
+              <div className="flex flex-col gap-[2px] mr-1">
+                {DOW_LABELS.map((label, i) => (
+                  <div
+                    key={i}
+                    className="text-[9px] text-text-muted flex items-center"
+                    style={{ height: '11px', width: '16px' }}
+                  >
+                    {i % 2 === 1 ? label : ''}
+                  </div>
+                ))}
+              </div>
+
+              {/* Week columns */}
+              <div className="flex gap-[2px]">
+                {weeks.map((week, wi) => (
+                  <div key={wi} className="flex flex-col gap-[2px]">
+                    {week.map((cell, di) => (
+                      <div
+                        key={di}
+                        title={
+                          cell.inRange && !cell.isFuture
+                            ? `${cell.dateStr}: ${cell.count}/${cell.total} hábitos (${cell.pct}%)`
+                            : cell.dateStr
+                        }
+                        className="rounded-[2px] cursor-default transition-transform hover:scale-125"
+                        style={{
+                          width: '11px',
+                          height: '11px',
+                          background: cellColor(cell),
+                          border: cellBorder(cell),
+                          flexShrink: 0,
+                        }}
+                      />
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Legend */}
+            <div className="flex items-center gap-2 mt-2 pl-5">
+              <span className="text-[9px] text-text-muted">Menos</span>
+              {[0, 25, 50, 75, 100].map((pct) => (
+                <div
+                  key={pct}
+                  className="rounded-[2px]"
+                  style={{
+                    width: '11px',
+                    height: '11px',
+                    background: pct === 0 ? 'rgba(255,255,255,0.06)' :
+                      pct <= 25 ? 'rgba(0,255,136,0.15)' :
+                      pct <= 50 ? 'rgba(0,255,136,0.30)' :
+                      pct <= 75 ? 'rgba(0,255,136,0.55)' : '#00FF88',
+                  }}
+                />
+              ))}
+              <span className="text-[9px] text-text-muted">Mais</span>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Stats Row ─────────────────────────────────────────────────── */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div
+            className="rounded-xl p-3 text-center"
+            style={{ background: 'rgba(0,255,136,0.06)', border: '1px solid rgba(0,255,136,0.12)' }}
+          >
+            <div className="text-2xl font-black" style={{ color: '#00FF88' }}>{currentStreak}</div>
+            <div className="text-[10px] text-text-muted mt-0.5 uppercase tracking-wider">Streak atual</div>
+          </div>
+          <div
+            className="rounded-xl p-3 text-center"
+            style={{ background: 'rgba(245,200,66,0.06)', border: '1px solid rgba(245,200,66,0.12)' }}
+          >
+            <div className="text-2xl font-black" style={{ color: '#F5C842' }}>{longestStreak}</div>
+            <div className="text-[10px] text-text-muted mt-0.5 uppercase tracking-wider">Recorde de streak</div>
+          </div>
+          <div
+            className="rounded-xl p-3 text-center"
+            style={{ background: 'rgba(124,58,237,0.06)', border: '1px solid rgba(124,58,237,0.12)' }}
+          >
+            <div className="text-2xl font-black text-brand-purple">{perfectDays}</div>
+            <div className="text-[10px] text-text-muted mt-0.5 uppercase tracking-wider">Dias perfeitos</div>
+          </div>
+          <div
+            className="rounded-xl p-3 text-center"
+            style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}
+          >
+            <div className="text-2xl font-black text-white">{totalLogs}</div>
+            <div className="text-[10px] text-text-muted mt-0.5 uppercase tracking-wider">Registros totais</div>
+          </div>
+        </div>
+
+        {/* ── Insight Footer ───────────────────────────────────────────── */}
+        <div
+          className="rounded-xl px-4 py-3 flex items-center gap-3"
+          style={{
+            background: 'rgba(0,255,136,0.04)',
+            border: '1px solid rgba(0,255,136,0.1)',
+          }}
+        >
+          <span className="text-lg shrink-0">
+            {currentStreak >= 30 ? '🔥' : currentStreak >= 7 ? '💪' : perfectDays >= 50 ? '⭐' : '🌱'}
+          </span>
+          <div>
+            <p className="text-sm font-semibold leading-snug">
+              {currentStreak >= 30
+                ? `${currentStreak} dias consecutivos — você está imparável!`
+                : currentStreak >= 7
+                ? `${currentStreak} dias seguidos. Continue para bater seu recorde de ${longestStreak}!`
+                : perfectDays >= 50
+                ? `${perfectDays} dias perfeitos no ano — consistência impressionante.`
+                : activeDays > 0
+                ? `${activeDays} dia${activeDays !== 1 ? 's' : ''} com registro no último ano.`
+                : 'Comece hoje para construir sua consistência!'}
+            </p>
+            <p className="text-[11px] text-text-muted mt-0.5">
+              {totalHabits} hábito{totalHabits !== 1 ? 's' : ''} ativos ·{' '}
+              {activeDays > 0
+                ? `${Math.round((activeDays / 365) * 100)}% de consistência anual`
+                : 'Registre seu primeiro hábito'}
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  )
+}

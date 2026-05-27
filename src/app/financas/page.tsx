@@ -10,6 +10,9 @@ import {
   Target, BarChart3, Sparkles,
 } from 'lucide-react'
 import { SpendingChartLazy as SpendingChart } from '@/components/financas/spending-chart-lazy'
+import { FinanceTrends } from '@/components/financas/finance-trends'
+import { CashFlowForecast } from '@/components/financas/cash-flow-forecast'
+import { FinanceIncomeAnalysis } from '@/components/financas/finance-income-analysis'
 
 export const metadata: Metadata = {
   title: 'Finanças',
@@ -507,6 +510,15 @@ export default async function FinancasPage() {
             </div>
           </section>
         )}
+
+        {/* ── Cash flow forecast: weekly projection + upcoming obligations ── */}
+        <CashFlowForecast userId={user.id} />
+
+        {/* ── Income intelligence: recurring sources + stability score ── */}
+        <FinanceIncomeAnalysis userId={user.id} />
+
+        {/* ── 6-month income vs expense trend chart ────────────────────── */}
+        <FinanceTrends userId={user.id} />
 
         {/* ── Accounts ─────────────────────────────────────────────────── */}
         <section>

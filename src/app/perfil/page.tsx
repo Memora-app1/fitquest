@@ -5,6 +5,10 @@ import { AppShell } from '@/components/layout/app-shell'
 import Link from 'next/link'
 import { formatDateBR } from '@/lib/utils'
 import { PerfilForm } from '@/components/perfil/perfil-form'
+import { XpHistory } from '@/components/perfil/xp-history'
+import { AchievementsShowcase } from '@/components/perfil/achievements-showcase'
+import { XpLevelJourney } from '@/components/perfil/xp-level-journey'
+import { DailyActivityMap } from '@/components/perfil/daily-activity-map'
 import { Trophy, Flame, Zap, Star, Calendar, Target, Dumbbell, CheckSquare, Crown } from 'lucide-react'
 
 export const metadata: Metadata = {
@@ -193,6 +197,22 @@ export default async function PerfilPage() {
           initialBio={profile.bio}
           email={user.email ?? ''}
         />
+
+        {/* ── XP Level roadmap + source breakdown + monthly chart ─────── */}
+        <XpLevelJourney
+          userId={user.id}
+          xpTotal={profile.xp_total}
+          currentLevel={profile.level}
+        />
+
+        {/* ── Cross-domain 60-day activity heatmap ─────────────────────── */}
+        <DailyActivityMap userId={user.id} />
+
+        {/* ── XP History 30-day chart ──────────────────────────────────── */}
+        <XpHistory userId={user.id} />
+
+        {/* ── Achievements showcase ────────────────────────────────────── */}
+        <AchievementsShowcase userId={user.id} />
 
         {/* Stats */}
         <section>

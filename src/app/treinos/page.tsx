@@ -5,6 +5,13 @@ import { AppShell } from '@/components/layout/app-shell'
 import Link from 'next/link'
 import { formatRelativeDate } from '@/lib/utils'
 import { Plus, Dumbbell, Zap, TrendingUp, Trophy, Flame } from 'lucide-react'
+import { WorkoutTrends } from '@/components/treinos/workout-trends'
+import { PrProgress } from '@/components/treinos/pr-progress'
+import { WorkoutHeatmap } from '@/components/treinos/workout-heatmap'
+import { WorkoutMuscleBalance } from '@/components/treinos/workout-muscle-balance'
+import { ExercisePrTracker } from '@/components/treinos/exercise-pr-tracker'
+import { WorkoutVolumeProgression } from '@/components/treinos/workout-volume-progression'
+import { WorkoutRestDayAdvisor } from '@/components/treinos/workout-rest-day-advisor'
 
 export const metadata: Metadata = {
   title: 'Treinos',
@@ -276,6 +283,27 @@ export default async function TreinosPage() {
             </div>
           </>
         )}
+
+        {/* ── 8-week volume trend chart ─────────────────────────────────── */}
+        <WorkoutTrends userId={user.id} />
+
+        {/* ── 90-day PR progression sparklines ───────────────────────────── */}
+        <PrProgress userId={user.id} />
+
+        {/* ── 90-day workout frequency heatmap ────────────────────────────── */}
+        <WorkoutHeatmap userId={user.id} />
+
+        {/* ── Smart recovery advisor: which muscles are ready to train ── */}
+        <WorkoutRestDayAdvisor userId={user.id} />
+
+        {/* ── 8-week muscle group balance + volume distribution ───────── */}
+        <WorkoutMuscleBalance userId={user.id} />
+
+        {/* ── 12-week volume progression per muscle group ─────────────── */}
+        <WorkoutVolumeProgression userId={user.id} />
+
+        {/* ── 12-week exercise PR tracker with mini sparklines ────────── */}
+        <ExercisePrTracker userId={user.id} />
 
         {/* ── Best PRs ────────────────────────────────────────────────── */}
         {topPrs.length > 0 && (

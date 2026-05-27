@@ -4,6 +4,10 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { AppShell } from '@/components/layout/app-shell'
 import { TransactionsView } from '@/components/financas/transactions-view'
+import { SpendingByCategory } from '@/components/financas/spending-by-category'
+import { FinanceMonthCalendar } from '@/components/financas/finance-month-calendar'
+import { FinanceRecurringAnalysis } from '@/components/financas/finance-recurring-analysis'
+import { SpendingDowHeatmap } from '@/components/financas/spending-dow-heatmap'
 import { formatBRL } from '@/lib/utils'
 import { TrendingUp, TrendingDown, ArrowLeftRight } from 'lucide-react'
 
@@ -146,6 +150,18 @@ export default async function TransacoesPage() {
             </div>
           </div>
         )}
+
+        {/* ── Monthly spending calendar heatmap ─────────────────────── */}
+        <FinanceMonthCalendar userId={user.id} />
+
+        {/* ── Category breakdown + day-of-week pattern ───────────────── */}
+        <SpendingByCategory userId={user.id} />
+
+        {/* ── Recurring transaction detection + subscription tracker ──── */}
+        <FinanceRecurringAnalysis userId={user.id} />
+
+        {/* ── Day-of-week + week-of-month spending heatmap ─────────────── */}
+        <SpendingDowHeatmap userId={user.id} />
 
         <Suspense fallback={<div className="text-text-secondary">Carregando...</div>}>
           <TransactionsView

@@ -3,6 +3,8 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { AppShell } from '@/components/layout/app-shell'
 import { AccountsManager } from '@/components/financas/accounts-manager'
+import { NetWorthSummary } from '@/components/financas/net-worth-summary'
+import { SavingsRateTracker } from '@/components/financas/savings-rate-tracker'
 
 export const metadata: Metadata = {
   title: 'Contas',
@@ -50,6 +52,12 @@ export default async function ContasPage() {
             </p>
           </div>
         </div>
+
+        {/* ── Net worth + account type breakdown + credit utilization ──── */}
+        <NetWorthSummary userId={user.id} />
+
+        {/* ── 6-month savings rate trend ────────────────────────────────── */}
+        <SavingsRateTracker userId={user.id} />
 
         <AccountsManager initialAccounts={accounts ?? []} />
       </div>

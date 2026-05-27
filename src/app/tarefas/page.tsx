@@ -3,6 +3,11 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { AppShell } from '@/components/layout/app-shell'
 import { KanbanBoard } from '@/components/tarefas/kanban-board'
+import { TaskVelocity } from '@/components/tarefas/task-velocity'
+import { TaskListsBreakdown } from '@/components/tarefas/task-lists-breakdown'
+import { TaskDueTimeline } from '@/components/tarefas/task-due-timeline'
+import { TaskProductivityScore } from '@/components/tarefas/task-productivity-score'
+import { TaskListProgressRings } from '@/components/tarefas/task-list-progress-rings'
 import Link from 'next/link'
 import { CheckSquare, Clock, AlertCircle, Zap, LayoutGrid, Trophy, Flame } from 'lucide-react'
 
@@ -284,6 +289,21 @@ export default async function TarefasPage() {
             </div>
           </div>
         )}
+
+        {/* ── Per-list portfolio view with progress rings ──────────────── */}
+        <TaskListProgressRings userId={user.id} />
+
+        {/* ── Productivity score + DOW heatmap + weekly trends ────────── */}
+        <TaskProductivityScore userId={user.id} />
+
+        {/* ── 8-week task velocity chart ───────────────────────────────── */}
+        <TaskVelocity userId={user.id} />
+
+        {/* ── Per-list breakdown + alerts ──────────────────────────────── */}
+        <TaskListsBreakdown userId={user.id} />
+
+        {/* ── 30-day deadline timeline ──────────────────────────────────── */}
+        <TaskDueTimeline userId={user.id} />
 
         <KanbanBoard initialTasks={tasks} />
       </div>

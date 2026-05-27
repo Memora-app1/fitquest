@@ -4,6 +4,11 @@ import { redirect } from 'next/navigation'
 import { AppShell } from '@/components/layout/app-shell'
 import { todayString } from '@/lib/utils'
 import { HabitsList } from '@/components/habitos/habits-list'
+import { HabitHeatmap } from '@/components/habitos/habit-heatmap'
+import { HabitStatsBreakdown } from '@/components/habitos/habit-stats-breakdown'
+import { HabitCompletionCalendar } from '@/components/habitos/habit-completion-calendar'
+import { HabitYearHeatmap } from '@/components/habitos/habit-year-heatmap'
+import { HabitCorrelationMatrix } from '@/components/habitos/habit-correlation-matrix'
 import { Flame, Target, Zap, Calendar, Star } from 'lucide-react'
 
 export const metadata: Metadata = {
@@ -284,6 +289,24 @@ export default async function HabitosPage({
             </div>
           </div>
         )}
+
+        {/* 90-day contribution heatmap + per-habit analytics */}
+        <HabitHeatmap
+          userId={user.id}
+          habits={habits.map(h => ({ id: h.id, name: h.name, icon: h.icon, color: h.color }))}
+        />
+
+        {/* ── Per-habit 30-day stats + DOW breakdown ───────────────────── */}
+        <HabitStatsBreakdown userId={user.id} />
+
+        {/* ── Monthly habit calendar with per-habit dot matrix ─────────── */}
+        <HabitCompletionCalendar userId={user.id} />
+
+        {/* ── Full-year GitHub-style heatmap ───────────────────────────── */}
+        <HabitYearHeatmap userId={user.id} />
+
+        {/* ── Habit correlation matrix — which habits are done together ── */}
+        <HabitCorrelationMatrix userId={user.id} />
 
         <HabitsList
           habits={habits}

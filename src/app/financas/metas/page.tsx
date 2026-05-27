@@ -3,6 +3,8 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { AppShell } from '@/components/layout/app-shell'
 import { FinanceGoalsList } from '@/components/financas/finance-goals-list'
+import { FinanceGoalsOverview } from '@/components/financas/finance-goals-overview'
+import { FinanceGoalsMilestones } from '@/components/financas/finance-goals-milestones'
 import { Target, TrendingUp, CheckCircle2, DollarSign } from 'lucide-react'
 import { formatBRL } from '@/lib/utils'
 
@@ -167,6 +169,12 @@ export default async function MetasFinanceirasPage() {
             </div>
           </div>
         )}
+
+        {/* ── Finance goals projections + analytics ────────────────────── */}
+        <FinanceGoalsOverview userId={user.id} />
+
+        {/* ── Per-goal milestone rings + deadline analysis ─────────────── */}
+        <FinanceGoalsMilestones userId={user.id} />
 
         <FinanceGoalsList initialGoals={allGoals} />
       </div>

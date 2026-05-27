@@ -13,6 +13,11 @@ import { ActivityFeed } from '@/components/dashboard/activity-feed'
 import { WeekProgress } from '@/components/dashboard/week-progress'
 import { LifeScore } from '@/components/dashboard/life-score'
 import { InsightsWidget } from '@/components/dashboard/insights-widget'
+import { MonthlyRecap } from '@/components/dashboard/monthly-recap'
+import { WeeklyChallenges } from '@/components/dashboard/weekly-challenges'
+import { WeeklyXpBreakdown } from '@/components/dashboard/weekly-xp-breakdown'
+import { LifeBalanceRadar } from '@/components/dashboard/life-balance-radar'
+import { WorkoutPrsWidget } from '@/components/dashboard/workout-prs-widget'
 import { getGreeting, todayString } from '@/lib/utils'
 import { getXpProgressToNextLevel } from '@/lib/xp'
 
@@ -311,6 +316,21 @@ export default async function DashboardPage({
 
         {/* Finance Alerts */}
         {transactions.length > 0 && <FinanceAlerts transactions={transactions} />}
+
+        {/* Weekly Challenges — gamified weekly goals with XP rewards */}
+        <WeeklyChallenges userId={user.id} />
+
+        {/* Life balance radar — scores across all 4 domains */}
+        <LifeBalanceRadar userId={user.id} />
+
+        {/* Workout PRs widget — top 5 personal bests in the last 8 weeks */}
+        <WorkoutPrsWidget userId={user.id} />
+
+        {/* Weekly XP breakdown by source with daily bar chart */}
+        <WeeklyXpBreakdown userId={user.id} />
+
+        {/* Monthly Recap — synthesizes all modules for the current month */}
+        <MonthlyRecap userId={user.id} />
       </div>
     </AppShell>
   )

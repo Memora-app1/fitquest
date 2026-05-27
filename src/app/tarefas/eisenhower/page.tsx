@@ -4,6 +4,8 @@ import { redirect } from 'next/navigation'
 import { AppShell } from '@/components/layout/app-shell'
 import Link from 'next/link'
 import { EisenhowerBoard } from '@/components/tarefas/eisenhower-board'
+import { EisenhowerInsights } from '@/components/tarefas/eisenhower-insights'
+import { TaskDueDateHeatmap } from '@/components/tarefas/task-due-date-heatmap'
 import { LayoutGrid } from 'lucide-react'
 
 export const metadata: Metadata = {
@@ -148,6 +150,12 @@ export default async function EisenhowerPage() {
             ))}
           </div>
         )}
+
+        {/* ── 6-week due date calendar heatmap ────────────────────────── */}
+        <TaskDueDateHeatmap userId={user.id} />
+
+        {/* ── Prioritization analytics ─────────────────────────────────── */}
+        <EisenhowerInsights userId={user.id} />
 
         {/* ── Board ───────────────────────────────────────────────────── */}
         <EisenhowerBoard initialTasks={[...activeTasks, ...doneTasks]} />

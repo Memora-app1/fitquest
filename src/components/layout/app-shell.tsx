@@ -12,6 +12,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { Sidebar } from './sidebar'
 import { BottomNav } from './bottom-nav'
+import { MobileHeader } from './mobile-header'
 import { PushPrompt } from '@/components/push-prompt'
 
 export async function AppShell({ children }: { children: React.ReactNode }) {
@@ -26,7 +27,7 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('name, xp_total, level, streak_current, onboarding_completed')
+    .select('name, xp_total, level, streak_current, onboarding_completed, perfect_days')
     .eq('id', user.id)
     .single()
 
@@ -41,7 +42,15 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen">
       <Sidebar profile={profile} />
-      <main className="flex-1 pb-20 md:pb-0">{children}</main>
+      <div className="flex-1 flex flex-col min-h-screen">
+        <MobileHeader
+          name={profile.name}
+          level={profile.level}
+          xpTotal={profile.xp_total}
+          streakCurrent={profile.streak_current}
+        />
+        <main className="flex-1 pb-20 md:pb-0">{children}</main>
+      </div>
       <BottomNav />
       <PushPrompt />
     </div>

@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { AppShell } from '@/components/layout/app-shell'
 import { GoalsList } from '@/components/metas/goals-list'
+import { GoalsOverview } from '@/components/metas/goals-overview'
 import { Target, CheckCircle2, TrendingUp } from 'lucide-react'
 
 export const metadata: Metadata = {
@@ -136,6 +137,9 @@ export default async function MetasPage() {
             </div>
           </div>
         )}
+
+        {/* ── Goals analytics overview ─────────────────────────────────── */}
+        <GoalsOverview userId={user.id} />
 
         <GoalsList initialGoals={goals ?? []} />
       </div>

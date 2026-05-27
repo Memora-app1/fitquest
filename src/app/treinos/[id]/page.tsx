@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { formatDateBR } from '@/lib/utils'
 import { ArrowLeft, Dumbbell, Zap, Trophy, Clock, BarChart2 } from 'lucide-react'
 import { WorkoutDetailActions } from '@/components/treinos/workout-detail-actions'
+import { WorkoutVolumeAnalysis } from '@/components/treinos/workout-volume-analysis'
 
 export const dynamic = 'force-dynamic'
 
@@ -354,6 +355,13 @@ export default async function WorkoutDetailPage({
             ))}
           </div>
         )}
+
+        {/* ── Volume analysis + set pattern breakdown ─────────────────── */}
+        <WorkoutVolumeAnalysis
+          exerciseGroups={exerciseGroups}
+          totalVolumePrev={prevVolume}
+          durationMinutes={durationMinutes}
+        />
 
         {/* Actions: Repetir treino + Apagar */}
         <WorkoutDetailActions

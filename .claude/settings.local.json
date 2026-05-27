@@ -67,7 +67,18 @@
       "Bash(Get-ChildItem -Recurse .claude/skills)",
       "Bash(Select-Object FullName)",
       "PowerShell(Get-ChildItem \"C:\\\\Users\\\\SURFACE\\\\Downloads\\\\claude-skills\" -Recurse | Select-Object FullName | ForEach-Object { $_.FullName.Replace\\(\"C:\\\\Users\\\\SURFACE\\\\Downloads\\\\claude-skills\\\\\",\"\"\\) })",
-      "PowerShell(Compress-Archive -Path \"C:\\\\Users\\\\SURFACE\\\\Downloads\\\\claude-skills\" -DestinationPath \"C:\\\\Users\\\\SURFACE\\\\Downloads\\\\claude-skills.zip\" -Force; Write-Output \"ZIP criado: $\\(\\(Get-Item 'C:\\\\Users\\\\SURFACE\\\\Downloads\\\\claude-skills.zip'\\).Length / 1KB\\) KB\")"
+      "PowerShell(Compress-Archive -Path \"C:\\\\Users\\\\SURFACE\\\\Downloads\\\\claude-skills\" -DestinationPath \"C:\\\\Users\\\\SURFACE\\\\Downloads\\\\claude-skills.zip\" -Force; Write-Output \"ZIP criado: $\\(\\(Get-Item 'C:\\\\Users\\\\SURFACE\\\\Downloads\\\\claude-skills.zip'\\).Length / 1KB\\) KB\")",
+      "Bash(New-Item -ItemType Directory -Force \"c:\\\\Users\\\\SURFACE\\\\Downloads\\\\fitquest_2\\\\fitquest\\\\src\\\\app\\\\api\\\\coach\\\\conversations\")",
+      "Bash(Write-Host \"ok\")",
+      "PowerShell(New-Item -ItemType Directory -Force \"c:\\\\Users\\\\SURFACE\\\\Downloads\\\\fitquest_2\\\\fitquest\\\\src\\\\app\\\\api\\\\coach\\\\conversations\")",
+      "Bash(find src/app/treinos src/components/treinos -name \"*.tsx\")",
+      "Bash(dir /s /b src\\\\app\\\\treinos src\\\\components\\\\treinos)",
+      "Bash(find src *)",
+      "Bash(ls src/app/treinos/novo/)",
+      "Bash(ls src/app/treinos/[id]/)",
+      "Bash(xargs -I{} dirname {})",
+      "Bash(find src/app -name \"not-found.tsx\")",
+      "Bash(dir /S /B src\\\\app\\\\not-found.tsx)"
     ],
     "additionalDirectories": [
       "c:\\Users\\SURFACE\\Downloads\\fitquest_2\\fitquest\\src\\app\\treinos",

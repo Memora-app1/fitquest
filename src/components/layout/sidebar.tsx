@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { getLevelInfo, getXpProgressToNextLevel } from '@/lib/xp'
+import { CommandPalette } from '@/components/command-palette'
 import {
   LayoutDashboard,
   CheckSquare,
@@ -139,6 +140,11 @@ export function Sidebar({
             <span className="text-[11px] text-text-muted">dias de sequência</span>
           </div>
         )}
+      </div>
+
+      {/* Search */}
+      <div className="px-3 py-2.5 border-b border-border">
+        <CommandPalette />
       </div>
 
       {/* Navigation */}
