@@ -8,6 +8,8 @@ import { TaskListsBreakdown } from '@/components/tarefas/task-lists-breakdown'
 import { TaskDueTimeline } from '@/components/tarefas/task-due-timeline'
 import { TaskProductivityScore } from '@/components/tarefas/task-productivity-score'
 import { TaskListProgressRings } from '@/components/tarefas/task-list-progress-rings'
+import { EisenhowerInsights } from '@/components/tarefas/eisenhower-insights'
+import { TaskDueDateHeatmap } from '@/components/tarefas/task-due-date-heatmap'
 import Link from 'next/link'
 import { CheckSquare, Clock, AlertCircle, Zap, LayoutGrid, Trophy, Flame } from 'lucide-react'
 
@@ -304,6 +306,12 @@ export default async function TarefasPage() {
 
         {/* ── 30-day deadline timeline ──────────────────────────────────── */}
         <TaskDueTimeline userId={user.id} />
+
+        {/* ── Eisenhower quadrant deep-dive analytics ───────────────────── */}
+        <EisenhowerInsights userId={user.id} />
+
+        {/* ── Due-date distribution heatmap (DOW × week) ───────────────── */}
+        <TaskDueDateHeatmap userId={user.id} />
 
         <KanbanBoard initialTasks={tasks} />
       </div>

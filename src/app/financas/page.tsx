@@ -14,6 +14,11 @@ import { FinanceTrends } from '@/components/financas/finance-trends'
 import { CashFlowForecast } from '@/components/financas/cash-flow-forecast'
 import { FinanceIncomeAnalysis } from '@/components/financas/finance-income-analysis'
 import { FinanceCategoryTrend } from '@/components/financas/finance-category-trend'
+import { SavingsRateTracker } from '@/components/financas/savings-rate-tracker'
+import { SpendingDowHeatmap } from '@/components/financas/spending-dow-heatmap'
+import { FinanceRecurringAnalysis } from '@/components/financas/finance-recurring-analysis'
+import { NetWorthSummary } from '@/components/financas/net-worth-summary'
+import { FinanceGoalsMilestones } from '@/components/financas/finance-goals-milestones'
 
 export const metadata: Metadata = {
   title: 'Finanças',
@@ -523,6 +528,21 @@ export default async function FinancasPage() {
 
         {/* ── 4-month spending trend per category ──────────────────────── */}
         <FinanceCategoryTrend userId={user.id} />
+
+        {/* ── Net worth summary (assets vs liabilities) ────────────────── */}
+        <NetWorthSummary userId={user.id} />
+
+        {/* ── Savings rate tracker (income vs expenses, monthly) ────────── */}
+        <SavingsRateTracker userId={user.id} />
+
+        {/* ── Recurring transactions detection ─────────────────────────── */}
+        <FinanceRecurringAnalysis userId={user.id} />
+
+        {/* ── Spending day-of-week heatmap ──────────────────────────────── */}
+        <SpendingDowHeatmap userId={user.id} />
+
+        {/* ── Finance goals milestones ──────────────────────────────────── */}
+        <FinanceGoalsMilestones userId={user.id} />
 
         {/* ── Accounts ─────────────────────────────────────────────────── */}
         <section>
