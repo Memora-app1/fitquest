@@ -118,8 +118,11 @@ export function EisenhowerBoard({ initialTasks }: { initialTasks: EisenhowerTask
     })
 
     if (res.ok) {
-      const data = await res.json() as { xpEarned?: number }
-      if (data.xpEarned) showXp(data.xpEarned)
+      const data = await res.json() as { xpEarned?: number; leveledUp?: boolean; newLevel?: number }
+      if (data.xpEarned) showXp(data.xpEarned, { leveledUp: data.leveledUp ? data.newLevel : undefined })
+      if (data.leveledUp && data.newLevel) {
+        window.dispatchEvent(new CustomEvent('ascendia:levelup', { detail: { level: data.newLevel } }))
+      }
       router.refresh()
     } else {
       setTasks((prev) => prev.map((t) => t.id === task.id ? { ...t, status: task.status } : t))

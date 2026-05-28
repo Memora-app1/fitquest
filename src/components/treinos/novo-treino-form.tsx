@@ -142,6 +142,7 @@ export function NovoTreinoForm() {
         workoutId?: string
         xpEarned?: number
         leveledUp?: boolean
+        newLevel?: number
         isPR?: boolean
         error?: string
       }
@@ -162,6 +163,12 @@ export function NovoTreinoForm() {
         leveledUp: data.leveledUp ?? false,
         isPR: data.isPR ?? false,
       })
+
+      if (data.leveledUp && data.newLevel) {
+        setTimeout(() => {
+          window.dispatchEvent(new CustomEvent('ascendia:levelup', { detail: { level: data.newLevel } }))
+        }, 800)
+      }
 
       setTimeout(() => {
         router.push(`/treinos/${data.workoutId}`)
