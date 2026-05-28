@@ -91,7 +91,10 @@
       "Bash(vercel --prod --yes)",
       "Bash(xargs grep -l \"finance_categories\\\\|FinanceCategor\")",
       "Bash(xargs grep -l \"finance_categories\")",
-      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); [print\\(k,v\\) for k,v in {**d.get\\('dependencies',{}\\), **d.get\\('devDependencies',{}\\)}.items\\(\\)]\")"
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); [print\\(k,v\\) for k,v in {**d.get\\('dependencies',{}\\), **d.get\\('devDependencies',{}\\)}.items\\(\\)]\")",
+      "Bash(cat .eslintrc*)",
+      "Bash(cat eslint.config*)",
+      "Bash(ls -la .prettierrc*)"
     ],
     "additionalDirectories": [
       "c:\\Users\\SURFACE\\Downloads\\fitquest_2\\fitquest\\src\\app\\treinos",

@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Plus, X, Search, Trash2, CheckCircle, Clock, TrendingUp, TrendingDown, Minus } from 'lucide-react'
+import { useXpToast, XpToastContainer } from '@/components/xp-toast'
 import { formatBRL, formatRelativeDate } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 
@@ -73,6 +74,7 @@ export function TransactionsView({
   const router = useRouter()
   const [showNew, setShowNew] = useState(searchParams.get('new') === '1')
   const [search, setSearch] = useState('')
+  const { toasts, showXp } = useXpToast()
   const [filter, setFilter] = useState<FilterType>('all')
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [togglingId, setTogglingId] = useState<string | null>(null)
@@ -112,11 +114,15 @@ export function TransactionsView({
     setTogglingId(tx.id)
     const newPaid = !tx.is_paid
     setLocalTxs((prev) => prev.map((t) => t.id === tx.id ? { ...t, is_paid: newPaid } : t))
-    await fetch('/api/transactions', {
+    const res = await fetch('/api/transactions', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: tx.id, is_paid: newPaid }),
     })
+    if (res.ok && newPaid) {
+      const data = await res.json() as { xpEarned?: number }
+      if (data.xpEarned) showXp(data.xpEarned)
+    }
     setTogglingId(null)
     router.refresh()
   }
@@ -130,6 +136,7 @@ export function TransactionsView({
 
   return (
     <>
+      <XpToastContainer toasts={toasts} />
       {/* Stats bar */}
       {localTxs.length > 0 && (
         <div className="grid grid-cols-3 gap-3">
