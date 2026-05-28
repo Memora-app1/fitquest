@@ -31,10 +31,10 @@ const PLANS = [
     cta: 'Começar mensal',
     features: [
       'Todos os módulos desbloqueados',
+      'Sono + hidratação gamificados',
       'Coach IA ilimitado',
       'Sistema XP e gamificação',
       'Sincronização Google Agenda',
-      'Notificações push',
       'Cancele quando quiser',
     ],
   },
@@ -90,6 +90,7 @@ const FEATURES_COMPARE = [
   { feature: 'Controle financeiro', monthly: true, annual: true, lifetime: true },
   { feature: 'Sistema XP e Níveis', monthly: true, annual: true, lifetime: true },
   { feature: 'Treinos com séries/reps/PRs', monthly: true, annual: true, lifetime: true },
+  { feature: 'Sono e hidratação (Saúde)', monthly: true, annual: true, lifetime: true },
   { feature: 'Coach IA ilimitado', monthly: true, annual: true, lifetime: true },
   { feature: 'Sincronização Google Agenda', monthly: true, annual: true, lifetime: true },
   { feature: 'Notificações push', monthly: true, annual: true, lifetime: true },
@@ -114,7 +115,7 @@ const FAQ = [
   },
   {
     q: 'Quais formas de pagamento são aceitas?',
-    a: 'Aceitamos cartão de crédito, débito, Pix e boleto bancário — tudo via Mercado Pago, seguro e confiável.',
+    a: 'Aceitamos cartão de crédito, débito e Pix — tudo via Stripe, seguro e confiável.',
   },
   {
     q: 'O vitalício inclui features futuras?',
