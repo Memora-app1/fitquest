@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 import { Check, ChevronRight } from 'lucide-react'
 
@@ -50,27 +49,32 @@ export default function OnboardingPage() {
 
   async function finishOnboarding() {
     setLoading(true)
-    const supabase = createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) { router.push('/login'); return }
-
-    await supabase
-      .from('profiles')
-      .update({
-        primary_goal: selectedGoals.join(','),
-        weekly_target: weeklyTarget,
-        onboarding_completed: true,
-      })
-      .eq('id', user.id)
 
     const suggestedHabits = getSuggestedHabitsMulti(selectedGoals)
-    if (suggestedHabits.length > 0) {
-      await supabase.from('habits').insert(
-        suggestedHabits.map((h, i) => ({ ...h, user_id: user.id, display_order: i }))
-      )
+
+    const res = await fetch('/api/onboarding', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        primary_goal: selectedGoals.join(','),
+        weekly_target: weeklyTarget,
+        habits: suggestedHabits.map((h, i) => ({ ...h, display_order: i })),
+      }),
+    })
+
+    if (!res.ok) {
+      setLoading(false)
+      return
     }
 
-    router.push('/dashboard')
+    const data = await res.json() as { xpEarned?: number; leveledUp?: boolean; newLevel?: number }
+    if (data.leveledUp && data.newLevel) {
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('ascendia:levelup', { detail: { level: data.newLevel } }))
+      }, 1500)
+    }
+
+    router.push('/dashboard?welcome=1')
     router.refresh()
   }
 

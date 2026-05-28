@@ -40,9 +40,9 @@ export const dynamic = 'force-dynamic'
 export default async function DashboardPage({
   searchParams,
 }: {
-  searchParams: Promise<{ checkout?: string }>
+  searchParams: Promise<{ checkout?: string; welcome?: string }>
 }) {
-  const { checkout } = await searchParams
+  const { checkout, welcome } = await searchParams
   const supabase = await createClient()
   const {
     data: { user },
@@ -170,6 +170,24 @@ export default async function DashboardPage({
   return (
     <AppShell>
       <div className="p-4 md:p-8 max-w-6xl mx-auto space-y-6">
+
+        {/* Welcome banner — aparece ao completar onboarding */}
+        {welcome === '1' && (
+          <div
+            className="rounded-2xl p-5 flex items-center gap-4 relative overflow-hidden"
+            style={{
+              background: 'linear-gradient(135deg, rgba(124,58,237,0.15) 0%, rgba(13,24,41,0.98) 60%, rgba(255,77,0,0.08) 100%)',
+              border: '1px solid rgba(124,58,237,0.3)',
+            }}
+          >
+            <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full pointer-events-none blur-2xl" style={{ background: 'rgba(124,58,237,0.2)' }} />
+            <div className="text-4xl relative z-10">🚀</div>
+            <div className="relative z-10">
+              <p className="font-bold text-white">Bem-vindo ao Ascendia!</p>
+              <p className="text-sm text-text-secondary">Seus hábitos foram criados. Ganhe seus primeiros XP hoje.</p>
+            </div>
+          </div>
+        )}
 
         {/* Checkout success banner */}
         {checkout === 'success' && (
