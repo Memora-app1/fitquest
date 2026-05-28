@@ -1,6 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { Sparkles } from 'lucide-react'
 
+const WATER_GOAL_ML = 2000
+
 export async function LifeBalanceRadar({ userId }: { userId: string }) {
   const supabase = await createClient()
 
@@ -16,6 +18,8 @@ export async function LifeBalanceRadar({ userId }: { userId: string }) {
     workoutsRes,
     txRes,
     profileRes,
+    waterLogsRes,
+    sleepLogsRes,
   ] = await Promise.all([
     // Active habits count
     supabase.from('habits').select('id', { count: 'exact', head: true }).eq('user_id', userId).eq('is_active', true),
@@ -29,6 +33,10 @@ export async function LifeBalanceRadar({ userId }: { userId: string }) {
     supabase.from('transactions').select('id', { count: 'exact', head: true }).eq('user_id', userId).eq('is_paid', true).gte('transaction_date', thirtyDaysAgo),
     // Profile for XP and streak
     supabase.from('profiles').select('xp_total, level, streak_current').eq('id', userId).single(),
+    // Water logs last 7 days
+    supabase.from('water_logs').select('date, amount_ml').eq('user_id', userId).gte('date', sevenDaysAgo).lte('date', todayStr),
+    // Sleep logs last 7 days
+    supabase.from('sleep_logs').select('date, duration_hours').eq('user_id', userId).gte('date', sevenDaysAgo).lte('date', todayStr),
   ])
 
   const activeHabits = habitsRes.count ?? 0
@@ -37,6 +45,24 @@ export async function LifeBalanceRadar({ userId }: { userId: string }) {
   const workoutsCount = workoutsRes.count ?? 0
   const txCount = txRes.count ?? 0
   const profile = profileRes.data
+
+  // Water score: days reaching goal in last 7 days
+  const waterByDay: Record<string, number> = {}
+  for (const row of waterLogsRes.data ?? []) {
+    const d = row.date as string
+    waterByDay[d] = (waterByDay[d] ?? 0) + (row.amount_ml as number ?? 0)
+  }
+  const waterGoalDays = Object.values(waterByDay).filter(v => v >= WATER_GOAL_ML).length
+
+  // Sleep score: avg nights with 7h+ in last 7 days
+  const sleepLogs = sleepLogsRes.data ?? []
+  const goodSleepDays = sleepLogs.filter(l => (l.duration_hours as number | null) !== null && (l.duration_hours as number) >= 7).length
+  const sleepLogged = sleepLogs.length > 0
+
+  // Health score: combined water + sleep (each 50%)
+  const waterScore = Math.round((waterGoalDays / 7) * 100)
+  const sleepScore = sleepLogged ? Math.round((goodSleepDays / 7) * 100) : 0
+  const healthScore = sleepLogged || waterGoalDays > 0 ? Math.round((waterScore + sleepScore) / 2) : 0
 
   // ── Score computation (0-100 each) ──────────────────────────────
 
@@ -67,6 +93,7 @@ export async function LifeBalanceRadar({ userId }: { userId: string }) {
     { label: 'Fitness',           value: Math.min(100, fitnessScore + (fitnessScore > 0 ? streakBonus : 0)),  color: '#00FF88', rgb: '0,255,136' },
     { label: 'Produtividade',     value: Math.min(100, productivityScore),                                    color: '#7C3AED', rgb: '124,58,237' },
     { label: 'Finanças',          value: Math.min(100, financeScore),                                         color: '#F5C842', rgb: '245,200,66' },
+    { label: 'Saúde',             value: healthScore,                                                          color: '#00D9FF', rgb: '0,217,255' },
   ]
 
   const avgScore = Math.round(scores.reduce((s, d) => s + d.value, 0) / scores.length)
