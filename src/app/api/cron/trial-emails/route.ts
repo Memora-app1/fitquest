@@ -14,6 +14,7 @@ import { sendTrialEndingEmail, sendWelcomeEmail } from '@/lib/email'
 export const maxDuration = 60
 
 export async function GET() {
+  if (!await isCronAuthorized()) return cronUnauthorized()
   const supabase = createServiceClient()
   const now = new Date()
 
