@@ -248,7 +248,7 @@ Domina Claude, GPT-4o, Gemini, Midjourney, DALL-E, Flux.
 
 ---
 
-### `/fitquest-architect` — Criar Features
+### `/ascendia-architect` — Criar Features
 Use para: criar página, componente, API route, tabela no banco, integração, qualquer implementação nova.
 Palavras-chave: "cria", "implementa", "adiciona", "faz", "monta", "quero", "preciso de".
 **Lê obrigatoriamente antes de codar:** CLAUDE.md → types.ts → xp.ts → middleware.ts → globals.css → tailwind.config.ts
@@ -263,7 +263,7 @@ Contém:
 - Navegação completa (sidebar + bottom nav + todas as rotas)
 - 18 instruções negativas invioláveis
 
-### `/fitquest-doctor` — Diagnosticar e Corrigir
+### `/ascendia-doctor` — Diagnosticar e Corrigir
 Use para: erro, bug, tela branca, dados não aparecendo, build quebrando, warning TypeScript, "não funciona", "deu erro", health check, performance, segurança, validação pré-deploy.
 **Nunca tente corrigir sem usar esta skill — diagnóstico primeiro.**
 
@@ -276,7 +276,7 @@ Contém:
 - Formato padronizado de relatório de correção
 - 12 instruções negativas
 
-### `/fitquest-shipper` — Deploy e Infraestrutura
+### `/ascendia-shipper` — Deploy e Infraestrutura
 Use para: setup inicial, npm run dev, deploy, Vercel, variáveis de ambiente, domínio, webhook, cron, Mercado Pago, migração de banco, lançamento.
 **Esta skill cuida de TUDO entre "tenho código" e "usuários pagando".**
 

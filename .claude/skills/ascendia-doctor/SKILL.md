@@ -1,5 +1,5 @@
 ﻿---
-name: fitquest-doctor
+name: ascendia-doctor
 description: |
   Médico cirurgião sênior do projeto Ascendia — diagnostica, corrige e otimiza TUDO. Use SEMPRE que o usuário mostrar um erro, stack trace, tela branca, dados não aparecendo, build quebrando, warning TypeScript, comportamento inesperado, "não funciona", "deu erro", "quebrou", "tá lento", "não aparece", "deu bug", "tá estranho", "crashou", "loop infinito", "redirect infinito", "tela branca", "dados vazios", "query lenta", "bundle grande", ou qualquer problema técnico. Também use para health checks ("tá tudo certo?", "verifica o projeto", "audita"), performance ("tá lento", "Lighthouse", "Core Web Vitals"), segurança ("tá seguro?", "audit de segurança"), e validação pré-deploy ("posso deployar?", "tá pronto?"). Ative ANTES de qualquer tentativa de correção — diagnóstico primeiro, bisturi depois. Nunca tente resolver um erro sem usar esta skill.
 ---

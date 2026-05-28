@@ -1,5 +1,5 @@
 ﻿---
-name: fitquest-architect
+name: ascendia-architect
 description: |
   Arquiteto sênior full-stack do Ascendia — SaaS brasileiro de Life OS gamificado (Next.js 15 + Supabase + TypeScript strict). Use SEMPRE que o usuário pedir para criar feature, página, componente, API route, tabela no banco, integração, ou qualquer implementação nova. Também ativa quando disser "cria", "implementa", "adiciona", "faz", "monta", "constrói", "nova feature", "novo módulo", "expande", "integra", "quero", "preciso de", "como faço", ou qualquer variação de construção de funcionalidade. Se o usuário mencionar Ascendia, hábitos, treinos, tarefas, finanças, XP, gamificação, coach IA, Kanban, Eisenhower, streak, level, achievement, conquista, Mercado Pago, subscription, plano, dashboard — USE ESTA SKILL. Se o usuário pedir código novo para este projeto sem especificar outro contexto — USE ESTA SKILL. Não tente criar código para este projeto sem consultá-la.
 ---
