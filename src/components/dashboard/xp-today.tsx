@@ -27,16 +27,28 @@ export async function XpToday({ userId }: { userId: string }) {
   const supabase = await createClient()
   const today = todayString()
 
-  const { data } = await supabase
-    .from('xp_transactions')
-    .select('amount, source_type, reason, created_at')
-    .eq('user_id', userId)
-    .gte('created_at', `${today}T00:00:00`)
-    .lte('created_at', `${today}T23:59:59`)
-    .order('created_at', { ascending: false })
+  const [txRes, habitsRes] = await Promise.all([
+    supabase
+      .from('xp_transactions')
+      .select('amount, source_type, reason, created_at')
+      .eq('user_id', userId)
+      .gte('created_at', `${today}T00:00:00`)
+      .lte('created_at', `${today}T23:59:59`)
+      .order('created_at', { ascending: false }),
+    supabase
+      .from('habits')
+      .select('xp_per_completion')
+      .eq('user_id', userId)
+      .eq('is_active', true),
+  ])
 
-  const transactions = data ?? []
+  const transactions = txRes.data ?? []
   const totalXp = transactions.reduce((s, t) => s + ((t.amount as number) ?? 0), 0)
+
+  // Daily XP goal = sum of all active habits' XP (what you'd earn completing every habit today)
+  const dailyGoal = (habitsRes.data ?? []).reduce((s, h) => s + ((h.xp_per_completion as number) ?? 50), 0)
+  const goalPct = dailyGoal > 0 ? Math.min(Math.round((totalXp / dailyGoal) * 100), 100) : 0
+  const goalReached = dailyGoal > 0 && totalXp >= dailyGoal
 
   if (totalXp <= 0) return null
 
@@ -109,6 +121,38 @@ export async function XpToday({ userId }: { userId: string }) {
             </div>
           </div>
         </div>
+
+        {/* Daily XP goal progress — se o usuário tem hábitos configurados */}
+        {dailyGoal > 0 && (
+          <div className="mb-4">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[10px] text-text-muted uppercase tracking-wider">
+                Meta do dia
+              </span>
+              <span
+                className="text-[10px] font-black"
+                style={{ color: goalReached ? '#00FF88' : '#F5C842' }}
+              >
+                {goalReached ? '✓ Meta atingida!' : `${totalXp}/${dailyGoal} XP`}
+              </span>
+            </div>
+            <div
+              className="h-2.5 rounded-full overflow-hidden"
+              style={{ background: 'rgba(255,255,255,0.06)' }}
+            >
+              <div
+                className="h-full rounded-full transition-all duration-700"
+                style={{
+                  width: `${goalPct}%`,
+                  background: goalReached
+                    ? 'linear-gradient(90deg, #00FF88, #00D9FF)'
+                    : `linear-gradient(90deg, #F5C842, #FF4D00)`,
+                  boxShadow: goalReached ? '0 0 8px rgba(0,255,136,0.5)' : 'none',
+                }}
+              />
+            </div>
+          </div>
+        )}
 
         {/* Source breakdown */}
         {topSources.length > 0 && (

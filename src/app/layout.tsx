@@ -44,6 +44,12 @@ export const metadata: Metadata = {
     follow: true,
     googleBot: { index: true, follow: true },
   },
+  formatDetection: {
+    telephone: false,
+    date: false,
+    address: false,
+    email: false,
+  },
   icons: {
     icon: '/favicon.svg',
     shortcut: '/favicon.svg',

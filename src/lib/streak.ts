@@ -13,6 +13,31 @@ import { XP_REWARDS } from './xp'
 import { grantXP, tryUnlockAchievement } from './xp-server'
 
 /**
+ * Concede streak freezes ao usuário (máx 10).
+ */
+async function grantStreakFreeze(
+  userId: string,
+  amount: number,
+  supabase: ReturnType<typeof createServiceClient>
+) {
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('streak_freezes')
+    .eq('id', userId)
+    .single()
+
+  if (!profile) return
+  const current = (profile.streak_freezes as number) ?? 0
+  const newTotal = Math.min(current + amount, 10)
+  if (newTotal > current) {
+    await supabase
+      .from('profiles')
+      .update({ streak_freezes: newTotal })
+      .eq('id', userId)
+  }
+}
+
+/**
  * Verifica se o usuário teve atividade num dia específico
  */
 export async function hadActivityOnDate(
@@ -122,24 +147,33 @@ export async function updateUserStreak(userId: string): Promise<{
     })
     .eq('id', userId)
 
-  // Verifica milestones e concede XP/conquistas
+  // Verifica milestones e concede XP/conquistas/freezes
+  // Pesquisa: streak freeze aumenta retenção em 48% (Duolingo data)
   if (newStreak > previousStreak) {
     if (newStreak === 3) {
-      await grantXP(userId, XP_REWARDS.STREAK_3_DAYS, 'Streak de 3 dias', 'streak')
+      await grantXP(userId, XP_REWARDS.STREAK_3_DAYS, 'Streak de 3 dias 🔥', 'streak')
       await tryUnlockAchievement(userId, 'streak_3')
     } else if (newStreak === 7) {
-      await grantXP(userId, XP_REWARDS.STREAK_7_DAYS, 'Streak de 7 dias', 'streak')
+      await grantXP(userId, XP_REWARDS.STREAK_7_DAYS, 'Streak de 7 dias ⚡', 'streak')
       await tryUnlockAchievement(userId, 'streak_7')
+      // Concede 1 streak freeze ao atingir 7 dias (loss aversion começa aqui)
+      await grantStreakFreeze(userId, 1, supabase)
     } else if (newStreak === 30) {
-      await grantXP(userId, XP_REWARDS.STREAK_30_DAYS, 'Streak de 30 dias', 'streak')
+      await grantXP(userId, XP_REWARDS.STREAK_30_DAYS, 'Streak de 30 dias 🏆', 'streak')
       await tryUnlockAchievement(userId, 'streak_30')
+      // Concede 2 freezes ao atingir 30 dias
+      await grantStreakFreeze(userId, 2, supabase)
     } else if (newStreak === 90) {
-      await grantXP(userId, XP_REWARDS.STREAK_90_DAYS, 'Streak de 90 dias', 'streak')
+      await grantXP(userId, XP_REWARDS.STREAK_90_DAYS, 'Streak de 90 dias 💎', 'streak')
       await tryUnlockAchievement(userId, 'streak_90')
+      // Concede 3 freezes ao atingir 90 dias
+      await grantStreakFreeze(userId, 3, supabase)
     } else if (newStreak === 180) {
       await tryUnlockAchievement(userId, 'streak_180')
+      await grantStreakFreeze(userId, 3, supabase)
     } else if (newStreak === 365) {
       await tryUnlockAchievement(userId, 'streak_365')
+      await grantStreakFreeze(userId, 5, supabase)
     }
   }
 

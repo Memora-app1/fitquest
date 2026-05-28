@@ -117,7 +117,7 @@ export function CoachLayout({
   const activeConv = conversations.find((c) => c.id === activeConversationId)
 
   return (
-    <div className="h-[calc(100vh-80px)] md:h-screen flex overflow-hidden">
+    <div className="h-[calc(100dvh-80px)] md:h-[100dvh] flex overflow-hidden">
 
       {/* ─── Sidebar ─── */}
       <aside

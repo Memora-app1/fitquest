@@ -14,6 +14,9 @@ import { Sidebar } from './sidebar'
 import { BottomNav } from './bottom-nav'
 import { MobileHeader } from './mobile-header'
 import { PushPrompt } from '@/components/push-prompt'
+import { PwaInstallPrompt } from '@/components/pwa-install-prompt'
+import { PullToRefresh } from '@/components/pull-to-refresh'
+import { ScrollRestoration } from '@/components/scroll-restoration'
 import { MiniCoachFab } from './mini-coach-fab'
 import { MobileFab } from './mobile-fab'
 import { LevelUpCelebration } from '@/components/level-up-celebration'
@@ -54,9 +57,9 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
   const unreadCount = notifRes.count ?? 0
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen min-h-[100dvh]">
       <Sidebar profile={profile} />
-      <div className="flex-1 flex flex-col min-h-screen">
+      <div className="flex-1 flex flex-col min-h-screen min-h-[100dvh]">
         <MobileHeader
           name={profile.name}
           level={profile.level}
@@ -64,13 +67,17 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
           streakCurrent={profile.streak_current}
           unreadNotifications={unreadCount}
         />
-        <main className="flex-1 pb-20 md:pb-0">{children}</main>
+        <main className="flex-1 pb-20 md:pb-0">
+          <PullToRefresh>{children}</PullToRefresh>
+        </main>
       </div>
       <BottomNav />
       <MobileFab />
       <PushPrompt />
+      <PwaInstallPrompt />
       <MiniCoachFab />
       <LevelUpCelebration />
+      <ScrollRestoration />
     </div>
   )
 }
