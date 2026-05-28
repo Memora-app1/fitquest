@@ -58,15 +58,21 @@ export async function POST(req: NextRequest) {
     monthTxRes,
     activeGoalsRes,
     historyRes,
+    waterTodayRes,
+    sleepLastNightRes,
+    moodTodayRes,
   ] = await Promise.all([
-    supabase.from('profiles').select('name, level, xp_total, streak_current, primary_goal').eq('id', user.id).single(),
+    supabase.from('profiles').select('name, level, xp_total, streak_current, primary_goal, perfect_days').eq('id', user.id).single(),
     supabase.from('habits').select('id, name').eq('user_id', user.id).eq('is_active', true),
     supabase.from('habit_logs').select('habit_id').eq('user_id', user.id).eq('logged_date', today!),
-    supabase.from('workouts').select('title, started_at, total_sets, total_volume_kg').eq('user_id', user.id).order('started_at', { ascending: false }).limit(1).maybeSingle(),
-    supabase.from('tasks').select('title, urgent, important').eq('user_id', user.id).not('status', 'eq', 'done').limit(10),
+    supabase.from('workouts').select('title, started_at, total_sets, total_volume_kg, xp_earned').eq('user_id', user.id).order('started_at', { ascending: false }).limit(1).maybeSingle(),
+    supabase.from('tasks').select('title, urgent, important, due_date').eq('user_id', user.id).not('status', 'eq', 'done').not('status', 'eq', 'archived').order('urgent', { ascending: false }).limit(10),
     supabase.from('transactions').select('amount, type').eq('user_id', user.id).gte('transaction_date', monthStart).eq('is_paid', true),
-    supabase.from('goals').select('title, current_value, target_value, unit').eq('user_id', user.id).eq('status', 'active'),
+    supabase.from('goals').select('title, current_value, target_value, unit, deadline').eq('user_id', user.id).eq('status', 'active'),
     supabase.from('ai_messages').select('role, content').eq('conversation_id', conversationId).order('created_at').limit(20),
+    supabase.from('water_logs').select('amount_ml').eq('user_id', user.id).eq('date', today!),
+    supabase.from('sleep_logs').select('duration_hours, quality').eq('user_id', user.id).gte('date', new Date(Date.now() - 86400000).toISOString().split('T')[0]!).maybeSingle(),
+    supabase.from('mood_logs').select('mood, energy, stress').eq('user_id', user.id).eq('date', today!).maybeSingle(),
   ])
 
   const profile = profileRes.data
@@ -79,6 +85,10 @@ export async function POST(req: NextRequest) {
   const loggedToday = new Set((todayLogsRes.data ?? []).map((l) => l.habit_id))
   const habitsTodayMissing = habits.filter((h) => !loggedToday.has(h.id)).map((h) => h.name)
 
+  const waterToday = (waterTodayRes.data ?? []).reduce((s, l) => s + (l.amount_ml as number ?? 0), 0)
+  const sleepLast = sleepLastNightRes.data
+  const moodToday = moodTodayRes.data
+
   const contextSnapshot = {
     user: {
       name: profile.name,
@@ -86,15 +96,32 @@ export async function POST(req: NextRequest) {
       xp: profile.xp_total,
       streak: profile.streak_current,
       primary_goal: profile.primary_goal,
+      perfect_days: profile.perfect_days,
     },
     habits_today: {
       total: habits.length,
       completed: loggedToday.size,
       missing: habitsTodayMissing,
     },
+    health: {
+      water_today_ml: waterToday,
+      water_goal_pct: Math.min(100, Math.round((waterToday / 2000) * 100)),
+      sleep_last_night: sleepLast ? {
+        duration_hours: sleepLast.duration_hours,
+        quality: sleepLast.quality,
+      } : null,
+      mood_today: moodToday ? {
+        mood: moodToday.mood,       // 1-5
+        energy: moodToday.energy,   // 1-5
+        stress: moodToday.stress,   // 1-5
+      } : null,
+    },
     last_workout: lastWorkoutRes.data,
-    pending_tasks_count: (pendingTasksRes.data ?? []).length,
-    pending_tasks_urgent_important: (pendingTasksRes.data ?? []).filter((t) => t.urgent && t.important).length,
+    pending_tasks: (pendingTasksRes.data ?? []).map((t) => ({
+      title: t.title,
+      priority: t.urgent && t.important ? 'CRÍTICO' : t.urgent ? 'URGENTE' : t.important ? 'IMPORTANTE' : 'NORMAL',
+      due_date: t.due_date,
+    })),
     finances_this_month: {
       income: monthIncome,
       expense: monthExpense,
@@ -103,6 +130,8 @@ export async function POST(req: NextRequest) {
     active_goals: (activeGoalsRes.data ?? []).map((g) => ({
       title: g.title,
       progress: `${g.current_value}/${g.target_value} ${g.unit}`,
+      deadline: g.deadline,
+      pct: g.target_value > 0 ? Math.round((g.current_value / g.target_value) * 100) : 0,
     })),
   }
 
