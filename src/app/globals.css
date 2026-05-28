@@ -20,7 +20,8 @@
     @apply bg-bg text-text-primary font-sans;
     background-image:
       radial-gradient(circle at 20% 0%, rgba(124, 58, 237, 0.08), transparent 50%),
-      radial-gradient(circle at 80% 100%, rgba(255, 77, 0, 0.06), transparent 50%);
+      radial-gradient(circle at 80% 100%, rgba(255, 77, 0, 0.06), transparent 50%),
+      radial-gradient(circle at 50% 50%, rgba(0, 217, 255, 0.025), transparent 60%);
     background-attachment: fixed;
   }
 
@@ -29,8 +30,8 @@
   }
 
   ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
   }
 
   ::-webkit-scrollbar-track {
@@ -38,11 +39,12 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-border rounded-full;
+    background: rgba(124, 58, 237, 0.3);
+    border-radius: 999px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-brand-purple/50;
+    background: rgba(124, 58, 237, 0.6);
   }
 }
 
@@ -61,26 +63,83 @@
   }
 
   .btn-primary {
-    @apply bg-gradient-brand text-white font-bold rounded-xl px-6 py-3 
+    @apply bg-gradient-brand text-white font-bold rounded-xl px-6 py-3
            hover:opacity-90 transition-all active:scale-95
            shadow-lg shadow-brand-orange/20;
   }
 
   .btn-ghost {
-    @apply bg-bg-elevated text-text-primary font-medium rounded-xl px-6 py-3 
+    @apply bg-bg-elevated text-text-primary font-medium rounded-xl px-6 py-3
            hover:bg-bg-card border border-border transition-all active:scale-95;
   }
 
   .input {
-    @apply bg-bg-elevated border border-border rounded-xl px-4 py-3 
+    @apply bg-bg-elevated border border-border rounded-xl px-4 py-3
            text-text-primary placeholder:text-text-muted
-           focus:outline-none focus:border-brand-purple/60 
+           focus:outline-none focus:border-brand-purple/60
            focus:ring-2 focus:ring-brand-purple/20 transition-all;
   }
 
   .heading-display {
     font-family: var(--font-bebas), sans-serif;
     @apply uppercase tracking-wider;
+  }
+
+  /* ── Shimmer loading skeleton ─────────────────────────────────────── */
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      rgba(255,255,255,0.03) 0%,
+      rgba(255,255,255,0.08) 50%,
+      rgba(255,255,255,0.03) 100%
+    );
+    background-size: 200% 100%;
+    @apply animate-shimmer;
+  }
+
+  /* ── Glow text (animated) ─────────────────────────────────────────── */
+  .glow-text-orange {
+    animation: glowTextOrange 2s ease-in-out infinite;
+  }
+  .glow-text-green {
+    animation: glowTextGreen 2s ease-in-out infinite;
+  }
+  .glow-text-gold {
+    animation: glowTextGold 2s ease-in-out infinite;
+  }
+  .glow-text-cyan {
+    animation: glowTextCyan 2s ease-in-out infinite;
+  }
+
+  /* ── Streak fire card ─────────────────────────────────────────────── */
+  .streak-card {
+    @apply animate-streak-fire;
+  }
+
+  /* ── Performance state card variants ─────────────────────────────── */
+  .perf-great {
+    background: linear-gradient(135deg, rgba(0,255,136,0.12) 0%, rgba(13,24,41,0.98) 60%, rgba(0,217,255,0.06) 100%);
+    border: 1px solid rgba(0,255,136,0.3);
+  }
+  .perf-good {
+    background: linear-gradient(135deg, rgba(245,200,66,0.10) 0%, rgba(13,24,41,0.98) 60%, rgba(255,77,0,0.05) 100%);
+    border: 1px solid rgba(245,200,66,0.3);
+  }
+  .perf-alert {
+    background: linear-gradient(135deg, rgba(255,77,0,0.10) 0%, rgba(13,24,41,0.98) 60%, rgba(239,68,68,0.05) 100%);
+    border: 1px solid rgba(255,77,0,0.3);
+  }
+
+  /* ── Animated card entry ──────────────────────────────────────────── */
+  .card-enter {
+    @apply animate-slide-up;
+  }
+
+  /* ── Habit ring animated ──────────────────────────────────────────── */
+  .habit-ring-progress {
+    stroke-dasharray: 339.3;
+    stroke-dashoffset: 339.3;
+    animation: habitRingFill 1.2s ease-out forwards;
   }
 }
 
@@ -92,4 +151,65 @@
   .gradient-text {
     @apply bg-gradient-brand bg-clip-text text-transparent;
   }
+
+  /* ── Hover lift effect ─────────────────────────────────────────────── */
+  .hover-lift {
+    @apply transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-lg;
+  }
+
+  /* ── Glassmorphism ─────────────────────────────────────────────────── */
+  .glass {
+    background: rgba(13, 24, 41, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  /* ── XP pill ───────────────────────────────────────────────────────── */
+  .xp-pill {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold;
+    background: rgba(245,200,66,0.15);
+    color: #F5C842;
+    border: 1px solid rgba(245,200,66,0.25);
+  }
+}
+
+/* ── Custom keyframes (outside @layer to keep specificity) ─────────── */
+
+@keyframes glowTextOrange {
+  0%, 100% { text-shadow: 0 0 8px rgba(255,77,0,0.4); }
+  50% { text-shadow: 0 0 20px rgba(255,77,0,0.8), 0 0 40px rgba(255,77,0,0.3); }
+}
+
+@keyframes glowTextGreen {
+  0%, 100% { text-shadow: 0 0 8px rgba(0,255,136,0.4); }
+  50% { text-shadow: 0 0 20px rgba(0,255,136,0.8), 0 0 40px rgba(0,255,136,0.3); }
+}
+
+@keyframes glowTextGold {
+  0%, 100% { text-shadow: 0 0 8px rgba(245,200,66,0.4); }
+  50% { text-shadow: 0 0 20px rgba(245,200,66,0.8), 0 0 40px rgba(245,200,66,0.3); }
+}
+
+@keyframes glowTextCyan {
+  0%, 100% { text-shadow: 0 0 8px rgba(0,217,255,0.4); }
+  50% { text-shadow: 0 0 20px rgba(0,217,255,0.8), 0 0 40px rgba(0,217,255,0.3); }
+}
+
+@keyframes habitRingFill {
+  from { stroke-dashoffset: 339.3; }
+  to { stroke-dashoffset: var(--ring-offset, 0); }
+}
+
+/* ── Confetti burst (used in level-up celebration) ──────────────────── */
+@keyframes confettiFall {
+  0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(120px) rotate(720deg); opacity: 0; }
+}
+
+.confetti-piece {
+  animation: confettiFall 1s ease-out forwards;
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 1px;
 }

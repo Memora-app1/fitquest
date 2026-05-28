@@ -19,6 +19,8 @@ import { SpendingDowHeatmap } from '@/components/financas/spending-dow-heatmap'
 import { FinanceRecurringAnalysis } from '@/components/financas/finance-recurring-analysis'
 import { NetWorthSummary } from '@/components/financas/net-worth-summary'
 import { FinanceGoalsMilestones } from '@/components/financas/finance-goals-milestones'
+import { SpendingByCategory } from '@/components/financas/spending-by-category'
+import { FinanceMonthCalendar } from '@/components/financas/finance-month-calendar'
 
 export const metadata: Metadata = {
   title: 'Finanças',
@@ -517,6 +519,9 @@ export default async function FinancasPage() {
           </section>
         )}
 
+        {/* ── Month calendar — net flow per day ────────────────────────── */}
+        <FinanceMonthCalendar userId={user.id} />
+
         {/* ── Cash flow forecast: weekly projection + upcoming obligations ── */}
         <CashFlowForecast userId={user.id} />
 
@@ -528,6 +533,9 @@ export default async function FinancasPage() {
 
         {/* ── 4-month spending trend per category ──────────────────────── */}
         <FinanceCategoryTrend userId={user.id} />
+
+        {/* ── Deep category analysis with trend comparison ─────────────── */}
+        <SpendingByCategory userId={user.id} />
 
         {/* ── Net worth summary (assets vs liabilities) ────────────────── */}
         <NetWorthSummary userId={user.id} />

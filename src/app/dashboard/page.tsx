@@ -20,6 +20,7 @@ import { LifeBalanceRadar } from '@/components/dashboard/life-balance-radar'
 import { WorkoutPrsWidget } from '@/components/dashboard/workout-prs-widget'
 import { MorningBrief } from '@/components/dashboard/morning-brief'
 import { HealthSummaryWidget } from '@/components/dashboard/health-summary-widget'
+import { DailyPerformanceCard } from '@/components/dashboard/daily-performance-card'
 import { getGreeting, todayString } from '@/lib/utils'
 import { getXpProgressToNextLevel } from '@/lib/xp'
 
@@ -245,6 +246,9 @@ export default async function DashboardPage({
             </div>
           </div>
         </header>
+
+        {/* Campo de performance do dia — ÓTIMO / BOM / ALERTA com score */}
+        <DailyPerformanceCard userId={user.id} />
 
         {/* Morning brief — prioridades do dia */}
         <MorningBrief userId={user.id} />
