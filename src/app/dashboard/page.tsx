@@ -1,4 +1,5 @@
 ﻿import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
@@ -381,20 +382,26 @@ export default async function DashboardPage({
         {/* Finance Alerts */}
         {transactions.length > 0 && <FinanceAlerts transactions={transactions} />}
 
-        {/* Weekly Challenges — gamified weekly goals with XP rewards */}
-        <WeeklyChallenges userId={user.id} />
+        {/* Heavy analytics — streamed independently for faster initial load */}
+        <Suspense fallback={<div className="h-48 rounded-2xl shimmer" />}>
+          <WeeklyChallenges userId={user.id} />
+        </Suspense>
 
-        {/* Life balance radar — scores across all 4 domains */}
-        <LifeBalanceRadar userId={user.id} />
+        <Suspense fallback={<div className="h-64 rounded-2xl shimmer" />}>
+          <LifeBalanceRadar userId={user.id} />
+        </Suspense>
 
-        {/* Workout PRs widget — top 5 personal bests in the last 8 weeks */}
-        <WorkoutPrsWidget userId={user.id} />
+        <Suspense fallback={<div className="h-40 rounded-2xl shimmer" />}>
+          <WorkoutPrsWidget userId={user.id} />
+        </Suspense>
 
-        {/* Weekly XP breakdown by source with daily bar chart */}
-        <WeeklyXpBreakdown userId={user.id} />
+        <Suspense fallback={<div className="h-48 rounded-2xl shimmer" />}>
+          <WeeklyXpBreakdown userId={user.id} />
+        </Suspense>
 
-        {/* Monthly Recap — synthesizes all modules for the current month */}
-        <MonthlyRecap userId={user.id} />
+        <Suspense fallback={<div className="h-64 rounded-2xl shimmer" />}>
+          <MonthlyRecap userId={user.id} />
+        </Suspense>
       </div>
     </AppShell>
   )
