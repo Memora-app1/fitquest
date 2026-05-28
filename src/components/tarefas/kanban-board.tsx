@@ -573,6 +573,7 @@ function SubtaskPanel({ taskId, isDone }: { taskId: string; isDone: boolean }) {
   const [adding, setAdding] = useState(false)
   const [newTitle, setNewTitle] = useState('')
   const [savingNew, setSavingNew] = useState(false)
+  const { toasts: subToasts, showXp: subShowXp } = useXpToast()
 
   async function load() {
     if (loaded) return
@@ -592,11 +593,15 @@ function SubtaskPanel({ taskId, isDone }: { taskId: string; isDone: boolean }) {
   async function toggleSubtask(s: Subtask) {
     const updated = { ...s, is_completed: !s.is_completed }
     setSubtasks(prev => prev.map(x => x.id === s.id ? updated : x))
-    await fetch('/api/subtasks', {
+    const res = await fetch('/api/subtasks', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: s.id, is_completed: updated.is_completed }),
     })
+    if (res.ok) {
+      const data = await res.json() as { xpEarned?: number }
+      if (data.xpEarned) subShowXp(data.xpEarned)
+    }
   }
 
   async function addSubtask() {
@@ -625,7 +630,9 @@ function SubtaskPanel({ taskId, isDone }: { taskId: string; isDone: boolean }) {
   const totalCount = subtasks.length
 
   return (
-    <div className="mt-2 pt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+    <>
+      <XpToastContainer toasts={subToasts} />
+      <div className="mt-2 pt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
       <button
         onClick={(e) => { e.stopPropagation(); toggle() }}
         className="flex items-center gap-1.5 text-[10px] text-text-muted hover:text-text-secondary transition-colors"
@@ -696,6 +703,7 @@ function SubtaskPanel({ taskId, isDone }: { taskId: string; isDone: boolean }) {
         </div>
       )}
     </div>
+    </>
   )
 }
 

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
+import { grantXP } from '@/lib/xp-server'
 
 // GET /api/subtasks?taskId=...
 export async function GET(req: NextRequest) {
@@ -98,6 +99,14 @@ export async function PATCH(req: NextRequest) {
     finalUpdates.completed_at = updates.is_completed ? new Date().toISOString() : null
   }
 
+  // Check if was previously uncompleted (to grant XP only once)
+  const { data: current } = await supabase
+    .from('subtasks')
+    .select('is_completed')
+    .eq('id', id)
+    .eq('user_id', user.id)
+    .single()
+
   const { data, error } = await supabase
     .from('subtasks')
     .update(finalUpdates)
@@ -107,7 +116,15 @@ export async function PATCH(req: NextRequest) {
     .single()
 
   if (error || !data) return NextResponse.json({ error: 'update_failed' }, { status: 500 })
-  return NextResponse.json({ subtask: data })
+
+  // 10 XP per subtask completion (half a task)
+  let xpEarned = 0
+  if (updates.is_completed && current && !current.is_completed) {
+    const result = await grantXP(user.id, 10, `Subtarefa: ${data.title}`, 'task', data.id)
+    xpEarned = result.xpEarned
+  }
+
+  return NextResponse.json({ subtask: data, xpEarned })
 }
 
 // DELETE /api/subtasks?id=...

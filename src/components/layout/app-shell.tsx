@@ -34,7 +34,7 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
   const [profileRes, notifRes] = await Promise.all([
     supabase
       .from('profiles')
-      .select('name, xp_total, level, streak_current, onboarding_completed, perfect_days')
+      .select('id, name, xp_total, level, streak_current, onboarding_completed, perfect_days')
       .eq('id', user.id)
       .single(),
     supabase
@@ -61,6 +61,7 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
       <Sidebar profile={profile} />
       <div className="flex-1 flex flex-col min-h-screen min-h-[100dvh]">
         <MobileHeader
+          id={profile.id}
           name={profile.name}
           level={profile.level}
           xpTotal={profile.xp_total}
