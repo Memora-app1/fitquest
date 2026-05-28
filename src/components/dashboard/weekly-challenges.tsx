@@ -3,6 +3,8 @@ import { Trophy, Zap, Flame, CheckSquare, Dumbbell, Target, TrendingUp, Clock } 
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
+const WATER_GOAL_ML = 2000
+
 interface Challenge {
   id: string
   icon: string
@@ -11,7 +13,7 @@ interface Challenge {
   target: number
   current: number
   xpReward: number
-  type: 'habit' | 'workout' | 'task' | 'xp' | 'streak' | 'transaction'
+  type: 'habit' | 'workout' | 'task' | 'xp' | 'streak' | 'transaction' | 'health'
   color: string
   rgb: string
   completed: boolean
@@ -73,6 +75,7 @@ export async function WeeklyChallenges({ userId }: WeeklyChallengesProps) {
     xpRes,
     transactionsRes,
     profileRes,
+    waterLogsRes,
   ] = await Promise.all([
     supabase
       .from('habit_logs')
@@ -127,9 +130,25 @@ export async function WeeklyChallenges({ userId }: WeeklyChallengesProps) {
       .select('streak_current, level')
       .eq('id', userId)
       .single(),
+
+    supabase
+      .from('water_logs')
+      .select('date, amount_ml')
+      .eq('user_id', userId)
+      .gte('date', weekStart)
+      .lte('date', weekEnd),
   ])
 
   // ── Compute current values ─────────────────────────────────────────────────
+
+  // Water goal days this week
+  const waterByDay: Record<string, number> = {}
+  for (const row of waterLogsRes.data ?? []) {
+    const d = row.date as string
+    waterByDay[d] = (waterByDay[d] ?? 0) + (row.amount_ml as number ?? 0)
+  }
+  const waterGoalDaysThisWeek = Object.values(waterByDay).filter(v => v >= WATER_GOAL_ML).length
+
   const habitsCount = habitsRes.data?.length ?? 0
   const habitLogsCount = habitLogsRes.data?.length ?? 0
   const workoutsCount = workoutsRes.data?.length ?? 0
@@ -256,7 +275,26 @@ export async function WeeklyChallenges({ userId }: WeeklyChallengesProps) {
     })
   }
 
-  // 6. Finance challenge (if seed is even — rotates every other week)
+  // 6. Health challenge — water goal days
+  {
+    const target = 5
+    const xpReward = Math.round(130 * levelMult)
+    allChallenges.push({
+      id: 'health',
+      icon: '💧',
+      label: 'Hidratação Plena',
+      description: `Atingir a meta de 2L em ${target} dias desta semana`,
+      target,
+      current: Math.min(waterGoalDaysThisWeek, target),
+      xpReward,
+      type: 'health',
+      color: '#00D9FF',
+      rgb: '0,217,255',
+      completed: waterGoalDaysThisWeek >= target,
+    })
+  }
+
+  // 7. Finance challenge (if seed is even — rotates every other week)
   if (seed % 2 === 0 || transactionsCount > 0) {
     const target = level <= 2 ? 3 : level <= 4 ? 5 : 8
     const xpReward = Math.round(100 * levelMult)
