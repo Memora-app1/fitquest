@@ -1,3 +1,4 @@
+import { isCronAuthorized, cronUnauthorized } from '@/lib/cron-auth'
 /**
  * Cron diário às 09:00 UTC (~06:00 Brasília)
  * Envia push notification para metas com prazo nos próximos 7 dias
@@ -16,6 +17,7 @@ function getDaysBetween(a: Date, b: Date): number {
 }
 
 export async function GET() {
+  if (!await isCronAuthorized()) return cronUnauthorized()
   const supabase = createServiceClient()
 
   const now = new Date()

@@ -1,3 +1,4 @@
+import { isCronAuthorized, cronUnauthorized } from '@/lib/cron-auth'
 /**
  * Cron diário às 03:00 UTC (00:00 Brasília)
  * Atualiza streaks de todos os usuários ativos
@@ -10,6 +11,7 @@ import { updateUserStreak } from '@/lib/streak'
 export const maxDuration = 60
 
 export async function GET() {
+  if (!await isCronAuthorized()) return cronUnauthorized()
   const supabase = createServiceClient()
 
   // Buscar todos os usuários ativos (logaram alguma coisa nos últimos 60 dias)

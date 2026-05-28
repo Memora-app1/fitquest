@@ -1,3 +1,4 @@
+import { isCronAuthorized, cronUnauthorized } from '@/lib/cron-auth'
 /**
  * Cron diário às 08:00 UTC
  * Envia notificações agendadas via Web Push
@@ -10,6 +11,7 @@ import { sendPushNotification } from '@/lib/webpush'
 export const maxDuration = 30
 
 export async function GET() {
+  if (!await isCronAuthorized()) return cronUnauthorized()
   const supabase = createServiceClient()
 
   const { data: pending } = await supabase

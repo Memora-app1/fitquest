@@ -1,3 +1,4 @@
+import { isCronAuthorized, cronUnauthorized } from '@/lib/cron-auth'
 /**
  * Cron diário às 23:00 UTC (~20:00 Brasília)
  * Envia push notification para usuários com streak ativo que ainda não
@@ -50,6 +51,7 @@ async function hadActivityToday(
 }
 
 export async function GET() {
+  if (!await isCronAuthorized()) return cronUnauthorized()
   const supabase = createServiceClient()
   const today = TODAY()
 

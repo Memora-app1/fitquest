@@ -1,3 +1,4 @@
+import { isCronAuthorized, cronUnauthorized } from '@/lib/cron-auth'
 /**
  * Cron diário às 10:00 UTC (07:00 Brasília)
  * Envia emails automáticos para usuários em trial:

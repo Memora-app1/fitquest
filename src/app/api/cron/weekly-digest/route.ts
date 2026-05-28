@@ -1,3 +1,4 @@
+import { isCronAuthorized, cronUnauthorized } from '@/lib/cron-auth'
 /**
  * Cron toda segunda-feira às 09:00 UTC (~06:00 Brasília)
  * Envia email de resumo semanal para todos os usuários ativos
@@ -23,6 +24,7 @@ const SOURCE_LABELS: Record<string, { label: string; emoji: string }> = {
 }
 
 export async function GET() {
+  if (!await isCronAuthorized()) return cronUnauthorized()
   const supabase = createServiceClient()
 
   // 7 dias atrás

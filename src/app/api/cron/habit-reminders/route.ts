@@ -1,3 +1,4 @@
+import { isCronAuthorized, cronUnauthorized } from '@/lib/cron-auth'
 /**
  * Cron horário — envia push de lembrete para hábitos com reminder_time na hora atual.
  * Horário de referência: America/Sao_Paulo (UTC-3, sem DST desde 2019).
@@ -27,6 +28,7 @@ function getTodayBR(): string {
 }
 
 export async function GET() {
+  if (!await isCronAuthorized()) return cronUnauthorized()
   const supabase = createServiceClient()
 
   const currentHour = getSaoPauloHour()
