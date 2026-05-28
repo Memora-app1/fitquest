@@ -106,8 +106,19 @@ export async function PATCH(req: NextRequest) {
   const body = await req.json() as { id?: string; is_paid?: boolean; description?: string; amount?: number }
   if (!body.id) return NextResponse.json({ error: 'missing_id' }, { status: 400 })
 
+  // Fetch current state to detect is_paid change
+  const { data: current } = await supabase
+    .from('transactions')
+    .select('is_paid, transaction_date')
+    .eq('id', body.id)
+    .eq('user_id', user.id)
+    .single()
+
   const allowed: Record<string, unknown> = {}
-  if (body.is_paid !== undefined) allowed.is_paid = body.is_paid
+  if (body.is_paid !== undefined) {
+    allowed.is_paid = body.is_paid
+    if (body.is_paid) allowed.paid_at = new Date().toISOString()
+  }
   if (body.description !== undefined) allowed.description = String(body.description).slice(0, 200)
   if (body.amount !== undefined) allowed.amount = Number(body.amount)
 
@@ -120,7 +131,23 @@ export async function PATCH(req: NextRequest) {
     .single()
 
   if (error || !data) return NextResponse.json({ error: error?.message ?? 'not_found' }, { status: 500 })
-  return NextResponse.json({ transaction: data })
+
+  // Grant XP when marking as paid (first time)
+  let xpEarned = 0
+  if (body.is_paid && current && !current.is_paid) {
+    // Check if paid on time (transaction_date >= today or within past 3 days grace period)
+    const txDate = new Date(current.transaction_date)
+    const today = new Date()
+    const graceDays = 3
+    const isOnTime = (today.getTime() - txDate.getTime()) / 86400000 <= graceDays
+
+    if (isOnTime) {
+      const result = await grantXP(user.id, XP_REWARDS.BILL_PAID_ON_TIME, 'Conta paga em dia 💳', 'transaction', body.id)
+      xpEarned = result.xpEarned
+    }
+  }
+
+  return NextResponse.json({ transaction: data, xpEarned })
 }
 
 export async function DELETE(req: NextRequest) {
