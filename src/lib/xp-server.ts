@@ -5,6 +5,7 @@
 
 import { createServiceClient } from '@/lib/supabase/server'
 import { calculateLevel, type XpSourceType, type GrantXpResult } from '@/lib/xp'
+import { sendPushNotification } from '@/lib/webpush'
 
 // ════════ FUNÇÃO PRINCIPAL ════════
 /**
@@ -103,7 +104,7 @@ export async function tryUnlockAchievement(
   // Buscar achievement
   const { data: achievement } = await supabase
     .from('achievements')
-    .select('id, xp_reward, name')
+    .select('id, xp_reward, name, description')
     .eq('slug', slug)
     .single()
 
@@ -153,6 +154,38 @@ export async function tryUnlockAchievement(
         .from('profiles')
         .update({ xp_total: newXp, level: newLvl })
         .eq('id', userId)
+    }
+  }
+
+  // Registra notificação + envia push
+  const notifTitle = `🏆 Conquista: ${achievement.name}`
+  const notifBody = `+${achievement.xp_reward} XP — ${achievement.description}`
+
+  await supabase.from('notifications').insert({
+    user_id: userId,
+    type: 'achievement',
+    title: notifTitle,
+    body: notifBody,
+    action_url: '/conquistas',
+    scheduled_for: new Date().toISOString(),
+    sent_at: new Date().toISOString(),
+  })
+
+  // Envia push para todos os dispositivos do usuário
+  const { data: subs } = await supabase
+    .from('push_subscriptions')
+    .select('id, endpoint, keys_p256dh, keys_auth')
+    .eq('user_id', userId)
+
+  if (subs && subs.length > 0) {
+    for (const sub of subs) {
+      const result = await sendPushNotification(
+        sub.endpoint, sub.keys_p256dh, sub.keys_auth,
+        { title: notifTitle, body: notifBody, url: '/conquistas' }
+      )
+      if (result.gone) {
+        await supabase.from('push_subscriptions').delete().eq('id', sub.id)
+      }
     }
   }
 
