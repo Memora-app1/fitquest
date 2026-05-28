@@ -349,9 +349,16 @@ export function GoalsList({ initialGoals }: { initialGoals: Goal[] }) {
         <UpdateProgressModal
           goal={updateGoal}
           onClose={() => setUpdateGoal(null)}
-          onUpdated={(g) => {
+          onUpdated={(g, xpEarned, leveledUp, newLevel) => {
             setGoals((prev) => prev.map((x) => (x.id === g.id ? g : x)))
             setUpdateGoal(null)
+            if (xpEarned) {
+              showXp(xpEarned, { leveledUp: leveledUp ? newLevel : undefined })
+              if (leveledUp && newLevel) {
+                window.dispatchEvent(new CustomEvent('ascendia:levelup', { detail: { level: newLevel } }))
+              }
+            }
+            router.refresh()
           }}
         />
       )}
@@ -542,7 +549,7 @@ function UpdateProgressModal({
 }: {
   goal: Goal
   onClose: () => void
-  onUpdated: (goal: Goal) => void
+  onUpdated: (goal: Goal, xpEarned?: number, leveledUp?: boolean, newLevel?: number) => void
 }) {
   const [loading, setLoading] = useState(false)
   const [value, setValue] = useState(String(goal.current_value))
@@ -563,8 +570,8 @@ function UpdateProgressModal({
 
     setLoading(false)
     if (res.ok) {
-      const data = await res.json() as { goal: Goal }
-      onUpdated(data.goal)
+      const data = await res.json() as { goal: Goal; xpEarned?: number; leveledUp?: boolean; newLevel?: number }
+      onUpdated(data.goal, data.xpEarned, data.leveledUp, data.newLevel)
     }
   }
 
