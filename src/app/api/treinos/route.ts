@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
 import { XP_REWARDS } from '@/lib/xp'
-import { grantXP } from '@/lib/xp-server'
+import { grantXP, tryUnlockAchievement } from '@/lib/xp-server'
 
 const setEntrySchema = z.object({
   exercise_name: z.string().min(1).max(100).trim(),
@@ -188,7 +188,7 @@ export async function POST(req: NextRequest) {
     })
     .eq('id', workoutId)
 
-  // 7. Grant XP
+  // 7. Grant XP (xpAmount already includes PR bonus when hasPR)
   let xpResult
   try {
     xpResult = await grantXP(userId, xpAmount, `Treino: ${title}`, 'workout', workoutId)
@@ -196,6 +196,21 @@ export async function POST(req: NextRequest) {
     console.error('treinos: falha ao conceder XP', err)
     xpResult = { xpEarned: xpAmount, leveledUp: false, newLevel: 1, achievementsUnlocked: [] as string[] }
   }
+
+  // 8. Achievement checks
+  const { count: workoutCount } = await (await createClient())
+    .from('workouts')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', userId)
+    .not('finished_at', 'is', null)
+
+  const total = workoutCount ?? 0
+  if (total === 1)   await tryUnlockAchievement(userId, 'first_workout')
+  if (total === 10)  await tryUnlockAchievement(userId, 'workouts_10')
+  if (total === 50)  await tryUnlockAchievement(userId, 'workouts_50')
+  if (total === 100) await tryUnlockAchievement(userId, 'workouts_100')
+  if (total === 365) await tryUnlockAchievement(userId, 'workouts_365')
+  if (hasPR)         await tryUnlockAchievement(userId, 'first_pr')
 
   return NextResponse.json({
     workoutId,
