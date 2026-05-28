@@ -36,11 +36,13 @@ export function CoachLayout({
   activeConversationId,
   initialMessages,
   apiConfigured = false,
+  initialPrompt,
 }: {
   conversations: Conversation[]
   activeConversationId: string
   initialMessages: Message[]
   apiConfigured?: boolean
+  initialPrompt?: string
 }) {
   const router = useRouter()
   const [conversations, setConversations] = useState<Conversation[]>(serverConversations)
@@ -289,6 +291,7 @@ export function CoachLayout({
           conversationId={activeConversationId}
           initialMessages={initialMessages}
           apiConfigured={apiConfigured}
+          initialPrompt={initialPrompt}
         />
       </div>
     </div>

@@ -14,9 +14,9 @@ export const dynamic = 'force-dynamic'
 export default async function CoachPage({
   searchParams,
 }: {
-  searchParams: Promise<{ conv?: string }>
+  searchParams: Promise<{ conv?: string; q?: string }>
 }) {
-  const { conv } = await searchParams
+  const { conv, q } = await searchParams
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
@@ -77,6 +77,7 @@ export default async function CoachPage({
         activeConversationId={activeConversationId}
         initialMessages={messages ?? []}
         apiConfigured={apiConfigured}
+        initialPrompt={q}
       />
     </AppShell>
   )

@@ -365,3 +365,23 @@ export interface Notification {
   action_url: string | null
   created_at: string
 }
+
+export interface WaterLog {
+  id: string
+  user_id: string
+  date: string
+  amount_ml: number
+  created_at: string
+}
+
+export interface SleepLog {
+  id: string
+  user_id: string
+  date: string
+  bed_time: string | null
+  wake_time: string | null
+  duration_hours: number | null
+  quality: number | null
+  xp_earned: number
+  created_at: string
+}

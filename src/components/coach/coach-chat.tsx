@@ -87,10 +87,12 @@ export function CoachChat({
   conversationId,
   initialMessages,
   apiConfigured = false,
+  initialPrompt,
 }: {
   conversationId: string
   initialMessages: Message[]
   apiConfigured?: boolean
+  initialPrompt?: string
 }) {
   const [messages, setMessages] = useState<Message[]>(initialMessages)
   const [input, setInput] = useState('')
@@ -98,6 +100,7 @@ export function CoachChat({
   const [showScrollBtn, setShowScrollBtn] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
+  const didAutoSend = useRef(false)
 
   const charsLeft = MAX_CHARS - input.length
   const charsLow = charsLeft < 200
@@ -116,6 +119,16 @@ export function CoachChat({
 
   useEffect(() => {
     inputRef.current?.focus()
+  }, [])
+
+  // Auto-send prompt from MiniCoachFab (?q=...) — fires once, only on empty conversation
+  useEffect(() => {
+    if (initialPrompt && !didAutoSend.current && initialMessages.length === 0 && apiConfigured) {
+      didAutoSend.current = true
+      const timer = setTimeout(() => send(initialPrompt), 400)
+      return () => clearTimeout(timer)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
