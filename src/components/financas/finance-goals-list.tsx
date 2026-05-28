@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Plus, X, Trash2, PlusCircle, Trophy, TrendingUp, Calendar } from 'lucide-react'
 import { formatBRL, calcPercentage } from '@/lib/utils'
 import { cn } from '@/lib/utils'
+import { useXpToast, XpToastContainer } from '@/components/xp-toast'
 
 interface FinanceGoal {
   id: string
@@ -26,6 +27,7 @@ export function FinanceGoalsList({ initialGoals }: { initialGoals: FinanceGoal[]
   const [goals, setGoals] = useState<FinanceGoal[]>(initialGoals)
   const [showCreate, setShowCreate] = useState(false)
   const [showContribute, setShowContribute] = useState<FinanceGoal | null>(null)
+  const { toasts, showXp } = useXpToast()
 
   async function handleDelete(id: string) {
     if (!confirm('Remover esta meta?')) return
@@ -117,13 +119,20 @@ export function FinanceGoalsList({ initialGoals }: { initialGoals: FinanceGoal[]
         <ContributeModal
           goal={showContribute}
           onClose={() => setShowContribute(null)}
-          onUpdate={(updated) => {
+          onUpdate={(updated, xpEarned, leveledUp, newLevel) => {
             setGoals((prev) => prev.map((g) => (g.id === updated.id ? updated : g)))
             setShowContribute(null)
+            if (xpEarned) {
+              showXp(xpEarned, { leveledUp: leveledUp ? newLevel : undefined })
+              if (leveledUp && newLevel) {
+                window.dispatchEvent(new CustomEvent('ascendia:levelup', { detail: { level: newLevel } }))
+              }
+            }
             router.refresh()
           }}
         />
       )}
+      <XpToastContainer toasts={toasts} />
     </>
   )
 }
@@ -487,7 +496,7 @@ function ContributeModal({
 }: {
   goal: FinanceGoal
   onClose: () => void
-  onUpdate: (updated: FinanceGoal) => void
+  onUpdate: (updated: FinanceGoal, xpEarned?: number, leveledUp?: boolean, newLevel?: number) => void
 }) {
   const [amount, setAmount] = useState('')
   const [loading, setLoading] = useState(false)
@@ -506,9 +515,9 @@ function ContributeModal({
       body: JSON.stringify({ id: goal.id, current_amount: newAmount }),
     })
 
-    const data = await res.json() as { goal?: FinanceGoal }
+    const data = await res.json() as { goal?: FinanceGoal; xpEarned?: number; leveledUp?: boolean; newLevel?: number }
     setLoading(false)
-    if (res.ok && data.goal) onUpdate(data.goal)
+    if (res.ok && data.goal) onUpdate(data.goal, data.xpEarned, data.leveledUp, data.newLevel)
   }
 
   const remaining = Math.max(0, Number(goal.target_amount) - Number(goal.current_amount))

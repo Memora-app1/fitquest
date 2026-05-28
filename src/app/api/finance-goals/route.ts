@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
+import { grantXP } from '@/lib/xp-server'
+import { XP_REWARDS } from '@/lib/xp'
 
 const createSchema = z.object({
   title: z.string().min(1).max(100).trim(),
@@ -66,19 +68,29 @@ export async function PATCH(req: NextRequest) {
 
   const { id, ...updates } = parsed.data
 
-  // Se current_amount >= target_amount, marcar como completed
+  // Busca estado atual para verificar se já estava completo e obter target_amount
+  const { data: existing } = await supabase
+    .from('finance_goals')
+    .select('target_amount, status, title')
+    .eq('id', id)
+    .eq('user_id', user.id)
+    .single()
+
+  const wasAlreadyCompleted = existing?.status === 'completed'
+
+  // Se current_amount >= target_amount, marcar como completed automaticamente
   const extraUpdates: Record<string, unknown> = {}
-  if (updates.current_amount !== undefined && updates.target_amount === undefined) {
-    const { data: existing } = await supabase
-      .from('finance_goals')
-      .select('target_amount')
-      .eq('id', id)
-      .eq('user_id', user.id)
-      .single()
-    if (existing && updates.current_amount >= Number(existing.target_amount)) {
+  let willComplete = updates.status === 'completed'
+
+  if (updates.current_amount !== undefined && updates.target_amount === undefined && existing) {
+    if (updates.current_amount >= Number(existing.target_amount)) {
       extraUpdates.status = 'completed'
       extraUpdates.completed_at = new Date().toISOString()
+      willComplete = true
     }
+  }
+  if (updates.status === 'completed' && !extraUpdates.completed_at) {
+    extraUpdates.completed_at = new Date().toISOString()
   }
 
   const { data, error } = await supabase
@@ -90,7 +102,25 @@ export async function PATCH(req: NextRequest) {
     .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ goal: data })
+
+  let xpEarned = 0
+  let leveledUp = false
+  let newLevel = 0
+
+  if (willComplete && !wasAlreadyCompleted) {
+    const xpResult = await grantXP(
+      user.id,
+      XP_REWARDS.FINANCE_GOAL_HIT,
+      `Meta financeira atingida: ${existing?.title ?? 'Meta'}`,
+      'goal',
+      data.id
+    )
+    xpEarned = xpResult.xpEarned
+    leveledUp = xpResult.leveledUp
+    newLevel = xpResult.newLevel
+  }
+
+  return NextResponse.json({ goal: data, xpEarned, leveledUp, newLevel })
 }
 
 export async function DELETE(req: NextRequest) {
