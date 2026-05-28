@@ -85,7 +85,13 @@
       "Bash(sed -n '1,50p' src/lib/xp.ts)",
       "WebSearch",
       "Bash(ls src/app/manifest*)",
-      "Bash(ls public/manifest*)"
+      "Bash(ls public/manifest*)",
+      "Bash(vercel --version)",
+      "Bash(vercel whoami *)",
+      "Bash(vercel --prod --yes)",
+      "Bash(xargs grep -l \"finance_categories\\\\|FinanceCategor\")",
+      "Bash(xargs grep -l \"finance_categories\")",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); [print\\(k,v\\) for k,v in {**d.get\\('dependencies',{}\\), **d.get\\('devDependencies',{}\\)}.items\\(\\)]\")"
     ],
     "additionalDirectories": [
       "c:\\Users\\SURFACE\\Downloads\\fitquest_2\\fitquest\\src\\app\\treinos",
