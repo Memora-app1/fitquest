@@ -45,15 +45,15 @@ export async function GET(req: NextRequest) {
 
     supabase
       .from('workouts')
-      .select('id, name, created_at')
+      .select('id, title, created_at')
       .eq('user_id', user.id)
-      .ilike('name', `%${q}%`)
+      .ilike('title', `%${q}%`)
       .order('created_at', { ascending: false })
       .limit(4),
 
     supabase
       .from('transactions')
-      .select('id, description, amount, transaction_type, transaction_date')
+      .select('id, description, amount, type, transaction_date')
       .eq('user_id', user.id)
       .ilike('description', `%${q}%`)
       .order('transaction_date', { ascending: false })
@@ -106,7 +106,7 @@ export async function GET(req: NextRequest) {
     results.push({
       id: w.id,
       type: 'workout',
-      title: w.name,
+      title: w.title,
       subtitle: new Date(w.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }),
       href: `/treinos/${w.id}`,
       icon: '💪',
@@ -117,7 +117,7 @@ export async function GET(req: NextRequest) {
 
   // Transactions
   for (const t of transactionsRes.data ?? []) {
-    const isIncome = t.transaction_type === 'income'
+    const isIncome = t.type === 'income'
     results.push({
       id: t.id,
       type: 'transaction',
