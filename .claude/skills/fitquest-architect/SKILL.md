@@ -197,7 +197,7 @@ finance_goals
 ### Tabelas de Calendário, Notificações e IA
 ```
 calendar_integrations — OAuth tokens do Google/Outlook
-calendar_events — eventos internos + importados (source: fitquest|google|outlook)
+calendar_events — eventos internos + importados (source: ascendia|google|outlook)
 notifications — fila agendada (type: task_reminder|habit_reminder|streak_alert|xp_milestone|finance_due|coach_insight|achievement)
 push_subscriptions — devices registrados para Web Push
 ai_conversations — conversas com o Coach

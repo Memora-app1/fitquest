@@ -307,7 +307,7 @@ Quando o usuário pedir "verifica tudo", "health check", "tá tudo certo?", "aud
 
 ```
 ═══════════════════════════════════════════════════════════════
-                  FITQUEST HEALTH CHECK v2.0
+                  ASCENDIA HEALTH CHECK v2.0
 ═══════════════════════════════════════════════════════════════
 
 📁 1. ESTRUTURA DE ARQUIVOS
@@ -386,7 +386,7 @@ RESULTADO: ✅ X/10 PERFEITO | ⚠️ Y WARNINGS | ❌ Z CRÍTICOS
 
 ---
 
-## ERROS CONHECIDOS DO FITQUEST E SOLUÇÕES
+## ERROS CONHECIDOS DO ASCENDIA E SOLUÇÕES
 
 ### Erro 1: `Module not found: Can't resolve '@/lib/supabase/server'`
 **Causa:** Arquivo não foi criado ou zip não foi extraído corretamente

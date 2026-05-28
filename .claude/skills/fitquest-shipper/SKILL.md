@@ -42,22 +42,22 @@ git --version
 ```bash
 cd Desktop  # ou onde quiser criar
 
-npx create-next-app@latest fitquest --typescript --tailwind --app --src-dir --turbopack --no-eslint
+npx create-next-app@latest ascendia --typescript --tailwind --app --src-dir --turbopack --no-eslint
 
 # Quando perguntar:
 # Would you like to customize import alias? → No
 
-cd fitquest
+cd ascendia
 ```
 
 ### Passo 2 — Extrair Arquivos do Zip
 ```
-1. Baixar fitquest.zip do Claude
-2. Extrair DENTRO da pasta fitquest/
+1. Baixar ascendia.zip do Claude
+2. Extrair DENTRO da pasta ascendia/
 3. Quando perguntar "sobrescrever?" → SIM PRA TODOS
 
-⚠️ PROBLEMA COMUM: O zip cria uma subpasta fitquest/fitquest/
-   Se isso acontecer, mover os arquivos de fitquest/fitquest/ para fitquest/
+⚠️ PROBLEMA COMUM: O zip cria uma subpasta ascendia/ascendia/
+   Se isso acontecer, mover os arquivos de ascendia/ascendia/ para ascendia/
    E deletar a subpasta vazia
 
 VERIFICAÇÃO: ls src/lib/ deve mostrar xp.ts, streak.ts, utils.ts, mercadopago.ts
@@ -78,7 +78,7 @@ npm install @supabase/ssr @supabase/supabase-js @anthropic-ai/sdk @dnd-kit/core 
 A) Criar conta/projeto:
    1. Abrir https://supabase.com
    2. Sign up / Login
-   3. New Project → nome: "fitquest", senha forte, região: South America
+   3. New Project → nome: "ascendia", senha forte, região: South America
    4. Esperar criar (2-3 minutos)
 
 B) Configurar banco de dados:
@@ -167,7 +167,7 @@ npm run dev
 |---|---|---|---|
 | 1 | `Module not found: @supabase/ssr` | Dependências não instaladas | `npm install @supabase/ssr @supabase/supabase-js` |
 | 2 | `NEXT_PUBLIC_SUPABASE_URL is undefined` | .env.local não existe | Criar .env.local com as variáveis |
-| 3 | `src/lib não existe` | Zip extraído em subpasta | Mover arquivos de fitquest/fitquest/ para fitquest/ |
+| 3 | `src/lib não existe` | Zip extraído em subpasta | Mover arquivos de ascendia/ascendia/ para ascendia/ |
 | 4 | `audited 48 packages` no npm install | package.json não foi sobrescrito | Instalar dependências manualmente (comando acima) |
 | 5 | Página em branco | globals.css não foi substituído | Verificar se globals.css tem .card, .btn-primary |
 | 6 | Fontes não carregam | layout.tsx ainda é o default | Verificar se importa DM_Sans e Bebas_Neue |
@@ -221,7 +221,7 @@ npm run dev
 □ MERCADO_PAGO_PUBLIC_KEY → public key de PRODUÇÃO
 □ MERCADO_PAGO_WEBHOOK_SECRET → secret configurado no MP
 □ CRON_SECRET → hash forte (64+ caracteres)
-□ NEXT_PUBLIC_APP_URL → URL de produção (https://fitquest.app)
+□ NEXT_PUBLIC_APP_URL → URL de produção (https://ascendia.app)
 ⚠️ NUNCA use credenciais de desenvolvimento em produção
 
 🗄️ BANCO DE DADOS (Supabase de produção)
@@ -278,12 +278,12 @@ vercel
 # Set up and deploy? → Y
 # Which scope? → (sua conta)
 # Link to existing project? → N
-# What's your project name? → fitquest
+# What's your project name? → ascendia
 # In which directory is your code? → ./
 # Want to modify settings? → N
 
 # Esperar build e deploy
-# Vai retornar uma URL tipo: https://fitquest-xxxx.vercel.app
+# Vai retornar uma URL tipo: https://ascendia-xxxx.vercel.app
 ```
 
 ### 4.3 — Configurar Environment Variables
@@ -300,13 +300,13 @@ vercel env add MERCADO_PAGO_PUBLIC_KEY production
 vercel env add MERCADO_PAGO_WEBHOOK_SECRET production
 vercel env add CRON_SECRET production
 vercel env add NEXT_PUBLIC_APP_URL production
-# ⚠️ NEXT_PUBLIC_APP_URL deve ser a URL de produção final (https://fitquest.app)
+# ⚠️ NEXT_PUBLIC_APP_URL deve ser a URL de produção final (https://ascendia.app)
 ```
 
 Ou faça pelo Dashboard:
 ```
 1. Abrir https://vercel.com/dashboard
-2. Clicar no projeto fitquest
+2. Clicar no projeto ascendia
 3. Settings → Environment Variables
 4. Adicionar cada variável para Production
 ```
@@ -322,7 +322,7 @@ vercel --prod
 ### 4.5 — Domínio Customizado (se tiver)
 ```bash
 # Adicionar domínio
-vercel domains add fitquest.app
+vercel domains add ascendia.app
 
 # Vercel vai mostrar os DNS records necessários:
 # Tipo A: 76.76.21.21
@@ -332,7 +332,7 @@ vercel domains add fitquest.app
 # Esperar propagação DNS (pode demorar até 48h, geralmente < 1h)
 
 # Verificar
-vercel domains inspect fitquest.app
+vercel domains inspect ascendia.app
 ```
 
 ### 4.6 — Configurar Webhook do Mercado Pago em Produção
@@ -340,7 +340,7 @@ vercel domains inspect fitquest.app
 1. Abrir https://www.mercadopago.com.br/developers/panel/app
 2. Selecionar app
 3. Webhooks → Configurar
-4. URL: https://fitquest.app/api/webhook/mercadopago
+4. URL: https://ascendia.app/api/webhook/mercadopago
 5. Eventos: payment, preapproval
 6. Salvar
 ```
@@ -431,7 +431,7 @@ export const metadata = {
 public/robots.txt:
 User-agent: *
 Allow: /
-Sitemap: https://fitquest.app/sitemap.xml
+Sitemap: https://ascendia.app/sitemap.xml
 Disallow: /api/
 Disallow: /dashboard
 Disallow: /habitos

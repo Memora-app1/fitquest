@@ -1,5 +1,5 @@
--- ════════════════════════════════════════════════════════════════
--- FITQUEST — SEED DATA
+﻿-- ════════════════════════════════════════════════════════════════
+-- ASCENDIA — SEED DATA
 -- Execute por último (depois de schema.sql e rls.sql)
 -- ════════════════════════════════════════════════════════════════
 
@@ -23,7 +23,7 @@ INSERT INTO achievements (slug, name, description, icon, category, xp_reward, ra
 ('streak_30', 'Mês Implacável', '30 dias consecutivos', '🌋', 'streak', 1000, 'rare', 'streak', 30),
 ('streak_90', 'Sem Escusa', '90 dias consecutivos', '⚡', 'streak', 3000, 'epic', 'streak', 90),
 ('streak_180', 'Lenda Viva', '180 dias consecutivos', '💎', 'streak', 7000, 'legendary', 'streak', 180),
-('streak_365', 'FitQuest Master', '365 dias consecutivos', '👁️', 'streak', 15000, 'legendary', 'streak', 365),
+('streak_365', 'Ascendia Master', '365 dias consecutivos', '👁️', 'streak', 15000, 'legendary', 'streak', 365),
 
 -- Dias Perfeitos
 ('perfect_day', 'Dia Perfeito', 'Todos os hábitos do dia concluídos', '⭐', 'fitness', 200, 'common', 'first', 1),
@@ -46,7 +46,7 @@ INSERT INTO achievements (slug, name, description, icon, category, xp_reward, ra
 ('level_5', 'Guerreiro', 'Alcançou o Level 5', '⚔️', 'level', 400, 'rare', 'milestone', 5),
 ('level_6', 'Elite', 'Alcançou o Level 6', '🛡️', 'level', 800, 'epic', 'milestone', 6),
 ('level_7', 'Lendário', 'Alcançou o Level 7', '🏛️', 'level', 1500, 'epic', 'milestone', 7),
-('level_8', 'FitQuest Master', 'Alcançou o Level 8 — você é uma lenda', '👑', 'level', 5000, 'legendary', 'milestone', 8);
+('level_8', 'Ascendia Master', 'Alcançou o Level 8 — você é uma lenda', '👑', 'level', 5000, 'legendary', 'milestone', 8);
 
 -- ════════════════════════════════════════════════════════════════
 -- EXERCÍCIOS GLOBAIS

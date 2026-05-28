@@ -1,5 +1,5 @@
--- ════════════════════════════════════════════════════════════════
--- FITQUEST — SCHEMA COMPLETO
+﻿-- ════════════════════════════════════════════════════════════════
+-- ASCENDIA — SCHEMA COMPLETO
 -- Execute este arquivo PRIMEIRO no SQL Editor do Supabase
 -- ════════════════════════════════════════════════════════════════
 
@@ -388,7 +388,7 @@ CREATE TABLE calendar_events (
   end_at TIMESTAMPTZ NOT NULL,
   all_day BOOLEAN DEFAULT FALSE,
   
-  source TEXT DEFAULT 'fitquest', -- fitquest | google | outlook
+  source TEXT DEFAULT 'ascendia', -- ascendia | google | outlook
   external_id TEXT,
   integration_id UUID REFERENCES calendar_integrations(id) ON DELETE CASCADE,
   

@@ -1,4 +1,4 @@
--- ════════════════════════════════════════════════════════════════
+﻿-- ════════════════════════════════════════════════════════════════
 -- FIX 001 — Trigger handle_new_user + Colunas Stripe
 -- Data: 2026-05-23
 -- Problema: "Database error saving new user" no signup
@@ -11,7 +11,7 @@
 --
 -- Como aplicar:
 --   1. Acessar https://supabase.com/dashboard
---   2. Projeto FitQuest → SQL Editor → New query
+--   2. Projeto Ascendia → SQL Editor → New query
 --   3. Colar TODO este conteúdo e clicar RUN
 --   4. Aguardar mensagem "✅ Fix aplicado com sucesso"
 -- ════════════════════════════════════════════════════════════════

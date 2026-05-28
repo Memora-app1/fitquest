@@ -1,8 +1,8 @@
-self.addEventListener('push', (event) => {
+﻿self.addEventListener('push', (event) => {
   if (!event.data) return
   const data = event.data.json()
   event.waitUntil(
-    self.registration.showNotification(data.title ?? 'FitQuest', {
+    self.registration.showNotification(data.title ?? 'Ascendia', {
       body: data.body ?? '',
       icon: data.icon ?? '/favicon.svg',
       badge: data.badge ?? '/favicon.svg',
