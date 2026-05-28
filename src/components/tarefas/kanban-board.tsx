@@ -16,7 +16,7 @@ import { CSS } from '@dnd-kit/utilities'
 import { useRouter } from 'next/navigation'
 import {
   Plus, X, AlertCircle, GripVertical, Check, Trash2, Calendar,
-  ChevronRight, ListTodo, Loader2, CheckCircle2, Zap,
+  ChevronRight, ListTodo, Loader2, CheckCircle2, Zap, ChevronDown, ListChecks,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { Task, TaskStatus } from '@/lib/supabase/types'
@@ -411,6 +411,151 @@ function TaskCard({
           </button>
         )}
       </div>
+
+      {/* Subtasks panel (only on non-dragging cards) */}
+      {!isDragging && <SubtaskPanel taskId={task.id} isDone={task.status === 'done'} />}
+    </div>
+  )
+}
+
+// ── SubtaskPanel ─────────────────────────────────────────────────────────────
+
+interface Subtask {
+  id: string
+  title: string
+  is_completed: boolean
+  completed_at: string | null
+}
+
+function SubtaskPanel({ taskId, isDone }: { taskId: string; isDone: boolean }) {
+  const [open, setOpen] = useState(false)
+  const [subtasks, setSubtasks] = useState<Subtask[]>([])
+  const [loaded, setLoaded] = useState(false)
+  const [adding, setAdding] = useState(false)
+  const [newTitle, setNewTitle] = useState('')
+  const [savingNew, setSavingNew] = useState(false)
+
+  async function load() {
+    if (loaded) return
+    const res = await fetch(`/api/subtasks?taskId=${taskId}`)
+    if (res.ok) {
+      const data = await res.json() as { subtasks: Subtask[] }
+      setSubtasks(data.subtasks)
+    }
+    setLoaded(true)
+  }
+
+  function toggle() {
+    if (!open) load()
+    setOpen(v => !v)
+  }
+
+  async function toggleSubtask(s: Subtask) {
+    const updated = { ...s, is_completed: !s.is_completed }
+    setSubtasks(prev => prev.map(x => x.id === s.id ? updated : x))
+    await fetch('/api/subtasks', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: s.id, is_completed: updated.is_completed }),
+    })
+  }
+
+  async function addSubtask() {
+    if (!newTitle.trim() || savingNew) return
+    setSavingNew(true)
+    const res = await fetch('/api/subtasks', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ task_id: taskId, title: newTitle.trim() }),
+    })
+    if (res.ok) {
+      const data = await res.json() as { subtask: Subtask }
+      setSubtasks(prev => [...prev, data.subtask])
+      setNewTitle('')
+      setAdding(false)
+    }
+    setSavingNew(false)
+  }
+
+  async function deleteSubtask(id: string) {
+    setSubtasks(prev => prev.filter(s => s.id !== id))
+    await fetch(`/api/subtasks?id=${id}`, { method: 'DELETE' })
+  }
+
+  const completedCount = subtasks.filter(s => s.is_completed).length
+  const totalCount = subtasks.length
+
+  return (
+    <div className="mt-2 pt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+      <button
+        onClick={(e) => { e.stopPropagation(); toggle() }}
+        className="flex items-center gap-1.5 text-[10px] text-text-muted hover:text-text-secondary transition-colors"
+      >
+        <ListChecks size={11} />
+        {loaded && totalCount > 0
+          ? `${completedCount}/${totalCount} subtarefas`
+          : 'Subtarefas'}
+        <ChevronDown size={10} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+
+      {open && (
+        <div className="mt-2 space-y-1.5">
+          {subtasks.map(s => (
+            <div key={s.id} className="flex items-center gap-2 group/sub">
+              <button
+                onClick={() => toggleSubtask(s)}
+                className={cn(
+                  'w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 transition-all',
+                  s.is_completed
+                    ? 'bg-brand-green/80 border-brand-green'
+                    : 'border-border hover:border-brand-green/60'
+                )}
+              >
+                {s.is_completed && <Check size={8} className="text-black" />}
+              </button>
+              <span className={cn('text-xs flex-1', s.is_completed && 'line-through text-text-muted')}>
+                {s.title}
+              </span>
+              <button
+                onClick={() => deleteSubtask(s.id)}
+                className="opacity-0 group-hover/sub:opacity-100 text-text-muted hover:text-brand-red transition-all shrink-0"
+              >
+                <X size={10} />
+              </button>
+            </div>
+          ))}
+
+          {adding ? (
+            <div className="flex items-center gap-2">
+              <input
+                autoFocus
+                value={newTitle}
+                onChange={e => setNewTitle(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') addSubtask(); if (e.key === 'Escape') { setAdding(false); setNewTitle('') } }}
+                placeholder="Nome da subtarefa..."
+                className="flex-1 text-xs bg-bg-elevated border border-border rounded-lg px-2 py-1 outline-none focus:border-brand-purple"
+                maxLength={200}
+              />
+              <button onClick={addSubtask} disabled={savingNew || !newTitle.trim()} className="text-brand-purple hover:text-white transition-colors disabled:opacity-40">
+                <Check size={12} />
+              </button>
+              <button onClick={() => { setAdding(false); setNewTitle('') }} className="text-text-muted hover:text-white transition-colors">
+                <X size={12} />
+              </button>
+            </div>
+          ) : (
+            !isDone && (
+              <button
+                onClick={() => setAdding(true)}
+                className="flex items-center gap-1 text-[10px] text-text-muted hover:text-brand-purple transition-colors"
+              >
+                <Plus size={10} />
+                Adicionar subtarefa
+              </button>
+            )
+          )}
+        </div>
+      )}
     </div>
   )
 }

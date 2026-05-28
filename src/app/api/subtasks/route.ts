@@ -1,0 +1,130 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
+import { createClient } from '@/lib/supabase/server'
+
+// GET /api/subtasks?taskId=...
+export async function GET(req: NextRequest) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+
+  const taskId = req.nextUrl.searchParams.get('taskId')
+  if (!taskId) return NextResponse.json({ error: 'missing_task_id' }, { status: 400 })
+
+  // Verify task ownership
+  const { data: task } = await supabase
+    .from('tasks')
+    .select('id')
+    .eq('id', taskId)
+    .eq('user_id', user.id)
+    .single()
+  if (!task) return NextResponse.json({ error: 'task_not_found' }, { status: 404 })
+
+  const { data, error } = await supabase
+    .from('subtasks')
+    .select('id, task_id, title, is_completed, display_order, completed_at, created_at')
+    .eq('task_id', taskId)
+    .eq('user_id', user.id)
+    .order('display_order')
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json({ subtasks: data ?? [] })
+}
+
+// POST /api/subtasks
+export async function POST(req: NextRequest) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+
+  const schema = z.object({
+    task_id: z.string().uuid(),
+    title: z.string().min(1).max(300).trim(),
+  })
+
+  const parsed = schema.safeParse(await req.json())
+  if (!parsed.success) return NextResponse.json({ error: 'invalid_input' }, { status: 400 })
+
+  // Verify task ownership
+  const { data: task } = await supabase
+    .from('tasks')
+    .select('id')
+    .eq('id', parsed.data.task_id)
+    .eq('user_id', user.id)
+    .single()
+  if (!task) return NextResponse.json({ error: 'task_not_found' }, { status: 404 })
+
+  // Count existing subtasks for display_order
+  const { count } = await supabase
+    .from('subtasks')
+    .select('id', { count: 'exact', head: true })
+    .eq('task_id', parsed.data.task_id)
+
+  const { data, error } = await supabase
+    .from('subtasks')
+    .insert({
+      task_id: parsed.data.task_id,
+      user_id: user.id,
+      title: parsed.data.title,
+      is_completed: false,
+      display_order: (count ?? 0) + 1,
+    })
+    .select('id, task_id, title, is_completed, display_order, completed_at, created_at')
+    .single()
+
+  if (error || !data) return NextResponse.json({ error: 'insert_failed' }, { status: 500 })
+  return NextResponse.json({ subtask: data }, { status: 201 })
+}
+
+// PATCH /api/subtasks
+export async function PATCH(req: NextRequest) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+
+  const schema = z.object({
+    id: z.string().uuid(),
+    is_completed: z.boolean().optional(),
+    title: z.string().min(1).max(300).trim().optional(),
+  })
+
+  const parsed = schema.safeParse(await req.json())
+  if (!parsed.success) return NextResponse.json({ error: 'invalid_input' }, { status: 400 })
+
+  const { id, ...updates } = parsed.data
+  const finalUpdates: Record<string, unknown> = { ...updates }
+
+  if (updates.is_completed !== undefined) {
+    finalUpdates.completed_at = updates.is_completed ? new Date().toISOString() : null
+  }
+
+  const { data, error } = await supabase
+    .from('subtasks')
+    .update(finalUpdates)
+    .eq('id', id)
+    .eq('user_id', user.id)
+    .select('id, task_id, title, is_completed, display_order, completed_at, created_at')
+    .single()
+
+  if (error || !data) return NextResponse.json({ error: 'update_failed' }, { status: 500 })
+  return NextResponse.json({ subtask: data })
+}
+
+// DELETE /api/subtasks?id=...
+export async function DELETE(req: NextRequest) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+
+  const id = req.nextUrl.searchParams.get('id')
+  if (!id) return NextResponse.json({ error: 'missing_id' }, { status: 400 })
+
+  const { error } = await supabase
+    .from('subtasks')
+    .delete()
+    .eq('id', id)
+    .eq('user_id', user.id)
+
+  if (error) return NextResponse.json({ error: 'delete_failed' }, { status: 500 })
+  return NextResponse.json({ success: true })
+}
