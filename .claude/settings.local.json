@@ -83,7 +83,9 @@
       "Bash(grep -v \"node_modules\\\\|//.*console\")",
       "Bash(sed -n '360,420p' src/lib/supabase/types.ts)",
       "Bash(sed -n '1,50p' src/lib/xp.ts)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(ls src/app/manifest*)",
+      "Bash(ls public/manifest*)"
     ],
     "additionalDirectories": [
       "c:\\Users\\SURFACE\\Downloads\\fitquest_2\\fitquest\\src\\app\\treinos",

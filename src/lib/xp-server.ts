@@ -102,13 +102,15 @@ export async function tryUnlockAchievement(
   const supabase = createServiceClient()
 
   // Buscar achievement
-  const { data: achievement } = await supabase
+  const { data: rawAchievement } = await supabase
     .from('achievements')
     .select('id, xp_reward, name, description')
     .eq('slug', slug)
     .single()
 
-  if (!achievement) return false
+  if (!rawAchievement) return false
+
+  const achievement = rawAchievement as { id: string; xp_reward: number; name: string; description: string }
 
   // Verificar se já tem
   const { data: existing } = await supabase
