@@ -26,6 +26,8 @@ interface SleepLog {
 
 interface SleepResponse extends SleepLog {
   xpEarned: number
+  leveledUp?: boolean
+  newLevel?: number
   error?: string
 }
 
@@ -102,7 +104,12 @@ export function SleepTracker({
             (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
           )
         })
-        if (data.xpEarned > 0) showXp(data.xpEarned)
+        if (data.xpEarned > 0) {
+          showXp(data.xpEarned, { leveledUp: data.leveledUp ? data.newLevel : undefined })
+          if (data.leveledUp && data.newLevel) {
+            window.dispatchEvent(new CustomEvent('ascendia:levelup', { detail: { level: data.newLevel } }))
+          }
+        }
       }
     } finally {
       setSaving(false)

@@ -15,6 +15,7 @@ import { BottomNav } from './bottom-nav'
 import { MobileHeader } from './mobile-header'
 import { PushPrompt } from '@/components/push-prompt'
 import { MiniCoachFab } from './mini-coach-fab'
+import { MobileFab } from './mobile-fab'
 import { LevelUpCelebration } from '@/components/level-up-celebration'
 
 export async function AppShell({ children }: { children: React.ReactNode }) {
@@ -66,6 +67,7 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
         <main className="flex-1 pb-20 md:pb-0">{children}</main>
       </div>
       <BottomNav />
+      <MobileFab />
       <PushPrompt />
       <MiniCoachFab />
       <LevelUpCelebration />

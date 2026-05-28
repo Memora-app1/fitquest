@@ -39,7 +39,7 @@ export function MobileHeader({
 
   return (
     <header
-      className={`md:hidden sticky top-0 z-30 flex items-center justify-between gap-3 px-4 py-3 transition-all ${
+      className={`md:hidden sticky top-0 z-30 flex items-center justify-between gap-3 px-4 py-3 transition-all safe-area-pt ${
         scrolled ? 'backdrop-blur-xl border-b border-border' : ''
       }`}
       style={{
@@ -47,8 +47,8 @@ export function MobileHeader({
       }}
     >
       {/* Logo */}
-      <Link href="/dashboard" className="shrink-0">
-        <span className="heading-display text-xl gradient-text">⚡ FQ</span>
+      <Link href="/dashboard" className="shrink-0 active:opacity-70 transition-opacity">
+        <span className="heading-display text-xl gradient-text">⚡ Ascendia</span>
       </Link>
 
       {/* Stats pills */}

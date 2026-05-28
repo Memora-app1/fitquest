@@ -47,6 +47,12 @@ export const metadata: Metadata = {
   icons: {
     icon: '/favicon.svg',
     shortcut: '/favicon.svg',
+    apple: '/favicon.svg',
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'Ascendia',
   },
 }
 
@@ -54,8 +60,9 @@ export const viewport: Viewport = {
   themeColor: '#050914',
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  // Permite zoom de acessibilidade (userScalable: false quebra WCAG)
+  // iOS respeita isso via CSS touch-action em vez do meta tag
+  viewportFit: 'cover',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

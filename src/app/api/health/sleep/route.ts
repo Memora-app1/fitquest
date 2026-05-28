@@ -51,13 +51,18 @@ export async function POST(req: NextRequest) {
   }
 
   let xpEarned = 0
+  let leveledUp = false
+  let newLevel = 0
+
   if (!existing) {
     const base = await grantXP(user.id, 20, 'Sono registrado 🌙', 'health', data.id)
     xpEarned += base.xpEarned
+    if (base.leveledUp) { leveledUp = true; newLevel = base.newLevel }
 
     if (body.duration_hours && body.duration_hours >= 8) {
       const bonus = await grantXP(user.id, 10, 'Sono ideal (8h+) 💤', 'health', data.id)
       xpEarned += bonus.xpEarned
+      if (bonus.leveledUp) { leveledUp = true; newLevel = bonus.newLevel }
     }
 
     if (xpEarned > 0) {
@@ -68,7 +73,7 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  return NextResponse.json({ ...data, xpEarned })
+  return NextResponse.json({ ...data, xpEarned, leveledUp, newLevel })
 }
 
 export async function DELETE(req: NextRequest) {
