@@ -143,10 +143,9 @@ export async function GET() {
         user_id: user.id,
         type: 'streak_alert',
         title,
-        message: body,
+        body,
         scheduled_for: new Date().toISOString(),
         sent_at: new Date().toISOString(),
-        is_sent: true,
       })
 
       sent++
