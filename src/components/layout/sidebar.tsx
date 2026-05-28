@@ -19,6 +19,7 @@ import {
   Flag,
   Zap,
   Flame,
+  Heart,
 } from 'lucide-react'
 
 const NAV_SECTIONS = [
@@ -35,6 +36,7 @@ const NAV_SECTIONS = [
       { href: '/habitos', label: 'Hábitos', icon: Target },
       { href: '/metas', label: 'Metas', icon: Flag },
       { href: '/treinos', label: 'Treinos', icon: Dumbbell },
+      { href: '/saude', label: 'Saúde', icon: Heart },
     ],
   },
   {

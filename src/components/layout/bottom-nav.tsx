@@ -3,13 +3,13 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { LayoutDashboard, CheckSquare, Dumbbell, Wallet, Bot } from 'lucide-react'
+import { LayoutDashboard, CheckSquare, Dumbbell, Heart, Bot } from 'lucide-react'
 
 const ITEMS = [
   { href: '/dashboard', label: 'Home', icon: LayoutDashboard },
   { href: '/tarefas', label: 'Tarefas', icon: CheckSquare },
   { href: '/treinos', label: 'Fitness', icon: Dumbbell },
-  { href: '/financas', label: 'Finanças', icon: Wallet },
+  { href: '/saude', label: 'Saúde', icon: Heart },
   { href: '/coach', label: 'Coach', icon: Bot },
 ]
 
