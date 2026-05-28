@@ -119,6 +119,14 @@ export async function PATCH(req: NextRequest) {
     await tryUnlockAchievement(user.id, 'finance_goal_completed')
     leveledUp = xpResult.leveledUp
     newLevel = xpResult.newLevel
+
+    // Check finance_goals_3 achievement
+    const { count: finGoalCount } = await supabase
+      .from('finance_goals')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .eq('status', 'completed')
+    if (finGoalCount === 3) await tryUnlockAchievement(user.id, 'finance_goals_3')
   }
 
   return NextResponse.json({ goal: data, xpEarned, leveledUp, newLevel })

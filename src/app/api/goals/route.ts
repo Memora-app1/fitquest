@@ -135,6 +135,14 @@ export async function PATCH(req: NextRequest) {
     xpEarned = xpResult.xpEarned
     leveledUp = xpResult.leveledUp
     newLevel = xpResult.newLevel
+
+    // Check goals_5 achievement
+    const { count: completedCount } = await supabase
+      .from('goals')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .eq('status', 'completed')
+    if (completedCount === 5) await tryUnlockAchievement(user.id, 'goals_5')
   }
 
   return NextResponse.json({ goal: data, xpEarned, leveledUp, newLevel })
