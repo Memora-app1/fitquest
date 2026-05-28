@@ -385,3 +385,29 @@ export interface SleepLog {
   xp_earned: number
   created_at: string
 }
+
+export interface MoodLog {
+  id: string
+  user_id: string
+  date: string
+  mood: number    // 1-5
+  energy: number  // 1-5
+  stress: number  // 1-5
+  note: string | null
+  xp_earned: number
+  created_at: string
+  updated_at: string
+}
+
+export interface MoodLog {
+  id: string
+  user_id: string
+  date: string
+  mood: number
+  energy: number
+  stress: number
+  note: string | null
+  xp_earned: number
+  created_at: string
+  updated_at: string
+}
