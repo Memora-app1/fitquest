@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { todayString } from '@/lib/utils'
-import { grantXP } from '@/lib/xp-server'
+import { grantXP, tryUnlockAchievement } from '@/lib/xp-server'
 
 export const WATER_GOAL_ML = 2000
 
@@ -49,6 +49,7 @@ export async function POST(req: NextRequest) {
     xpEarned = result.xpEarned
     leveledUp = result.leveledUp
     newLevel = result.newLevel
+    await tryUnlockAchievement(user.id, 'first_water_goal')
   }
 
   return NextResponse.json({

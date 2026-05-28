@@ -67,14 +67,15 @@ export async function POST(req: NextRequest) {
     habitId
   )
 
-  // Conquistas first-time
+  // Conquistas first-time + count milestones
   const { count } = await supabase
     .from('habit_logs')
     .select('id', { count: 'exact', head: true })
     .eq('user_id', user.id)
-  if (count === 1) {
-    await tryUnlockAchievement(user.id, 'first_habit')
-  }
+  if (count === 1)    await tryUnlockAchievement(user.id, 'first_habit')
+  if (count === 100)  await tryUnlockAchievement(user.id, 'habits_100')
+  if (count === 500)  await tryUnlockAchievement(user.id, 'habits_500')
+  if (count === 1000) await tryUnlockAchievement(user.id, 'habits_1000')
 
   // Verificar "Dia Perfeito" — todos os hábitos ativos foram logados hoje?
   const [habitsCount, logsToday] = await Promise.all([

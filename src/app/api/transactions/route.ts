@@ -72,12 +72,14 @@ export async function POST(req: NextRequest) {
   // XP
   await grantXP(user.id, XP_REWARDS.TRANSACTION_LOGGED, `Transação: ${base.description}`, 'transaction', data?.[0]?.id)
 
-  // Conquista first transaction
+  // Conquistas de transação
   const { count } = await supabase
     .from('transactions')
     .select('id', { count: 'exact', head: true })
     .eq('user_id', user.id)
-  if (count === installments) await tryUnlockAchievement(user.id, 'first_transaction')
+  if (count === installments)     await tryUnlockAchievement(user.id, 'first_transaction')
+  if (count === 50)               await tryUnlockAchievement(user.id, 'transactions_50')
+  if (count === 200)              await tryUnlockAchievement(user.id, 'transactions_200')
 
   return NextResponse.json({ transactions: data, success: true })
 }

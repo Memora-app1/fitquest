@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { grantXP } from '@/lib/xp-server'
+import { grantXP, tryUnlockAchievement } from '@/lib/xp-server'
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient()
@@ -58,6 +58,7 @@ export async function POST(req: NextRequest) {
     const base = await grantXP(user.id, 20, 'Sono registrado 🌙', 'health', data.id)
     xpEarned += base.xpEarned
     if (base.leveledUp) { leveledUp = true; newLevel = base.newLevel }
+    await tryUnlockAchievement(user.id, 'first_sleep_log')
 
     if (body.duration_hours && body.duration_hours >= 8) {
       const bonus = await grantXP(user.id, 10, 'Sono ideal (8h+) 💤', 'health', data.id)

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
-import { grantXP } from '@/lib/xp-server'
+import { grantXP, tryUnlockAchievement } from '@/lib/xp-server'
 import { XP_REWARDS } from '@/lib/xp'
 
 const createGoalSchema = z.object({
@@ -70,6 +70,13 @@ export async function POST(req: NextRequest) {
     console.error('goals POST: falha', error)
     return NextResponse.json({ error: 'create_failed' }, { status: 500 })
   }
+
+  // First goal achievement
+  const { count: goalCount } = await supabase
+    .from('goals')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', user.id)
+  if ((goalCount ?? 0) === 1) await tryUnlockAchievement(user.id, 'first_goal')
 
   return NextResponse.json({ goal: data }, { status: 201 })
 }

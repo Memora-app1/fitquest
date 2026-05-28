@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
-import { grantXP } from '@/lib/xp-server'
+import { grantXP, tryUnlockAchievement } from '@/lib/xp-server'
 
 // GET /api/subtasks?taskId=...
 export async function GET(req: NextRequest) {
@@ -122,6 +122,17 @@ export async function PATCH(req: NextRequest) {
   if (updates.is_completed && current && !current.is_completed) {
     const result = await grantXP(user.id, 10, `Subtarefa: ${data.title}`, 'task', data.id)
     xpEarned = result.xpEarned
+
+    // Achievement checks
+    const { count: subtaskCount } = await supabase
+      .from('subtasks')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .eq('is_completed', true)
+
+    const total = subtaskCount ?? 0
+    if (total === 1)  await tryUnlockAchievement(user.id, 'first_subtask')
+    if (total === 50) await tryUnlockAchievement(user.id, 'subtasks_50')
   }
 
   return NextResponse.json({ subtask: data, xpEarned })

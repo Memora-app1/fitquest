@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
-import { grantXP } from '@/lib/xp-server'
+import { grantXP, tryUnlockAchievement } from '@/lib/xp-server'
 import { todayString } from '@/lib/utils'
 
 const MOOD_XP = 10
@@ -79,6 +79,7 @@ export async function POST(req: NextRequest) {
     xpEarned = xpResult.xpEarned
     leveledUp = xpResult.leveledUp
     newLevel = xpResult.newLevel
+    await tryUnlockAchievement(user.id, 'first_mood_checkin')
   }
 
   return NextResponse.json({ log: data, xpEarned, leveledUp, newLevel })
