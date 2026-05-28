@@ -41,6 +41,7 @@ export async function PATCH(req: NextRequest) {
     icon?: string
     color?: string
     frequency_per_week?: number
+    reminder_time?: string | null
   }
 
   if (!body.id) return NextResponse.json({ error: 'missing_id' }, { status: 400 })
@@ -52,6 +53,12 @@ export async function PATCH(req: NextRequest) {
   if (body.frequency_per_week !== undefined) {
     updates.frequency_per_week = body.frequency_per_week
     updates.target_value = body.frequency_per_week
+  }
+  if (body.reminder_time !== undefined) {
+    // Converte 'HH:MM' para 'HH:MM:00' (formato TIME do PG), ou null para desativar
+    updates.reminder_time = body.reminder_time
+      ? (body.reminder_time.length === 5 ? body.reminder_time + ':00' : body.reminder_time)
+      : null
   }
 
   const { error } = await supabase

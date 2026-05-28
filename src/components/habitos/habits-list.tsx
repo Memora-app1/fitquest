@@ -364,6 +364,7 @@ function CreateHabitModal({
   const [icon, setIcon] = useState('💪')
   const [color, setColor] = useState('#FF4D00')
   const [freq, setFreq] = useState(4)
+  const [reminderTime, setReminderTime] = useState('')
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
@@ -388,6 +389,7 @@ function CreateHabitModal({
         target_unit: 'vez',
         frequency_per_week: freq,
         xp_per_completion: 50,
+        reminder_time: reminderTime ? reminderTime + ':00' : null,
       })
       .select('id, name, icon, color, category, xp_per_completion, frequency_per_week')
       .single()
@@ -494,6 +496,36 @@ function CreateHabitModal({
             </div>
           </div>
 
+          {/* Reminder time (optional) */}
+          <div>
+            <label className="text-sm text-text-secondary block mb-2">
+              Lembrete (opcional)
+            </label>
+            <div className="flex items-center gap-3">
+              <input
+                type="time"
+                value={reminderTime}
+                onChange={(e) => setReminderTime(e.target.value)}
+                className="input flex-1"
+                style={{ colorScheme: 'dark' }}
+              />
+              {reminderTime && (
+                <button
+                  type="button"
+                  onClick={() => setReminderTime('')}
+                  className="text-text-muted hover:text-white transition-colors text-xs"
+                >
+                  Remover
+                </button>
+              )}
+            </div>
+            {reminderTime && (
+              <p className="text-[11px] text-text-muted mt-1">
+                🔔 Push às {reminderTime} se não logado ainda
+              </p>
+            )}
+          </div>
+
           <button
             type="submit"
             disabled={loading || !name}
@@ -509,20 +541,28 @@ function CreateHabitModal({
 
 // ─── Edit Modal ──────────────────────────────────────────────────────────────
 
+interface HabitWithReminder extends Habit {
+  reminder_time?: string | null
+}
+
 function EditHabitModal({
   habit,
   onClose,
   onSaved,
 }: {
-  habit: Habit
+  habit: HabitWithReminder
   onClose: () => void
-  onSaved: (habit: Habit) => void
+  onSaved: (habit: HabitWithReminder) => void
 }) {
   const [loading, setLoading] = useState(false)
   const [name, setName] = useState(habit.name)
   const [icon, setIcon] = useState(habit.icon)
   const [color, setColor] = useState(habit.color)
   const [freq, setFreq] = useState(habit.frequency_per_week)
+  // Converte 'HH:MM:00' → 'HH:MM' para o input type="time"
+  const [reminderTime, setReminderTime] = useState(
+    habit.reminder_time ? habit.reminder_time.slice(0, 5) : ''
+  )
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
@@ -531,12 +571,19 @@ function EditHabitModal({
     const res = await fetch('/api/habits', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: habit.id, name, icon, color, frequency_per_week: freq }),
+      body: JSON.stringify({
+        id: habit.id,
+        name,
+        icon,
+        color,
+        frequency_per_week: freq,
+        reminder_time: reminderTime || null,
+      }),
     })
 
     setLoading(false)
     if (res.ok) {
-      onSaved({ ...habit, name, icon, color, frequency_per_week: freq })
+      onSaved({ ...habit, name, icon, color, frequency_per_week: freq, reminder_time: reminderTime || null })
     }
   }
 
@@ -632,6 +679,36 @@ function EditHabitModal({
               <span>1x/sem</span>
               <span>Todo dia</span>
             </div>
+          </div>
+
+          {/* Reminder time (optional) */}
+          <div>
+            <label className="text-sm text-text-secondary block mb-2">
+              Lembrete (opcional)
+            </label>
+            <div className="flex items-center gap-3">
+              <input
+                type="time"
+                value={reminderTime}
+                onChange={(e) => setReminderTime(e.target.value)}
+                className="input flex-1"
+                style={{ colorScheme: 'dark' }}
+              />
+              {reminderTime && (
+                <button
+                  type="button"
+                  onClick={() => setReminderTime('')}
+                  className="text-text-muted hover:text-white transition-colors text-xs"
+                >
+                  Remover
+                </button>
+              )}
+            </div>
+            {reminderTime && (
+              <p className="text-[11px] text-text-muted mt-1">
+                🔔 Push às {reminderTime} se não logado ainda
+              </p>
+            )}
           </div>
 
           <div className="flex gap-2">
