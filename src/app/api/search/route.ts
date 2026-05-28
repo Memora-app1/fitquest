@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 
 export interface SearchResult {
   id: string
-  type: 'task' | 'habit' | 'workout' | 'transaction' | 'goal'
+  type: 'task' | 'habit' | 'workout' | 'transaction' | 'goal' | 'finance_goal'
   title: string
   subtitle?: string
   href: string
@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
   }
 
   // Run all searches in parallel
-  const [tasksRes, habitsRes, workoutsRes, transactionsRes, goalsRes] = await Promise.all([
+  const [tasksRes, habitsRes, workoutsRes, transactionsRes, goalsRes, financeGoalsRes] = await Promise.all([
     supabase
       .from('tasks')
       .select('id, title, urgent, important, status, due_date')
@@ -63,6 +63,14 @@ export async function GET(req: NextRequest) {
       .from('goals')
       .select('id, title, target_value, current_value, unit')
       .eq('user_id', user.id)
+      .ilike('title', `%${q}%`)
+      .limit(3),
+
+    supabase
+      .from('finance_goals')
+      .select('id, title, icon, target_amount, current_amount, status')
+      .eq('user_id', user.id)
+      .neq('status', 'cancelled')
       .ilike('title', `%${q}%`)
       .limit(3),
   ])
@@ -142,6 +150,21 @@ export async function GET(req: NextRequest) {
       subtitle: `${g.current_value} / ${g.target_value} ${g.unit ?? ''}`.trim(),
       href: '/metas',
       icon: '🎯',
+      color: pct >= 100 ? '#00FF88' : '#F5C842',
+      meta: `${pct}%`,
+    })
+  }
+
+  // Finance Goals
+  for (const g of financeGoalsRes.data ?? []) {
+    const pct = g.target_amount > 0 ? Math.min(Math.round((g.current_amount / g.target_amount) * 100), 100) : 0
+    results.push({
+      id: g.id,
+      type: 'finance_goal',
+      title: `${g.icon ?? '💰'} ${g.title}`,
+      subtitle: `R$ ${Number(g.current_amount).toLocaleString('pt-BR')} / R$ ${Number(g.target_amount).toLocaleString('pt-BR')}`,
+      href: '/financas/metas',
+      icon: g.icon ?? '💰',
       color: pct >= 100 ? '#00FF88' : '#F5C842',
       meta: `${pct}%`,
     })
