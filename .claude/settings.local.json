@@ -80,7 +80,9 @@
       "Bash(find src/app -name \"not-found.tsx\")",
       "Bash(dir /S /B src\\\\app\\\\not-found.tsx)",
       "Bash(grep -v \"//.*console.log\")",
-      "Bash(grep -v \"node_modules\\\\|//.*console\")"
+      "Bash(grep -v \"node_modules\\\\|//.*console\")",
+      "Bash(sed -n '360,420p' src/lib/supabase/types.ts)",
+      "Bash(sed -n '1,50p' src/lib/xp.ts)"
     ],
     "additionalDirectories": [
       "c:\\Users\\SURFACE\\Downloads\\fitquest_2\\fitquest\\src\\app\\treinos",
