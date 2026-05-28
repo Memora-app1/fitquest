@@ -62,7 +62,7 @@ export async function updateUserStreak(userId: string): Promise<{
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('streak_current, streak_longest, last_activity_date')
+    .select('streak_current, streak_longest, last_activity_date, streak_freezes')
     .eq('id', userId)
     .single()
 
@@ -71,6 +71,7 @@ export async function updateUserStreak(userId: string): Promise<{
   }
 
   const previousStreak = profile.streak_current
+  const availableFreezes = (profile.streak_freezes as number) ?? 0
   const today = new Date()
   const yesterday = new Date(today)
   yesterday.setDate(yesterday.getDate() - 1)
@@ -80,21 +81,35 @@ export async function updateUserStreak(userId: string): Promise<{
   const hadActivityToday = await hadActivityOnDate(userId, today)
 
   let newStreak = previousStreak
+  let usedFreeze = false
 
   if (hadActivityToday) {
     // Logou hoje
     if (hadActivityYesterday || previousStreak === 0) {
-      // Manteve a sequência (ou está começando uma nova)
       newStreak = previousStreak + 1
     } else {
       // Pulou ontem mas logou hoje → reinicia em 1
       newStreak = 1
     }
   } else if (!hadActivityYesterday) {
-    // Não logou ontem nem hoje → reseta
-    newStreak = 0
+    // Não logou ontem nem hoje → usa freeze se disponível, senão reseta
+    if (previousStreak > 0 && availableFreezes > 0) {
+      // Freeze automático: preserva streak, desconta 1 freeze
+      usedFreeze = true
+      newStreak = previousStreak
+    } else {
+      newStreak = 0
+    }
   }
   // Se não logou hoje mas logou ontem, mantém (ainda tem o dia todo)
+
+  // Desconta freeze se foi usado
+  if (usedFreeze) {
+    await supabase
+      .from('profiles')
+      .update({ streak_freezes: Math.max(0, availableFreezes - 1) })
+      .eq('id', userId)
+  }
 
   const newLongest = Math.max(profile.streak_longest, newStreak)
   const isLongest = newStreak > profile.streak_longest

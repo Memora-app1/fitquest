@@ -14,6 +14,8 @@ import { Sidebar } from './sidebar'
 import { BottomNav } from './bottom-nav'
 import { MobileHeader } from './mobile-header'
 import { PushPrompt } from '@/components/push-prompt'
+import { MiniCoachFab } from './mini-coach-fab'
+import { LevelUpCelebration } from '@/components/level-up-celebration'
 
 export async function AppShell({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -53,6 +55,8 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
       </div>
       <BottomNav />
       <PushPrompt />
+      <MiniCoachFab />
+      <LevelUpCelebration />
     </div>
   )
 }

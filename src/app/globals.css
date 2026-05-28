@@ -213,3 +213,27 @@
   height: 6px;
   border-radius: 1px;
 }
+
+/* ── Level-up full-screen confetti ─────────────────────────────── */
+@keyframes confettiFallDeep {
+  0%   { transform: translateY(0) rotate(0deg) scale(1);     opacity: 1; }
+  80%  { opacity: 1; }
+  100% { transform: translateY(110vh) rotate(720deg) scale(0.6); opacity: 0; }
+}
+
+.confetti-deep {
+  position: absolute;
+  top: -10px;
+  border-radius: 2px;
+  animation: confettiFallDeep var(--duration, 2s) ease-out var(--delay, 0s) forwards;
+}
+
+/* ── Streak risk pulsing border ─────────────────────────────────── */
+@keyframes streakRiskPulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(239,68,68,0.15), 0 0 0 2px rgba(239,68,68,0.3); }
+  50%       { box-shadow: 0 0 40px rgba(239,68,68,0.35), 0 0 0 2px rgba(239,68,68,0.6); }
+}
+
+.streak-risk-card {
+  animation: streakRiskPulse 2s ease-in-out infinite;
+}

@@ -21,6 +21,12 @@ import { WorkoutPrsWidget } from '@/components/dashboard/workout-prs-widget'
 import { MorningBrief } from '@/components/dashboard/morning-brief'
 import { HealthSummaryWidget } from '@/components/dashboard/health-summary-widget'
 import { DailyPerformanceCard } from '@/components/dashboard/daily-performance-card'
+import { DailyQuest } from '@/components/dashboard/daily-quest'
+import { ComebackCard } from '@/components/dashboard/comeback-card'
+import { StreakMilestone } from '@/components/dashboard/streak-milestone'
+import { WeeklyReport } from '@/components/dashboard/weekly-report'
+import { StreakRiskBanner } from '@/components/dashboard/streak-risk-banner'
+import { XpToday } from '@/components/dashboard/xp-today'
 import { getGreeting, todayString } from '@/lib/utils'
 import { getXpProgressToNextLevel } from '@/lib/xp'
 
@@ -59,7 +65,7 @@ export default async function DashboardPage({
   ] = await Promise.all([
     supabase
       .from('profiles')
-      .select('name, xp_total, level, streak_current, streak_longest, subscription_status, trial_end, perfect_days')
+      .select('name, xp_total, level, streak_current, streak_longest, subscription_status, trial_end, perfect_days, streak_freezes')
       .eq('id', user.id)
       .single(),
     supabase
@@ -123,6 +129,7 @@ export default async function DashboardPage({
   const weekHabitLogs = weekHabitLogsRes.data ?? []
   const activeDays = [...new Set(weekHabitLogs.map((l) => l.logged_date))]
   const tasks = tasksRes.data ?? []
+  const hasActivityToday = habitLogsToday.size > 0
   const transactions = transactionsRes.data ?? []
   const xpFeed = xpFeedRes.data ?? []
 
@@ -247,6 +254,24 @@ export default async function DashboardPage({
           </div>
         </header>
 
+        {/* XP earned today — aparece apenas quando há XP no dia */}
+        <XpToday userId={user.id} />
+
+        {/* Streak at risk — aparece após 20:00 local sem atividade */}
+        <StreakRiskBanner
+          streakCurrent={profile.streak_current}
+          hasActivityToday={hasActivityToday}
+        />
+
+        {/* Streak milestone — celebração em marcos especiais */}
+        <StreakMilestone userId={user.id} />
+
+        {/* Comeback card — aparece quando streak foi resetado */}
+        <ComebackCard userId={user.id} />
+
+        {/* Weekly report — resumo semanal às segundas */}
+        <WeeklyReport userId={user.id} />
+
         {/* Campo de performance do dia — ÓTIMO / BOM / ALERTA com score */}
         <DailyPerformanceCard userId={user.id} />
 
@@ -256,10 +281,18 @@ export default async function DashboardPage({
         {/* Health summary — água e sono de hoje */}
         <HealthSummaryWidget userId={user.id} />
 
+        {/* Daily quests — missões personalizadas que resetam à meia-noite */}
+        <DailyQuest userId={user.id} />
+
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <XpWidget xpTotal={profile.xp_total} level={profile.level} />
-          <StreakWidget current={profile.streak_current} longest={profile.streak_longest} activeDays={activeDays} />
+          <StreakWidget
+            current={profile.streak_current}
+            longest={profile.streak_longest}
+            activeDays={activeDays}
+            freezes={(profile.streak_freezes as number) ?? 0}
+          />
         </div>
 
         {/* Life Score */}

@@ -1,4 +1,4 @@
-import { Flame, Trophy } from 'lucide-react'
+import { Flame, Trophy, Shield } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 function getLast7Days(): string[] {
@@ -17,10 +17,12 @@ export function StreakWidget({
   current,
   longest,
   activeDays = [],
+  freezes = 0,
 }: {
   current: number
   longest: number
   activeDays?: string[]
+  freezes?: number
 }) {
   const last7 = getLast7Days()
   const activeSet = new Set(activeDays)
@@ -89,6 +91,28 @@ export function StreakWidget({
             <div className="text-xs text-text-muted uppercase tracking-wide">Recorde</div>
             {activeThisWeek > 0 && (
               <div className="text-xs font-medium mt-1" style={{ color: '#00FF88' }}>{activeThisWeek}/7 essa sem.</div>
+            )}
+            {/* Streak freeze shields */}
+            {freezes > 0 && (
+              <div className="flex items-center gap-1 justify-end mt-1.5">
+                {Array.from({ length: Math.min(freezes, 5) }).map((_, i) => (
+                  <Shield
+                    key={i}
+                    size={12}
+                    fill="currentColor"
+                    style={{ color: '#00D9FF', opacity: 0.85 }}
+                  />
+                ))}
+                {freezes > 5 && (
+                  <span className="text-[10px] font-bold" style={{ color: '#00D9FF' }}>+{freezes - 5}</span>
+                )}
+              </div>
+            )}
+            {freezes === 0 && current > 0 && (
+              <div className="flex items-center gap-1 justify-end mt-1.5">
+                <Shield size={12} style={{ color: '#5A6B85' }} />
+                <span className="text-[10px] text-text-muted">sem freeze</span>
+              </div>
             )}
           </div>
         </div>

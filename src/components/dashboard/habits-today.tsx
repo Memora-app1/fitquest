@@ -57,6 +57,9 @@ export function HabitsToday({
           perfectDay: data.perfectDay,
           leveledUp: data.leveledUp ? data.newLevel : undefined,
         })
+        if (data.leveledUp && data.newLevel) {
+          window.dispatchEvent(new CustomEvent('fitquest:levelup', { detail: { level: data.newLevel } }))
+        }
         router.refresh()
       }
     })

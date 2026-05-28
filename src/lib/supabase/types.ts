@@ -59,6 +59,7 @@ export interface Profile {
   trial_end: string | null
   stripe_subscription_id: string | null
   stripe_customer_id: string | null
+  streak_freezes: number
   onboarding_completed: boolean
   primary_goal: string | null
   weekly_target: number
