@@ -9,6 +9,7 @@ import { XpHistory } from '@/components/perfil/xp-history'
 import { AchievementsShowcase } from '@/components/perfil/achievements-showcase'
 import { XpLevelJourney } from '@/components/perfil/xp-level-journey'
 import { DailyActivityMap } from '@/components/perfil/daily-activity-map'
+import { RpgCharacter } from '@/components/perfil/rpg-character'
 import { Trophy, Flame, Zap, Star, Calendar, Target, Dumbbell, CheckSquare, Crown } from 'lucide-react'
 
 export const metadata: Metadata = {
@@ -213,6 +214,9 @@ export default async function PerfilPage() {
 
         {/* ── Achievements showcase ────────────────────────────────────── */}
         <AchievementsShowcase userId={user.id} />
+
+        {/* ── RPG Character class based on XP distribution ─────────────── */}
+        <RpgCharacter userId={user.id} />
 
         {/* Stats */}
         <section>

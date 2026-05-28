@@ -97,7 +97,8 @@ export async function proxy(request: NextRequest) {
     pathname.startsWith('/coach') ||
     pathname.startsWith('/calendario') ||
     pathname.startsWith('/metas') ||
-    pathname.startsWith('/saude')
+    pathname.startsWith('/saude') ||
+    pathname.startsWith('/conquistas')
 
   if (isAppRoute) {
     const { data: profile } = await supabase

@@ -20,6 +20,7 @@ import {
   Zap,
   Flame,
   Heart,
+  Trophy,
 } from 'lucide-react'
 
 const NAV_SECTIONS = [
@@ -28,6 +29,7 @@ const NAV_SECTIONS = [
     items: [
       { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
       { href: '/score', label: 'Score & XP', icon: BarChart3 },
+      { href: '/conquistas', label: 'Conquistas', icon: Trophy },
     ],
   },
   {
