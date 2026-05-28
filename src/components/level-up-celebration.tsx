@@ -156,6 +156,27 @@ export function LevelUpCelebration() {
       })
       setDismissing(false)
       setTimeout(() => setVisible(true), 10)
+
+      // Haptic pattern: forte para celebrar
+      if (navigator.vibrate) navigator.vibrate([50, 30, 80, 30, 120])
+
+      // Som de level-up gerado via Web Audio API (sem arquivo externo)
+      try {
+        const ctx = new (window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext!)()
+        const notes = [523, 659, 784, 1047] // C5 E5 G5 C6
+        notes.forEach((freq, i) => {
+          const osc  = ctx.createOscillator()
+          const gain = ctx.createGain()
+          osc.connect(gain)
+          gain.connect(ctx.destination)
+          osc.frequency.value = freq
+          osc.type = 'sine'
+          gain.gain.setValueAtTime(0.18, ctx.currentTime + i * 0.12)
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.12 + 0.25)
+          osc.start(ctx.currentTime + i * 0.12)
+          osc.stop(ctx.currentTime + i * 0.12 + 0.25)
+        })
+      } catch { /* silencioso se Web Audio não suportado */ }
     }
     window.addEventListener('ascendia:levelup', handleLevelUp)
     return () => window.removeEventListener('ascendia:levelup', handleLevelUp)

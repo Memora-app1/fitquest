@@ -5,8 +5,10 @@ import Link from 'next/link'
 import { Zap, Flame } from 'lucide-react'
 import { CommandPalette } from '@/components/command-palette'
 import { NotificationBell } from './notification-bell'
+import { useRealtimeProfile } from '@/hooks/use-realtime-profile'
 
 interface MobileHeaderProps {
+  id: string
   name: string
   level: number
   xpTotal: number
@@ -15,6 +17,7 @@ interface MobileHeaderProps {
 }
 
 export function MobileHeader({
+  id,
   name,
   level,
   xpTotal,
@@ -22,6 +25,19 @@ export function MobileHeader({
   unreadNotifications = 0,
 }: MobileHeaderProps) {
   const [scrolled, setScrolled] = useState(false)
+
+  const { profile: live, xpBump, leveledUp } = useRealtimeProfile(id, {
+    xp_total:       xpTotal,
+    level,
+    streak_current: streakCurrent,
+  })
+
+  // Dispara evento global de level-up para LevelUpCelebration
+  useEffect(() => {
+    if (leveledUp) {
+      window.dispatchEvent(new CustomEvent('ascendia:levelup', { detail: { level: live.level } }))
+    }
+  }, [leveledUp, live.level])
 
   useEffect(() => {
     function onScroll() {
@@ -52,25 +68,41 @@ export function MobileHeader({
       </Link>
 
       {/* Stats pills */}
-      <div className="flex items-center gap-2 flex-1 justify-center">
+      <div className="flex items-center gap-2 flex-1 justify-center relative">
+        {/* XP bump animado */}
+        {xpBump && (
+          <div
+            key={xpBump.timestamp}
+            className="absolute -top-5 left-1/2 -translate-x-1/2 text-[11px] font-black animate-xp-bump pointer-events-none whitespace-nowrap"
+            style={{ color: '#F5C842', zIndex: 10 }}
+          >
+            +{xpBump.amount} XP ⚡
+          </div>
+        )}
+
         <div
-          className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold"
-          style={{ background: 'rgba(245,200,66,0.12)', border: '1px solid rgba(245,200,66,0.2)', color: '#F5C842' }}
+          className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold transition-all"
+          style={{
+            background: 'rgba(245,200,66,0.12)',
+            border: '1px solid rgba(245,200,66,0.2)',
+            color: '#F5C842',
+          }}
         >
           <Zap size={10} fill="currentColor" />
-          Nv {level}
+          Nv {live.level}
         </div>
-        {streakCurrent > 0 && (
+
+        {live.streak_current > 0 && (
           <div
-            className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold transition-all"
             style={{
-              background: streakCurrent >= 7 ? 'rgba(255,77,0,0.12)' : 'rgba(255,255,255,0.06)',
-              border: `1px solid ${streakCurrent >= 7 ? 'rgba(255,77,0,0.3)' : 'rgba(255,255,255,0.08)'}`,
-              color: streakCurrent >= 7 ? '#FF4D00' : '#8899BB',
+              background: live.streak_current >= 7 ? 'rgba(255,77,0,0.12)' : 'rgba(255,255,255,0.06)',
+              border: `1px solid ${live.streak_current >= 7 ? 'rgba(255,77,0,0.3)' : 'rgba(255,255,255,0.08)'}`,
+              color: live.streak_current >= 7 ? '#FF4D00' : '#8899BB',
             }}
           >
             <Flame size={10} />
-            {streakCurrent}
+            {live.streak_current}
           </div>
         )}
       </div>

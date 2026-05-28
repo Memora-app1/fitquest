@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Check, Trash2, Plus, AlertCircle, X, Clock, ChevronRight, CheckSquare } from 'lucide-react'
 import { useXpToast, XpToastContainer } from '@/components/xp-toast'
+import { EmptyState } from '@/components/empty-state'
 
 interface Task {
   id: string
@@ -116,43 +117,15 @@ export function TasksToday({ tasks: initialTasks }: { tasks: Task[] }) {
     return (
       <>
         <XpToastContainer toasts={toasts} />
-        <div
-          className="rounded-2xl p-6 relative overflow-hidden"
-          style={{
-            background: 'linear-gradient(135deg, rgba(124,58,237,0.06) 0%, rgba(13,24,41,0.98) 100%)',
-            border: '1px solid rgba(124,58,237,0.2)',
-          }}
-        >
-          <div
-            className="absolute -top-4 -right-4 w-16 h-16 rounded-full pointer-events-none blur-xl"
-            style={{ background: 'rgba(124,58,237,0.15)' }}
-          />
-          <div className="relative z-10">
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="font-bold text-lg">Tarefas Pra Hoje</h2>
-              <button
-                onClick={() => setShowAdd(true)}
-                className="w-7 h-7 rounded-lg flex items-center justify-center transition-all"
-                style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}
-              >
-                <Plus size={14} />
-              </button>
-            </div>
-            <p className="text-text-secondary text-sm mb-3">Nenhuma tarefa pendente. ✨</p>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => setShowAdd(true)}
-                className="text-brand-orange hover:underline text-sm font-medium"
-              >
-                + Adicionar tarefa
-              </button>
-              <span className="text-text-muted text-xs">·</span>
-              <Link href="/tarefas" className="text-sm text-text-secondary hover:text-brand-orange transition-colors">
-                Ver todas →
-              </Link>
-            </div>
-          </div>
-        </div>
+        <EmptyState
+          emoji="✅"
+          title="Nenhuma tarefa pendente"
+          description="Organize seu dia com o Kanban ou a Matriz Eisenhower. Tarefas urgentes+importantes valem +50 XP."
+          ctaLabel="+ Adicionar tarefa"
+          onCtaClick={() => setShowAdd(true)}
+          tip="Tarefa concluída = +30 XP. Urgente + Importante = +50 XP."
+          socialProof="Quem fecha 3+ tarefas por dia tem 4x mais chance de manter o streak."
+        />
       </>
     )
   }

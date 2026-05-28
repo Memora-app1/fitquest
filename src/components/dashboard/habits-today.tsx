@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Check, Zap, Target } from 'lucide-react'
 import Link from 'next/link'
 import { useXpToast, XpToastContainer } from '@/components/xp-toast'
+import { EmptyState } from '@/components/empty-state'
 
 interface Habit {
   id: string
@@ -75,27 +76,15 @@ export function HabitsToday({
 
   if (total === 0) {
     return (
-      <div
-        className="rounded-2xl p-6 relative overflow-hidden"
-        style={{
-          background: 'linear-gradient(135deg, rgba(124,58,237,0.07) 0%, rgba(13,24,41,0.98) 100%)',
-          border: '1px solid rgba(124,58,237,0.2)',
-        }}
-      >
-        <div
-          className="absolute -top-4 -right-4 w-16 h-16 rounded-full pointer-events-none blur-xl"
-          style={{ background: 'rgba(124,58,237,0.15)' }}
-        />
-        <div className="relative z-10">
-          <h2 className="font-bold text-lg mb-2">Hábitos de Hoje</h2>
-          <p className="text-text-secondary text-sm mb-3">
-            Você ainda não criou nenhum hábito.
-          </p>
-          <Link href="/habitos" className="text-brand-orange hover:underline text-sm font-medium">
-            Criar primeiro hábito →
-          </Link>
-        </div>
-      </div>
+      <EmptyState
+        emoji="🎯"
+        title="Nenhum hábito ainda"
+        description="Crie seu primeiro hábito e ganhe 50 XP toda vez que completar. Uma ação por dia muda tudo."
+        ctaLabel="+ Criar primeiro hábito"
+        ctaHref="/habitos"
+        tip="Cada hábito concluído = +50 XP. Dia perfeito = +200 XP bônus."
+        socialProof="Usuários do Ascendia com 3+ hábitos retêm o streak por 2x mais tempo."
+      />
     )
   }
 
