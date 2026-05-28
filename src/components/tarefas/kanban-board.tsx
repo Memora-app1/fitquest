@@ -28,13 +28,68 @@ const COLUMNS: { id: TaskStatus; title: string; rgb: string; emptyIcon: typeof L
   { id: 'done',  title: 'Feito',    rgb: '0,255,136',   emptyIcon: CheckCircle2, emptyMsg: 'Nada concluído ainda' },
 ]
 
-export function KanbanBoard({ initialTasks }: { initialTasks: Task[] }) {
+interface TaskList {
+  id: string
+  name: string
+  color: string
+  icon: string | null
+}
+
+export function KanbanBoard({ initialTasks, initialLists = [] }: { initialTasks: Task[]; initialLists?: TaskList[] }) {
   const router = useRouter()
   const [tasks, setTasks] = useState<Task[]>(initialTasks)
+  const [lists, setLists] = useState<TaskList[]>(initialLists)
   const [activeId, setActiveId] = useState<string | null>(null)
   const [showNew, setShowNew] = useState<TaskStatus | null>(null)
   const [loadingIds, setLoadingIds] = useState<Set<string>>(new Set())
+  const [selectedListId, setSelectedListId] = useState<string | null>(null)
+  const [showNewList, setShowNewList] = useState(false)
+  const [newListName, setNewListName] = useState('')
+  const [newListColor, setNewListColor] = useState('#7C3AED')
+  const [savingList, setSavingList] = useState(false)
   const { toasts, showXp } = useXpToast()
+
+  const LIST_COLORS = ['#7C3AED', '#FF4D00', '#00FF88', '#F5C842', '#3B82F6', '#EC4899']
+
+  function hexToRgb(hex: string): string {
+    const clean = hex.replace('#', '')
+    const r = parseInt(clean.slice(0, 2), 16)
+    const g = parseInt(clean.slice(2, 4), 16)
+    const b = parseInt(clean.slice(4, 6), 16)
+    return `${r},${g},${b}`
+  }
+
+  async function createList() {
+    if (!newListName.trim() || savingList) return
+    setSavingList(true)
+    const res = await fetch('/api/task-lists', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: newListName.trim(), color: newListColor }),
+    })
+    if (res.ok) {
+      const data = await res.json() as { list: TaskList }
+      setLists(prev => [...prev, data.list])
+      setSelectedListId(data.list.id)
+      setNewListName('')
+      setShowNewList(false)
+    }
+    setSavingList(false)
+  }
+
+  async function deleteList(id: string) {
+    if (!confirm('Remover esta lista? As tarefas serão mantidas sem lista.')) return
+    const res = await fetch(`/api/task-lists?id=${id}`, { method: 'DELETE' })
+    if (res.ok) {
+      setLists(prev => prev.filter(l => l.id !== id))
+      if (selectedListId === id) setSelectedListId(null)
+      setTasks(prev => prev.map(t => t.list_id === id ? { ...t, list_id: null } : t))
+    }
+  }
+
+  const filteredTasks = selectedListId
+    ? tasks.filter(t => t.list_id === selectedListId)
+    : tasks
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }))
 
@@ -141,18 +196,101 @@ export function KanbanBoard({ initialTasks }: { initialTasks: Task[] }) {
 
   const activeTask = activeId ? tasks.find((t) => t.id === activeId) : null
 
-  const totalDone = tasks.filter((t) => t.status === 'done').length
-  const totalActive = tasks.filter((t) => t.status !== 'done').length
+  const totalDone = filteredTasks.filter((t) => t.status === 'done').length
+  const totalActive = filteredTasks.filter((t) => t.status !== 'done').length
 
-  const totalAll = tasks.length
+  const totalAll = filteredTasks.length
   const completionPct = totalAll > 0 ? Math.round((totalDone / totalAll) * 100) : 0
 
   return (
     <div className="space-y-4">
       <XpToastContainer toasts={toasts} />
 
+      {/* Task list filter bar */}
+      <div className="flex items-center gap-2 flex-wrap">
+        <button
+          onClick={() => setSelectedListId(null)}
+          className={cn(
+            'px-3 py-1.5 rounded-xl text-xs font-semibold transition-all',
+            !selectedListId ? 'bg-brand-purple text-white' : 'bg-bg-elevated text-text-secondary hover:text-white'
+          )}
+        >
+          Todas
+        </button>
+        {lists.map(list => {
+          const rgb = hexToRgb(list.color)
+          const isSelected = selectedListId === list.id
+          return (
+            <div key={list.id} className="relative group/list">
+              <button
+                onClick={() => setSelectedListId(isSelected ? null : list.id)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all"
+                style={isSelected
+                  ? { background: list.color, color: '#050914' }
+                  : { background: `rgba(${rgb},0.12)`, color: list.color, border: `1px solid rgba(${rgb},0.25)` }
+                }
+              >
+                {list.icon && <span>{list.icon}</span>}
+                {list.name}
+              </button>
+              {isSelected && (
+                <button
+                  onClick={() => deleteList(list.id)}
+                  className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-brand-red flex items-center justify-center opacity-0 group-hover/list:opacity-100 transition-opacity"
+                >
+                  <X size={8} className="text-white" />
+                </button>
+              )}
+            </div>
+          )
+        })}
+
+        {showNewList ? (
+          <div className="flex items-center gap-2">
+            <input
+              autoFocus
+              value={newListName}
+              onChange={e => setNewListName(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') void createList(); if (e.key === 'Escape') { setShowNewList(false); setNewListName('') } }}
+              placeholder="Nome da lista..."
+              className="text-xs bg-bg-elevated border border-border rounded-xl px-3 py-1.5 outline-none focus:border-brand-purple"
+              maxLength={50}
+            />
+            <div className="flex gap-1">
+              {LIST_COLORS.map(c => (
+                <button
+                  key={c}
+                  onClick={() => setNewListColor(c)}
+                  className="w-4 h-4 rounded-full transition-transform"
+                  style={{
+                    backgroundColor: c,
+                    transform: newListColor === c ? 'scale(1.3)' : 'scale(1)',
+                    boxShadow: newListColor === c ? `0 0 0 2px rgba(255,255,255,0.4)` : 'none',
+                  }}
+                />
+              ))}
+            </div>
+            <button onClick={() => void createList()} disabled={savingList || !newListName.trim()} className="text-brand-purple hover:text-white transition-colors disabled:opacity-40">
+              <Check size={14} />
+            </button>
+            <button onClick={() => { setShowNewList(false); setNewListName('') }} className="text-text-muted hover:text-white transition-colors">
+              <X size={14} />
+            </button>
+          </div>
+        ) : (
+          lists.length < 10 && (
+            <button
+              onClick={() => setShowNewList(true)}
+              className="px-3 py-1.5 rounded-xl text-xs text-text-muted hover:text-brand-purple border border-dashed border-border hover:border-brand-purple/40 transition-all flex items-center gap-1"
+            >
+              <Plus size={11} /> Nova lista
+            </button>
+          )
+        )}
+      </div>
+
       {/* Summary bar */}
-      {tasks.length > 0 && (
+      {filteredTasks.length > 0 && (
         <div className="space-y-2">
           <div className="flex items-center gap-4 text-sm text-text-secondary">
             <span>{totalActive} ativas</span>
@@ -194,7 +332,7 @@ export function KanbanBoard({ initialTasks }: { initialTasks: Task[] }) {
       >
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {COLUMNS.map((col) => {
-            const colTasks = tasks.filter((t) => t.status === col.id)
+            const colTasks = filteredTasks.filter((t) => t.status === col.id)
             const EmptyIcon = col.emptyIcon
             return (
               <div

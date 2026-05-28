@@ -30,7 +30,7 @@ export default async function TarefasPage() {
   const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString()
   const today = new Date().toISOString().split('T')[0]!
 
-  const [tasksRes, doneWeekRes, xpWeekRes, doneAllTimeRes] = await Promise.all([
+  const [tasksRes, doneWeekRes, xpWeekRes, doneAllTimeRes, listsRes] = await Promise.all([
     supabase
       .from('tasks')
       .select(
@@ -57,9 +57,15 @@ export default async function TarefasPage() {
       .select('id', { count: 'exact', head: true })
       .eq('user_id', user.id)
       .eq('status', 'done'),
+    supabase
+      .from('task_lists')
+      .select('id, name, color, icon')
+      .eq('user_id', user.id)
+      .order('display_order'),
   ])
 
   const tasks = tasksRes.data ?? []
+  const taskLists = listsRes.data ?? []
   const doneThisWeek = doneWeekRes.count ?? 0
   const doneAllTime = doneAllTimeRes.count ?? 0
   const xpFromTasksWeek = (xpWeekRes.data ?? []).reduce((sum, t) => sum + (t.amount ?? 0), 0)
@@ -313,7 +319,7 @@ export default async function TarefasPage() {
         {/* ── Due-date distribution heatmap (DOW × week) ───────────────── */}
         <TaskDueDateHeatmap userId={user.id} />
 
-        <KanbanBoard initialTasks={tasks} />
+        <KanbanBoard initialTasks={tasks} initialLists={taskLists} />
       </div>
     </AppShell>
   )
