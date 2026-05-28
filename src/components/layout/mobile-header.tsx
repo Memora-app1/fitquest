@@ -4,15 +4,23 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Zap, Flame } from 'lucide-react'
 import { CommandPalette } from '@/components/command-palette'
+import { NotificationBell } from './notification-bell'
 
 interface MobileHeaderProps {
   name: string
   level: number
   xpTotal: number
   streakCurrent: number
+  unreadNotifications?: number
 }
 
-export function MobileHeader({ name, level, xpTotal, streakCurrent }: MobileHeaderProps) {
+export function MobileHeader({
+  name,
+  level,
+  xpTotal,
+  streakCurrent,
+  unreadNotifications = 0,
+}: MobileHeaderProps) {
   const [scrolled, setScrolled] = useState(false)
 
   useEffect(() => {
@@ -43,7 +51,7 @@ export function MobileHeader({ name, level, xpTotal, streakCurrent }: MobileHead
         <span className="heading-display text-xl gradient-text">⚡ FQ</span>
       </Link>
 
-      {/* Stats pill */}
+      {/* Stats pills */}
       <div className="flex items-center gap-2 flex-1 justify-center">
         <div
           className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold"
@@ -67,8 +75,9 @@ export function MobileHeader({ name, level, xpTotal, streakCurrent }: MobileHead
         )}
       </div>
 
-      {/* Avatar + search */}
+      {/* Actions: notification bell + search + avatar */}
       <div className="flex items-center gap-2 shrink-0">
+        <NotificationBell initialUnread={unreadNotifications} />
         <CommandPalette variant="icon" />
         <Link
           href="/perfil"

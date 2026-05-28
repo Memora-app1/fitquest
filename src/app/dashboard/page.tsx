@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+﻿import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
@@ -177,7 +177,7 @@ export default async function DashboardPage({
             <span className="text-2xl">🎉</span>
             <div>
               <p className="font-semibold text-brand-green">Assinatura ativada com sucesso!</p>
-              <p className="text-sm text-text-secondary">Bem-vindo ao FitQuest Premium. Curta todos os recursos.</p>
+              <p className="text-sm text-text-secondary">Bem-vindo ao Ascendia Premium. Curta todos os recursos.</p>
             </div>
           </div>
         )}
@@ -261,6 +261,7 @@ export default async function DashboardPage({
         <StreakRiskBanner
           streakCurrent={profile.streak_current}
           hasActivityToday={hasActivityToday}
+          freezes={(profile.streak_freezes as number) ?? 0}
         />
 
         {/* Streak milestone — celebração em marcos especiais */}

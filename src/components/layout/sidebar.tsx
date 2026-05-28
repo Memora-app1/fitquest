@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -82,7 +82,7 @@ export function Sidebar({
       {/* Logo */}
       <div className="p-5 border-b border-border">
         <Link href="/dashboard" className="block">
-          <span className="heading-display text-2xl gradient-text">⚡ FitQuest</span>
+          <span className="heading-display text-2xl gradient-text">⚡ Ascendia</span>
         </Link>
       </div>
 

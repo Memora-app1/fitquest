@@ -27,11 +27,20 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
     redirect('/login')
   }
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('name, xp_total, level, streak_current, onboarding_completed, perfect_days')
-    .eq('id', user.id)
-    .single()
+  const [profileRes, notifRes] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('name, xp_total, level, streak_current, onboarding_completed, perfect_days')
+      .eq('id', user.id)
+      .single(),
+    supabase
+      .from('notifications')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .is('read_at', null),
+  ])
+
+  const profile = profileRes.data
 
   if (!profile) {
     redirect('/onboarding')
@@ -40,6 +49,8 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
   if (!profile.onboarding_completed) {
     redirect('/onboarding')
   }
+
+  const unreadCount = notifRes.count ?? 0
 
   return (
     <div className="flex min-h-screen">
@@ -50,6 +61,7 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
           level={profile.level}
           xpTotal={profile.xp_total}
           streakCurrent={profile.streak_current}
+          unreadNotifications={unreadCount}
         />
         <main className="flex-1 pb-20 md:pb-0">{children}</main>
       </div>

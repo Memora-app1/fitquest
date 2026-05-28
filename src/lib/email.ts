@@ -1,4 +1,4 @@
-import { Resend } from 'resend'
+﻿import { Resend } from 'resend'
 
 let _resend: Resend | null = null
 
@@ -10,15 +10,15 @@ function getResend(): Resend {
   return _resend
 }
 
-const FROM = 'FitQuest <noreply@fitquest.app>'
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://fitquest-app1.vercel.app'
+const FROM = 'Ascendia <noreply@ascendia.app>'
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://ascendia-app1.vercel.app'
 
 export async function sendTrialEndingEmail(to: string, name: string, daysLeft: number) {
   const urgency = daysLeft <= 1 ? '🚨' : '⏰'
   const subject =
     daysLeft <= 1
-      ? `${urgency} Seu trial FitQuest termina HOJE`
-      : `${urgency} Seu trial FitQuest termina em ${daysLeft} dias`
+      ? `${urgency} Seu trial Ascendia termina HOJE`
+      : `${urgency} Seu trial Ascendia termina em ${daysLeft} dias`
 
   await getResend().emails.send({
     from: FROM,
@@ -32,7 +32,7 @@ export async function sendTrialEndingEmail(to: string, name: string, daysLeft: n
   <div style="max-width:560px;margin:0 auto;padding:40px 24px">
     <div style="text-align:center;margin-bottom:32px">
       <span style="font-size:48px">⚡</span>
-      <h1 style="font-size:32px;font-weight:900;color:#FF4D00;letter-spacing:2px;margin:8px 0">FITQUEST</h1>
+      <h1 style="font-size:32px;font-weight:900;color:#FF4D00;letter-spacing:2px;margin:8px 0">ASCENDIA</h1>
     </div>
 
     <h2 style="font-size:22px;font-weight:700;margin:0 0 16px">Oi, ${name}! ${daysLeft <= 1 ? 'hoje é o último dia' : `faltam só ${daysLeft} dias`}.</h2>
@@ -61,7 +61,7 @@ export async function sendTrialEndingEmail(to: string, name: string, daysLeft: n
 
     <hr style="border:none;border-top:1px solid rgba(136,153,187,0.2);margin:0 0 24px">
     <p style="color:#8899BB;font-size:12px;margin:0">
-      FitQuest · <a href="${APP_URL}/privacidade" style="color:#FF4D00">Privacidade</a> · <a href="${APP_URL}/termos" style="color:#FF4D00">Termos</a>
+      Ascendia · <a href="${APP_URL}/privacidade" style="color:#FF4D00">Privacidade</a> · <a href="${APP_URL}/termos" style="color:#FF4D00">Termos</a>
     </p>
   </div>
 </body>
@@ -128,7 +128,7 @@ export async function sendWeeklyDigest(
       ? `🔥 ${streakCurrent} dias de streak — resumo da sua semana`
       : xpThisWeek > 0
       ? `⚡ Você ganhou ${xpThisWeek.toLocaleString('pt-BR')} XP essa semana`
-      : `📊 Seu resumo semanal FitQuest`
+      : `📊 Seu resumo semanal Ascendia`
 
   await getResend().emails.send({
     from: FROM,
@@ -144,7 +144,7 @@ export async function sendWeeklyDigest(
     <!-- Header -->
     <div style="text-align:center;margin-bottom:32px">
       <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,77,0,0.1);border:1px solid rgba(255,77,0,0.3);border-radius:50px;padding:6px 16px;margin-bottom:16px">
-        <span style="font-size:14px;font-weight:700;color:#FF4D00;letter-spacing:2px">FITQUEST</span>
+        <span style="font-size:14px;font-weight:700;color:#FF4D00;letter-spacing:2px">ASCENDIA</span>
       </div>
       <h1 style="font-size:28px;font-weight:900;color:#FFFFFF;margin:0 0 4px">Seu resumo da semana</h1>
       <p style="font-size:14px;color:#8899BB;margin:0">${performanceLine}</p>
@@ -213,7 +213,7 @@ export async function sendWeeklyDigest(
 
     <hr style="border:none;border-top:1px solid rgba(136,153,187,0.15);margin:0 0 20px">
     <p style="color:#5A6B85;font-size:11px;text-align:center;margin:0;line-height:1.6">
-      FitQuest · <a href="${APP_URL}/perfil" style="color:#FF4D00;text-decoration:none">Meu perfil</a> · <a href="${APP_URL}/privacidade" style="color:#8899BB;text-decoration:none">Privacidade</a>
+      Ascendia · <a href="${APP_URL}/perfil" style="color:#FF4D00;text-decoration:none">Meu perfil</a> · <a href="${APP_URL}/privacidade" style="color:#8899BB;text-decoration:none">Privacidade</a>
     </p>
 
   </div>
@@ -226,7 +226,7 @@ export async function sendWelcomeEmail(to: string, name: string) {
   await getResend().emails.send({
     from: FROM,
     to,
-    subject: `⚡ Bem-vindo ao FitQuest, ${name}!`,
+    subject: `⚡ Bem-vindo ao Ascendia, ${name}!`,
     html: `
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -235,13 +235,13 @@ export async function sendWelcomeEmail(to: string, name: string) {
   <div style="max-width:560px;margin:0 auto;padding:40px 24px">
     <div style="text-align:center;margin-bottom:32px">
       <span style="font-size:48px">⚡</span>
-      <h1 style="font-size:32px;font-weight:900;color:#FF4D00;letter-spacing:2px;margin:8px 0">FITQUEST</h1>
+      <h1 style="font-size:32px;font-weight:900;color:#FF4D00;letter-spacing:2px;margin:8px 0">ASCENDIA</h1>
     </div>
 
     <h2 style="font-size:22px;font-weight:700;margin:0 0 16px">Bem-vindo, ${name}! Seus 7 dias começaram. 🎉</h2>
 
     <p style="color:#8899BB;line-height:1.6;margin:0 0 24px">
-      Você tem acesso completo ao FitQuest por 7 dias gratuitos. Aqui está o que fazer primeiro:
+      Você tem acesso completo ao Ascendia por 7 dias gratuitos. Aqui está o que fazer primeiro:
     </p>
 
     <div style="space-y:12px;margin:0 0 32px">

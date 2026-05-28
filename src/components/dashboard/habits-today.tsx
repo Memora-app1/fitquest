@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
@@ -58,7 +58,7 @@ export function HabitsToday({
           leveledUp: data.leveledUp ? data.newLevel : undefined,
         })
         if (data.leveledUp && data.newLevel) {
-          window.dispatchEvent(new CustomEvent('fitquest:levelup', { detail: { level: data.newLevel } }))
+          window.dispatchEvent(new CustomEvent('ascendia:levelup', { detail: { level: data.newLevel } }))
         }
         router.refresh()
       }

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -62,7 +62,7 @@ export function TasksToday({ tasks: initialTasks }: { tasks: Task[] }) {
         setItems((prev) => prev.filter((t) => t.id !== taskId))
         showXp(data.xpEarned ?? 0, { leveledUp: data.leveledUp ? data.newLevel : undefined })
         if (data.leveledUp && data.newLevel) {
-          window.dispatchEvent(new CustomEvent('fitquest:levelup', { detail: { level: data.newLevel } }))
+          window.dispatchEvent(new CustomEvent('ascendia:levelup', { detail: { level: data.newLevel } }))
         }
         router.refresh()
       }
