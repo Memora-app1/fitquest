@@ -67,6 +67,9 @@ export function HabitsList({
           perfectDay: data.perfectDay,
           leveledUp: data.leveledUp ? data.newLevel : undefined,
         })
+        if (data.leveledUp && data.newLevel) {
+          window.dispatchEvent(new CustomEvent('ascendia:levelup', { detail: { level: data.newLevel } }))
+        }
         router.refresh()
       }
     })
