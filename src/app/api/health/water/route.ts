@@ -50,6 +50,23 @@ export async function POST(req: NextRequest) {
     leveledUp = result.leveledUp
     newLevel = result.newLevel
     await tryUnlockAchievement(user.id, 'first_water_goal')
+
+    // Check water_goal_7: 7+ consecutive days hitting the goal
+    const sevenDaysAgo = new Date()
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6)
+    const sinceStr = sevenDaysAgo.toISOString().slice(0, 10)
+    const { data: weekLogs } = await supabase
+      .from('water_logs')
+      .select('date, amount_ml')
+      .eq('user_id', user.id)
+      .gte('date', sinceStr)
+    const waterByDay: Record<string, number> = {}
+    for (const l of weekLogs ?? []) {
+      const d = l.date as string
+      waterByDay[d] = (waterByDay[d] ?? 0) + (l.amount_ml as number ?? 0)
+    }
+    const daysAtGoal = Object.values(waterByDay).filter(v => v >= WATER_GOAL_ML).length
+    if (daysAtGoal >= 7) await tryUnlockAchievement(user.id, 'water_goal_7')
   }
 
   return NextResponse.json({
