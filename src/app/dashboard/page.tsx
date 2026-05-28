@@ -19,6 +19,7 @@ import { WeeklyXpBreakdown } from '@/components/dashboard/weekly-xp-breakdown'
 import { LifeBalanceRadar } from '@/components/dashboard/life-balance-radar'
 import { WorkoutPrsWidget } from '@/components/dashboard/workout-prs-widget'
 import { MorningBrief } from '@/components/dashboard/morning-brief'
+import { HealthSummaryWidget } from '@/components/dashboard/health-summary-widget'
 import { getGreeting, todayString } from '@/lib/utils'
 import { getXpProgressToNextLevel } from '@/lib/xp'
 
@@ -247,6 +248,9 @@ export default async function DashboardPage({
 
         {/* Morning brief — prioridades do dia */}
         <MorningBrief userId={user.id} />
+
+        {/* Health summary — água e sono de hoje */}
+        <HealthSummaryWidget userId={user.id} />
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

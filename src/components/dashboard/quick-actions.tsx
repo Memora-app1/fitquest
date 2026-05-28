@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Dumbbell, CheckSquare, Wallet, Target, Bot } from 'lucide-react'
+import { Dumbbell, CheckSquare, Wallet, Target, Bot, Heart } from 'lucide-react'
 
 const ACTIONS = [
   {
@@ -47,6 +47,17 @@ const ACTIONS = [
     hoverBorder: 'rgba(245,200,66,0.5)',
   },
   {
+    href: '/saude',
+    label: 'Saúde',
+    sub: '+50 XP',
+    icon: Heart,
+    color: '#00D9FF',
+    glow: 'rgba(0,217,255,0.18)',
+    bg: 'rgba(0,217,255,0.08)',
+    border: 'rgba(0,217,255,0.2)',
+    hoverBorder: 'rgba(0,217,255,0.5)',
+  },
+  {
     href: '/coach',
     label: 'Coach IA',
     sub: 'Pergunte algo',
@@ -63,7 +74,7 @@ export function QuickActions() {
   return (
     <div>
       <h2 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Ação rápida</h2>
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+      <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
         {ACTIONS.map((action) => {
           const Icon = action.icon
           return (
