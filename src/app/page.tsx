@@ -1,5 +1,6 @@
 ﻿import Link from 'next/link'
 import type { Metadata } from 'next'
+import { LandingNavbar } from '@/components/landing-navbar'
 
 export const metadata: Metadata = {
   title: 'Ascendia — Sua vida inteira em um só sistema',
@@ -103,6 +104,7 @@ const STATS = [
 export default function LandingPage() {
   return (
     <main className="min-h-screen text-white">
+      <LandingNavbar />
 
       {/* ─── Hero ─────────────────────────────────────────────────────── */}
       <section className="relative flex flex-col items-center justify-center min-h-screen p-6 text-center overflow-hidden">
