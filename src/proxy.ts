@@ -63,10 +63,14 @@ export async function proxy(request: NextRequest) {
 
   // Cron jobs — verifica CRON_SECRET ANTES de checar autenticação
   // Vercel chama crons sem sessão de usuário
+  // Em dev (CRON_SECRET não configurado), permite sem auth para facilitar testes
   if (pathname.startsWith('/api/cron/')) {
-    const authHeader = request.headers.get('authorization')
-    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-      return NextResponse.json({ error: 'forbidden' }, { status: 403 })
+    const secret = process.env.CRON_SECRET
+    if (secret) {
+      const authHeader = request.headers.get('authorization')
+      if (authHeader !== `Bearer ${secret}`) {
+        return NextResponse.json({ error: 'forbidden' }, { status: 403 })
+      }
     }
     return response
   }
