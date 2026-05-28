@@ -31,6 +31,9 @@ export const XP_REWARDS = {
   STREAK_30_DAYS: 1000,
   STREAK_90_DAYS: 3000,
 
+  // Metas
+  GOAL_COMPLETED: 200,
+
   // Outros
   ONBOARDING_COMPLETED: 100,
   FIRST_TIME_BONUS: 100, // primeira vez fazendo algo

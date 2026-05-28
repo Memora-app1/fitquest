@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
+import { grantXP } from '@/lib/xp-server'
+import { XP_REWARDS } from '@/lib/xp'
 
 const createGoalSchema = z.object({
   title: z.string().min(1).max(200).trim(),
@@ -87,9 +89,21 @@ export async function PATCH(req: NextRequest) {
   const { id, ...updates } = parsed.data
   const updateData: Record<string, unknown> = { ...updates, updated_at: new Date().toISOString() }
 
-  if (updates.status === 'completed') {
+  const isCompleting = updates.status === 'completed'
+  if (isCompleting) {
     updateData.completed_at = new Date().toISOString()
-    // Se a meta foi completada manualmente, seta current_value para target_value
+  }
+
+  // Verifica status atual para não dar XP duas vezes
+  let wasAlreadyCompleted = false
+  if (isCompleting) {
+    const { data: current } = await supabase
+      .from('goals')
+      .select('status')
+      .eq('id', id)
+      .eq('user_id', user.id)
+      .single()
+    wasAlreadyCompleted = current?.status === 'completed'
   }
 
   const { data, error } = await supabase
@@ -105,7 +119,18 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: 'update_failed' }, { status: 500 })
   }
 
-  return NextResponse.json({ goal: data })
+  let xpEarned = 0
+  let leveledUp = false
+  let newLevel = 0
+
+  if (isCompleting && !wasAlreadyCompleted) {
+    const xpResult = await grantXP(user.id, XP_REWARDS.GOAL_COMPLETED, `Meta concluída: ${data.title}`, 'goal', data.id)
+    xpEarned = xpResult.xpEarned
+    leveledUp = xpResult.leveledUp
+    newLevel = xpResult.newLevel
+  }
+
+  return NextResponse.json({ goal: data, xpEarned, leveledUp, newLevel })
 }
 
 export async function DELETE(req: NextRequest) {

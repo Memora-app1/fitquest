@@ -1,8 +1,10 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Plus, X, Trash2, CheckCircle2, Pause, ChevronUp, ChevronDown, Flag } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useXpToast, XpToastContainer } from '@/components/xp-toast'
 
 interface Goal {
   id: string
@@ -49,10 +51,12 @@ function formatDeadline(dateStr: string): string {
 }
 
 export function GoalsList({ initialGoals }: { initialGoals: Goal[] }) {
+  const router = useRouter()
   const [goals, setGoals] = useState<Goal[]>(initialGoals)
   const [showCreate, setShowCreate] = useState(false)
   const [updateGoal, setUpdateGoal] = useState<Goal | null>(null)
   const [filter, setFilter] = useState<'active' | 'completed' | 'all'>('active')
+  const { toasts, showXp } = useXpToast()
 
   async function handleDelete(id: string) {
     if (!confirm('Remover esta meta?')) return
@@ -71,8 +75,15 @@ export function GoalsList({ initialGoals }: { initialGoals: Goal[] }) {
       }),
     })
     if (res.ok) {
-      const data = await res.json() as { goal: Goal }
+      const data = await res.json() as { goal: Goal; xpEarned?: number; leveledUp?: boolean; newLevel?: number }
       setGoals((prev) => prev.map((g) => (g.id === goal.id ? data.goal : g)))
+      if (data.xpEarned) {
+        showXp(data.xpEarned, { leveledUp: data.leveledUp ? data.newLevel : undefined })
+        if (data.leveledUp && data.newLevel) {
+          window.dispatchEvent(new CustomEvent('ascendia:levelup', { detail: { level: data.newLevel } }))
+        }
+      }
+      router.refresh()
     }
   }
 
@@ -100,6 +111,7 @@ export function GoalsList({ initialGoals }: { initialGoals: Goal[] }) {
 
   return (
     <>
+      <XpToastContainer toasts={toasts} />
       {/* Toolbar */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div className="flex gap-2">
