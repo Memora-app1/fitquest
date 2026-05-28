@@ -119,10 +119,15 @@ export async function POST(req: NextRequest) {
         .eq('id', user.id)
         .single()
       if (profile) {
+        const newPerfectDays = profile.perfect_days + 1
         await supabase
           .from('profiles')
-          .update({ perfect_days: profile.perfect_days + 1 })
+          .update({ perfect_days: newPerfectDays })
           .eq('id', user.id)
+        // Check perfect week achievement
+        if (newPerfectDays === 7 || (newPerfectDays > 7 && newPerfectDays % 7 === 0)) {
+          await tryUnlockAchievement(user.id, 'perfect_week')
+        }
       }
     }
   }

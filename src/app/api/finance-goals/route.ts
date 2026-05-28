@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
-import { grantXP } from '@/lib/xp-server'
+import { grantXP, tryUnlockAchievement } from '@/lib/xp-server'
 import { XP_REWARDS } from '@/lib/xp'
 
 const createSchema = z.object({
@@ -116,6 +116,7 @@ export async function PATCH(req: NextRequest) {
       data.id
     )
     xpEarned = xpResult.xpEarned
+    await tryUnlockAchievement(user.id, 'finance_goal_completed')
     leveledUp = xpResult.leveledUp
     newLevel = xpResult.newLevel
   }
