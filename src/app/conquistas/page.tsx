@@ -43,12 +43,12 @@ export default async function ConquistasPage() {
   const [allAchievementsRes, userAchievementsRes, profileRes] = await Promise.all([
     supabase
       .from('achievements')
-      .select('id, name, description, emoji, xp_reward, rarity, category, unlock_criteria')
+      .select('id, name, description, icon, xp_reward, rarity, category')
       .order('rarity', { ascending: true })
       .order('name'),
     supabase
       .from('user_achievements')
-      .select('achievement_id, unlocked_at, progress')
+      .select('achievement_id, unlocked_at')
       .eq('user_id', user.id),
     supabase
       .from('profiles')
@@ -67,7 +67,6 @@ export default async function ConquistasPage() {
   const completionPct = totalCount > 0 ? Math.round((unlockedCount / totalCount) * 100) : 0
 
   // Progress map
-  const progressMap = new Map(userAchievements.map(a => [a.achievement_id, a.progress ?? 0]))
   const unlockedAtMap = new Map(userAchievements.map(a => [a.achievement_id, a.unlocked_at]))
 
   // Sort: unlocked first (most recent first), then locked by rarity
@@ -228,7 +227,6 @@ export default async function ConquistasPage() {
               const rarity = (achievement.rarity as Rarity) ?? 'common'
               const rc = RARITY_CONFIG[rarity]
               const unlockedAt = unlockedAtMap.get(achievement.id)
-              const progress = progressMap.get(achievement.id) ?? 0
 
               return (
                 <div
@@ -270,7 +268,7 @@ export default async function ConquistasPage() {
                           filter: unlocked ? 'none' : 'grayscale(1)',
                         }}
                       >
-                        {unlocked ? achievement.emoji : '🔒'}
+                        {unlocked ? (achievement.icon as string) : '🔒'}
                       </div>
 
                       {/* Content */}
@@ -325,18 +323,6 @@ export default async function ConquistasPage() {
                       </div>
                     </div>
 
-                    {/* Progress bar if in progress */}
-                    {!unlocked && progress > 0 && (
-                      <div className="mt-2">
-                        <div className="h-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)' }}>
-                          <div
-                            className="h-full rounded-full"
-                            style={{ width: `${Math.min(100, progress)}%`, backgroundColor: rc.color, opacity: 0.5 }}
-                          />
-                        </div>
-                        <div className="text-[9px] text-text-muted mt-0.5">{progress}% concluído</div>
-                      </div>
-                    )}
                   </div>
                 </div>
               )
