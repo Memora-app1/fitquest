@@ -407,6 +407,7 @@ export function KanbanBoard({ initialTasks, initialLists = [] }: { initialTasks:
       {showNew && (
         <NewTaskModal
           status={showNew}
+          defaultListId={selectedListId}
           onClose={() => setShowNew(null)}
           onCreated={onCreated}
         />
@@ -700,16 +701,18 @@ function SubtaskPanel({ taskId, isDone }: { taskId: string; isDone: boolean }) {
 
 function NewTaskModal({
   status,
+  defaultListId,
   onClose,
   onCreated,
 }: {
   status: TaskStatus
+  defaultListId?: string | null
   onClose: () => void
   onCreated: (task: Task) => void
 }) {
   const [title, setTitle] = useState('')
   const [urgent, setUrgent] = useState(false)
-  const [important, setImportant] = useState(status === 'todo' ? false : false)
+  const [important, setImportant] = useState(false)
   const [dueDate, setDueDate] = useState('')
   const [description, setDescription] = useState('')
   const [loading, setLoading] = useState(false)
@@ -729,6 +732,7 @@ function NewTaskModal({
     }
     if (description.trim()) body.description = description.trim()
     if (dueDate) body.due_date = new Date(dueDate).toISOString()
+    if (defaultListId) body.list_id = defaultListId
 
     const res = await fetch('/api/tasks', {
       method: 'POST',
