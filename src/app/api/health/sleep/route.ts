@@ -52,11 +52,11 @@ export async function POST(req: NextRequest) {
 
   let xpEarned = 0
   if (!existing) {
-    const base = await grantXP(user.id, 20, 'Sono registrado 🌙', 'habit', data.id)
+    const base = await grantXP(user.id, 20, 'Sono registrado 🌙', 'health', data.id)
     xpEarned += base.xpEarned
 
     if (body.duration_hours && body.duration_hours >= 8) {
-      const bonus = await grantXP(user.id, 10, 'Sono ideal (8h+) 💤', 'habit', data.id)
+      const bonus = await grantXP(user.id, 10, 'Sono ideal (8h+) 💤', 'health', data.id)
       xpEarned += bonus.xpEarned
     }
 

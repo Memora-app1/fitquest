@@ -86,6 +86,7 @@ export type XpSourceType =
   | 'streak'
   | 'onboarding'
   | 'bonus'
+  | 'health'
 
 export interface GrantXpResult {
   xpEarned: number

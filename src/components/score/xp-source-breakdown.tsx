@@ -6,6 +6,7 @@ const SOURCE_META: Record<string, { label: string; emoji: string; color: string;
   task:        { label: 'Tarefas',      emoji: '✅', color: '#7C3AED', rgb: '124,58,237' },
   workout:     { label: 'Treinos',      emoji: '💪', color: '#00FF88', rgb: '0,255,136' },
   finance:     { label: 'Finanças',     emoji: '💰', color: '#F5C842', rgb: '245,200,66' },
+  health:      { label: 'Saúde',        emoji: '💧', color: '#00D9FF', rgb: '0,217,255' },
   achievement: { label: 'Conquistas',   emoji: '🏆', color: '#F5C842', rgb: '245,200,66' },
   streak:      { label: 'Streak',       emoji: '🔥', color: '#FF4D00', rgb: '255,77,0' },
   level_up:    { label: 'Level Up',     emoji: '⬆️', color: '#00FF88', rgb: '0,255,136' },

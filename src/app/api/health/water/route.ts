@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
 
   // Concede XP apenas quando cruza o threshold da meta (não a cada adição acima do limite)
   if (totalBefore < WATER_GOAL_ML && totalAfter >= WATER_GOAL_ML) {
-    const result = await grantXP(user.id, 30, 'Meta de hidratação atingida! 💧', 'habit', data.id)
+    const result = await grantXP(user.id, 30, 'Meta de hidratação atingida! 💧', 'health', data.id)
     xpEarned = result.xpEarned
   }
 
