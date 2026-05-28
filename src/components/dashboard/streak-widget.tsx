@@ -1,5 +1,7 @@
-import { Flame, Trophy, Shield } from 'lucide-react'
-import { cn } from '@/lib/utils'
+'use client'
+
+import { useState } from 'react'
+import { Flame, Trophy, Shield, CheckCircle2 } from 'lucide-react'
 
 function getLast7Days(): string[] {
   const days: string[] = []
@@ -24,26 +26,54 @@ export function StreakWidget({
   activeDays?: string[]
   freezes?: number
 }) {
-  const last7 = getLast7Days()
-  const activeSet = new Set(activeDays)
-  const todayStr = new Date().toISOString().split('T')[0]!
+  const [freezeCount, setFreezeCount]     = useState(freezes)
+  const [freezeLoading, setFreezeLoading] = useState(false)
+  const [freezeUsed, setFreezeUsed]       = useState(false)
+  const [freezeError, setFreezeError]     = useState<string | null>(null)
 
-  const isOnFire = current >= 7
+  const last7       = getLast7Days()
+  const activeSet   = new Set(activeDays)
+  const todayStr    = new Date().toISOString().split('T')[0]!
+  const isOnFire    = current >= 7
   const accentColor = current === 0 ? '#EF4444' : isOnFire ? '#FF4D00' : '#F59E0B'
 
-  // Calculate next milestone
   let nextMilestone = 7
   let milestoneName = 'Fogo Aceso'
-  if (current >= 7) { nextMilestone = 30; milestoneName = 'Mês Implacável' }
-  if (current >= 30) { nextMilestone = 100; milestoneName = 'Centenário' }
+  if (current >= 7)   { nextMilestone = 30;  milestoneName = 'Mês Implacável' }
+  if (current >= 30)  { nextMilestone = 100; milestoneName = 'Centenário' }
   if (current >= 100) { nextMilestone = 365; milestoneName = 'Um Ano Épico' }
 
   const prevMilestone = current >= 100 ? 100 : current >= 30 ? 30 : current >= 7 ? 7 : 0
-  const progressPct = current >= 365
+  const progressPct   = current >= 365
     ? 100
     : Math.min(100, Math.round(((current - prevMilestone) / (nextMilestone - prevMilestone)) * 100))
 
   const activeThisWeek = last7.filter((d) => activeSet.has(d)).length
+
+  async function handleUseFreeze() {
+    if (freezeCount <= 0 || freezeLoading || freezeUsed) return
+    setFreezeLoading(true)
+    setFreezeError(null)
+    try {
+      const res  = await fetch('/api/streak-freeze', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ action: 'use' }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setFreezeError(data.message ?? 'Erro ao usar freeze.')
+      } else {
+        setFreezeCount(data.freezesRemaining ?? freezeCount - 1)
+        setFreezeUsed(true)
+        if (navigator.vibrate) navigator.vibrate([30, 15, 60])
+      }
+    } catch {
+      setFreezeError('Erro de conexão.')
+    } finally {
+      setFreezeLoading(false)
+    }
+  }
 
   return (
     <div
@@ -58,21 +88,20 @@ export function StreakWidget({
         boxShadow: `0 4px 24px ${accentColor}08`,
       }}
     >
-      {/* Corner glow */}
       <div
         className="absolute -top-6 -right-6 w-32 h-32 rounded-full pointer-events-none blur-2xl"
         style={{ backgroundColor: accentColor, opacity: 0.12 }}
       />
 
       <div className="relative z-10 space-y-4">
-        {/* Top row: current streak + record */}
+        {/* Top row */}
         <div className="flex items-start justify-between">
           <div>
             <div className="flex items-center gap-1.5 text-text-muted text-xs uppercase tracking-wider mb-1.5">
               <Flame size={11} style={{ color: accentColor }} fill="currentColor" />
               Streak Atual
             </div>
-            <div className="heading-display text-5xl leading-none flex items-baseline gap-2" style={{ color: accentColor }}>
+            <div className="heading-display text-5xl leading-none" style={{ color: accentColor }}>
               {current}
             </div>
             <div className="text-text-secondary text-sm mt-1">
@@ -92,23 +121,17 @@ export function StreakWidget({
             {activeThisWeek > 0 && (
               <div className="text-xs font-medium mt-1" style={{ color: '#00FF88' }}>{activeThisWeek}/7 essa sem.</div>
             )}
-            {/* Streak freeze shields */}
-            {freezes > 0 && (
+            {freezeCount > 0 && (
               <div className="flex items-center gap-1 justify-end mt-1.5">
-                {Array.from({ length: Math.min(freezes, 5) }).map((_, i) => (
-                  <Shield
-                    key={i}
-                    size={12}
-                    fill="currentColor"
-                    style={{ color: '#00D9FF', opacity: 0.85 }}
-                  />
+                {Array.from({ length: Math.min(freezeCount, 5) }).map((_, i) => (
+                  <Shield key={i} size={12} fill="currentColor" style={{ color: '#00D9FF', opacity: 0.85 }} />
                 ))}
-                {freezes > 5 && (
-                  <span className="text-[10px] font-bold" style={{ color: '#00D9FF' }}>+{freezes - 5}</span>
+                {freezeCount > 5 && (
+                  <span className="text-[10px] font-bold" style={{ color: '#00D9FF' }}>+{freezeCount - 5}</span>
                 )}
               </div>
             )}
-            {freezes === 0 && current > 0 && (
+            {freezeCount === 0 && current > 0 && (
               <div className="flex items-center gap-1 justify-end mt-1.5">
                 <Shield size={12} style={{ color: '#5A6B85' }} />
                 <span className="text-[10px] text-text-muted">sem freeze</span>
@@ -117,11 +140,11 @@ export function StreakWidget({
           </div>
         </div>
 
-        {/* 7-day dot chart */}
+        {/* 7-day chart */}
         <div className="flex justify-between gap-1">
           {last7.map((day) => {
-            const active = activeSet.has(day)
-            const isToday = day === todayStr
+            const active    = activeSet.has(day)
+            const isToday   = day === todayStr
             const dayOfWeek = new Date(`${day}T12:00:00`).getDay()
             return (
               <div key={day} className="flex flex-col items-center gap-1.5 flex-1">
@@ -193,6 +216,44 @@ export function StreakWidget({
           <p className="text-xs text-text-muted text-center">
             Registre 1 hábito hoje pra começar uma nova sequência 💪
           </p>
+        )}
+
+        {/* Streak Freeze button */}
+        {freezeCount > 0 && current > 0 && (
+          <div>
+            {freezeUsed ? (
+              <div
+                className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold"
+                style={{
+                  background: 'rgba(0,217,255,0.08)',
+                  border: '1px solid rgba(0,217,255,0.2)',
+                  color: '#00D9FF',
+                }}
+              >
+                <CheckCircle2 size={13} />
+                Freeze ativado! Streak protegido por 1 dia
+              </div>
+            ) : (
+              <button
+                onClick={handleUseFreeze}
+                disabled={freezeLoading}
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold transition-all disabled:opacity-60 active:scale-95 hover:brightness-110"
+                style={{
+                  background: 'rgba(0,217,255,0.08)',
+                  border: '1px solid rgba(0,217,255,0.25)',
+                  color: '#00D9FF',
+                }}
+              >
+                <Shield size={13} fill="currentColor" />
+                {freezeLoading
+                  ? 'Ativando...'
+                  : `Usar Streak Freeze (${freezeCount} disponível${freezeCount !== 1 ? 'is' : ''})`}
+              </button>
+            )}
+            {freezeError && (
+              <p className="mt-1.5 text-xs text-center" style={{ color: '#EF4444' }}>{freezeError}</p>
+            )}
+          </div>
         )}
       </div>
     </div>

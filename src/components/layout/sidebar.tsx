@@ -1,12 +1,11 @@
-﻿'use client'
+'use client'
 
-import { useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { getLevelInfo, getXpProgressToNextLevel } from '@/lib/xp'
 import { CommandPalette } from '@/components/command-palette'
-import { useRealtimeProfile } from '@/hooks/use-realtime-profile'
+import { useRealtimeCtx } from '@/hooks/use-realtime-context'
 import {
   LayoutDashboard,
   CheckSquare,
@@ -60,39 +59,23 @@ const NAV_SECTIONS = [
 ]
 
 export function Sidebar({
-  profile: initialProfile,
+  profile,
 }: {
-  profile: { id: string; name: string; xp_total: number; level: number; streak_current: number }
+  profile: { name: string; xp_total: number; level: number; streak_current: number }
 }) {
   const pathname = usePathname()
+  const { profile: live, xpBump } = useRealtimeCtx()
 
-  // Realtime: XP/level/streak atualizam ao vivo
-  const { profile: liveProfile, xpBump, leveledUp } = useRealtimeProfile(
-    initialProfile.id,
-    {
-      xp_total:       initialProfile.xp_total,
-      level:          initialProfile.level,
-      streak_current: initialProfile.streak_current,
-    }
-  )
-
-  // Quando sobe de nível, dispara o evento global de celebração
-  useEffect(() => {
-    if (leveledUp) {
-      window.dispatchEvent(new CustomEvent('ascendia:levelup', { detail: { level: liveProfile.level } }))
-    }
-  }, [leveledUp, liveProfile.level])
-
-  const levelInfo = getLevelInfo(liveProfile.level)
-  const progress  = getXpProgressToNextLevel(liveProfile.xp_total)
+  const levelInfo  = getLevelInfo(live.level)
+  const progress   = getXpProgressToNextLevel(live.xp_total)
   const levelColors: Record<number, string> = {
     1: '#8899BB', 2: '#7C3AED', 3: '#3B82F6', 4: '#00FF88',
     5: '#FF4D00', 6: '#EC4899', 7: '#F5C842', 8: '#F5C842',
   }
-  const levelColor = levelColors[liveProfile.level] ?? '#F5C842'
+  const levelColor = levelColors[live.level] ?? '#F5C842'
   const nearMiss   = progress.percentage >= 80 && progress.needed > 0
 
-  const initials = initialProfile.name
+  const initials = profile.name
     .split(' ')
     .slice(0, 2)
     .map((w) => w[0]?.toUpperCase() ?? '')
@@ -120,19 +103,18 @@ export function Sidebar({
             {initials || '?'}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="font-semibold text-sm truncate">{initialProfile.name}</div>
+            <div className="font-semibold text-sm truncate">{profile.name}</div>
             <div className="flex items-center gap-1.5 mt-0.5">
               <span className="text-[11px] font-bold" style={{ color: levelColor }}>
                 {levelInfo.emoji} {levelInfo.title}
               </span>
-              <span className="text-[10px] text-text-muted">Nv {liveProfile.level}</span>
+              <span className="text-[10px] text-text-muted">Nv {live.level}</span>
             </div>
           </div>
         </div>
 
         {/* XP progress */}
         <div className="space-y-1.5 relative">
-          {/* XP bump animado */}
           {xpBump && (
             <div
               key={xpBump.timestamp}
@@ -145,12 +127,16 @@ export function Sidebar({
           <div className="flex justify-between items-center">
             <span className="text-[11px] text-text-muted flex items-center gap-1">
               <Zap size={10} className="text-brand-gold" />
-              {liveProfile.xp_total.toLocaleString('pt-BR')} XP
+              {live.xp_total.toLocaleString('pt-BR')} XP
             </span>
             {progress.needed > 0 && (
-              <span className={`text-[10px] ${nearMiss ? 'font-bold animate-pulse' : 'text-text-muted'}`}
-                style={{ color: nearMiss ? '#F5C842' : undefined }}>
-                {nearMiss ? `🔥 só faltam ${(progress.needed - progress.current).toLocaleString('pt-BR')}!` : `${(progress.needed - progress.current).toLocaleString('pt-BR')} até nv ${liveProfile.level + 1}`}
+              <span
+                className={`text-[10px] ${nearMiss ? 'font-bold animate-pulse' : 'text-text-muted'}`}
+                style={{ color: nearMiss ? '#F5C842' : undefined }}
+              >
+                {nearMiss
+                  ? `🔥 só faltam ${(progress.needed - progress.current).toLocaleString('pt-BR')}!`
+                  : `${(progress.needed - progress.current).toLocaleString('pt-BR')} até nv ${live.level + 1}`}
               </span>
             )}
             {progress.needed === 0 && (
@@ -171,10 +157,10 @@ export function Sidebar({
         </div>
 
         {/* Streak */}
-        {liveProfile.streak_current > 0 && (
+        {live.streak_current > 0 && (
           <div className="mt-2.5 flex items-center gap-1.5">
             <Flame size={12} className="text-brand-orange" />
-            <span className="text-[11px] font-bold text-brand-orange">{liveProfile.streak_current}</span>
+            <span className="text-[11px] font-bold text-brand-orange">{live.streak_current}</span>
             <span className="text-[11px] text-text-muted">dias de sequência</span>
           </div>
         )}

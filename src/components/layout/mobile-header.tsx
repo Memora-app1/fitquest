@@ -5,10 +5,9 @@ import Link from 'next/link'
 import { Zap, Flame } from 'lucide-react'
 import { CommandPalette } from '@/components/command-palette'
 import { NotificationBell } from './notification-bell'
-import { useRealtimeProfile } from '@/hooks/use-realtime-profile'
+import { useRealtimeCtx } from '@/hooks/use-realtime-context'
 
 interface MobileHeaderProps {
-  id: string
   name: string
   level: number
   xpTotal: number
@@ -17,27 +16,14 @@ interface MobileHeaderProps {
 }
 
 export function MobileHeader({
-  id,
   name,
-  level,
-  xpTotal,
-  streakCurrent,
+  level: _level,
+  xpTotal: _xpTotal,
+  streakCurrent: _streakCurrent,
   unreadNotifications = 0,
 }: MobileHeaderProps) {
   const [scrolled, setScrolled] = useState(false)
-
-  const { profile: live, xpBump, leveledUp } = useRealtimeProfile(id, {
-    xp_total:       xpTotal,
-    level,
-    streak_current: streakCurrent,
-  })
-
-  // Dispara evento global de level-up para LevelUpCelebration
-  useEffect(() => {
-    if (leveledUp) {
-      window.dispatchEvent(new CustomEvent('ascendia:levelup', { detail: { level: live.level } }))
-    }
-  }, [leveledUp, live.level])
+  const { profile: live, xpBump } = useRealtimeCtx()
 
   useEffect(() => {
     function onScroll() {
@@ -69,7 +55,6 @@ export function MobileHeader({
 
       {/* Stats pills */}
       <div className="flex items-center gap-2 flex-1 justify-center relative">
-        {/* XP bump animado */}
         {xpBump && (
           <div
             key={xpBump.timestamp}
@@ -107,7 +92,7 @@ export function MobileHeader({
         )}
       </div>
 
-      {/* Actions: notification bell + search + avatar */}
+      {/* Actions */}
       <div className="flex items-center gap-2 shrink-0">
         <NotificationBell initialUnread={unreadNotifications} />
         <CommandPalette variant="icon" />
