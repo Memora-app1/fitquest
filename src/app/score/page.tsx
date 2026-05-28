@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import { AppShell } from '@/components/layout/app-shell'
 import { getLevelInfo, getXpProgressToNextLevel } from '@/lib/xp'
 import { XpChartLazy as XpChart } from '@/components/score/xp-chart-lazy'
+import { XpSourceBreakdown } from '@/components/score/xp-source-breakdown'
 import { Lock, Zap, Flame, Star, Trophy, Dumbbell, CheckSquare, Target, TrendingUp } from 'lucide-react'
 
 export const metadata: Metadata = {
@@ -311,6 +312,9 @@ export default async function ScorePage() {
           </div>
           <XpChart data={dailyXp} />
         </section>
+
+        {/* XP source breakdown — 90 days */}
+        <XpSourceBreakdown userId={user.id} />
 
         {/* Unlocked achievements */}
         {unlockedAchievements.length > 0 && (

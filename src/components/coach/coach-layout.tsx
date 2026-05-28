@@ -35,10 +35,12 @@ export function CoachLayout({
   conversations: serverConversations,
   activeConversationId,
   initialMessages,
+  apiConfigured = false,
 }: {
   conversations: Conversation[]
   activeConversationId: string
   initialMessages: Message[]
+  apiConfigured?: boolean
 }) {
   const router = useRouter()
   const [conversations, setConversations] = useState<Conversation[]>(serverConversations)
@@ -286,6 +288,7 @@ export function CoachLayout({
           key={activeConversationId}
           conversationId={activeConversationId}
           initialMessages={initialMessages}
+          apiConfigured={apiConfigured}
         />
       </div>
     </div>

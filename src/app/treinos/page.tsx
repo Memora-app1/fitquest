@@ -12,6 +12,7 @@ import { WorkoutMuscleBalance } from '@/components/treinos/workout-muscle-balanc
 import { ExercisePrTracker } from '@/components/treinos/exercise-pr-tracker'
 import { WorkoutVolumeProgression } from '@/components/treinos/workout-volume-progression'
 import { WorkoutRestDayAdvisor } from '@/components/treinos/workout-rest-day-advisor'
+import { WorkoutDayOfWeekAnalysis } from '@/components/treinos/workout-day-of-week-analysis'
 
 export const metadata: Metadata = {
   title: 'Treinos',
@@ -304,6 +305,9 @@ export default async function TreinosPage() {
 
         {/* ── 12-week exercise PR tracker with mini sparklines ────────── */}
         <ExercisePrTracker userId={user.id} />
+
+        {/* ── Workout frequency by day of week (90 days) ──────────────── */}
+        <WorkoutDayOfWeekAnalysis userId={user.id} />
 
         {/* ── Best PRs ────────────────────────────────────────────────── */}
         {topPrs.length > 0 && (

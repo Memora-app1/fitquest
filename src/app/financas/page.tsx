@@ -13,6 +13,7 @@ import { SpendingChartLazy as SpendingChart } from '@/components/financas/spendi
 import { FinanceTrends } from '@/components/financas/finance-trends'
 import { CashFlowForecast } from '@/components/financas/cash-flow-forecast'
 import { FinanceIncomeAnalysis } from '@/components/financas/finance-income-analysis'
+import { FinanceCategoryTrend } from '@/components/financas/finance-category-trend'
 
 export const metadata: Metadata = {
   title: 'Finanças',
@@ -519,6 +520,9 @@ export default async function FinancasPage() {
 
         {/* ── 6-month income vs expense trend chart ────────────────────── */}
         <FinanceTrends userId={user.id} />
+
+        {/* ── 4-month spending trend per category ──────────────────────── */}
+        <FinanceCategoryTrend userId={user.id} />
 
         {/* ── Accounts ─────────────────────────────────────────────────── */}
         <section>

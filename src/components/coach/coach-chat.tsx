@@ -86,9 +86,11 @@ function ReactionButton({
 export function CoachChat({
   conversationId,
   initialMessages,
+  apiConfigured = false,
 }: {
   conversationId: string
   initialMessages: Message[]
+  apiConfigured?: boolean
 }) {
   const [messages, setMessages] = useState<Message[]>(initialMessages)
   const [input, setInput] = useState('')
@@ -208,6 +210,88 @@ export function CoachChat({
 
   const isEmpty = messages.length === 0
   const msgCount = messages.filter((m) => m.role === 'user').length
+
+  if (!apiConfigured) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
+        {/* Icon */}
+        <div className="relative w-24 h-24 mx-auto mb-6">
+          <div
+            className="absolute inset-0 rounded-3xl opacity-20 animate-pulse"
+            style={{ background: 'linear-gradient(135deg, #FF4D00, #7C3AED)' }}
+          />
+          <div
+            className="absolute inset-0 rounded-3xl opacity-10 scale-110 animate-pulse"
+            style={{ background: 'linear-gradient(135deg, #FF4D00, #7C3AED)', animationDelay: '0.3s' }}
+          />
+          <div
+            className="relative w-24 h-24 rounded-3xl flex items-center justify-center"
+            style={{
+              background: 'linear-gradient(135deg, rgba(255,77,0,0.15), rgba(124,58,237,0.15))',
+              border: '1px solid rgba(255,77,0,0.3)',
+            }}
+          >
+            <Bot size={38} className="text-brand-orange opacity-60" />
+          </div>
+        </div>
+
+        {/* Badge */}
+        <div
+          className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full mb-4"
+          style={{ background: 'rgba(245,200,66,0.12)', border: '1px solid rgba(245,200,66,0.3)', color: '#F5C842' }}
+        >
+          <Sparkles size={11} />
+          EM BREVE
+        </div>
+
+        <h3 className="text-2xl font-black mb-3">Coach IA</h3>
+        <p className="text-text-secondary text-sm max-w-xs mx-auto mb-6 leading-relaxed">
+          Seu assistente pessoal de IA está quase aqui. Ele vai ter acesso completo aos seus
+          hábitos, treinos, tarefas e finanças para te dar conselhos ultra-personalizados.
+        </p>
+
+        {/* Feature chips */}
+        <div className="flex flex-wrap justify-center gap-2 mb-8">
+          {[
+            { icon: '💪', label: 'Análise de treinos' },
+            { icon: '✅', label: 'Gestão de tarefas' },
+            { icon: '💰', label: 'Dicas financeiras' },
+            { icon: '🔥', label: 'Motivação de streak' },
+            { icon: '⚡', label: 'Estratégia de XP' },
+            { icon: '🎯', label: 'Planos de meta' },
+          ].map((chip) => (
+            <span
+              key={chip.label}
+              className="text-xs px-3 py-1.5 rounded-full border border-border text-text-muted bg-bg-elevated"
+            >
+              {chip.icon} {chip.label}
+            </span>
+          ))}
+        </div>
+
+        {/* Disabled input preview */}
+        <div className="w-full max-w-lg">
+          <div
+            className="rounded-2xl p-4 flex items-center gap-3 cursor-not-allowed"
+            style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
+          >
+            <div className="flex-1 text-sm text-text-muted italic">
+              Coach IA disponível em breve…
+            </div>
+            <div
+              className="w-9 h-9 rounded-xl flex items-center justify-center opacity-25"
+              style={{ background: 'rgba(255,77,0,0.3)' }}
+            >
+              <Send size={15} className="text-white" />
+            </div>
+          </div>
+          <p className="text-[11px] text-text-muted mt-2 text-center">
+            O módulo de IA será ativado em breve. Fique de olho nas novidades!
+          </p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <>

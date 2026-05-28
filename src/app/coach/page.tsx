@@ -68,12 +68,15 @@ export default async function CoachPage({
     .eq('conversation_id', activeConversationId)
     .order('created_at')
 
+  const apiConfigured = !!process.env.ANTHROPIC_API_KEY
+
   return (
     <AppShell>
       <CoachLayout
         conversations={conversations}
         activeConversationId={activeConversationId}
         initialMessages={messages ?? []}
+        apiConfigured={apiConfigured}
       />
     </AppShell>
   )

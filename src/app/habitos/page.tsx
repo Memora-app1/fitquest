@@ -9,6 +9,8 @@ import { HabitStatsBreakdown } from '@/components/habitos/habit-stats-breakdown'
 import { HabitCompletionCalendar } from '@/components/habitos/habit-completion-calendar'
 import { HabitYearHeatmap } from '@/components/habitos/habit-year-heatmap'
 import { HabitCorrelationMatrix } from '@/components/habitos/habit-correlation-matrix'
+import { HabitTimeOfDayHeatmap } from '@/components/habitos/habit-time-of-day-heatmap'
+import { HabitStreakRecords } from '@/components/habitos/habit-streak-records'
 import { Flame, Target, Zap, Calendar, Star } from 'lucide-react'
 
 export const metadata: Metadata = {
@@ -307,6 +309,12 @@ export default async function HabitosPage({
 
         {/* ── Habit correlation matrix — which habits are done together ── */}
         <HabitCorrelationMatrix userId={user.id} />
+
+        {/* ── Horário preferido de registro de hábitos ─────────────── */}
+        <HabitTimeOfDayHeatmap userId={user.id} />
+
+        {/* ── Ranking de streak atual vs recorde por hábito ────────── */}
+        <HabitStreakRecords userId={user.id} />
 
         <HabitsList
           habits={habits}
