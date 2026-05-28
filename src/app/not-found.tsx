@@ -1,9 +1,9 @@
-import Link from 'next/link'
+﻿import Link from 'next/link'
 import type { Metadata } from 'next'
 import { Home, LayoutDashboard, Dumbbell, CheckSquare, Wallet } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Página não encontrada — FitQuest',
+  title: 'Página não encontrada — Ascendia',
   robots: { index: false },
 }
 

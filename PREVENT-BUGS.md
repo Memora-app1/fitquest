@@ -1,4 +1,4 @@
-# Prevenção de Bugs — FitQuest
+﻿# Prevenção de Bugs — Ascendia
 
 ## Bug do Signup (resolvido em 2026-05-23)
 

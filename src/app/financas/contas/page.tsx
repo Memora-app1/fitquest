@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+﻿import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { AppShell } from '@/components/layout/app-shell'
@@ -8,7 +8,7 @@ import { SavingsRateTracker } from '@/components/financas/savings-rate-tracker'
 
 export const metadata: Metadata = {
   title: 'Contas',
-  description: 'Gerencie suas contas bancárias e cartões no FitQuest.',
+  description: 'Gerencie suas contas bancárias e cartões no Ascendia.',
 }
 
 export const dynamic = 'force-dynamic'

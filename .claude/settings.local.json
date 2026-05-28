@@ -78,7 +78,9 @@
       "Bash(ls src/app/treinos/[id]/)",
       "Bash(xargs -I{} dirname {})",
       "Bash(find src/app -name \"not-found.tsx\")",
-      "Bash(dir /S /B src\\\\app\\\\not-found.tsx)"
+      "Bash(dir /S /B src\\\\app\\\\not-found.tsx)",
+      "Bash(grep -v \"//.*console.log\")",
+      "Bash(grep -v \"node_modules\\\\|//.*console\")"
     ],
     "additionalDirectories": [
       "c:\\Users\\SURFACE\\Downloads\\fitquest_2\\fitquest\\src\\app\\treinos",

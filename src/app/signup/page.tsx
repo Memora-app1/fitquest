@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -43,7 +43,7 @@ function getPasswordStrength(pwd: string): { score: number; label: string; color
 const BENEFITS = [
   { icon: <Zap size={16} className="text-brand-gold" />, text: 'XP por hábitos, treinos e tarefas' },
   { icon: <Flame size={16} className="text-brand-orange" />, text: 'Streak diário que te mantém motivado' },
-  { icon: <Trophy size={16} className="text-brand-purple" />, text: '8 níveis do Iniciante ao FitQuest Master' },
+  { icon: <Trophy size={16} className="text-brand-purple" />, text: '8 níveis do Iniciante ao Ascendia Master' },
   { icon: <Target size={16} className="text-brand-green" />, text: 'Coach IA contextualizado no seu progresso' },
   { icon: <Shield size={16} className="text-brand-blue" />, text: 'Finanças e tarefas integradas ao XP' },
 ]
@@ -52,7 +52,7 @@ const MILESTONES = [
   { label: 'Dia 1', desc: '+100 XP bônus de boas-vindas', color: '#F5C842' },
   { label: 'Semana 1', desc: 'Nível 2 — Dedicado', color: '#7C3AED' },
   { label: 'Mês 1', desc: 'Atleta ou acima', color: '#FF4D00' },
-  { label: 'Mês 3', desc: 'FitQuest Master 🏆', color: '#00FF88' },
+  { label: 'Mês 3', desc: 'Ascendia Master 🏆', color: '#00FF88' },
 ]
 
 export default function SignupPage() {
@@ -119,7 +119,7 @@ export default function SignupPage() {
 
         {/* Logo */}
         <Link href="/" className="relative z-10">
-          <span className="heading-display text-3xl gradient-text">⚡ FitQuest</span>
+          <span className="heading-display text-3xl gradient-text">⚡ Ascendia</span>
         </Link>
 
         {/* Main content */}
@@ -179,7 +179,7 @@ export default function SignupPage() {
           {/* Mobile logo */}
           <div className="lg:hidden text-center mb-8">
             <Link href="/">
-              <span className="heading-display text-3xl gradient-text">⚡ FitQuest</span>
+              <span className="heading-display text-3xl gradient-text">⚡ Ascendia</span>
             </Link>
           </div>
 

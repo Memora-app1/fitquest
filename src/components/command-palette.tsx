@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
@@ -471,7 +471,7 @@ export function CommandPalette({ variant = 'bar' }: CommandPaletteProps) {
             </div>
             <div className="flex items-center gap-1">
               <Zap size={9} className="text-brand-gold" />
-              <span>FitQuest</span>
+              <span>Ascendia</span>
             </div>
           </div>
         </div>

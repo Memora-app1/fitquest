@@ -1,4 +1,4 @@
-# ⚡ FitQuest — Life OS Gamificado
+﻿# ⚡ Ascendia — Life OS Gamificado
 
 App SaaS brasileiro que unifica **fitness + produtividade + finanças** com sistema de XP, level up, streaks e coach de IA. Estilo Hevy + Todoist + Mobills + Habitica em um só lugar.
 
@@ -20,9 +20,9 @@ git --version
 
 ```bash
 # No terminal, na pasta onde você quer criar o projeto:
-npx create-next-app@latest fitquest --typescript --tailwind --app --src-dir --turbopack --no-eslint
+npx create-next-app@latest ascendia --typescript --tailwind --app --src-dir --turbopack --no-eslint
 
-cd fitquest
+cd ascendia
 ```
 
 Quando perguntar:
@@ -31,12 +31,12 @@ Quando perguntar:
 
 ### 3️⃣ Substituir arquivos pelo zip
 
-Extraia o zip do FitQuest **dentro da pasta `fitquest/`** que acabou de criar.  
+Extraia o zip do Ascendia **dentro da pasta `ascendia/`** que acabou de criar.  
 Sobrescreva os arquivos quando o sistema perguntar.
 
 ```bash
 # Estrutura esperada após extrair:
-fitquest/
+ascendia/
 ├── README.md          ← este arquivo
 ├── CLAUDE.md          ← contexto pra qualquer IA
 ├── package.json
@@ -194,7 +194,7 @@ A escolha do plano é feita na rota `/planos`.
 | Streak 7 dias | +300 |
 | Streak 30 dias | +1.000 |
 
-**Levels:** 8 níveis de Iniciante (0 XP) até FitQuest Master (35.000+ XP).
+**Levels:** 8 níveis de Iniciante (0 XP) até Ascendia Master (35.000+ XP).
 
 ---
 

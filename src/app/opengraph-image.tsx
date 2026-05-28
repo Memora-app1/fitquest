@@ -1,7 +1,7 @@
-import { ImageResponse } from 'next/og'
+﻿import { ImageResponse } from 'next/og'
 
 export const runtime = 'edge'
-export const alt = 'FitQuest — Life OS Gamificado'
+export const alt = 'Ascendia — Life OS Gamificado'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
@@ -44,7 +44,7 @@ export default function OgImage() {
             fontWeight: 900,
             color: '#FF4D00',
             letterSpacing: 4,
-          }}>FITQUEST</span>
+          }}>ASCENDIA</span>
         </div>
 
         {/* Tagline */}

@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+﻿import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { AppShell } from '@/components/layout/app-shell'
@@ -8,7 +8,7 @@ import { Target, CheckCircle2, TrendingUp } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Metas',
-  description: 'Defina e acompanhe suas metas pessoais no FitQuest.',
+  description: 'Defina e acompanhe suas metas pessoais no Ascendia.',
 }
 
 export const dynamic = 'force-dynamic'

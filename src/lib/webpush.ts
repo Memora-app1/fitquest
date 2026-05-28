@@ -1,4 +1,4 @@
-import webpush from 'web-push'
+﻿import webpush from 'web-push'
 
 let _initialized = false
 
@@ -6,7 +6,7 @@ function init() {
   if (_initialized) return
   const pub = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
   const priv = process.env.VAPID_PRIVATE_KEY
-  const subject = process.env.VAPID_SUBJECT ?? 'mailto:suporte@fitquest.app'
+  const subject = process.env.VAPID_SUBJECT ?? 'mailto:suporte@ascendia.app'
   if (!pub || !priv) throw new Error('VAPID keys não configuradas')
   webpush.setVapidDetails(subject, pub, priv)
   _initialized = true

@@ -1,5 +1,5 @@
-/**
- * Webhook do Stripe — FitQuest
+﻿/**
+ * Webhook do Stripe — Ascendia
  *
  * Eventos tratados:
  * - checkout.session.completed   → ativa lifetime ou salva stripe_customer_id

@@ -1,10 +1,10 @@
-'use client'
+﻿'use client'
 
 /**
  * LevelUpCelebration — Overlay cinematográfico de tela cheia ao subir de nível.
  *
  * Uso: qualquer componente client dispara com:
- *   window.dispatchEvent(new CustomEvent('fitquest:levelup', { detail: { level: N } }))
+ *   window.dispatchEvent(new CustomEvent('ascendia:levelup', { detail: { level: N } }))
  *
  * O componente vive em AppShell e escuta o evento globalmente.
  * Auto-dismiss após 6 segundos.
@@ -126,7 +126,7 @@ const LEVEL_MESSAGES: Record<number, string> = {
   5: 'Poucos chegam aqui. Você é um Guerreiro.',
   6: 'Você está no grupo dos 5% mais consistentes.',
   7: 'Lendário. Literalmente.',
-  8: '👑 FitQuest Master. Não existe nível acima disso.',
+  8: '👑 Ascendia Master. Não existe nível acima disso.',
 }
 
 export function LevelUpCelebration() {
@@ -157,8 +157,8 @@ export function LevelUpCelebration() {
       setDismissing(false)
       setTimeout(() => setVisible(true), 10)
     }
-    window.addEventListener('fitquest:levelup', handleLevelUp)
-    return () => window.removeEventListener('fitquest:levelup', handleLevelUp)
+    window.addEventListener('ascendia:levelup', handleLevelUp)
+    return () => window.removeEventListener('ascendia:levelup', handleLevelUp)
   }, [])
 
   const displayLevel = useCountUp(celebration?.level ?? 0, 1000)

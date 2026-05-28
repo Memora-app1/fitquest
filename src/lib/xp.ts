@@ -1,5 +1,5 @@
-/**
- * Sistema unificado de XP do FitQuest — funções puras, seguras para client e server.
+﻿/**
+ * Sistema unificado de XP do Ascendia — funções puras, seguras para client e server.
  *
  * Para conceder XP (operação server-only), use src/lib/xp-server.ts
  */
@@ -45,7 +45,7 @@ export const LEVELS = [
   { level: 5, minXp: 7000, maxXp: 12000, title: 'Guerreiro', emoji: '⚔️' },
   { level: 6, minXp: 12000, maxXp: 20000, title: 'Elite', emoji: '🛡️' },
   { level: 7, minXp: 20000, maxXp: 35000, title: 'Lendário', emoji: '🏛️' },
-  { level: 8, minXp: 35000, maxXp: Infinity, title: 'FitQuest Master', emoji: '👑' },
+  { level: 8, minXp: 35000, maxXp: Infinity, title: 'Ascendia Master', emoji: '👑' },
 ] as const
 
 export function calculateLevel(xp: number): number {

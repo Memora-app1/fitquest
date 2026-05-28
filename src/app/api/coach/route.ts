@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+﻿import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
 import Anthropic from '@anthropic-ai/sdk'
@@ -106,7 +106,7 @@ export async function POST(req: NextRequest) {
     })),
   }
 
-  const systemPrompt = `Você é o Coach do FitQuest — assistente pessoal de um usuário brasileiro.
+  const systemPrompt = `Você é o Coach do Ascendia — assistente pessoal de um usuário brasileiro.
 
 Você tem acesso a TODA a vida dele: fitness, produtividade, finanças, metas. Você NÃO dá conselhos genéricos. Você cruza dados entre domínios.
 

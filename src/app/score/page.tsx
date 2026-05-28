@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+﻿import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { AppShell } from '@/components/layout/app-shell'
@@ -9,7 +9,7 @@ import { Lock, Zap, Flame, Star, Trophy, Dumbbell, CheckSquare, Target, Trending
 
 export const metadata: Metadata = {
   title: 'Seu Score',
-  description: 'Acompanhe seu nível, XP total, streak e conquistas desbloqueadas no FitQuest.',
+  description: 'Acompanhe seu nível, XP total, streak e conquistas desbloqueadas no Ascendia.',
 }
 
 export const dynamic = 'force-dynamic'
@@ -424,7 +424,7 @@ export default async function ScorePage() {
           >
             <div className="text-5xl mb-4">🏆</div>
             <p className="font-medium">Nenhuma conquista cadastrada ainda.</p>
-            <p className="text-sm text-text-muted mt-1">Continue usando o FitQuest para desbloquear conquistas!</p>
+            <p className="text-sm text-text-muted mt-1">Continue usando o Ascendia para desbloquear conquistas!</p>
           </div>
         )}
       </div>

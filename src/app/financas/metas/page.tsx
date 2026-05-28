@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+﻿import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { AppShell } from '@/components/layout/app-shell'
@@ -10,7 +10,7 @@ import { formatBRL } from '@/lib/utils'
 
 export const metadata: Metadata = {
   title: 'Metas Financeiras',
-  description: 'Defina e acompanhe suas metas financeiras no FitQuest.',
+  description: 'Defina e acompanhe suas metas financeiras no Ascendia.',
 }
 
 export const dynamic = 'force-dynamic'

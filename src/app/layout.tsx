@@ -1,4 +1,4 @@
-import type { Metadata, Viewport } from 'next'
+﻿import type { Metadata, Viewport } from 'next'
 import { DM_Sans, Bebas_Neue } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { SpeedInsights } from '@vercel/speed-insights/next'
@@ -19,24 +19,24 @@ const bebas = Bebas_Neue({
 
 export const metadata: Metadata = {
   title: {
-    default: 'FitQuest — Sua vida inteira em um só sistema',
-    template: '%s | FitQuest',
+    default: 'Ascendia — Sua vida inteira em um só sistema',
+    template: '%s | Ascendia',
   },
   description:
     'Life OS gamificado: fitness, produtividade, finanças e coach IA. Cada ação vira XP. Cada dia vira evolução.',
   keywords: ['fitness', 'hábitos', 'produtividade', 'finanças', 'gamificação', 'XP', 'life os', 'streak'],
-  authors: [{ name: 'FitQuest' }],
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? 'https://fitquest-app1.vercel.app'),
+  authors: [{ name: 'Ascendia' }],
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? 'https://ascendia-app1.vercel.app'),
   openGraph: {
-    title: 'FitQuest — Sua vida inteira em um só sistema',
+    title: 'Ascendia — Sua vida inteira em um só sistema',
     description: 'Cada ação vira XP. Cada dia vira evolução.',
     type: 'website',
     locale: 'pt_BR',
-    siteName: 'FitQuest',
+    siteName: 'Ascendia',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'FitQuest — Life OS gamificado',
+    title: 'Ascendia — Life OS gamificado',
     description: 'Fitness, produtividade, finanças e coach IA. Tudo gamificado.',
   },
   robots: {

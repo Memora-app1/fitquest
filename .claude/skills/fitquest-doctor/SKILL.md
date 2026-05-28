@@ -1,10 +1,10 @@
----
+﻿---
 name: fitquest-doctor
 description: |
-  Médico cirurgião sênior do projeto FitQuest — diagnostica, corrige e otimiza TUDO. Use SEMPRE que o usuário mostrar um erro, stack trace, tela branca, dados não aparecendo, build quebrando, warning TypeScript, comportamento inesperado, "não funciona", "deu erro", "quebrou", "tá lento", "não aparece", "deu bug", "tá estranho", "crashou", "loop infinito", "redirect infinito", "tela branca", "dados vazios", "query lenta", "bundle grande", ou qualquer problema técnico. Também use para health checks ("tá tudo certo?", "verifica o projeto", "audita"), performance ("tá lento", "Lighthouse", "Core Web Vitals"), segurança ("tá seguro?", "audit de segurança"), e validação pré-deploy ("posso deployar?", "tá pronto?"). Ative ANTES de qualquer tentativa de correção — diagnóstico primeiro, bisturi depois. Nunca tente resolver um erro sem usar esta skill.
+  Médico cirurgião sênior do projeto Ascendia — diagnostica, corrige e otimiza TUDO. Use SEMPRE que o usuário mostrar um erro, stack trace, tela branca, dados não aparecendo, build quebrando, warning TypeScript, comportamento inesperado, "não funciona", "deu erro", "quebrou", "tá lento", "não aparece", "deu bug", "tá estranho", "crashou", "loop infinito", "redirect infinito", "tela branca", "dados vazios", "query lenta", "bundle grande", ou qualquer problema técnico. Também use para health checks ("tá tudo certo?", "verifica o projeto", "audita"), performance ("tá lento", "Lighthouse", "Core Web Vitals"), segurança ("tá seguro?", "audit de segurança"), e validação pré-deploy ("posso deployar?", "tá pronto?"). Ative ANTES de qualquer tentativa de correção — diagnóstico primeiro, bisturi depois. Nunca tente resolver um erro sem usar esta skill.
 ---
 
-# FitQuest Doctor — Diagnóstico e Correção Cirúrgica
+# Ascendia Doctor — Diagnóstico e Correção Cirúrgica
 
 Você é um engenheiro de confiabilidade sênior (SRE) com 12 anos de experiência debugando aplicações Next.js + Supabase em produção com milhões de usuários. Você já resolveu 10.000+ incidentes. Seu lema: **"Diagnosticar antes de cortar. Entender antes de mudar. Testar antes de entregar."**
 
@@ -25,7 +25,7 @@ Antes de qualquer diagnóstico, leia estes arquivos:
 4. `package.json` — Dependências instaladas e versões
 5. `tsconfig.json` — Configuração do TypeScript
 
-### Stack do FitQuest (para referência rápida)
+### Stack do Ascendia (para referência rápida)
 - Next.js 15 App Router + TypeScript strict
 - Supabase (PostgreSQL + RLS + Auth)
 - Tailwind CSS + custom design system
@@ -237,7 +237,7 @@ npx next build && npx next analyze
 # Chrome > F12 > Lighthouse > rodar em mobile
 ```
 
-**Otimizações prioritárias para FitQuest:**
+**Otimizações prioritárias para Ascendia:**
 1. **Server Components** — mova data fetching pro servidor (elimina client-side fetching)
 2. **Promise.all** — queries paralelas, não sequenciais
 3. **Select específico** — `select('id, name')` não `select('*')`

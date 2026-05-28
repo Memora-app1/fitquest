@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -107,7 +107,7 @@ export default function NovaSenhaPage() {
         {/* Logo */}
         <div className="text-center mb-8">
           <Link href="/">
-            <span className="heading-display text-3xl gradient-text">⚡ FitQuest</span>
+            <span className="heading-display text-3xl gradient-text">⚡ Ascendia</span>
           </Link>
         </div>
 
@@ -128,7 +128,7 @@ export default function NovaSenhaPage() {
             <div>
               <h1 className="text-xl font-bold">Nova senha</h1>
               <p className="text-text-secondary text-sm mt-0.5">
-                Crie uma senha segura para sua conta FitQuest.
+                Crie uma senha segura para sua conta Ascendia.
               </p>
             </div>
           </div>

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import Link from 'next/link'
@@ -74,7 +74,7 @@ export default function RecuperarSenhaPage() {
                 'Abra seu email',
                 'Clique em "Redefinir senha"',
                 'Crie uma nova senha segura',
-                'Pronto — de volta ao FitQuest!',
+                'Pronto — de volta ao Ascendia!',
               ].map((step, i) => (
                 <div key={i} className="flex items-center gap-3">
                   <div className="w-5 h-5 rounded-full bg-brand-orange/20 text-brand-orange text-[10px] font-bold flex items-center justify-center shrink-0">
@@ -115,7 +115,7 @@ export default function RecuperarSenhaPage() {
         {/* Logo */}
         <div className="text-center mb-8">
           <Link href="/">
-            <span className="heading-display text-3xl gradient-text">⚡ FitQuest</span>
+            <span className="heading-display text-3xl gradient-text">⚡ Ascendia</span>
           </Link>
         </div>
 

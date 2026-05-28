@@ -1,4 +1,4 @@
-# 🔥 Correção Urgente — Signup Quebrado + Colunas Stripe
+﻿# 🔥 Correção Urgente — Signup Quebrado + Colunas Stripe
 
 ## O que estava acontecendo
 
@@ -14,7 +14,7 @@ O signup retornava "Database error saving new user" por uma das causas:
 ### Passo 1 — Aplicar fix no Supabase
 
 1. Abrir [https://supabase.com/dashboard](https://supabase.com/dashboard)
-2. Selecionar o projeto **FitQuest** (puqlapfpxzktrroihwie)
+2. Selecionar o projeto **Ascendia** (puqlapfpxzktrroihwie)
 3. Menu lateral → **SQL Editor** → **New query**
 4. Abrir o arquivo `supabase/fixes/001-fix-handle-new-user.sql`
 5. Copiar **TODO** o conteúdo e colar no SQL Editor
@@ -27,7 +27,7 @@ O signup retornava "Database error saving new user" por uma das causas:
 
 ### Passo 2 — Adicionar variáveis Stripe no Vercel (se ainda não fez)
 
-No Vercel → **aplicativo fitquest1** → Settings → Environment Variables → Add:
+No Vercel → **aplicativo ascendia1** → Settings → Environment Variables → Add:
 
 | Variável | Onde pegar |
 |---|---|
@@ -53,7 +53,7 @@ No Vercel → Environment Variables, remova:
 
 1. Acessar [dashboard.stripe.com/webhooks](https://dashboard.stripe.com/webhooks)
 2. Clicar **Add endpoint**
-3. URL: `https://fitquest-app1.vercel.app/api/webhook/stripe`
+3. URL: `https://ascendia-app1.vercel.app/api/webhook/stripe`
 4. Selecionar eventos:
    - `checkout.session.completed`
    - `customer.subscription.created`
@@ -71,7 +71,7 @@ O código já foi commitado e enviado ao GitHub. O Vercel vai buildar automatica
 Após o deploy terminar:
 
 **Checklist de validação em produção:**
-- [ ] Acessar `https://fitquest-app1.vercel.app/signup`
+- [ ] Acessar `https://ascendia-app1.vercel.app/signup`
 - [ ] Criar conta com email real
 - [ ] Confirmar que não aparece "Database error saving new user"
 - [ ] Confirmar redirecionamento para `/onboarding`

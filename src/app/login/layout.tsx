@@ -1,8 +1,8 @@
-import type { Metadata } from 'next'
+﻿import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Entrar',
-  description: 'Entre na sua conta FitQuest e continue sua evolução.',
+  description: 'Entre na sua conta Ascendia e continue sua evolução.',
   robots: { index: false },
 }
 

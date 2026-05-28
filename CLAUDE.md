@@ -1,12 +1,12 @@
-# CLAUDE.md — Contexto do Projeto FitQuest
+﻿# CLAUDE.md — Contexto do Projeto Ascendia
 
-> Este arquivo serve como referência para qualquer LLM (Claude, GPT, etc.) que for trabalhar no código do FitQuest. Mantenha atualizado.
+> Este arquivo serve como referência para qualquer LLM (Claude, GPT, etc.) que for trabalhar no código do Ascendia. Mantenha atualizado.
 
 ---
 
 ## 🎯 O Que É
 
-**FitQuest** é um SaaS brasileiro de **Life OS gamificado** que unifica:
+**Ascendia** é um SaaS brasileiro de **Life OS gamificado** que unifica:
 - 💪 **Fitness** — hábitos, treinos, sets/reps, PRs
 - ✅ **Produtividade** — tarefas Kanban + Matriz Eisenhower
 - 💰 **Finanças** — transações, parcelas, metas financeiras
@@ -114,7 +114,7 @@ Toda concessão de XP passa por `lib/xp.ts → grantXP(userId, amount, reason, s
 | 5 | 7000–12000 | Guerreiro |
 | 6 | 12000–20000 | Elite |
 | 7 | 20000–35000 | Lendário |
-| 8 | 35000+ | FitQuest Master |
+| 8 | 35000+ | Ascendia Master |
 
 ---
 
@@ -272,7 +272,7 @@ Contém:
 - 10 classes de problema (BUILD_TS, BUILD_NEXT, RUNTIME_SERVER, RUNTIME_CLIENT, DATA_EMPTY, DATA_WRONG, AUTH_FLOW, STYLE_BREAK, PERF, DEPLOY)
 - Flowcharts de diagnóstico para auth, dados, performance
 - Health Check completo v2.0 (10 categorias, 65+ verificações)
-- 8 erros conhecidos do FitQuest com soluções prontas
+- 8 erros conhecidos do Ascendia com soluções prontas
 - Formato padronizado de relatório de correção
 - 12 instruções negativas
 

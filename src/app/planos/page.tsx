@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+﻿import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
@@ -7,10 +7,10 @@ import { Check, Star, Zap, Shield, RefreshCw, Trophy, ChevronDown, Crown } from 
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'Planos e Preços — FitQuest',
-  description: 'Escolha o plano FitQuest ideal para você. Mensal R$37, Anual R$25,55/mês ou Vitalício R$597. 7 dias grátis. Cancele quando quiser.',
+  title: 'Planos e Preços — Ascendia',
+  description: 'Escolha o plano Ascendia ideal para você. Mensal R$37, Anual R$25,55/mês ou Vitalício R$597. 7 dias grátis. Cancele quando quiser.',
   openGraph: {
-    title: 'FitQuest — Planos e Preços',
+    title: 'Ascendia — Planos e Preços',
     description: 'R$37/mês ou R$597 uma vez. Fitness, produtividade e finanças gamificados.',
   },
 }
@@ -129,7 +129,7 @@ const FAQ = [
 
 const TESTIMONIALS = [
   {
-    text: 'Nunca fui consistente em nada na minha vida. Com o FitQuest cheguei a 47 dias de streak. O XP vicia.',
+    text: 'Nunca fui consistente em nada na minha vida. Com o Ascendia cheguei a 47 dias de streak. O XP vicia.',
     name: 'Rafael M.',
     role: 'Desenvolvedor, 28 anos',
     stars: 5,
@@ -208,7 +208,7 @@ export default async function PlanosPage({
         {/* ── Hero header ───────────────────────────────────── */}
         <div className="text-center space-y-5">
           <Link href="/dashboard" className="inline-block heading-display text-3xl mb-2" style={{ color: '#FF4D00' }}>
-            ⚡ FitQuest
+            ⚡ Ascendia
           </Link>
           <h1 className="heading-display text-5xl md:text-7xl leading-none">
             Invista em você.

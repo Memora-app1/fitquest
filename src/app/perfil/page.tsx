@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+﻿import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { AppShell } from '@/components/layout/app-shell'
@@ -14,7 +14,7 @@ import { Trophy, Flame, Zap, Star, Calendar, Target, Dumbbell, CheckSquare, Crow
 
 export const metadata: Metadata = {
   title: 'Perfil',
-  description: 'Gerencie sua conta, assinatura e preferências do FitQuest.',
+  description: 'Gerencie sua conta, assinatura e preferências do Ascendia.',
 }
 
 export const dynamic = 'force-dynamic'
@@ -35,7 +35,7 @@ const PLAN_LABELS: Record<string, string> = {
 
 const LEVEL_TITLES: Record<number, string> = {
   1: 'Iniciante', 2: 'Dedicado', 3: 'Consistente', 4: 'Atleta',
-  5: 'Guerreiro', 6: 'Elite', 7: 'Lendário', 8: 'FitQuest Master',
+  5: 'Guerreiro', 6: 'Elite', 7: 'Lendário', 8: 'Ascendia Master',
 }
 
 const LEVEL_COLORS: Record<number, string> = {

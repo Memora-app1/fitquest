@@ -1,9 +1,9 @@
-import type { MetadataRoute } from 'next'
+﻿import type { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'FitQuest — Life OS Gamificado',
-    short_name: 'FitQuest',
+    name: 'Ascendia — Life OS Gamificado',
+    short_name: 'Ascendia',
     description: 'Fitness, produtividade, finanças e coach IA. Tudo gamificado.',
     start_url: '/dashboard',
     display: 'standalone',

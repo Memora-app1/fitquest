@@ -1,9 +1,9 @@
-import Link from 'next/link'
+﻿import Link from 'next/link'
 import { Shield, Eye, Database, Share2, Lock, UserCheck, Mail, Scale } from 'lucide-react'
 
 export const metadata = {
-  title: 'Política de Privacidade — FitQuest',
-  description: 'Como o FitQuest coleta, usa e protege seus dados, em conformidade com a LGPD.',
+  title: 'Política de Privacidade — Ascendia',
+  description: 'Como o Ascendia coleta, usa e protege seus dados, em conformidade com a LGPD.',
 }
 
 const SECTIONS = [
@@ -35,7 +35,7 @@ export default function PrivacidadePage() {
 
         <div className="max-w-3xl mx-auto relative z-10">
           <Link href="/" className="inline-block heading-display text-2xl gradient-text mb-6">
-            ⚡ FitQuest
+            ⚡ Ascendia
           </Link>
           <div className="flex items-start gap-4">
             <div className="w-14 h-14 rounded-2xl bg-brand-purple/10 border border-brand-purple/20 flex items-center justify-center shrink-0">
@@ -53,7 +53,7 @@ export default function PrivacidadePage() {
 
           <div className="mt-6 p-4 rounded-xl border border-brand-green/20 bg-brand-green/5 text-sm text-text-secondary leading-relaxed">
             <span className="text-white font-semibold">Sua privacidade é fundamental para nós.</span>{' '}
-            Esta Política descreve como o FitQuest coleta, utiliza, armazena e protege seus dados pessoais.
+            Esta Política descreve como o Ascendia coleta, utiliza, armazena e protege seus dados pessoais.
           </div>
         </div>
       </div>
@@ -90,7 +90,7 @@ export default function PrivacidadePage() {
             <SectionHeader num="01" title="Quem Somos (Controlador dos Dados)" icon={<UserCheck size={18} />} />
             <div className="space-y-3 text-text-secondary leading-relaxed">
               <p>
-                O <strong className="text-white">FitQuest</strong> é o controlador dos seus dados pessoais, responsável pelas decisões sobre o tratamento dessas informações nos termos da LGPD.
+                O <strong className="text-white">Ascendia</strong> é o controlador dos seus dados pessoais, responsável pelas decisões sobre o tratamento dessas informações nos termos da LGPD.
               </p>
               <div
                 className="p-4 space-y-2 rounded-xl"
@@ -99,9 +99,9 @@ export default function PrivacidadePage() {
                   border: '1px solid rgba(124,58,237,0.2)',
                 }}
               >
-                <p className="font-bold text-white text-lg">⚡ FitQuest</p>
-                <p>Email: <a href="mailto:privacidade@fitquest.app" className="text-brand-purple underline hover:text-brand-purple/80 transition-colors">privacidade@fitquest.app</a></p>
-                <p>Site: fitquest-app1.vercel.app</p>
+                <p className="font-bold text-white text-lg">⚡ Ascendia</p>
+                <p>Email: <a href="mailto:privacidade@ascendia.app" className="text-brand-purple underline hover:text-brand-purple/80 transition-colors">privacidade@ascendia.app</a></p>
+                <p>Site: ascendia-app1.vercel.app</p>
               </div>
             </div>
           </section>
@@ -161,7 +161,7 @@ export default function PrivacidadePage() {
                 <div className="flex gap-3 p-4 rounded-xl bg-brand-green/5 border border-brand-green/20">
                   <Lock size={18} className="text-brand-green shrink-0 mt-0.5" />
                   <p className="text-sm">
-                    O FitQuest <strong className="text-white">não armazena dados de cartão de crédito</strong>. Os pagamentos são processados integralmente pelo <strong className="text-white">Mercado Pago</strong> (mercadopago.com.br), certificado pelo Banco Central do Brasil. Recebemos apenas confirmações de pagamento e identificadores de assinatura.
+                    O Ascendia <strong className="text-white">não armazena dados de cartão de crédito</strong>. Os pagamentos são processados integralmente pelo <strong className="text-white">Mercado Pago</strong> (mercadopago.com.br), certificado pelo Banco Central do Brasil. Recebemos apenas confirmações de pagamento e identificadores de assinatura.
                   </p>
                 </div>
               </div>
@@ -206,7 +206,7 @@ export default function PrivacidadePage() {
               <ul className="space-y-2 pl-4">
                 {[
                   'Criar e gerenciar sua conta de usuário',
-                  'Fornecer todas as funcionalidades do FitQuest (hábitos, tarefas, finanças, coach IA)',
+                  'Fornecer todas as funcionalidades do Ascendia (hábitos, tarefas, finanças, coach IA)',
                   'Processar pagamentos e gerenciar sua assinatura',
                   'Enviar notificações de lembretes e conquistas (com seu consentimento)',
                   'Personalizar a experiência de gamificação (XP, nível, streak)',
@@ -325,7 +325,7 @@ export default function PrivacidadePage() {
                 ))}
               </div>
               <p className="text-sm">
-                Todos esses parceiros têm políticas de privacidade próprias e são responsáveis pelo tratamento dos dados que recebem. Não permitimos que usem seus dados para fins além do serviço prestado ao FitQuest.
+                Todos esses parceiros têm políticas de privacidade próprias e são responsáveis pelo tratamento dos dados que recebem. Não permitimos que usem seus dados para fins além do serviço prestado ao Ascendia.
               </p>
             </div>
           </section>
@@ -371,7 +371,7 @@ export default function PrivacidadePage() {
               </div>
               <p className="text-sm">
                 Para exercer qualquer um desses direitos, envie um email para{' '}
-                <a href="mailto:privacidade@fitquest.app" className="text-brand-purple underline hover:text-brand-purple/80 transition-colors">privacidade@fitquest.app</a>.
+                <a href="mailto:privacidade@ascendia.app" className="text-brand-purple underline hover:text-brand-purple/80 transition-colors">privacidade@ascendia.app</a>.
                 Responderemos em até <strong className="text-white">15 dias úteis</strong>.
               </p>
             </div>
@@ -382,7 +382,7 @@ export default function PrivacidadePage() {
             <SectionHeader num="08" title="Cookies e Tecnologias Similares" />
             <div className="space-y-3 text-text-secondary leading-relaxed">
               <p>
-                O FitQuest utiliza cookies <strong className="text-white">essenciais</strong> para manter sua sessão autenticada (via Supabase Auth). Não utilizamos cookies de rastreamento publicitário ou ferramentas de analytics de terceiros que identifiquem você pessoalmente.
+                O Ascendia utiliza cookies <strong className="text-white">essenciais</strong> para manter sua sessão autenticada (via Supabase Auth). Não utilizamos cookies de rastreamento publicitário ou ferramentas de analytics de terceiros que identifiquem você pessoalmente.
               </p>
               <p>
                 Você pode configurar seu navegador para recusar cookies, mas isso pode impedir o funcionamento correto do aplicativo, incluindo o login.
@@ -420,10 +420,10 @@ export default function PrivacidadePage() {
             <SectionHeader num="10" title="Crianças e Adolescentes" />
             <div className="space-y-3 text-text-secondary leading-relaxed">
               <p>
-                O FitQuest é destinado exclusivamente a <strong className="text-white">maiores de 18 anos</strong>. Não coletamos conscientemente dados de menores de idade. Se identificarmos que um menor criou uma conta, excluiremos os dados imediatamente.
+                O Ascendia é destinado exclusivamente a <strong className="text-white">maiores de 18 anos</strong>. Não coletamos conscientemente dados de menores de idade. Se identificarmos que um menor criou uma conta, excluiremos os dados imediatamente.
               </p>
               <p className="text-sm">
-                Se você acredita que um menor forneceu dados ao FitQuest, entre em contato pelo email de privacidade.
+                Se você acredita que um menor forneceu dados ao Ascendia, entre em contato pelo email de privacidade.
               </p>
             </div>
           </section>
@@ -433,14 +433,14 @@ export default function PrivacidadePage() {
             <SectionHeader num="11" title="Encarregado de Proteção de Dados (DPO)" />
             <div className="space-y-3 text-text-secondary leading-relaxed">
               <p>
-                Nos termos da LGPD (Art. 41), o responsável pelo tratamento de dados pessoais do FitQuest pode ser contactado em:
+                Nos termos da LGPD (Art. 41), o responsável pelo tratamento de dados pessoais do Ascendia pode ser contactado em:
               </p>
               <div
                 className="p-4 space-y-2 rounded-xl"
                 style={{ background: 'rgba(124,58,237,0.07)', border: '1px solid rgba(124,58,237,0.2)' }}
               >
-                <p className="font-bold text-white">DPO — FitQuest</p>
-                <p>Email: <a href="mailto:privacidade@fitquest.app" className="text-brand-purple underline hover:text-brand-purple/80 transition-colors">privacidade@fitquest.app</a></p>
+                <p className="font-bold text-white">DPO — Ascendia</p>
+                <p>Email: <a href="mailto:privacidade@ascendia.app" className="text-brand-purple underline hover:text-brand-purple/80 transition-colors">privacidade@ascendia.app</a></p>
                 <p className="text-xs text-text-muted">Prazo de resposta: até 15 dias úteis</p>
               </div>
             </div>
@@ -471,8 +471,8 @@ export default function PrivacidadePage() {
                   border: '1px solid rgba(124,58,237,0.25)',
                 }}
               >
-                <p className="font-bold text-white text-lg">🛡️ FitQuest — Privacidade</p>
-                <p>Email: <a href="mailto:privacidade@fitquest.app" className="text-brand-purple underline hover:text-brand-purple/80 transition-colors">privacidade@fitquest.app</a></p>
+                <p className="font-bold text-white text-lg">🛡️ Ascendia — Privacidade</p>
+                <p>Email: <a href="mailto:privacidade@ascendia.app" className="text-brand-purple underline hover:text-brand-purple/80 transition-colors">privacidade@ascendia.app</a></p>
                 <p className="text-xs text-text-muted">Respondemos em até 15 dias úteis conforme a LGPD</p>
               </div>
               <p className="text-sm">

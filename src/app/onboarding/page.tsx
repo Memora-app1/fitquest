@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -113,7 +113,7 @@ export default function OnboardingPage() {
             <div className="text-center space-y-6">
               <div className="text-6xl">⚡</div>
               <div>
-                <h1 className="heading-display text-4xl gradient-text mb-3">Bem-vindo ao FitQuest</h1>
+                <h1 className="heading-display text-4xl gradient-text mb-3">Bem-vindo ao Ascendia</h1>
                 <p className="text-text-secondary leading-relaxed">
                   O único app que gamifica sua academia, tarefas e finanças ao mesmo tempo.
                   Cada ação vira XP. Cada dia vira evolução.

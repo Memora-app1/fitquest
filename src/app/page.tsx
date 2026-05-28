@@ -1,8 +1,8 @@
-import Link from 'next/link'
+﻿import Link from 'next/link'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'FitQuest — Sua vida inteira em um só sistema',
+  title: 'Ascendia — Sua vida inteira em um só sistema',
   description:
     'Life OS gamificado: fitness, produtividade, finanças e coach IA. Cada ação vira XP. 7 dias grátis, cancele quando quiser.',
 }
@@ -56,7 +56,7 @@ const HOW_IT_WORKS = [
   {
     step: '03',
     title: 'Suba de nível',
-    desc: 'De Iniciante a FitQuest Master. Desbloqueie conquistas e mantenha sua sequência acesa.',
+    desc: 'De Iniciante a Ascendia Master. Desbloqueie conquistas e mantenha sua sequência acesa.',
     icon: '🏆',
     rgb: '245,200,66',
   },
@@ -66,7 +66,7 @@ const LEVELS = [
   { level: 1, title: 'Iniciante', range: '0–500 XP', emoji: '🌱', rgb: '0,255,136' },
   { level: 3, title: 'Consistente', range: '1.500–3.500 XP', emoji: '⚡', rgb: '255,77,0' },
   { level: 5, title: 'Guerreiro', range: '7.000–12.000 XP', emoji: '🔥', rgb: '239,68,68' },
-  { level: 8, title: 'FitQuest Master', range: '35.000+ XP', emoji: '👑', rgb: '245,200,66' },
+  { level: 8, title: 'Ascendia Master', range: '35.000+ XP', emoji: '👑', rgb: '245,200,66' },
 ]
 
 const TESTIMONIALS = [
@@ -119,7 +119,7 @@ export default function LandingPage() {
           </div>
 
           <h1 className="heading-display text-6xl md:text-8xl leading-none">
-            <span className="gradient-text">FitQuest</span>
+            <span className="gradient-text">Ascendia</span>
           </h1>
 
           <p className="text-xl md:text-2xl text-text-secondary text-balance max-w-2xl mx-auto leading-relaxed">
@@ -342,7 +342,7 @@ export default function LandingPage() {
           </h2>
           <p className="text-text-secondary text-lg max-w-xl mx-auto">
             Suba de nível na academia, no trabalho e no banco.
-            O FitQuest conecta tudo e te dá a visão completa de quem você está se tornando.
+            O Ascendia conecta tudo e te dá a visão completa de quem você está se tornando.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
@@ -370,7 +370,7 @@ export default function LandingPage() {
           <Link href="/login" className="hover:text-white transition-colors">Entrar</Link>
           <Link href="/signup" className="hover:text-white transition-colors">Criar conta</Link>
         </div>
-        <p>© {new Date().getFullYear()} FitQuest · Feito no Brasil 🇧🇷</p>
+        <p>© {new Date().getFullYear()} Ascendia · Feito no Brasil 🇧🇷</p>
       </footer>
     </main>
   )

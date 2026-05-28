@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { Suspense, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -105,7 +105,7 @@ function LoginContent() {
 
         {/* Logo */}
         <Link href="/" className="relative z-10">
-          <span className="heading-display text-3xl gradient-text">⚡ FitQuest</span>
+          <span className="heading-display text-3xl gradient-text">⚡ Ascendia</span>
         </Link>
 
         {/* Main content */}
@@ -194,7 +194,7 @@ function LoginContent() {
           {/* Mobile logo */}
           <div className="lg:hidden text-center mb-8">
             <Link href="/">
-              <span className="heading-display text-3xl gradient-text">⚡ FitQuest</span>
+              <span className="heading-display text-3xl gradient-text">⚡ Ascendia</span>
             </Link>
           </div>
 

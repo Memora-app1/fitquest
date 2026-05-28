@@ -1,9 +1,9 @@
-import Link from 'next/link'
+﻿import Link from 'next/link'
 import { Shield, FileText, CreditCard, RefreshCw, AlertTriangle, Scale, Mail } from 'lucide-react'
 
 export const metadata = {
-  title: 'Termos de Uso — FitQuest',
-  description: 'Termos e condições de uso do FitQuest.',
+  title: 'Termos de Uso — Ascendia',
+  description: 'Termos e condições de uso do Ascendia.',
 }
 
 const SECTIONS = [
@@ -37,7 +37,7 @@ export default function TermosPage() {
 
         <div className="max-w-3xl mx-auto relative z-10">
           <Link href="/" className="inline-block heading-display text-2xl gradient-text mb-6">
-            ⚡ FitQuest
+            ⚡ Ascendia
           </Link>
           <div className="flex items-start gap-4">
             <div className="w-14 h-14 rounded-2xl bg-brand-orange/10 border border-brand-orange/20 flex items-center justify-center shrink-0">
@@ -53,7 +53,7 @@ export default function TermosPage() {
 
           <div className="mt-6 p-4 rounded-xl border border-brand-purple/20 bg-brand-purple/5 text-sm text-text-secondary leading-relaxed">
             <span className="text-white font-semibold">Leia com atenção.</span>{' '}
-            Ao utilizar o FitQuest, você concorda com estes termos. Se não concordar, não utilize o serviço.
+            Ao utilizar o Ascendia, você concorda com estes termos. Se não concordar, não utilize o serviço.
           </div>
         </div>
       </div>
@@ -89,11 +89,11 @@ export default function TermosPage() {
             <SectionHeader num="01" title="Aceitação dos Termos" />
             <div className="space-y-3 text-text-secondary leading-relaxed">
               <p>
-                Ao acessar ou utilizar o FitQuest — disponível em <span className="text-white">fitquest-app1.vercel.app</span> e domínios associados — você declara ter lido, compreendido e concordado com estes Termos de Uso e com nossa{' '}
+                Ao acessar ou utilizar o Ascendia — disponível em <span className="text-white">ascendia-app1.vercel.app</span> e domínios associados — você declara ter lido, compreendido e concordado com estes Termos de Uso e com nossa{' '}
                 <Link href="/privacidade" className="text-brand-orange underline hover:text-brand-orange/80 transition-colors">Política de Privacidade</Link>.
               </p>
               <p>
-                Estes termos constituem um contrato legal entre você (&ldquo;Usuário&rdquo;) e o FitQuest (&ldquo;nós&rdquo;, &ldquo;nos&rdquo; ou &ldquo;nosso&rdquo;), regido pelas leis da República Federativa do Brasil.
+                Estes termos constituem um contrato legal entre você (&ldquo;Usuário&rdquo;) e o Ascendia (&ldquo;nós&rdquo;, &ldquo;nos&rdquo; ou &ldquo;nosso&rdquo;), regido pelas leis da República Federativa do Brasil.
               </p>
             </div>
           </section>
@@ -102,7 +102,7 @@ export default function TermosPage() {
           <section id="servico" className="scroll-mt-6">
             <SectionHeader num="02" title="Descrição do Serviço" />
             <div className="space-y-3 text-text-secondary leading-relaxed">
-              <p>O FitQuest é um sistema de gestão de vida gamificado (&ldquo;Life OS&rdquo;) que integra em uma única plataforma:</p>
+              <p>O Ascendia é um sistema de gestão de vida gamificado (&ldquo;Life OS&rdquo;) que integra em uma única plataforma:</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 my-4">
                 {[
                   { emoji: '💪', title: 'Fitness', desc: 'Hábitos, treinos com séries/repetições e recordes pessoais' },
@@ -124,7 +124,7 @@ export default function TermosPage() {
                 ))}
               </div>
               <p>
-                O sistema de gamificação atribui XP (pontos de experiência) por cada ação completada, evoluindo seu nível e desbloqueando conquistas. O FitQuest é fornecido &ldquo;como está&rdquo; e pode ser alterado, atualizado ou descontinuado a qualquer momento, com aviso prévio de 30 dias nos casos de descontinuação.
+                O sistema de gamificação atribui XP (pontos de experiência) por cada ação completada, evoluindo seu nível e desbloqueando conquistas. O Ascendia é fornecido &ldquo;como está&rdquo; e pode ser alterado, atualizado ou descontinuado a qualquer momento, com aviso prévio de 30 dias nos casos de descontinuação.
               </p>
             </div>
           </section>
@@ -133,7 +133,7 @@ export default function TermosPage() {
           <section id="cadastro" className="scroll-mt-6">
             <SectionHeader num="03" title="Cadastro e Conta" />
             <div className="space-y-3 text-text-secondary leading-relaxed">
-              <p>Para utilizar o FitQuest, você deve:</p>
+              <p>Para utilizar o Ascendia, você deve:</p>
               <ul className="space-y-2 pl-4">
                 {[
                   'Ter no mínimo 18 anos de idade',
@@ -157,7 +157,7 @@ export default function TermosPage() {
           <section id="pagamentos" className="scroll-mt-6">
             <SectionHeader num="04" title="Planos e Pagamentos" icon={<CreditCard size={18} />} />
             <div className="space-y-4 text-text-secondary leading-relaxed">
-              <p>O FitQuest oferece os seguintes planos pagos, com preços em Reais (BRL):</p>
+              <p>O Ascendia oferece os seguintes planos pagos, com preços em Reais (BRL):</p>
 
               {/* Pricing table */}
               <div className="rounded-2xl border border-border overflow-hidden">
@@ -189,7 +189,7 @@ export default function TermosPage() {
               <div className="flex gap-3 p-4 rounded-xl bg-brand-green/5 border border-brand-green/20">
                 <Shield size={18} className="text-brand-green shrink-0 mt-0.5" />
                 <p className="text-sm text-text-secondary">
-                  Os pagamentos são processados pelo <strong className="text-white">Mercado Pago</strong>, plataforma de pagamentos segura certificada pelo Banco Central do Brasil. O FitQuest não armazena dados de cartão — eles ficam exclusivamente com o Mercado Pago. Aceitamos cartão de crédito, débito, Pix e boleto conforme disponibilidade.
+                  Os pagamentos são processados pelo <strong className="text-white">Mercado Pago</strong>, plataforma de pagamentos segura certificada pelo Banco Central do Brasil. O Ascendia não armazena dados de cartão — eles ficam exclusivamente com o Mercado Pago. Aceitamos cartão de crédito, débito, Pix e boleto conforme disponibilidade.
                 </p>
               </div>
 
@@ -237,10 +237,10 @@ export default function TermosPage() {
             <SectionHeader num="07" title="Direitos de Uso e Propriedade Intelectual" />
             <div className="space-y-3 text-text-secondary leading-relaxed">
               <p>
-                O FitQuest concede a você uma licença limitada, não exclusiva, não transferível e revogável para usar o serviço para fins pessoais e não comerciais.
+                O Ascendia concede a você uma licença limitada, não exclusiva, não transferível e revogável para usar o serviço para fins pessoais e não comerciais.
               </p>
               <p>
-                Todo o conteúdo do FitQuest — incluindo design, código, textos, logotipos, algoritmos de gamificação e sistema de IA — é de propriedade exclusiva do FitQuest ou de seus licenciantes, protegido por leis de propriedade intelectual brasileiras e internacionais.
+                Todo o conteúdo do Ascendia — incluindo design, código, textos, logotipos, algoritmos de gamificação e sistema de IA — é de propriedade exclusiva do Ascendia ou de seus licenciantes, protegido por leis de propriedade intelectual brasileiras e internacionais.
               </p>
               <div className="flex gap-3 p-4 rounded-xl bg-brand-red/5 border border-brand-red/20">
                 <AlertTriangle size={18} className="text-brand-red shrink-0 mt-0.5" />
@@ -271,7 +271,7 @@ export default function TermosPage() {
           <section id="uso" className="scroll-mt-6">
             <SectionHeader num="09" title="Uso Aceitável" />
             <div className="space-y-3 text-text-secondary leading-relaxed">
-              <p>É <strong className="text-white">proibido</strong> utilizar o FitQuest para:</p>
+              <p>É <strong className="text-white">proibido</strong> utilizar o Ascendia para:</p>
               <ul className="space-y-2 pl-4">
                 {[
                   'Realizar engenharia reversa, descompilar ou extrair o código-fonte',
@@ -299,10 +299,10 @@ export default function TermosPage() {
             <SectionHeader num="10" title="Limitação de Responsabilidade" icon={<AlertTriangle size={18} />} />
             <div className="space-y-3 text-text-secondary leading-relaxed">
               <p>
-                O FitQuest é uma ferramenta de suporte à organização pessoal e <strong className="text-white">não substitui</strong> orientação médica, nutricional, financeira ou psicológica profissional. As informações do Coach IA são para fins informativos e motivacionais.
+                O Ascendia é uma ferramenta de suporte à organização pessoal e <strong className="text-white">não substitui</strong> orientação médica, nutricional, financeira ou psicológica profissional. As informações do Coach IA são para fins informativos e motivacionais.
               </p>
               <p>
-                Na máxima extensão permitida por lei, o FitQuest não se responsabiliza por danos indiretos, incidentais ou consequenciais. Nossa responsabilidade total não excederá o valor pago nos últimos 3 meses.
+                Na máxima extensão permitida por lei, o Ascendia não se responsabiliza por danos indiretos, incidentais ou consequenciais. Nossa responsabilidade total não excederá o valor pago nos últimos 3 meses.
               </p>
               <p>
                 Realizamos manutenções programadas com aviso prévio e nos esforçamos para atingir <strong className="text-white">99,5% de uptime mensal</strong>.
@@ -361,14 +361,14 @@ export default function TermosPage() {
                   border: '1px solid rgba(255,77,0,0.25)',
                 }}
               >
-                <p className="text-white font-bold text-lg">⚡ FitQuest</p>
+                <p className="text-white font-bold text-lg">⚡ Ascendia</p>
                 <p>
                   Email:{' '}
-                  <a href="mailto:suporte@fitquest.app" className="text-brand-orange underline hover:text-brand-orange/80 transition-colors">
-                    suporte@fitquest.app
+                  <a href="mailto:suporte@ascendia.app" className="text-brand-orange underline hover:text-brand-orange/80 transition-colors">
+                    suporte@ascendia.app
                   </a>
                 </p>
-                <p>Site: fitquest-app1.vercel.app</p>
+                <p>Site: ascendia-app1.vercel.app</p>
                 <p className="text-text-muted text-xs">Respondemos em até 2 dias úteis.</p>
               </div>
             </div>

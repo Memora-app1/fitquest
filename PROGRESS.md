@@ -1,4 +1,4 @@
-# PROGRESS.md — Loop de Melhoria Contínua FitQuest
+﻿# PROGRESS.md — Loop de Melhoria Contínua Ascendia
 
 ## Estado Inicial (FASE 0)
 
