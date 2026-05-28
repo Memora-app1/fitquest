@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { Plus, X, Check, Trash2, AlertCircle, Star, Clock, SkipForward } from 'lucide-react'
+import { Plus, X, Check, Trash2, AlertCircle, Star, Clock, SkipForward, ChevronDown, ListChecks } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { Task, TaskStatus } from '@/lib/supabase/types'
 import { useXpToast, XpToastContainer } from '@/components/xp-toast'
@@ -362,7 +362,7 @@ function TaskItem({
         </div>
 
         {/* Actions */}
-        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 self-start mt-0.5">
           {/* Move menu */}
           <div className="relative">
             <button
@@ -405,6 +405,115 @@ function TaskItem({
           </button>
         </div>
       </div>
+
+      <EisenhowerSubtasks taskId={task.id} isDone={task.status === 'done'} />
+    </div>
+  )
+}
+
+// ── Minimal Subtask Panel for Eisenhower ──────────────────────────────────────
+
+interface ESubtask { id: string; title: string; is_completed: boolean }
+
+function EisenhowerSubtasks({ taskId, isDone }: { taskId: string; isDone: boolean }) {
+  const [open, setOpen] = useState(false)
+  const [subtasks, setSubtasks] = useState<ESubtask[]>([])
+  const [loaded, setLoaded] = useState(false)
+  const [newTitle, setNewTitle] = useState('')
+  const [adding, setAdding] = useState(false)
+
+  async function load() {
+    if (loaded) return
+    const res = await fetch(`/api/subtasks?taskId=${taskId}`)
+    if (res.ok) {
+      const data = await res.json() as { subtasks: ESubtask[] }
+      setSubtasks(data.subtasks)
+    }
+    setLoaded(true)
+  }
+
+  async function toggle() {
+    if (!open) await load()
+    setOpen(v => !v)
+  }
+
+  async function toggleItem(s: ESubtask) {
+    setSubtasks(prev => prev.map(x => x.id === s.id ? { ...x, is_completed: !x.is_completed } : x))
+    await fetch('/api/subtasks', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: s.id, is_completed: !s.is_completed }),
+    })
+  }
+
+  async function addItem() {
+    if (!newTitle.trim()) return
+    const res = await fetch('/api/subtasks', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ task_id: taskId, title: newTitle.trim() }),
+    })
+    if (res.ok) {
+      const data = await res.json() as { subtask: ESubtask }
+      setSubtasks(prev => [...prev, data.subtask])
+      setNewTitle('')
+      setAdding(false)
+    }
+  }
+
+  const done = subtasks.filter(s => s.is_completed).length
+
+  return (
+    <div className="mt-2 pt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+      <button
+        onClick={(e) => { e.stopPropagation(); void toggle() }}
+        className="flex items-center gap-1.5 text-[10px] text-text-muted hover:text-text-secondary transition-colors"
+      >
+        <ListChecks size={10} />
+        {loaded && subtasks.length > 0 ? `${done}/${subtasks.length} subtarefas` : 'Subtarefas'}
+        <ChevronDown size={9} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+      {open && (
+        <div className="mt-1.5 space-y-1.5">
+          {subtasks.map(s => (
+            <div key={s.id} className="flex items-center gap-2">
+              <button
+                onClick={() => void toggleItem(s)}
+                className={cn(
+                  'w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 transition-all',
+                  s.is_completed ? 'bg-brand-green border-brand-green' : 'border-border hover:border-brand-green/60'
+                )}
+              >
+                {s.is_completed && <Check size={8} className="text-black" />}
+              </button>
+              <span className={cn('text-xs', s.is_completed && 'line-through text-text-muted')}>{s.title}</span>
+            </div>
+          ))}
+          {adding ? (
+            <div className="flex items-center gap-1.5">
+              <input
+                autoFocus
+                value={newTitle}
+                onChange={e => setNewTitle(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') void addItem(); if (e.key === 'Escape') { setAdding(false); setNewTitle('') } }}
+                placeholder="Subtarefa..."
+                className="flex-1 text-xs bg-bg-elevated border border-border rounded px-2 py-0.5 outline-none focus:border-brand-purple"
+                maxLength={200}
+              />
+              <button onClick={() => void addItem()} className="text-brand-purple hover:text-white transition-colors">
+                <Check size={11} />
+              </button>
+              <button onClick={() => { setAdding(false); setNewTitle('') }} className="text-text-muted hover:text-white transition-colors">
+                <X size={11} />
+              </button>
+            </div>
+          ) : !isDone ? (
+            <button onClick={() => setAdding(true)} className="text-[10px] text-text-muted hover:text-brand-purple transition-colors flex items-center gap-1">
+              <Plus size={9} />Adicionar
+            </button>
+          ) : null}
+        </div>
+      )}
     </div>
   )
 }
