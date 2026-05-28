@@ -25,6 +25,8 @@ interface WaterResponse {
   created_at: string
   totalToday: number
   xpEarned: number
+  leveledUp?: boolean
+  newLevel?: number
   goalReached: boolean
   error?: string
 }
@@ -62,7 +64,10 @@ export function WaterTracker({
         setEntries(prev => [{ id: data.id, amount_ml: data.amount_ml, created_at: data.created_at }, ...prev])
         setTotal(data.totalToday)
         if (data.xpEarned > 0) {
-          showXp(data.xpEarned)
+          showXp(data.xpEarned, { leveledUp: data.leveledUp ? data.newLevel : undefined })
+          if (data.leveledUp && data.newLevel) {
+            window.dispatchEvent(new CustomEvent('ascendia:levelup', { detail: { level: data.newLevel } }))
+          }
           setJustGoal(true)
           setTimeout(() => setJustGoal(false), 2500)
         }
