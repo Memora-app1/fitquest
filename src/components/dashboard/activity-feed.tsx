@@ -16,14 +16,17 @@ interface XpTransaction {
 // ─── Source config ────────────────────────────────────────────────────────────
 
 const SOURCE_CONFIG: Record<string, { icon: string; color: string; rgb: string; label: string; href?: string }> = {
-  habit:            { icon: '🎯', color: '#FF4D00', rgb: '255,77,0',    label: 'Hábito',    href: '/habitos' },
-  workout:          { icon: '💪', color: '#00FF88', rgb: '0,255,136',   label: 'Treino',    href: '/treinos' },
-  task:             { icon: '✅', color: '#7C3AED', rgb: '124,58,237',  label: 'Tarefa',    href: '/tarefas' },
-  perfect_day:      { icon: '⭐', color: '#F5C842', rgb: '245,200,66',  label: 'Dia perfeito' },
-  streak_milestone: { icon: '🔥', color: '#FF4D00', rgb: '255,77,0',   label: 'Streak' },
-  achievement:      { icon: '🏆', color: '#F5C842', rgb: '245,200,66', label: 'Conquista' },
-  finance_goal:     { icon: '💰', color: '#00FF88', rgb: '0,255,136',  label: 'Meta fin.', href: '/financas/metas' },
-  transaction:      { icon: '💳', color: '#3B82F6', rgb: '59,130,246', label: 'Finanças',  href: '/financas' },
+  habit:            { icon: '🎯', color: '#FF4D00', rgb: '255,77,0',    label: 'Hábito',      href: '/habitos' },
+  workout:          { icon: '💪', color: '#00FF88', rgb: '0,255,136',   label: 'Treino',      href: '/treinos' },
+  task:             { icon: '✅', color: '#7C3AED', rgb: '124,58,237',  label: 'Tarefa',      href: '/tarefas' },
+  health:           { icon: '💧', color: '#00D9FF', rgb: '0,217,255',   label: 'Saúde',       href: '/saude' },
+  goal:             { icon: '🎯', color: '#3B82F6', rgb: '59,130,246',  label: 'Meta',        href: '/metas' },
+  streak:           { icon: '🔥', color: '#FF4D00', rgb: '255,77,0',   label: 'Streak' },
+  bonus:            { icon: '⭐', color: '#F5C842', rgb: '245,200,66',  label: 'Bônus' },
+  achievement:      { icon: '🏆', color: '#F5C842', rgb: '245,200,66', label: 'Conquista',   href: '/conquistas' },
+  finance_goal:     { icon: '💰', color: '#00FF88', rgb: '0,255,136',  label: 'Meta fin.',   href: '/financas/metas' },
+  transaction:      { icon: '💳', color: '#3B82F6', rgb: '59,130,246', label: 'Finanças',    href: '/financas' },
+  onboarding:       { icon: '🚀', color: '#7C3AED', rgb: '124,58,237', label: 'Onboarding' },
   system:           { icon: '⚡', color: '#F5C842', rgb: '245,200,66', label: 'Sistema' },
 }
 
