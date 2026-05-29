@@ -119,13 +119,16 @@ export function FinanceGoalsList({ initialGoals }: { initialGoals: FinanceGoal[]
         <ContributeModal
           goal={showContribute}
           onClose={() => setShowContribute(null)}
-          onUpdate={(updated, xpEarned, leveledUp, newLevel) => {
+          onUpdate={(updated, xpEarned, leveledUp, newLevel, achievementsUnlocked) => {
             setGoals((prev) => prev.map((g) => (g.id === updated.id ? updated : g)))
             setShowContribute(null)
             if (xpEarned) {
               showXp(xpEarned, { leveledUp: leveledUp ? newLevel : undefined })
               if (leveledUp && newLevel) {
                 window.dispatchEvent(new CustomEvent('ascendia:levelup', { detail: { level: newLevel } }))
+              }
+              for (const slug of (achievementsUnlocked ?? [])) {
+                window.dispatchEvent(new CustomEvent('ascendia:achievement', { detail: { slug } }))
               }
             }
             router.refresh()
@@ -496,7 +499,7 @@ function ContributeModal({
 }: {
   goal: FinanceGoal
   onClose: () => void
-  onUpdate: (updated: FinanceGoal, xpEarned?: number, leveledUp?: boolean, newLevel?: number) => void
+  onUpdate: (updated: FinanceGoal, xpEarned?: number, leveledUp?: boolean, newLevel?: number, achievementsUnlocked?: string[]) => void
 }) {
   const [amount, setAmount] = useState('')
   const [loading, setLoading] = useState(false)
@@ -515,9 +518,9 @@ function ContributeModal({
       body: JSON.stringify({ id: goal.id, current_amount: newAmount }),
     })
 
-    const data = await res.json() as { goal?: FinanceGoal; xpEarned?: number; leveledUp?: boolean; newLevel?: number }
+    const data = await res.json() as { goal?: FinanceGoal; xpEarned?: number; leveledUp?: boolean; newLevel?: number; achievementsUnlocked?: string[] }
     setLoading(false)
-    if (res.ok && data.goal) onUpdate(data.goal, data.xpEarned, data.leveledUp, data.newLevel)
+    if (res.ok && data.goal) onUpdate(data.goal, data.xpEarned, data.leveledUp, data.newLevel, data.achievementsUnlocked)
   }
 
   const remaining = Math.max(0, Number(goal.target_amount) - Number(goal.current_amount))
