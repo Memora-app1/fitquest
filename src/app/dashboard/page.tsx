@@ -292,10 +292,14 @@ export default async function DashboardPage({
         </header>
 
         {/* Próxima ação — ação de maior XP disponível agora */}
-        <NextAction userId={user.id} />
+        <Suspense fallback={null}>
+          <NextAction userId={user.id} />
+        </Suspense>
 
         {/* XP earned today — aparece apenas quando há XP no dia */}
-        <XpToday userId={user.id} />
+        <Suspense fallback={null}>
+          <XpToday userId={user.id} />
+        </Suspense>
 
         {/* Streak at risk — aparece após 20:00 local sem atividade */}
         <StreakRiskBanner
@@ -305,25 +309,39 @@ export default async function DashboardPage({
         />
 
         {/* Streak milestone — celebração em marcos especiais */}
-        <StreakMilestone userId={user.id} />
+        <Suspense fallback={null}>
+          <StreakMilestone userId={user.id} />
+        </Suspense>
 
         {/* Comeback card — aparece quando streak foi resetado */}
-        <ComebackCard userId={user.id} />
+        <Suspense fallback={null}>
+          <ComebackCard userId={user.id} />
+        </Suspense>
 
         {/* Weekly report — resumo semanal às segundas */}
-        <WeeklyReport userId={user.id} />
+        <Suspense fallback={null}>
+          <WeeklyReport userId={user.id} />
+        </Suspense>
 
         {/* Campo de performance do dia — ÓTIMO / BOM / ALERTA com score */}
-        <DailyPerformanceCard userId={user.id} />
+        <Suspense fallback={<div className="h-28 rounded-2xl animate-pulse" style={{ background: 'rgba(21,34,56,0.5)' }} />}>
+          <DailyPerformanceCard userId={user.id} />
+        </Suspense>
 
         {/* Morning brief — prioridades do dia */}
-        <MorningBrief userId={user.id} />
+        <Suspense fallback={<div className="h-24 rounded-2xl animate-pulse" style={{ background: 'rgba(21,34,56,0.5)' }} />}>
+          <MorningBrief userId={user.id} />
+        </Suspense>
 
         {/* Health summary — água e sono de hoje */}
-        <HealthSummaryWidget userId={user.id} />
+        <Suspense fallback={<div className="h-24 rounded-2xl animate-pulse" style={{ background: 'rgba(21,34,56,0.5)' }} />}>
+          <HealthSummaryWidget userId={user.id} />
+        </Suspense>
 
         {/* Daily quests — missões personalizadas que resetam à meia-noite */}
-        <DailyQuest userId={user.id} />
+        <Suspense fallback={<div className="h-40 rounded-2xl animate-pulse" style={{ background: 'rgba(21,34,56,0.5)' }} />}>
+          <DailyQuest userId={user.id} />
+        </Suspense>
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
