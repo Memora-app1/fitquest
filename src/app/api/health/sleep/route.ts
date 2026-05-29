@@ -53,12 +53,15 @@ export async function POST(req: NextRequest) {
   let xpEarned = 0
   let leveledUp = false
   let newLevel = 0
+  const achievementsUnlocked: string[] = []
 
   if (!existing) {
     const base = await grantXP(user.id, 20, 'Sono registrado 🌙', 'health', data.id)
     xpEarned += base.xpEarned
     if (base.leveledUp) { leveledUp = true; newLevel = base.newLevel }
-    await tryUnlockAchievement(user.id, 'first_sleep_log')
+    if (await tryUnlockAchievement(user.id, 'first_sleep_log')) {
+      achievementsUnlocked.push('first_sleep_log')
+    }
 
     if (body.duration_hours && body.duration_hours >= 8) {
       const bonus = await grantXP(user.id, 10, 'Sono ideal (8h+) 💤', 'health', data.id)
@@ -74,7 +77,7 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  return NextResponse.json({ ...data, xpEarned, leveledUp, newLevel })
+  return NextResponse.json({ ...data, xpEarned, leveledUp, newLevel, achievementsUnlocked })
 }
 
 export async function DELETE(req: NextRequest) {

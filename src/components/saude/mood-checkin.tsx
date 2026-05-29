@@ -123,10 +123,13 @@ export function MoodCheckin({ todayLog, recentLogs }: Props) {
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({ mood, energy, stress }),
       })
-      const data = await res.json() as { xpEarned?: number; leveledUp?: boolean; newLevel?: number }
+      const data = await res.json() as { xpEarned?: number; leveledUp?: boolean; newLevel?: number; achievementsUnlocked?: string[] }
       if (data.xpEarned) showXp(data.xpEarned, { leveledUp: data.leveledUp ? data.newLevel : undefined })
       if (data.leveledUp && data.newLevel) {
         window.dispatchEvent(new CustomEvent('ascendia:levelup', { detail: { level: data.newLevel } }))
+      }
+      for (const slug of (data.achievementsUnlocked ?? [])) {
+        window.dispatchEvent(new CustomEvent('ascendia:achievement', { detail: { slug } }))
       }
       setSaved(true)
       router.refresh()

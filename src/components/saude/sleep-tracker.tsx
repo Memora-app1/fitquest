@@ -28,6 +28,7 @@ interface SleepResponse extends SleepLog {
   xpEarned: number
   leveledUp?: boolean
   newLevel?: number
+  achievementsUnlocked?: string[]
   error?: string
 }
 
@@ -108,6 +109,9 @@ export function SleepTracker({
           showXp(data.xpEarned, { leveledUp: data.leveledUp ? data.newLevel : undefined })
           if (data.leveledUp && data.newLevel) {
             window.dispatchEvent(new CustomEvent('ascendia:levelup', { detail: { level: data.newLevel } }))
+          }
+          for (const slug of (data.achievementsUnlocked ?? [])) {
+            window.dispatchEvent(new CustomEvent('ascendia:achievement', { detail: { slug } }))
           }
         }
       }

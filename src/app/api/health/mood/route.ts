@@ -73,14 +73,17 @@ export async function POST(req: NextRequest) {
   let xpEarned = 0
   let leveledUp = false
   let newLevel = 0
+  const achievementsUnlocked: string[] = []
 
   if (isFirstToday) {
     const xpResult = await grantXP(user.id, MOOD_XP, 'Check-in de saúde diário', 'health', data.id)
     xpEarned = xpResult.xpEarned
     leveledUp = xpResult.leveledUp
     newLevel = xpResult.newLevel
-    await tryUnlockAchievement(user.id, 'first_mood_checkin')
+    if (await tryUnlockAchievement(user.id, 'first_mood_checkin')) {
+      achievementsUnlocked.push('first_mood_checkin')
+    }
   }
 
-  return NextResponse.json({ log: data, xpEarned, leveledUp, newLevel })
+  return NextResponse.json({ log: data, xpEarned, leveledUp, newLevel, achievementsUnlocked })
 }
