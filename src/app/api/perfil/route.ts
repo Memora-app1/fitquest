@@ -6,6 +6,7 @@ const updateProfileSchema = z.object({
   name: z.string().min(1).max(100).trim().optional(),
   avatar_url: z.string().url().nullable().optional(),
   bio: z.string().max(300).trim().optional(),
+  weekly_target: z.number().int().min(1).max(7).optional(),
 })
 
 export async function PATCH(req: NextRequest) {
@@ -24,6 +25,7 @@ export async function PATCH(req: NextRequest) {
   if (parsed.data.name !== undefined) updates.name = parsed.data.name
   if (parsed.data.avatar_url !== undefined) updates.avatar_url = parsed.data.avatar_url
   if (parsed.data.bio !== undefined) updates.bio = parsed.data.bio
+  if (parsed.data.weekly_target !== undefined) updates.weekly_target = parsed.data.weekly_target
 
   const { error } = await supabase
     .from('profiles')
