@@ -1,6 +1,7 @@
 /**
  * GET  /api/notifications — lista as 20 notificações mais recentes do usuário
  * PATCH /api/notifications — marca uma ou todas como lidas
+ * DELETE /api/notifications?id=UUID — deleta 1 notificação (ou ?all=1 para todas lidas)
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -57,5 +58,37 @@ export async function PATCH(req: NextRequest) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
+  return NextResponse.json({ ok: true })
+}
+
+export async function DELETE(req: NextRequest) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+
+  const { searchParams } = new URL(req.url)
+  const id = searchParams.get('id')
+  const all = searchParams.get('all') === '1'
+
+  if (all) {
+    // Remove todas as notificações já lidas do usuário
+    const { error } = await supabase
+      .from('notifications')
+      .delete()
+      .eq('user_id', user.id)
+      .not('read_at', 'is', null)
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ ok: true, deleted: 'all_read' })
+  }
+
+  if (!id) return NextResponse.json({ error: 'missing_id' }, { status: 400 })
+
+  const { error } = await supabase
+    .from('notifications')
+    .delete()
+    .eq('id', id)
+    .eq('user_id', user.id)
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ ok: true })
 }

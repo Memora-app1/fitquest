@@ -130,12 +130,25 @@ export function NotificationDrawer({ open, onClose, initialUnread, onRead }: Not
               </span>
             )}
           </div>
-          <button
-            onClick={onClose}
-            className="w-8 h-8 rounded-full flex items-center justify-center text-text-muted hover:text-white hover:bg-white/06 transition-colors"
-          >
-            <X size={16} />
-          </button>
+          <div className="flex items-center gap-1">
+            {notifications.some(n => n.read_at) && (
+              <button
+                onClick={async () => {
+                  await fetch('/api/notifications?all=1', { method: 'DELETE' })
+                  setNotifications(prev => prev.filter(n => !n.read_at))
+                }}
+                className="text-[10px] text-text-muted hover:text-white transition-colors px-2 py-1 rounded-lg hover:bg-white/05"
+              >
+                Limpar lidas
+              </button>
+            )}
+            <button
+              onClick={onClose}
+              className="w-8 h-8 rounded-full flex items-center justify-center text-text-muted hover:text-white hover:bg-white/06 transition-colors"
+            >
+              <X size={16} />
+            </button>
+          </div>
         </div>
 
         {/* Content */}
