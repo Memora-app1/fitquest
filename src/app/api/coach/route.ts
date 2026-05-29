@@ -193,9 +193,18 @@ Responda em português brasileiro, conciso (max 4 parágrafos curtos).`
       tokens_used: response.usage.input_tokens + response.usage.output_tokens,
     })
 
+    // Auto-title: se for o primeiro reply, gera título baseado na mensagem do usuário
+    const isFirstReply = history.length === 0
+    const titleUpdates: Record<string, unknown> = { last_message_at: new Date().toISOString() }
+    if (isFirstReply) {
+      // Título: primeiros ~60 chars da mensagem do usuário, capitalizado
+      const rawTitle = message.replace(/\s+/g, ' ').trim().slice(0, 60)
+      titleUpdates.title = rawTitle.length < message.trim().length ? rawTitle + '…' : rawTitle
+    }
+
     await supabase
       .from('ai_conversations')
-      .update({ last_message_at: new Date().toISOString() })
+      .update(titleUpdates)
       .eq('id', conversationId)
 
     return NextResponse.json({ reply, tokens: response.usage })
