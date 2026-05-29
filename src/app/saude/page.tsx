@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { todayString } from '@/lib/utils'
@@ -227,19 +228,22 @@ export default async function SaudePage() {
           })}
         </div>
 
-        {/* ── Health Rings ────────────────────────────────────────────── */}
-        <HealthRings userId={user.id} />
+        {/* Heavy analytics — streamed independently */}
+        <Suspense fallback={<div className="h-40 rounded-2xl shimmer" />}>
+          <HealthRings userId={user.id} />
+        </Suspense>
 
-        {/* ── Health Streak ───────────────────────────────────────────── */}
-        <HealthStreak userId={user.id} />
+        <Suspense fallback={<div className="h-40 rounded-2xl shimmer" />}>
+          <HealthStreak userId={user.id} />
+        </Suspense>
 
-        {/* ── Check-in + Trend (lado a lado no desktop) ───────────────── */}
         <div className="grid md:grid-cols-2 gap-4">
           <MoodCheckin todayLog={todayMoodLog} recentLogs={recentMoodLogs} />
-          <RecoveryScore userId={user.id} />
+          <Suspense fallback={<div className="h-48 rounded-2xl shimmer" />}>
+            <RecoveryScore userId={user.id} />
+          </Suspense>
         </div>
 
-        {/* ── Trend 7 dias ────────────────────────────────────────────── */}
         <HealthTrend waterDays={waterTrendDays} sleepDays={sleepTrendDays} />
 
         {/* ── Trackers ───────────────────────────────────────────────── */}
