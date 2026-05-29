@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { AppShell } from '@/components/layout/app-shell'
@@ -285,29 +286,31 @@ export default async function TreinosPage() {
           </>
         )}
 
-        {/* ── 8-week volume trend chart ─────────────────────────────────── */}
-        <WorkoutTrends userId={user.id} />
-
-        {/* ── 90-day PR progression sparklines ───────────────────────────── */}
-        <PrProgress userId={user.id} />
-
-        {/* ── 90-day workout frequency heatmap ────────────────────────────── */}
-        <WorkoutHeatmap userId={user.id} />
-
-        {/* ── Smart recovery advisor: which muscles are ready to train ── */}
-        <WorkoutRestDayAdvisor userId={user.id} />
-
-        {/* ── 8-week muscle group balance + volume distribution ───────── */}
-        <WorkoutMuscleBalance userId={user.id} />
-
-        {/* ── 12-week volume progression per muscle group ─────────────── */}
-        <WorkoutVolumeProgression userId={user.id} />
-
-        {/* ── 12-week exercise PR tracker with mini sparklines ────────── */}
-        <ExercisePrTracker userId={user.id} />
-
-        {/* ── Workout frequency by day of week (90 days) ──────────────── */}
-        <WorkoutDayOfWeekAnalysis userId={user.id} />
+        {/* Heavy analytics — streamed independently */}
+        <Suspense fallback={<div className="h-48 rounded-2xl shimmer" />}>
+          <WorkoutTrends userId={user.id} />
+        </Suspense>
+        <Suspense fallback={<div className="h-48 rounded-2xl shimmer" />}>
+          <PrProgress userId={user.id} />
+        </Suspense>
+        <Suspense fallback={<div className="h-40 rounded-2xl shimmer" />}>
+          <WorkoutHeatmap userId={user.id} />
+        </Suspense>
+        <Suspense fallback={<div className="h-40 rounded-2xl shimmer" />}>
+          <WorkoutRestDayAdvisor userId={user.id} />
+        </Suspense>
+        <Suspense fallback={<div className="h-48 rounded-2xl shimmer" />}>
+          <WorkoutMuscleBalance userId={user.id} />
+        </Suspense>
+        <Suspense fallback={<div className="h-48 rounded-2xl shimmer" />}>
+          <WorkoutVolumeProgression userId={user.id} />
+        </Suspense>
+        <Suspense fallback={<div className="h-56 rounded-2xl shimmer" />}>
+          <ExercisePrTracker userId={user.id} />
+        </Suspense>
+        <Suspense fallback={<div className="h-48 rounded-2xl shimmer" />}>
+          <WorkoutDayOfWeekAnalysis userId={user.id} />
+        </Suspense>
 
         {/* ── Best PRs ────────────────────────────────────────────────── */}
         {topPrs.length > 0 && (
