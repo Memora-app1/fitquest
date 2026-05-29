@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { AppShell } from '@/components/layout/app-shell'
@@ -292,29 +293,37 @@ export default async function HabitosPage({
           </div>
         )}
 
-        {/* 90-day contribution heatmap + per-habit analytics */}
-        <HabitHeatmap
-          userId={user.id}
-          habits={habits.map(h => ({ id: h.id, name: h.name, icon: h.icon, color: h.color }))}
-        />
+        {/* Heavy analytics — stream independently */}
+        <Suspense fallback={<div className="h-48 rounded-2xl shimmer" />}>
+          <HabitHeatmap
+            userId={user.id}
+            habits={habits.map(h => ({ id: h.id, name: h.name, icon: h.icon, color: h.color }))}
+          />
+        </Suspense>
 
-        {/* ── Per-habit 30-day stats + DOW breakdown ───────────────────── */}
-        <HabitStatsBreakdown userId={user.id} />
+        <Suspense fallback={<div className="h-64 rounded-2xl shimmer" />}>
+          <HabitStatsBreakdown userId={user.id} />
+        </Suspense>
 
-        {/* ── Monthly habit calendar with per-habit dot matrix ─────────── */}
-        <HabitCompletionCalendar userId={user.id} />
+        <Suspense fallback={<div className="h-56 rounded-2xl shimmer" />}>
+          <HabitCompletionCalendar userId={user.id} />
+        </Suspense>
 
-        {/* ── Full-year GitHub-style heatmap ───────────────────────────── */}
-        <HabitYearHeatmap userId={user.id} />
+        <Suspense fallback={<div className="h-40 rounded-2xl shimmer" />}>
+          <HabitYearHeatmap userId={user.id} />
+        </Suspense>
 
-        {/* ── Habit correlation matrix — which habits are done together ── */}
-        <HabitCorrelationMatrix userId={user.id} />
+        <Suspense fallback={<div className="h-64 rounded-2xl shimmer" />}>
+          <HabitCorrelationMatrix userId={user.id} />
+        </Suspense>
 
-        {/* ── Horário preferido de registro de hábitos ─────────────── */}
-        <HabitTimeOfDayHeatmap userId={user.id} />
+        <Suspense fallback={<div className="h-48 rounded-2xl shimmer" />}>
+          <HabitTimeOfDayHeatmap userId={user.id} />
+        </Suspense>
 
-        {/* ── Ranking de streak atual vs recorde por hábito ────────── */}
-        <HabitStreakRecords userId={user.id} />
+        <Suspense fallback={<div className="h-48 rounded-2xl shimmer" />}>
+          <HabitStreakRecords userId={user.id} />
+        </Suspense>
 
         <HabitsList
           habits={habits}
