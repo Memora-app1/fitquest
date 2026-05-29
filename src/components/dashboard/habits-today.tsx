@@ -60,6 +60,8 @@ export function HabitsToday({
           perfectDay: data.perfectDay,
           leveledUp: data.leveledUp ? data.newLevel : undefined,
         })
+        // Sinaliza hábito logado — push-prompt usa isso para timing ideal
+        window.dispatchEvent(new CustomEvent('ascendia:habit-logged'))
         if (data.perfectDay) {
           if (navigator.vibrate) navigator.vibrate([40, 20, 80, 20, 120])
           window.dispatchEvent(new CustomEvent('ascendia:perfect-day'))

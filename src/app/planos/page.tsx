@@ -15,14 +15,37 @@ export const metadata: Metadata = {
   },
 }
 
+// Ordem: Anual primeiro (ancoragem — decoy effect aumenta escolha do melhor custo-benefício)
 const PLANS = [
+  {
+    id: 'annual',
+    name: 'Anual',
+    emoji: '🏆',
+    price: 'R$ 25,55',
+    priceNote: '/mês',
+    description: 'R$ 306,60 cobrado uma vez por ano',
+    savingsNote: '✅ Você economiza R$ 137,40 — 31% off',
+    badge: '⭐ MAIS POPULAR',
+    highlight: true,
+    accentColor: '#FF4D00',
+    accentRgb: '255,77,0',
+    cta: 'Começar grátis por 7 dias →',
+    features: [
+      '7 dias grátis inclusos',
+      'Todos os módulos desbloqueados',
+      '31% de desconto vs mensal',
+      'Coach IA ilimitado',
+      'Suporte prioritário',
+      '💚 Pix · Cartão · Boleto',
+    ],
+  },
   {
     id: 'monthly',
     name: 'Mensal',
     emoji: '📅',
     price: 'R$ 37',
     priceNote: '/mês',
-    description: 'Flexibilidade total',
+    description: 'Flexibilidade total · sem fidelidade',
     savingsNote: null,
     badge: null,
     highlight: false,
@@ -34,30 +57,8 @@ const PLANS = [
       'Sono + hidratação gamificados',
       'Coach IA ilimitado',
       'Sistema XP e gamificação',
-      'Sincronização Google Agenda',
       'Cancele quando quiser',
-    ],
-  },
-  {
-    id: 'annual',
-    name: 'Anual',
-    emoji: '🏆',
-    price: 'R$ 25,55',
-    priceNote: '/mês',
-    description: 'R$ 306,60 cobrado uma vez por ano',
-    savingsNote: 'Você economiza R$ 137,40 por ano',
-    badge: 'MAIS POPULAR',
-    highlight: true,
-    accentColor: '#FF4D00',
-    accentRgb: '255,77,0',
-    cta: 'Começar anual — mais barato',
-    features: [
-      'Tudo do plano mensal',
-      '7 dias grátis inclusos',
-      '31% de desconto vs mensal',
-      'Suporte prioritário',
-      'Acesso antecipado a novidades',
-      'Renovação anual automática',
+      '💚 Pix · Cartão · Boleto',
     ],
   },
   {
@@ -66,9 +67,9 @@ const PLANS = [
     emoji: '👑',
     price: 'R$ 597',
     priceNote: 'uma única vez',
-    description: 'Pague uma vez, use para sempre',
+    description: 'Acesso vitalício · pague uma única vez',
     savingsNote: 'Equivale a 16 meses do plano mensal',
-    badge: 'MELHOR CUSTO-BENEFÍCIO',
+    badge: '💎 MELHOR CUSTO-BENEFÍCIO',
     highlight: false,
     accentColor: '#F5C842',
     accentRgb: '245,200,66',
@@ -79,7 +80,7 @@ const PLANS = [
       'Suporte prioritário vitalício',
       'Sem renovação, sem preocupação',
       'ROI em apenas 16 meses',
-      'Para quem leva a sério a evolução',
+      '💚 Pix · Cartão · Transferência',
     ],
   },
 ]
@@ -237,6 +238,31 @@ export default async function PlanosPage({
             </div>
           )}
         </div>
+
+        {/* ── Urgency banner (só para não-assinantes) ──────── */}
+        {!isActive && (
+          <div
+            className="rounded-2xl p-4 flex items-center justify-between gap-4 flex-wrap animate-slide-up"
+            style={{
+              background: 'linear-gradient(135deg, rgba(255,77,0,0.12) 0%, rgba(13,24,41,0.98) 100%)',
+              border: '1px solid rgba(255,77,0,0.35)',
+            }}
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">⏰</span>
+              <div>
+                <p className="font-bold text-sm">7 dias grátis no plano Anual — experimente antes de pagar</p>
+                <p className="text-xs text-text-secondary">Cancele antes do 7º dia e não cobra nada. Sem pegadinhas.</p>
+              </div>
+            </div>
+            <div
+              className="shrink-0 px-3 py-1.5 rounded-xl text-xs font-black"
+              style={{ background: 'rgba(255,77,0,0.15)', border: '1px solid rgba(255,77,0,0.3)', color: '#FF4D00' }}
+            >
+              Menos de R$ 1,25/dia
+            </div>
+          </div>
+        )}
 
         {/* ── Plans grid ───────────────────────────────────── */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">

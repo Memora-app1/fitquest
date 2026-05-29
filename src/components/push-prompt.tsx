@@ -51,8 +51,19 @@ export function PushPrompt() {
     if (Notification.permission !== 'default') return
     if (!shouldShow()) return
 
-    const timer = setTimeout(() => setPhase('visible'), 45_000)
-    return () => clearTimeout(timer)
+    // Melhor timing: mostrar APÓS 1º hábito concluído (opt-in +22% vs timer fixo)
+    function handleHabitLogged() {
+      setTimeout(() => setPhase('visible'), 2500) // aguarda animação de XP
+    }
+    window.addEventListener('ascendia:habit-logged', handleHabitLogged, { once: true })
+
+    // Fallback: 3 minutos se nenhum hábito for logado
+    const fallback = setTimeout(() => setPhase('visible'), 3 * 60 * 1000)
+
+    return () => {
+      window.removeEventListener('ascendia:habit-logged', handleHabitLogged)
+      clearTimeout(fallback)
+    }
   }, [])
 
   async function subscribe() {
