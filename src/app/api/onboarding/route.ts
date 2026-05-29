@@ -37,17 +37,32 @@ export async function POST(req: NextRequest) {
   // Verifica se já completou o onboarding (para não dar XP duas vezes)
   const { data: profile } = await supabase
     .from('profiles')
-    .select('onboarding_completed')
+    .select('onboarding_completed, name')
     .eq('id', user.id)
     .single()
 
   const wasAlreadyCompleted = profile?.onboarding_completed === true
 
-  // Atualiza perfil
-  await supabase
-    .from('profiles')
-    .update({ primary_goal, weekly_target, onboarding_completed: true })
-    .eq('id', user.id)
+  if (!profile) {
+    // Perfil não existe (OAuth sem trigger de banco) — cria com valores default
+    await supabase
+      .from('profiles')
+      .insert({
+        id: user.id,
+        name: (user.user_metadata?.full_name as string | undefined) ?? user.email?.split('@')[0] ?? 'Usuário',
+        primary_goal,
+        weekly_target,
+        onboarding_completed: true,
+        subscription_status: 'trial',
+        trial_end: new Date(Date.now() + 7 * 86400000).toISOString(),
+      })
+  } else {
+    // Atualiza perfil existente
+    await supabase
+      .from('profiles')
+      .update({ primary_goal, weekly_target, onboarding_completed: true })
+      .eq('id', user.id)
+  }
 
   // Cria hábitos sugeridos se ainda não existem
   if (habits.length > 0) {
