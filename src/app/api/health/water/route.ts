@@ -42,6 +42,7 @@ export async function POST(req: NextRequest) {
   let xpEarned = 0
   let leveledUp = false
   let newLevel = 0
+  const achievementsUnlocked: string[] = []
 
   // Concede XP apenas quando cruza o threshold da meta (não a cada adição acima do limite)
   if (totalBefore < WATER_GOAL_ML && totalAfter >= WATER_GOAL_ML) {
@@ -49,7 +50,8 @@ export async function POST(req: NextRequest) {
     xpEarned = result.xpEarned
     leveledUp = result.leveledUp
     newLevel = result.newLevel
-    await tryUnlockAchievement(user.id, 'first_water_goal')
+
+    if (await tryUnlockAchievement(user.id, 'first_water_goal')) achievementsUnlocked.push('first_water_goal')
 
     // Check water_goal_7: 7+ consecutive days hitting the goal
     const sevenDaysAgo = new Date()
@@ -66,7 +68,9 @@ export async function POST(req: NextRequest) {
       waterByDay[d] = (waterByDay[d] ?? 0) + (l.amount_ml as number ?? 0)
     }
     const daysAtGoal = Object.values(waterByDay).filter(v => v >= WATER_GOAL_ML).length
-    if (daysAtGoal >= 7) await tryUnlockAchievement(user.id, 'water_goal_7')
+    if (daysAtGoal >= 7 && await tryUnlockAchievement(user.id, 'water_goal_7')) {
+      achievementsUnlocked.push('water_goal_7')
+    }
   }
 
   return NextResponse.json({
@@ -78,6 +82,7 @@ export async function POST(req: NextRequest) {
     leveledUp,
     newLevel,
     goalReached: totalAfter >= WATER_GOAL_ML,
+    achievementsUnlocked,
   })
 }
 

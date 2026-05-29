@@ -28,6 +28,7 @@ interface WaterResponse {
   leveledUp?: boolean
   newLevel?: number
   goalReached: boolean
+  achievementsUnlocked?: string[]
   error?: string
 }
 
@@ -67,6 +68,9 @@ export function WaterTracker({
           showXp(data.xpEarned, { leveledUp: data.leveledUp ? data.newLevel : undefined })
           if (data.leveledUp && data.newLevel) {
             window.dispatchEvent(new CustomEvent('ascendia:levelup', { detail: { level: data.newLevel } }))
+          }
+          for (const slug of (data.achievementsUnlocked ?? [])) {
+            window.dispatchEvent(new CustomEvent('ascendia:achievement', { detail: { slug } }))
           }
           setJustGoal(true)
           setTimeout(() => setJustGoal(false), 2500)
