@@ -80,6 +80,43 @@ export async function grantXP(
     if (unlocked) achievementsUnlocked.push(levelAchievementSlug)
   }
 
+  // 5. XP milestones — notificação a cada marco importante
+  const XP_MILESTONES = [1000, 5000, 10000, 25000, 50000, 100000]
+  const crossedMilestone = XP_MILESTONES.find(
+    (m) => profile.xp_total < m && xpTotalAfter >= m
+  )
+  if (crossedMilestone) {
+    const milestoneTitle = `⚡ ${crossedMilestone.toLocaleString('pt-BR')} XP — Marco atingido!`
+    const milestoneBody = `Você acumulou ${crossedMilestone.toLocaleString('pt-BR')} XP no Ascendia. Evolução real!`
+
+    // Notificação no banco
+    await supabase.from('notifications').insert({
+      user_id: userId,
+      type: 'xp_milestone',
+      title: milestoneTitle,
+      body: milestoneBody,
+      action_url: '/score',
+      scheduled_for: new Date().toISOString(),
+      sent_at: new Date().toISOString(),
+    })
+
+    // Push para todos os dispositivos
+    const { data: subs } = await supabase
+      .from('push_subscriptions')
+      .select('id, endpoint, keys_p256dh, keys_auth')
+      .eq('user_id', userId)
+
+    if (subs && subs.length > 0) {
+      for (const sub of subs) {
+        const result = await sendPushNotification(
+          sub.endpoint, sub.keys_p256dh, sub.keys_auth,
+          { title: milestoneTitle, body: milestoneBody, url: '/score' }
+        )
+        if (result.gone) await supabase.from('push_subscriptions').delete().eq('id', sub.id)
+      }
+    }
+  }
+
   return {
     xpEarned: amount,
     xpTotalAfter,
