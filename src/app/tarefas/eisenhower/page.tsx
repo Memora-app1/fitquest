@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { AppShell } from '@/components/layout/app-shell'
@@ -151,11 +152,12 @@ export default async function EisenhowerPage() {
           </div>
         )}
 
-        {/* ── 6-week due date calendar heatmap ────────────────────────── */}
-        <TaskDueDateHeatmap userId={user.id} />
-
-        {/* ── Prioritization analytics ─────────────────────────────────── */}
-        <EisenhowerInsights userId={user.id} />
+        <Suspense fallback={<div className="h-40 rounded-2xl shimmer" />}>
+          <TaskDueDateHeatmap userId={user.id} />
+        </Suspense>
+        <Suspense fallback={<div className="h-48 rounded-2xl shimmer" />}>
+          <EisenhowerInsights userId={user.id} />
+        </Suspense>
 
         {/* ── Board ───────────────────────────────────────────────────── */}
         <EisenhowerBoard initialTasks={[...activeTasks, ...doneTasks]} />
