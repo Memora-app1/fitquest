@@ -52,6 +52,7 @@ export function HabitsToday({
           perfectDay?: boolean
           leveledUp?: boolean
           newLevel?: number
+          achievementsUnlocked?: string[]
         }
         const earned = data.xpEarned ?? 0
         setXpGainedToday((prev) => prev + earned)
@@ -65,6 +66,9 @@ export function HabitsToday({
         }
         if (data.leveledUp && data.newLevel) {
           window.dispatchEvent(new CustomEvent('ascendia:levelup', { detail: { level: data.newLevel } }))
+        }
+        for (const slug of (data.achievementsUnlocked ?? [])) {
+          window.dispatchEvent(new CustomEvent('ascendia:achievement', { detail: { slug } }))
         }
         router.refresh()
       }

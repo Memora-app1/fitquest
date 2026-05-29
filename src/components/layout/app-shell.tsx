@@ -11,6 +11,7 @@ import { MiniCoachFab } from './mini-coach-fab'
 import { MobileFab } from './mobile-fab'
 import { LevelUpCelebration } from '@/components/level-up-celebration'
 import { PerfectDayOverlay } from '@/components/perfect-day-overlay'
+import { AchievementToast } from '@/components/achievement-toast'
 import { AppShellRealtimeProvider } from '@/hooks/use-realtime-context'
 
 export async function AppShell({ children }: { children: React.ReactNode }) {
@@ -67,6 +68,7 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
         <MiniCoachFab />
         <LevelUpCelebration />
         <PerfectDayOverlay />
+        <AchievementToast />
         <ScrollRestoration />
       </div>
     </AppShellRealtimeProvider>
