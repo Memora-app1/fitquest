@@ -36,6 +36,7 @@ export default function OnboardingPage() {
   const [selectedGoals, setSelectedGoals] = useState<string[]>([])
   const [weeklyTarget, setWeeklyTarget] = useState(4)
   const [loading, setLoading] = useState(false)
+  const [finishError, setFinishError] = useState<string | null>(null)
 
   const MAX_GOALS = 3
 
@@ -49,25 +50,35 @@ export default function OnboardingPage() {
 
   async function finishOnboarding() {
     setLoading(true)
+    setFinishError(null)
 
     const suggestedHabits = getSuggestedHabitsMulti(selectedGoals)
 
-    const res = await fetch('/api/onboarding', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        primary_goal: selectedGoals.join(','),
-        weekly_target: weeklyTarget,
-        habits: suggestedHabits.map((h, i) => ({ ...h, display_order: i })),
-      }),
-    })
+    let data: { xpEarned?: number; leveledUp?: boolean; newLevel?: number } = {}
+    try {
+      const res = await fetch('/api/onboarding', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          primary_goal: selectedGoals.join(','),
+          weekly_target: weeklyTarget,
+          habits: suggestedHabits.map((h, i) => ({ ...h, display_order: i })),
+        }),
+      })
 
-    if (!res.ok) {
+      if (!res.ok) {
+        setFinishError('Erro ao configurar perfil. Tente novamente.')
+        setLoading(false)
+        return
+      }
+
+      data = await res.json()
+    } catch {
+      setFinishError('Erro de conexão. Verifique sua internet.')
       setLoading(false)
       return
     }
 
-    const data = await res.json() as { xpEarned?: number; leveledUp?: boolean; newLevel?: number }
     if (data.leveledUp && data.newLevel) {
       setTimeout(() => {
         window.dispatchEvent(new CustomEvent('ascendia:levelup', { detail: { level: data.newLevel } }))
@@ -390,6 +401,9 @@ export default function OnboardingPage() {
                     'Começar minha jornada →'
                   )}
                 </button>
+                {finishError && (
+                  <p className="text-xs text-center mt-2" style={{ color: '#EF4444' }}>{finishError}</p>
+                )}
               </div>
             </div>
           )}
