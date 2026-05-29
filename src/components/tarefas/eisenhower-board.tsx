@@ -106,6 +106,7 @@ export function EisenhowerBoard({ initialTasks }: { initialTasks: EisenhowerTask
 
   const completeTask = useCallback(async (task: EisenhowerTask) => {
     if (task.status === 'done' || loadingIds.has(task.id)) return
+    if (navigator.vibrate) navigator.vibrate([10, 5, 25])
     setLoading(task.id, true)
 
     // Optimistic update

@@ -1,4 +1,5 @@
 ﻿import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { AppShell } from '@/components/layout/app-shell'
@@ -53,11 +54,12 @@ export default async function ContasPage() {
           </div>
         </div>
 
-        {/* ── Net worth + account type breakdown + credit utilization ──── */}
-        <NetWorthSummary userId={user.id} />
-
-        {/* ── 6-month savings rate trend ────────────────────────────────── */}
-        <SavingsRateTracker userId={user.id} />
+        <Suspense fallback={<div className="h-40 rounded-2xl shimmer" />}>
+          <NetWorthSummary userId={user.id} />
+        </Suspense>
+        <Suspense fallback={<div className="h-40 rounded-2xl shimmer" />}>
+          <SavingsRateTracker userId={user.id} />
+        </Suspense>
 
         <AccountsManager initialAccounts={accounts ?? []} />
       </div>

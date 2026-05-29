@@ -1,4 +1,5 @@
 ﻿import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { AppShell } from '@/components/layout/app-shell'
@@ -170,11 +171,12 @@ export default async function MetasFinanceirasPage() {
           </div>
         )}
 
-        {/* ── Finance goals projections + analytics ────────────────────── */}
-        <FinanceGoalsOverview userId={user.id} />
-
-        {/* ── Per-goal milestone rings + deadline analysis ─────────────── */}
-        <FinanceGoalsMilestones userId={user.id} />
+        <Suspense fallback={<div className="h-48 rounded-2xl shimmer" />}>
+          <FinanceGoalsOverview userId={user.id} />
+        </Suspense>
+        <Suspense fallback={<div className="h-48 rounded-2xl shimmer" />}>
+          <FinanceGoalsMilestones userId={user.id} />
+        </Suspense>
 
         <FinanceGoalsList initialGoals={allGoals} />
       </div>
