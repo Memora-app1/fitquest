@@ -28,6 +28,7 @@ import { StreakMilestone } from '@/components/dashboard/streak-milestone'
 import { WeeklyReport } from '@/components/dashboard/weekly-report'
 import { StreakRiskBanner } from '@/components/dashboard/streak-risk-banner'
 import { XpToday } from '@/components/dashboard/xp-today'
+import { NextAction } from '@/components/dashboard/next-action'
 import { getGreeting, todayString } from '@/lib/utils'
 import { getXpProgressToNextLevel } from '@/lib/xp'
 
@@ -289,6 +290,9 @@ export default async function DashboardPage({
             </div>
           </div>
         </header>
+
+        {/* Próxima ação — ação de maior XP disponível agora */}
+        <NextAction userId={user.id} />
 
         {/* XP earned today — aparece apenas quando há XP no dia */}
         <XpToday userId={user.id} />

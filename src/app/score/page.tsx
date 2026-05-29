@@ -7,6 +7,7 @@ import { getLevelInfo, getXpProgressToNextLevel } from '@/lib/xp'
 import { XpChartLazy as XpChart } from '@/components/score/xp-chart-lazy'
 import { XpSourceBreakdown } from '@/components/score/xp-source-breakdown'
 import { Lock, Zap, Flame, Star, Trophy, Dumbbell, CheckSquare, Target, TrendingUp } from 'lucide-react'
+import { ShareScoreButton } from '@/components/score/share-score-button'
 
 export const metadata: Metadata = {
   title: 'Seu Score',
@@ -132,16 +133,25 @@ export default async function ScorePage() {
               <h1 className="heading-display text-4xl md:text-5xl">Seu Score</h1>
               <p className="text-text-secondary mt-1">Sua evolução em números.</p>
             </div>
-            {xpThisWeek > 0 && (
-              <div
-                className="flex items-center gap-2 text-sm px-3 py-2 rounded-xl"
-                style={{ background: 'rgba(245,200,66,0.1)', border: '1px solid rgba(245,200,66,0.25)' }}
-              >
-                <TrendingUp size={14} className="text-brand-gold" />
-                <span className="font-bold text-brand-gold">+{xpThisWeek.toLocaleString('pt-BR')} XP</span>
-                <span className="text-text-muted">essa semana</span>
-              </div>
-            )}
+            <div className="flex items-center gap-2 flex-wrap">
+              {xpThisWeek > 0 && (
+                <div
+                  className="flex items-center gap-2 text-sm px-3 py-2 rounded-xl"
+                  style={{ background: 'rgba(245,200,66,0.1)', border: '1px solid rgba(245,200,66,0.25)' }}
+                >
+                  <TrendingUp size={14} className="text-brand-gold" />
+                  <span className="font-bold text-brand-gold">+{xpThisWeek.toLocaleString('pt-BR')} XP</span>
+                  <span className="text-text-muted">essa semana</span>
+                </div>
+              )}
+              <ShareScoreButton
+                level={profile.level}
+                levelTitle={levelInfo.title}
+                xpTotal={profile.xp_total}
+                streak={profile.streak_current}
+                achievements={unlockedAchievements.length}
+              />
+            </div>
           </div>
         </div>
 

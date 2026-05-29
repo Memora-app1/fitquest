@@ -1,6 +1,7 @@
 ﻿import Link from 'next/link'
 import type { Metadata } from 'next'
 import { LandingNavbar } from '@/components/landing-navbar'
+import { LandingSocialProof } from '@/components/landing-social-proof'
 
 export const metadata: Metadata = {
   title: 'Ascendia — Sua vida inteira em um só sistema',
@@ -117,7 +118,7 @@ export default function LandingPage() {
         <div className="relative max-w-3xl mx-auto space-y-8 animate-fade-in z-10">
           <div className="inline-flex items-center gap-2 bg-brand-orange/15 border border-brand-orange/30 rounded-full px-4 py-1.5 text-sm text-brand-orange font-medium">
             <span className="w-1.5 h-1.5 bg-brand-orange rounded-full animate-pulse" />
-            7 dias grátis · Sem cartão de crédito
+            7 dias grátis · Sem cartão de crédito · Cancele quando quiser
           </div>
 
           <h1 className="heading-display text-6xl md:text-8xl leading-none">
@@ -134,12 +135,29 @@ export default function LandingPage() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-2">
-            <Link href="/signup" className="btn-primary text-lg px-8 py-4 shadow-[0_0_30px_rgba(255,77,0,0.3)]">
-              Começar 7 dias grátis →
+            <Link
+              href="/signup"
+              className="btn-primary text-lg px-8 py-4 animate-pulse-glow"
+              style={{ boxShadow: '0 0 30px rgba(255,77,0,0.4), 0 0 60px rgba(255,77,0,0.15)' }}
+            >
+              Começar grátis agora →
             </Link>
             <Link href="/planos" className="btn-ghost text-lg px-8 py-4">
-              Ver planos
+              Ver planos e preços
             </Link>
+          </div>
+
+          {/* Social proof mini */}
+          <div className="flex items-center justify-center gap-3 flex-wrap">
+            <div className="flex -space-x-2">
+              {['🟠','🟣','🔵','🟢','🔴'].map((c, i) => (
+                <div key={i} className="w-7 h-7 rounded-full border-2 border-bg flex items-center justify-center text-xs"
+                  style={{ background: 'rgba(255,255,255,0.1)' }}>{c}</div>
+              ))}
+            </div>
+            <p className="text-sm text-text-secondary">
+              <strong className="text-white">+500 brasileiros</strong> já subiram de nível esta semana
+            </p>
           </div>
 
           <p className="text-xs text-text-muted">
@@ -364,6 +382,8 @@ export default function LandingPage() {
       </section>
 
       {/* ─── Footer ───────────────────────────────────────────────────── */}
+      <LandingSocialProof />
+
       <footer className="py-10 px-6 border-t border-white/5 text-center text-sm text-text-muted">
         <div className="flex flex-wrap justify-center gap-6 mb-4">
           <Link href="/planos" className="hover:text-white transition-colors">Planos</Link>
