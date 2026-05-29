@@ -151,17 +151,18 @@ export default async function TransacoesPage() {
           </div>
         )}
 
-        {/* ── Monthly spending calendar heatmap ─────────────────────── */}
-        <FinanceMonthCalendar userId={user.id} />
-
-        {/* ── Category breakdown + day-of-week pattern ───────────────── */}
-        <SpendingByCategory userId={user.id} />
-
-        {/* ── Recurring transaction detection + subscription tracker ──── */}
-        <FinanceRecurringAnalysis userId={user.id} />
-
-        {/* ── Day-of-week + week-of-month spending heatmap ─────────────── */}
-        <SpendingDowHeatmap userId={user.id} />
+        <Suspense fallback={<div className="h-48 rounded-2xl shimmer" />}>
+          <FinanceMonthCalendar userId={user.id} />
+        </Suspense>
+        <Suspense fallback={<div className="h-56 rounded-2xl shimmer" />}>
+          <SpendingByCategory userId={user.id} />
+        </Suspense>
+        <Suspense fallback={<div className="h-48 rounded-2xl shimmer" />}>
+          <FinanceRecurringAnalysis userId={user.id} />
+        </Suspense>
+        <Suspense fallback={<div className="h-40 rounded-2xl shimmer" />}>
+          <SpendingDowHeatmap userId={user.id} />
+        </Suspense>
 
         <Suspense fallback={<div className="text-text-secondary">Carregando...</div>}>
           <TransactionsView
