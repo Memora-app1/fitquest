@@ -205,12 +205,18 @@ export async function POST(req: NextRequest) {
     .not('finished_at', 'is', null)
 
   const total = workoutCount ?? 0
-  if (total === 1)   await tryUnlockAchievement(userId, 'first_workout')
-  if (total === 10)  await tryUnlockAchievement(userId, 'workouts_10')
-  if (total === 50)  await tryUnlockAchievement(userId, 'workouts_50')
-  if (total === 100) await tryUnlockAchievement(userId, 'workouts_100')
-  if (total === 365) await tryUnlockAchievement(userId, 'workouts_365')
-  if (hasPR)         await tryUnlockAchievement(userId, 'first_pr')
+  const achievementsUnlocked: string[] = [...(xpResult.achievementsUnlocked ?? [])]
+  const checkAndTrack = async (slug: string) => {
+    const unlocked = await tryUnlockAchievement(userId, slug)
+    if (unlocked) achievementsUnlocked.push(slug)
+  }
+
+  if (total === 1)   await checkAndTrack('first_workout')
+  if (total === 10)  await checkAndTrack('workouts_10')
+  if (total === 50)  await checkAndTrack('workouts_50')
+  if (total === 100) await checkAndTrack('workouts_100')
+  if (total === 365) await checkAndTrack('workouts_365')
+  if (hasPR)         await checkAndTrack('first_pr')
 
   return NextResponse.json({
     workoutId,
@@ -218,6 +224,7 @@ export async function POST(req: NextRequest) {
     leveledUp: xpResult.leveledUp,
     newLevel: xpResult.newLevel,
     isPR: hasPR,
+    achievementsUnlocked,
   })
 }
 

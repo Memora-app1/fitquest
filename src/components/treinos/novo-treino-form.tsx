@@ -145,6 +145,7 @@ export function NovoTreinoForm() {
         leveledUp?: boolean
         newLevel?: number
         isPR?: boolean
+        achievementsUnlocked?: string[]
         error?: string
       }
 
@@ -169,6 +170,11 @@ export function NovoTreinoForm() {
         setTimeout(() => {
           window.dispatchEvent(new CustomEvent('ascendia:levelup', { detail: { level: data.newLevel } }))
         }, 800)
+      }
+      for (const slug of (data.achievementsUnlocked ?? [])) {
+        setTimeout(() => {
+          window.dispatchEvent(new CustomEvent('ascendia:achievement', { detail: { slug } }))
+        }, 1200)
       }
 
       setTimeout(() => {
