@@ -151,6 +151,7 @@ export function KanbanBoard({ initialTasks, initialLists = [] }: { initialTasks:
 
   const quickComplete = useCallback(async (task: Task) => {
     if (task.status === 'done' || loadingIds.has(task.id)) return
+    if (navigator.vibrate) navigator.vibrate([10, 5, 25])
     setTaskLoading(task.id, true)
 
     setTasks((prev) =>

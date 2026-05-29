@@ -51,6 +51,7 @@ export function TasksToday({ tasks: initialTasks }: { tasks: Task[] }) {
 
   async function quickComplete(taskId: string) {
     if (completing.has(taskId)) return
+    if (navigator.vibrate) navigator.vibrate([10, 5, 25])
     setCompleting((prev) => new Set(prev).add(taskId))
     try {
       const res = await fetch('/api/tasks', {
