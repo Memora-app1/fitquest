@@ -77,11 +77,14 @@ export async function POST(req: NextRequest) {
     .from('transactions')
     .select('id', { count: 'exact', head: true })
     .eq('user_id', user.id)
-  if (count === installments)     await tryUnlockAchievement(user.id, 'first_transaction')
-  if (count === 50)               await tryUnlockAchievement(user.id, 'transactions_50')
-  if (count === 200)              await tryUnlockAchievement(user.id, 'transactions_200')
+  const achievementsUnlocked: string[] = []
+  for (const [n, slug] of [[installments, 'first_transaction'], [50, 'transactions_50'], [200, 'transactions_200']] as [number, string][]) {
+    if (count === n && await tryUnlockAchievement(user.id, slug)) {
+      achievementsUnlocked.push(slug)
+    }
+  }
 
-  return NextResponse.json({ transactions: data, success: true })
+  return NextResponse.json({ transactions: data, success: true, achievementsUnlocked })
 }
 
 export async function GET(req: NextRequest) {

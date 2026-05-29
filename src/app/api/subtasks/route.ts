@@ -131,8 +131,13 @@ export async function PATCH(req: NextRequest) {
       .eq('is_completed', true)
 
     const total = subtaskCount ?? 0
-    if (total === 1)  await tryUnlockAchievement(user.id, 'first_subtask')
-    if (total === 50) await tryUnlockAchievement(user.id, 'subtasks_50')
+    const achievementsUnlocked: string[] = []
+    for (const [n, slug] of [[1, 'first_subtask'], [50, 'subtasks_50']] as [number, string][]) {
+      if (total === n && await tryUnlockAchievement(user.id, slug)) {
+        achievementsUnlocked.push(slug)
+      }
+    }
+    return NextResponse.json({ subtask: data, xpEarned, achievementsUnlocked })
   }
 
   return NextResponse.json({ subtask: data, xpEarned })
