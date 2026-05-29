@@ -1,4 +1,5 @@
 ﻿import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { AppShell } from '@/components/layout/app-shell'
@@ -139,7 +140,9 @@ export default async function MetasPage() {
         )}
 
         {/* ── Goals analytics overview ─────────────────────────────────── */}
-        <GoalsOverview userId={user.id} />
+        <Suspense fallback={<div className="h-48 rounded-2xl shimmer" />}>
+          <GoalsOverview userId={user.id} />
+        </Suspense>
 
         <GoalsList initialGoals={goals ?? []} />
       </div>

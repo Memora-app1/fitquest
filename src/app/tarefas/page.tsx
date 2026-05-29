@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { AppShell } from '@/components/layout/app-shell'
@@ -298,26 +299,28 @@ export default async function TarefasPage() {
           </div>
         )}
 
-        {/* ── Per-list portfolio view with progress rings ──────────────── */}
-        <TaskListProgressRings userId={user.id} />
-
-        {/* ── Productivity score + DOW heatmap + weekly trends ────────── */}
-        <TaskProductivityScore userId={user.id} />
-
-        {/* ── 8-week task velocity chart ───────────────────────────────── */}
-        <TaskVelocity userId={user.id} />
-
-        {/* ── Per-list breakdown + alerts ──────────────────────────────── */}
-        <TaskListsBreakdown userId={user.id} />
-
-        {/* ── 30-day deadline timeline ──────────────────────────────────── */}
-        <TaskDueTimeline userId={user.id} />
-
-        {/* ── Eisenhower quadrant deep-dive analytics ───────────────────── */}
-        <EisenhowerInsights userId={user.id} />
-
-        {/* ── Due-date distribution heatmap (DOW × week) ───────────────── */}
-        <TaskDueDateHeatmap userId={user.id} />
+        {/* Heavy analytics — streamed independently */}
+        <Suspense fallback={<div className="h-40 rounded-2xl shimmer" />}>
+          <TaskListProgressRings userId={user.id} />
+        </Suspense>
+        <Suspense fallback={<div className="h-48 rounded-2xl shimmer" />}>
+          <TaskProductivityScore userId={user.id} />
+        </Suspense>
+        <Suspense fallback={<div className="h-48 rounded-2xl shimmer" />}>
+          <TaskVelocity userId={user.id} />
+        </Suspense>
+        <Suspense fallback={<div className="h-48 rounded-2xl shimmer" />}>
+          <TaskListsBreakdown userId={user.id} />
+        </Suspense>
+        <Suspense fallback={<div className="h-40 rounded-2xl shimmer" />}>
+          <TaskDueTimeline userId={user.id} />
+        </Suspense>
+        <Suspense fallback={<div className="h-48 rounded-2xl shimmer" />}>
+          <EisenhowerInsights userId={user.id} />
+        </Suspense>
+        <Suspense fallback={<div className="h-40 rounded-2xl shimmer" />}>
+          <TaskDueDateHeatmap userId={user.id} />
+        </Suspense>
 
         <KanbanBoard initialTasks={tasks} initialLists={taskLists} />
       </div>

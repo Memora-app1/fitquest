@@ -1,4 +1,5 @@
 ﻿import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { AppShell } from '@/components/layout/app-shell'
@@ -314,7 +315,9 @@ export default async function ScorePage() {
         </section>
 
         {/* XP source breakdown — 90 days */}
-        <XpSourceBreakdown userId={user.id} />
+        <Suspense fallback={<div className="h-48 rounded-2xl shimmer" />}>
+          <XpSourceBreakdown userId={user.id} />
+        </Suspense>
 
         {/* Unlocked achievements */}
         {unlockedAchievements.length > 0 && (
