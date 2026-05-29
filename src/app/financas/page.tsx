@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { AppShell } from '@/components/layout/app-shell'
@@ -519,38 +520,40 @@ export default async function FinancasPage() {
           </section>
         )}
 
-        {/* ── Month calendar — net flow per day ────────────────────────── */}
-        <FinanceMonthCalendar userId={user.id} />
-
-        {/* ── Cash flow forecast: weekly projection + upcoming obligations ── */}
-        <CashFlowForecast userId={user.id} />
-
-        {/* ── Income intelligence: recurring sources + stability score ── */}
-        <FinanceIncomeAnalysis userId={user.id} />
-
-        {/* ── 6-month income vs expense trend chart ────────────────────── */}
-        <FinanceTrends userId={user.id} />
-
-        {/* ── 4-month spending trend per category ──────────────────────── */}
-        <FinanceCategoryTrend userId={user.id} />
-
-        {/* ── Deep category analysis with trend comparison ─────────────── */}
-        <SpendingByCategory userId={user.id} />
-
-        {/* ── Net worth summary (assets vs liabilities) ────────────────── */}
-        <NetWorthSummary userId={user.id} />
-
-        {/* ── Savings rate tracker (income vs expenses, monthly) ────────── */}
-        <SavingsRateTracker userId={user.id} />
-
-        {/* ── Recurring transactions detection ─────────────────────────── */}
-        <FinanceRecurringAnalysis userId={user.id} />
-
-        {/* ── Spending day-of-week heatmap ──────────────────────────────── */}
-        <SpendingDowHeatmap userId={user.id} />
-
-        {/* ── Finance goals milestones ──────────────────────────────────── */}
-        <FinanceGoalsMilestones userId={user.id} />
+        {/* Heavy analytics — streamed independently */}
+        <Suspense fallback={<div className="h-56 rounded-2xl shimmer" />}>
+          <FinanceMonthCalendar userId={user.id} />
+        </Suspense>
+        <Suspense fallback={<div className="h-48 rounded-2xl shimmer" />}>
+          <CashFlowForecast userId={user.id} />
+        </Suspense>
+        <Suspense fallback={<div className="h-48 rounded-2xl shimmer" />}>
+          <FinanceIncomeAnalysis userId={user.id} />
+        </Suspense>
+        <Suspense fallback={<div className="h-48 rounded-2xl shimmer" />}>
+          <FinanceTrends userId={user.id} />
+        </Suspense>
+        <Suspense fallback={<div className="h-48 rounded-2xl shimmer" />}>
+          <FinanceCategoryTrend userId={user.id} />
+        </Suspense>
+        <Suspense fallback={<div className="h-64 rounded-2xl shimmer" />}>
+          <SpendingByCategory userId={user.id} />
+        </Suspense>
+        <Suspense fallback={<div className="h-40 rounded-2xl shimmer" />}>
+          <NetWorthSummary userId={user.id} />
+        </Suspense>
+        <Suspense fallback={<div className="h-40 rounded-2xl shimmer" />}>
+          <SavingsRateTracker userId={user.id} />
+        </Suspense>
+        <Suspense fallback={<div className="h-48 rounded-2xl shimmer" />}>
+          <FinanceRecurringAnalysis userId={user.id} />
+        </Suspense>
+        <Suspense fallback={<div className="h-40 rounded-2xl shimmer" />}>
+          <SpendingDowHeatmap userId={user.id} />
+        </Suspense>
+        <Suspense fallback={<div className="h-48 rounded-2xl shimmer" />}>
+          <FinanceGoalsMilestones userId={user.id} />
+        </Suspense>
 
         {/* ── Accounts ─────────────────────────────────────────────────── */}
         <section>
