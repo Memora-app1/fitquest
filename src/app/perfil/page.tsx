@@ -1,4 +1,5 @@
 ﻿import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { AppShell } from '@/components/layout/app-shell'
@@ -206,17 +207,19 @@ export default async function PerfilPage() {
           currentLevel={profile.level}
         />
 
-        {/* ── Cross-domain 60-day activity heatmap ─────────────────────── */}
-        <DailyActivityMap userId={user.id} />
-
-        {/* ── XP History 30-day chart ──────────────────────────────────── */}
-        <XpHistory userId={user.id} />
-
-        {/* ── Achievements showcase ────────────────────────────────────── */}
-        <AchievementsShowcase userId={user.id} />
-
-        {/* ── RPG Character class based on XP distribution ─────────────── */}
-        <RpgCharacter userId={user.id} />
+        {/* Heavy analytics — streamed independently */}
+        <Suspense fallback={<div className="h-40 rounded-2xl shimmer" />}>
+          <DailyActivityMap userId={user.id} />
+        </Suspense>
+        <Suspense fallback={<div className="h-48 rounded-2xl shimmer" />}>
+          <XpHistory userId={user.id} />
+        </Suspense>
+        <Suspense fallback={<div className="h-48 rounded-2xl shimmer" />}>
+          <AchievementsShowcase userId={user.id} />
+        </Suspense>
+        <Suspense fallback={<div className="h-56 rounded-2xl shimmer" />}>
+          <RpgCharacter userId={user.id} />
+        </Suspense>
 
         {/* Stats */}
         <section>
