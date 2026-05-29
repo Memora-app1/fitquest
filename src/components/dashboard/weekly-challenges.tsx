@@ -522,7 +522,7 @@ export async function WeeklyChallenges({ userId }: WeeklyChallengesProps) {
                 Todos os desafios concluídos!
               </p>
               <p className="text-xs text-text-muted mt-0.5">
-                +{totalXpAvailable.toLocaleString('pt-BR')} XP conquistados esta semana. Incrível!
+                +{totalXpEarned.toLocaleString('pt-BR')} XP ganhos com os desafios. Semana perfeita! 🏆
               </p>
             </div>
           </div>
