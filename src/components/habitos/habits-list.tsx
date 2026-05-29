@@ -4,7 +4,7 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
-import { Check, Plus, X, Trash2, MoreVertical, Pencil, Flame, Zap } from 'lucide-react'
+import { Check, Plus, X, Trash2, MoreVertical, Pencil, Flame, Zap, Bell } from 'lucide-react'
 import { useXpToast, XpToastContainer } from '@/components/xp-toast'
 
 interface Habit {
@@ -15,6 +15,7 @@ interface Habit {
   category: string
   xp_per_completion: number
   frequency_per_week: number
+  reminder_time?: string | null
 }
 
 interface HabitLog {
@@ -222,6 +223,15 @@ export function HabitsList({
                           <span className="flex items-center gap-0.5 text-brand-orange">
                             <Flame size={10} />
                             {currentStreak} dias
+                          </span>
+                        </>
+                      )}
+                      {h.reminder_time && (
+                        <>
+                          <span>·</span>
+                          <span className="flex items-center gap-0.5" style={{ color: '#00D9FF' }}>
+                            <Bell size={9} />
+                            {h.reminder_time.slice(0, 5)}
                           </span>
                         </>
                       )}
