@@ -25,7 +25,7 @@ const ACTIONS = [
     hoverBorder: 'rgba(124,58,237,0.5)',
   },
   {
-    href: '/financas/transacoes',
+    href: '/financas/transacoes?new=1',
     label: 'Transação',
     sub: '+25 XP',
     icon: Wallet,
@@ -36,7 +36,7 @@ const ACTIONS = [
     hoverBorder: 'rgba(0,255,136,0.5)',
   },
   {
-    href: '/habitos',
+    href: '/habitos?new=1',
     label: 'Hábito',
     sub: '+50 XP',
     icon: Target,
