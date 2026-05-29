@@ -144,6 +144,7 @@ export async function PATCH(req: NextRequest) {
   let xpEarned = 0
   let leveledUp = false
   let newLevel = 0
+  const achievementsUnlocked: string[] = []
 
   // Conceder XP se completou agora
   if (isCompletingNow) {
@@ -151,6 +152,7 @@ export async function PATCH(req: NextRequest) {
     xpEarned = xpResult.xpEarned
     leveledUp = xpResult.leveledUp
     newLevel = xpResult.newLevel
+    achievementsUnlocked.push(...xpResult.achievementsUnlocked)
 
     // First task achievement
     const { count } = await supabase
@@ -158,14 +160,17 @@ export async function PATCH(req: NextRequest) {
       .select('id', { count: 'exact', head: true })
       .eq('user_id', user.id)
       .eq('status', 'done')
-    if (count === 1) await tryUnlockAchievement(user.id, 'first_task')
-    if (count === 50) await tryUnlockAchievement(user.id, 'tasks_50')
-    if (count === 200) await tryUnlockAchievement(user.id, 'tasks_200')
+    for (const [n, slug] of [[1, 'first_task'], [50, 'tasks_50'], [200, 'tasks_200']] as [number, string][]) {
+      if (count === n) {
+        const unlocked = await tryUnlockAchievement(user.id, slug)
+        if (unlocked) achievementsUnlocked.push(slug)
+      }
+    }
 
     await updateUserStreak(user.id)
   }
 
-  return NextResponse.json({ task: data, xpEarned, leveledUp, newLevel })
+  return NextResponse.json({ task: data, xpEarned, leveledUp, newLevel, achievementsUnlocked })
 }
 
 // DELETE /api/tasks?id=...
