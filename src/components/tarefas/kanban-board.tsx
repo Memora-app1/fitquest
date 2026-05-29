@@ -606,8 +606,12 @@ function SubtaskPanel({ taskId, isDone }: { taskId: string; isDone: boolean }) {
       body: JSON.stringify({ id: s.id, is_completed: updated.is_completed }),
     })
     if (res.ok) {
-      const data = await res.json() as { xpEarned?: number }
+      const data = await res.json() as { xpEarned?: number; achievementsUnlocked?: string[] }
       if (data.xpEarned) subShowXp(data.xpEarned)
+      if (navigator.vibrate && updated.is_completed) navigator.vibrate([8, 4, 16])
+      for (const slug of (data.achievementsUnlocked ?? [])) {
+        window.dispatchEvent(new CustomEvent('ascendia:achievement', { detail: { slug } }))
+      }
     }
   }
 

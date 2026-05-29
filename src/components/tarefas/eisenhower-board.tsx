@@ -442,12 +442,20 @@ function EisenhowerSubtasks({ taskId, isDone }: { taskId: string; isDone: boolea
   }
 
   async function toggleItem(s: ESubtask) {
-    setSubtasks(prev => prev.map(x => x.id === s.id ? { ...x, is_completed: !x.is_completed } : x))
-    await fetch('/api/subtasks', {
+    const completing = !s.is_completed
+    setSubtasks(prev => prev.map(x => x.id === s.id ? { ...x, is_completed: completing } : x))
+    if (completing && navigator.vibrate) navigator.vibrate([8, 4, 16])
+    const res = await fetch('/api/subtasks', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: s.id, is_completed: !s.is_completed }),
+      body: JSON.stringify({ id: s.id, is_completed: completing }),
     })
+    if (res.ok) {
+      const data = await res.json() as { achievementsUnlocked?: string[] }
+      for (const slug of (data.achievementsUnlocked ?? [])) {
+        window.dispatchEvent(new CustomEvent('ascendia:achievement', { detail: { slug } }))
+      }
+    }
   }
 
   async function addItem() {
