@@ -175,17 +175,34 @@ export default async function DashboardPage({
         {/* Welcome banner — aparece ao completar onboarding */}
         {welcome === '1' && (
           <div
-            className="rounded-2xl p-5 flex items-center gap-4 relative overflow-hidden"
+            className="rounded-2xl p-5 md:p-6 flex items-center gap-4 relative overflow-hidden animate-bounce-in"
             style={{
-              background: 'linear-gradient(135deg, rgba(124,58,237,0.15) 0%, rgba(13,24,41,0.98) 60%, rgba(255,77,0,0.08) 100%)',
-              border: '1px solid rgba(124,58,237,0.3)',
+              background: 'linear-gradient(135deg, rgba(124,58,237,0.18) 0%, rgba(13,24,41,0.98) 55%, rgba(255,77,0,0.10) 100%)',
+              border: '1px solid rgba(124,58,237,0.35)',
+              boxShadow: '0 8px 32px rgba(124,58,237,0.12)',
             }}
           >
-            <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full pointer-events-none blur-2xl" style={{ background: 'rgba(124,58,237,0.2)' }} />
-            <div className="text-4xl relative z-10">🚀</div>
-            <div className="relative z-10">
-              <p className="font-bold text-white">Bem-vindo ao Ascendia!</p>
-              <p className="text-sm text-text-secondary">Seus hábitos foram criados. Ganhe seus primeiros XP hoje.</p>
+            <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full pointer-events-none blur-3xl" style={{ background: 'rgba(124,58,237,0.25)' }} />
+            <div className="absolute -bottom-6 -left-6 w-24 h-24 rounded-full pointer-events-none blur-2xl" style={{ background: 'rgba(255,77,0,0.12)' }} />
+            <div className="text-4xl relative z-10 animate-bounce">🚀</div>
+            <div className="relative z-10 flex-1 min-w-0">
+              <p className="font-black text-white text-lg leading-tight">
+                {profile.name.split(' ')[0]}, seja bem-vindo ao Ascendia!
+              </p>
+              <p className="text-sm text-text-secondary mt-0.5">
+                Seus hábitos foram criados. Você começa com{' '}
+                <span className="font-bold text-brand-gold">+100 XP</span> de bônus. Vai lá! ⚡
+              </p>
+            </div>
+            <div
+              className="relative z-10 shrink-0 px-4 py-2 rounded-xl text-xs font-black hidden sm:block"
+              style={{
+                background: 'linear-gradient(135deg, rgba(124,58,237,0.3), rgba(255,77,0,0.2))',
+                border: '1px solid rgba(124,58,237,0.4)',
+                color: '#A78BFA',
+              }}
+            >
+              +100 XP
             </div>
           </div>
         )}
