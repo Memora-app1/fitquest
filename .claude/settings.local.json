@@ -99,7 +99,9 @@
       "Bash(vercel link *)",
       "Bash(xargs grep -l \"grantXP\")",
       "Bash(sed -n '335,360p' src/components/coach/coach-chat.tsx)",
-      "Bash(sed -n '460,510p' src/components/coach/coach-chat.tsx)"
+      "Bash(sed -n '460,510p' src/components/coach/coach-chat.tsx)",
+      "Bash(xargs grep -l \"Suspense\")",
+      "Bash(grep -v \"^commit\\\\|^Author\\\\|^Date\\\\|^$\\\\|feat:\\\\|Empty\\\\|Streak\\\\|Deploy\\\\|Co-Auth\")"
     ],
     "additionalDirectories": [
       "c:\\Users\\SURFACE\\Downloads\\fitquest_2\\fitquest\\src\\app\\treinos",
