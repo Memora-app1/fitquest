@@ -94,7 +94,12 @@
       "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); [print\\(k,v\\) for k,v in {**d.get\\('dependencies',{}\\), **d.get\\('devDependencies',{}\\)}.items\\(\\)]\")",
       "Bash(cat .eslintrc*)",
       "Bash(cat eslint.config*)",
-      "Bash(ls -la .prettierrc*)"
+      "Bash(ls -la .prettierrc*)",
+      "Bash(vercel project *)",
+      "Bash(vercel link *)",
+      "Bash(xargs grep -l \"grantXP\")",
+      "Bash(sed -n '335,360p' src/components/coach/coach-chat.tsx)",
+      "Bash(sed -n '460,510p' src/components/coach/coach-chat.tsx)"
     ],
     "additionalDirectories": [
       "c:\\Users\\SURFACE\\Downloads\\fitquest_2\\fitquest\\src\\app\\treinos",

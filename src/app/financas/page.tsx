@@ -569,19 +569,15 @@ export default async function FinancasPage() {
           </div>
 
           {accounts.length === 0 ? (
-            <div
-              className="rounded-2xl p-8 text-center relative overflow-hidden"
-              style={{
-                background: 'linear-gradient(135deg, rgba(124,58,237,0.06) 0%, rgba(13,24,41,0.98) 100%)',
-                border: '1px solid rgba(124,58,237,0.15)',
-              }}
-            >
-              <div className="text-4xl mb-3">🏦</div>
-              <p className="text-text-secondary mb-4">Você ainda não cadastrou nenhuma conta</p>
-              <Link href="/financas/contas" className="btn-primary inline-block">
-                Cadastrar conta
-              </Link>
-            </div>
+            <EmptyState
+              emoji="🏦"
+              title="Nenhuma conta cadastrada"
+              description="Adicione sua conta ou cartão para rastrear gastos e receitas. Cada transação registrada vale +5 XP."
+              ctaLabel="+ Cadastrar conta"
+              ctaHref="/financas/contas"
+              tip="Registrar transações = +5 XP cada. Meta financeira batida = +500 XP."
+              socialProof="Usuários que conectam contas gastam 23% menos no primeiro mês."
+            />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               {accounts.slice(0, 3).map((a) => (

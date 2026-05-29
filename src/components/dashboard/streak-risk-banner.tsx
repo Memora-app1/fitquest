@@ -189,17 +189,20 @@ export function StreakRiskBanner({ streakCurrent, hasActivityToday, freezes = 0 
         <div className="flex-1 min-w-0 pr-6">
           <div className="flex items-center gap-2 mb-1">
             <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: '#EF4444' }}>
-              {isUltraUrgent ? '🚨 Streak em perigo crítico' : '⚠️ Streak em risco'}
+              {isUltraUrgent ? '🚨 Vai zerar em minutos' : '⚠️ Sequência em risco'}
             </span>
           </div>
 
           <h3 className="text-base font-black leading-tight mb-0.5">
-            {isUltraUrgent ? `Só ${timeLeft} até meia-noite!` : `Faltam ${timeLeft} para meia-noite`}
+            {isUltraUrgent
+              ? `Não deixa zerar agora! ${timeLeft} restantes`
+              : `${streakCurrent} dias vão a zero em ${timeLeft}`}
           </h3>
           <p className="text-xs text-text-secondary mb-3">
-            Seu streak de{' '}
-            <strong className="text-white">{streakCurrent} dia{streakCurrent !== 1 ? 's' : ''}</strong>
-            {' '}será resetado se você não registrar uma atividade hoje.
+            {isUltraUrgent
+              ? <>Você chegou a <strong className="text-white">{streakCurrent} dias</strong>. Seria uma pena perder tudo por uma atividade.</>
+              : <>Registre qualquer atividade para manter sua sequência de <strong className="text-white">{streakCurrent} dia{streakCurrent !== 1 ? 's'  : ''}</strong>. Não deixa o streak ir a zero.</>
+            }
           </p>
 
           {/* Countdown */}
