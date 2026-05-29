@@ -49,6 +49,8 @@ export function HabitsList({
 
   async function toggle(id: string) {
     if (optimistic.has(id)) return
+    // Haptic imediato ao tocar
+    if (navigator.vibrate) navigator.vibrate([15, 5, 30])
     const next = new Set(optimistic)
     next.add(id)
     setOptimistic(next)
@@ -68,6 +70,10 @@ export function HabitsList({
           perfectDay: data.perfectDay,
           leveledUp: data.leveledUp ? data.newLevel : undefined,
         })
+        if (data.perfectDay) {
+          if (navigator.vibrate) navigator.vibrate([40, 20, 80, 20, 120])
+          window.dispatchEvent(new CustomEvent('ascendia:perfect-day'))
+        }
         if (data.leveledUp && data.newLevel) {
           window.dispatchEvent(new CustomEvent('ascendia:levelup', { detail: { level: data.newLevel } }))
         }
