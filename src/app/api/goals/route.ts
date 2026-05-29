@@ -129,12 +129,14 @@ export async function PATCH(req: NextRequest) {
   let xpEarned = 0
   let leveledUp = false
   let newLevel = 0
+  const achievementsUnlocked: string[] = []
 
   if (isCompleting && !wasAlreadyCompleted) {
     const xpResult = await grantXP(user.id, XP_REWARDS.GOAL_COMPLETED, `Meta concluída: ${data.title}`, 'goal', data.id)
     xpEarned = xpResult.xpEarned
     leveledUp = xpResult.leveledUp
     newLevel = xpResult.newLevel
+    achievementsUnlocked.push(...xpResult.achievementsUnlocked)
 
     // Check goals_5 achievement
     const { count: completedCount } = await supabase
@@ -142,10 +144,12 @@ export async function PATCH(req: NextRequest) {
       .select('id', { count: 'exact', head: true })
       .eq('user_id', user.id)
       .eq('status', 'completed')
-    if (completedCount === 5) await tryUnlockAchievement(user.id, 'goals_5')
+    if (completedCount === 5 && await tryUnlockAchievement(user.id, 'goals_5')) {
+      achievementsUnlocked.push('goals_5')
+    }
   }
 
-  return NextResponse.json({ goal: data, xpEarned, leveledUp, newLevel })
+  return NextResponse.json({ goal: data, xpEarned, leveledUp, newLevel, achievementsUnlocked })
 }
 
 export async function DELETE(req: NextRequest) {
