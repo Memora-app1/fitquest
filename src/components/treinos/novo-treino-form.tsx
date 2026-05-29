@@ -130,6 +130,7 @@ export function NovoTreinoForm() {
     }))
 
     setLoading(true)
+    if (navigator.vibrate) navigator.vibrate([15, 10, 40])
 
     try {
       const res = await fetch('/api/treinos', {
