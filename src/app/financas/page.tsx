@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation'
 import { AppShell } from '@/components/layout/app-shell'
 import { formatBRL } from '@/lib/utils'
 import Link from 'next/link'
+import { EmptyState } from '@/components/empty-state'
 import {
   Plus, TrendingUp, TrendingDown, Wallet, PiggyBank,
   AlertCircle, ArrowRight, CreditCard, Building2, Banknote,

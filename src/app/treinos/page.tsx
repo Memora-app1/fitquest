@@ -6,6 +6,7 @@ import { AppShell } from '@/components/layout/app-shell'
 import Link from 'next/link'
 import { formatRelativeDate } from '@/lib/utils'
 import { Plus, Dumbbell, Zap, TrendingUp, Trophy, Flame } from 'lucide-react'
+import { EmptyState } from '@/components/empty-state'
 import { WorkoutTrends } from '@/components/treinos/workout-trends'
 import { PrProgress } from '@/components/treinos/pr-progress'
 import { WorkoutHeatmap } from '@/components/treinos/workout-heatmap'
@@ -352,17 +353,15 @@ export default async function TreinosPage() {
 
         {/* ── Workout list ─────────────────────────────────────────────── */}
         {workouts.length === 0 ? (
-          <div
-            className="rounded-2xl p-12 text-center"
-            style={{ background: 'rgba(13,24,41,0.6)', border: '1px solid rgba(255,255,255,0.06)' }}
-          >
-            <Dumbbell size={48} className="mx-auto mb-4 text-text-muted" />
-            <h3 className="text-xl font-bold mb-1">Nenhum treino ainda</h3>
-            <p className="text-text-secondary mb-4">Comece registrando sua primeira sessão</p>
-            <Link href="/treinos/novo" className="btn-primary inline-flex items-center gap-2">
-              <Plus size={18} /> Começar primeiro treino
-            </Link>
-          </div>
+          <EmptyState
+            emoji="🏋️"
+            title="Nenhum treino registrado"
+            description="Registre sua primeira sessão e ganhe XP por cada série. Cada treino completo vale +100 XP e mais bônus por sets."
+            ctaLabel="+ Iniciar primeiro treino"
+            ctaHref="/treinos/novo"
+            tip="Treino completo = +100 XP. Personal Record = +150 XP bônus."
+            socialProof="Quem treina 3x por semana no Ascendia chega ao nível 4 em menos de 30 dias."
+          />
         ) : (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
