@@ -481,7 +481,10 @@ function NewTransactionModal({
     setLoading(false)
 
     if (res.ok) {
-      const data = await res.json() as { transaction?: Transaction; transactions?: Transaction[] }
+      const data = await res.json() as { transaction?: Transaction; transactions?: Transaction[]; achievementsUnlocked?: string[] }
+      for (const slug of (data.achievementsUnlocked ?? [])) {
+        window.dispatchEvent(new CustomEvent('ascendia:achievement', { detail: { slug } }))
+      }
       const created = data.transaction ?? data.transactions?.[0]
       if (created) onCreated(created)
       else onClose()
