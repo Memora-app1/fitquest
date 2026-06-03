@@ -291,3 +291,10 @@
 .animate-xp-bump {
   animation: xpBump 2.2s cubic-bezier(0.34, 1.2, 0.64, 1) forwards;
 }
+
+/* Shimmer deslizante — usado em progress bars de metas financeiras ativas */
+@keyframes shimmerSlide {
+  0%   { transform: translateX(-100%); }
+  60%  { transform: translateX(200%); }
+  100% { transform: translateX(200%); }
+}

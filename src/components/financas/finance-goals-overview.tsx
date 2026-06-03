@@ -315,11 +315,11 @@ export async function FinanceGoalsOverview({ userId }: { userId: string }) {
                     </div>
                   </div>
 
-                  {/* Progress bar with deadline marker */}
+                  {/* Progress bar with deadline marker + shimmer animation */}
                   <div className="relative">
-                    <div className="h-2 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)' }}>
+                    <div className="h-2.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)' }}>
                       <div
-                        className="h-full rounded-full transition-all"
+                        className="h-full rounded-full relative overflow-hidden"
                         style={{
                           width: `${p.pct}%`,
                           background: p.isOnTrack === false
@@ -327,8 +327,21 @@ export async function FinanceGoalsOverview({ userId }: { userId: string }) {
                             : p.pct >= 75
                             ? 'linear-gradient(90deg, #F5C842, #00FF88)'
                             : `linear-gradient(90deg, ${p.color ?? '#7C3AED'}, ${accentColor})`,
+                          transition: 'width 0.8s cubic-bezier(0.4,0,0.2,1)',
+                          boxShadow: `0 0 8px ${accentColor}50`,
                         }}
-                      />
+                      >
+                        {/* Shimmer overlay — só em barras ativas com progresso */}
+                        {p.pct > 0 && p.pct < 100 && (
+                          <div
+                            className="absolute inset-0 pointer-events-none"
+                            style={{
+                              background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.25) 50%, transparent 100%)',
+                              animation: 'shimmerSlide 2.4s ease-in-out infinite',
+                            }}
+                          />
+                        )}
+                      </div>
                     </div>
 
                     {/* Deadline marker — only if deadline is set */}
