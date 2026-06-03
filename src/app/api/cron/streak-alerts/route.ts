@@ -93,7 +93,7 @@ export async function GET() {
       // Buscar dispositivos push
       const { data: subs } = await supabase
         .from('push_subscriptions')
-        .select('endpoint, p256dh, auth')
+        .select('id, endpoint, keys_p256dh, keys_auth')
         .eq('user_id', user.id)
 
       if (!subs || subs.length === 0) {
@@ -117,27 +117,27 @@ export async function GET() {
           : `Você tem um streak ativo. Registre algo antes da meia-noite para mantê-lo.`
 
       // Enviar para todos os devices do usuário
-      const deadSubs: string[] = []
+      const deadSubIds: string[] = []
       for (const sub of subs) {
         const result = await sendPushNotification(
           sub.endpoint as string,
-          sub.p256dh as string,
-          sub.auth as string,
+          sub.keys_p256dh as string,
+          sub.keys_auth as string,
           {
             title,
             body,
             url: '/habitos',
           }
         )
-        if (result.gone) deadSubs.push(sub.endpoint as string)
+        if (result.gone) deadSubIds.push(sub.id as string)
       }
 
       // Limpar subscriptions expiradas
-      if (deadSubs.length > 0) {
+      if (deadSubIds.length > 0) {
         await supabase
           .from('push_subscriptions')
           .delete()
-          .in('endpoint', deadSubs)
+          .in('id', deadSubIds)
       }
 
       // Registrar notificação enviada (deduplicação)
