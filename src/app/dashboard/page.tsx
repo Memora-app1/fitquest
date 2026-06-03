@@ -26,6 +26,8 @@ import { DailyQuest } from '@/components/dashboard/daily-quest'
 import { ComebackCard } from '@/components/dashboard/comeback-card'
 import { StreakMilestone } from '@/components/dashboard/streak-milestone'
 import { WeeklyReport } from '@/components/dashboard/weekly-report'
+import { NextAchievementWidget } from '@/components/dashboard/next-achievement-widget'
+import { StreakLeaderboard } from '@/components/dashboard/streak-leaderboard'
 import { StreakRiskBanner } from '@/components/dashboard/streak-risk-banner'
 import { XpToday } from '@/components/dashboard/xp-today'
 import { NextAction } from '@/components/dashboard/next-action'
@@ -219,32 +221,54 @@ export default async function DashboardPage({
           </div>
         )}
 
-        {/* Trial banner */}
-        {trialDaysLeft !== null && trialDaysLeft <= 3 && (
+        {/* Trial banner — visível para todos os dias de trial */}
+        {trialDaysLeft !== null && (
           <div
-            className={`rounded-xl p-4 flex items-center justify-between gap-4 ${
-              trialDaysLeft === 0
-                ? 'bg-red-500/20 border border-red-500/40'
-                : 'bg-brand-orange/15 border border-brand-orange/40'
-            }`}
+            className="rounded-xl p-4 flex items-center justify-between gap-4"
+            style={{
+              background: trialDaysLeft === 0
+                ? 'rgba(239,68,68,0.15)'
+                : trialDaysLeft <= 2
+                ? 'rgba(255,77,0,0.15)'
+                : 'rgba(124,58,237,0.10)',
+              border: trialDaysLeft === 0
+                ? '1px solid rgba(239,68,68,0.40)'
+                : trialDaysLeft <= 2
+                ? '1px solid rgba(255,77,0,0.40)'
+                : '1px solid rgba(124,58,237,0.25)',
+            }}
           >
             <div className="flex items-center gap-3">
-              <span className="text-2xl">{trialDaysLeft === 0 ? '🚨' : '⏰'}</span>
+              <span className="text-2xl">
+                {trialDaysLeft === 0 ? '🚨' : trialDaysLeft <= 2 ? '⏰' : '🎁'}
+              </span>
               <div>
                 <p className="font-semibold text-white text-sm">
                   {trialDaysLeft === 0
                     ? 'Seu período gratuito encerrou hoje'
-                    : `Seu trial termina em ${trialDaysLeft} dia${trialDaysLeft === 1 ? '' : 's'}`}
+                    : trialDaysLeft === 1
+                    ? 'Último dia do seu trial gratuito'
+                    : `${trialDaysLeft} dias restantes no trial gratuito`}
                 </p>
                 <p className="text-xs text-text-secondary">
                   {trialDaysLeft === 0
                     ? 'Assine agora para não perder seu progresso'
-                    : 'Garanta seu acesso antes de perder o progresso'}
+                    : trialDaysLeft <= 3
+                    ? 'Garanta seu acesso antes de perder o progresso'
+                    : 'Experimente tudo gratuitamente. Assine quando quiser.'}
                 </p>
               </div>
             </div>
-            <Link href="/planos" className="btn-primary shrink-0 text-sm py-2 px-4">
-              Ver planos →
+            <Link
+              href="/planos"
+              className="shrink-0 text-sm py-2 px-4 rounded-xl font-bold transition-all hover:scale-105"
+              style={{
+                background: trialDaysLeft <= 2 ? '#FF4D00' : 'rgba(124,58,237,0.3)',
+                color: '#fff',
+                border: trialDaysLeft <= 2 ? 'none' : '1px solid rgba(124,58,237,0.5)',
+              }}
+            >
+              {trialDaysLeft <= 2 ? 'Assinar agora →' : 'Ver planos'}
             </Link>
           </div>
         )}
@@ -420,6 +444,16 @@ export default async function DashboardPage({
 
         {/* Finance Alerts */}
         {transactions.length > 0 && <FinanceAlerts transactions={transactions} />}
+
+        {/* Leaderboard de streak — social proof de consistência */}
+        <Suspense fallback={null}>
+          <StreakLeaderboard userId={user.id} />
+        </Suspense>
+
+        {/* Próxima conquista — pull effect constante */}
+        <Suspense fallback={null}>
+          <NextAchievementWidget userId={user.id} />
+        </Suspense>
 
         {/* Heavy analytics — streamed independently for faster initial load */}
         <Suspense fallback={<div className="h-48 rounded-2xl shimmer" />}>

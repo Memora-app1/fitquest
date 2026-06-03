@@ -64,11 +64,16 @@ export async function POST(req: NextRequest) {
       .eq('id', user.id)
   }
 
-  // Cria hábitos sugeridos se ainda não existem
+  // Cria hábitos sugeridos e captura o primeiro para o quick-win do onboarding
+  let firstHabit: { id: string; name: string; icon: string } | null = null
   if (habits.length > 0) {
-    await supabase
+    const { data: createdHabits } = await supabase
       .from('habits')
       .insert(habits.map((h) => ({ ...h, user_id: user.id })))
+      .select('id, name, icon')
+    if (createdHabits && createdHabits.length > 0) {
+      firstHabit = createdHabits[0] as { id: string; name: string; icon: string }
+    }
   }
 
   let xpEarned = 0
@@ -87,5 +92,5 @@ export async function POST(req: NextRequest) {
     newLevel = xpResult.newLevel
   }
 
-  return NextResponse.json({ ok: true, xpEarned, leveledUp, newLevel })
+  return NextResponse.json({ ok: true, xpEarned, leveledUp, newLevel, firstHabit })
 }
