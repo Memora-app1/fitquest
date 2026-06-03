@@ -63,6 +63,9 @@ export interface Profile {
   onboarding_completed: boolean
   primary_goal: string | null
   weekly_target: number
+  referral_code: string | null
+  referral_count: number
+  referred_by: string | null
   created_at: string
   updated_at: string
 }

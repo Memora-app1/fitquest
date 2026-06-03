@@ -11,6 +11,7 @@ import { AchievementsShowcase } from '@/components/perfil/achievements-showcase'
 import { XpLevelJourney } from '@/components/perfil/xp-level-journey'
 import { DailyActivityMap } from '@/components/perfil/daily-activity-map'
 import { RpgCharacter } from '@/components/perfil/rpg-character'
+import { ReferralWidget } from '@/components/perfil/referral-widget'
 import { Trophy, Flame, Zap, Star, Calendar, Target, Dumbbell, CheckSquare, Crown } from 'lucide-react'
 
 export const metadata: Metadata = {
@@ -206,6 +207,9 @@ export default async function PerfilPage() {
           xpTotal={profile.xp_total}
           currentLevel={profile.level}
         />
+
+        {/* Referral — indicação de amigos com XP bônus */}
+        <ReferralWidget />
 
         {/* Heavy analytics — streamed independently */}
         <Suspense fallback={<div className="h-40 rounded-2xl shimmer" />}>
