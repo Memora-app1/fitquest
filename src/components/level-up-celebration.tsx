@@ -157,8 +157,23 @@ export function LevelUpCelebration() {
       setDismissing(false)
       setTimeout(() => setVisible(true), 10)
 
-      // Haptic pattern: forte para celebrar
-      if (navigator.vibrate) navigator.vibrate([50, 30, 80, 30, 120])
+      // Haptic pattern escalonado por nível: quanto maior o nível, mais épico
+      if (navigator.vibrate) {
+        const level = ce.detail.level
+        if (level >= 8) {
+          // Ascendia Master — padrão rei: longo, pausas curtas, crescente
+          navigator.vibrate([100, 40, 200, 40, 300, 40, 200, 40, 400])
+        } else if (level >= 6) {
+          // Elite / Lendário — padrão triplo crescente
+          navigator.vibrate([80, 30, 130, 30, 200, 30, 130, 30, 250])
+        } else if (level >= 4) {
+          // Atleta / Guerreiro — padrão duplo forte
+          navigator.vibrate([60, 25, 100, 25, 160, 25, 100])
+        } else {
+          // Iniciante / Dedicado / Consistente — padrão suave
+          navigator.vibrate([40, 20, 70, 20, 110])
+        }
+      }
 
       // Som de level-up gerado via Web Audio API (sem arquivo externo)
       try {

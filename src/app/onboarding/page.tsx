@@ -28,7 +28,13 @@ const MODULES = [
   { value: 'coach', label: 'Coach IA', icon: '🤖', desc: 'Assistente com contexto total', rgb: '245,200,66' },
 ]
 
-const TOTAL_STEPS = 4
+const TOTAL_STEPS = 5
+
+interface FirstHabit {
+  id: string
+  name: string
+  icon: string
+}
 
 export default function OnboardingPage() {
   const router = useRouter()
@@ -37,13 +43,16 @@ export default function OnboardingPage() {
   const [weeklyTarget, setWeeklyTarget] = useState(4)
   const [loading, setLoading] = useState(false)
   const [finishError, setFinishError] = useState<string | null>(null)
+  const [firstHabit, setFirstHabit] = useState<FirstHabit | null>(null)
+  const [quickWinLoading, setQuickWinLoading] = useState(false)
+  const [quickWinDone, setQuickWinDone] = useState(false)
 
   const MAX_GOALS = 3
 
   function toggleGoal(value: string) {
     setSelectedGoals((prev) => {
       if (prev.includes(value)) return prev.filter((g) => g !== value)
-      if (prev.length >= MAX_GOALS) return prev // already at limit
+      if (prev.length >= MAX_GOALS) return prev
       return [...prev, value]
     })
   }
@@ -54,7 +63,7 @@ export default function OnboardingPage() {
 
     const suggestedHabits = getSuggestedHabitsMulti(selectedGoals)
 
-    let data: { xpEarned?: number; leveledUp?: boolean; newLevel?: number } = {}
+    let data: { xpEarned?: number; leveledUp?: boolean; newLevel?: number; firstHabit?: FirstHabit } = {}
     try {
       const res = await fetch('/api/onboarding', {
         method: 'POST',
@@ -82,9 +91,40 @@ export default function OnboardingPage() {
     if (data.leveledUp && data.newLevel) {
       setTimeout(() => {
         window.dispatchEvent(new CustomEvent('ascendia:levelup', { detail: { level: data.newLevel } }))
-      }, 1500)
+      }, 2500)
     }
 
+    if (data.firstHabit) {
+      setFirstHabit(data.firstHabit)
+      setLoading(false)
+      setStep(5) // quick-win step
+    } else {
+      router.push('/dashboard?welcome=1')
+      router.refresh()
+    }
+  }
+
+  async function handleQuickWin() {
+    if (!firstHabit || quickWinLoading) return
+    setQuickWinLoading(true)
+    try {
+      await fetch('/api/habits/log', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ habit_id: firstHabit.id }),
+      })
+    } catch { /* silencioso — não bloquear o fluxo */ }
+
+    setQuickWinDone(true)
+    if (navigator.vibrate) navigator.vibrate([30, 20, 80, 20, 120])
+
+    setTimeout(() => {
+      router.push('/dashboard?welcome=1')
+      router.refresh()
+    }, 1400)
+  }
+
+  function skipToDashboard() {
     router.push('/dashboard?welcome=1')
     router.refresh()
   }
@@ -405,6 +445,88 @@ export default function OnboardingPage() {
                   <p className="text-xs text-center mt-2" style={{ color: '#EF4444' }}>{finishError}</p>
                 )}
               </div>
+            </div>
+          )}
+
+          {/* ── Step 5: Quick Win — marcar primeiro hábito ── */}
+          {step === 5 && firstHabit && (
+            <div className="space-y-6 text-center">
+              <div>
+                <div className="text-6xl mb-3">
+                  {quickWinDone ? '🎉' : firstHabit.icon}
+                </div>
+                <h2 className="text-2xl font-bold mb-2">
+                  {quickWinDone ? 'Primeira vitória!' : 'Sua primeira missão'}
+                </h2>
+                <p className="text-text-secondary text-sm">
+                  {quickWinDone
+                    ? 'Você marcou seu primeiro hábito. A jornada começou!'
+                    : 'Marque seu primeiro hábito agora e ganhe +50 XP imediatamente.'}
+                </p>
+              </div>
+
+              {!quickWinDone ? (
+                <>
+                  {/* Habit card */}
+                  <div
+                    className="mx-auto max-w-xs p-5 rounded-2xl relative overflow-hidden"
+                    style={{
+                      background: 'linear-gradient(135deg, rgba(255,77,0,0.12) 0%, rgba(13,24,41,0.98) 100%)',
+                      border: '1px solid rgba(255,77,0,0.3)',
+                    }}
+                  >
+                    <div className="text-4xl mb-2">{firstHabit.icon}</div>
+                    <div className="font-bold text-lg">{firstHabit.name}</div>
+                    <div
+                      className="mt-2 inline-flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-full"
+                      style={{ background: 'rgba(245,200,66,0.15)', color: '#F5C842' }}
+                    >
+                      ⚡ +50 XP
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={handleQuickWin}
+                    disabled={quickWinLoading}
+                    className="w-full py-4 rounded-2xl font-black text-lg transition-all active:scale-95"
+                    style={{
+                      background: 'linear-gradient(135deg, #FF4D00, #FF6B35)',
+                      color: '#fff',
+                      boxShadow: '0 8px 32px rgba(255,77,0,0.35)',
+                    }}
+                  >
+                    {quickWinLoading ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        Registrando...
+                      </span>
+                    ) : (
+                      `✓ Marcar "${firstHabit.name}" →`
+                    )}
+                  </button>
+
+                  <button onClick={skipToDashboard} className="text-xs text-text-muted hover:text-text-secondary transition-colors">
+                    Pular por agora
+                  </button>
+                </>
+              ) : (
+                <div className="space-y-3">
+                  <div
+                    className="py-4 px-6 rounded-2xl text-center"
+                    style={{
+                      background: 'linear-gradient(135deg, rgba(0,255,136,0.12) 0%, rgba(13,24,41,0.98) 100%)',
+                      border: '1px solid rgba(0,255,136,0.3)',
+                    }}
+                  >
+                    <div className="text-2xl font-black" style={{ color: '#00FF88' }}>+50 XP</div>
+                    <div className="text-sm text-text-secondary mt-1">Adicionados ao seu perfil!</div>
+                  </div>
+                  <div className="flex items-center justify-center gap-2 text-text-muted text-sm">
+                    <span className="w-4 h-4 border-2 border-text-muted border-t-brand-orange rounded-full animate-spin" />
+                    Abrindo seu dashboard...
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>

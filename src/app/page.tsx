@@ -150,14 +150,24 @@ export default function LandingPage() {
           {/* Social proof mini */}
           <div className="flex items-center justify-center gap-3 flex-wrap">
             <div className="flex -space-x-2">
-              {['🟠','🟣','🔵','🟢','🔴'].map((c, i) => (
-                <div key={i} className="w-7 h-7 rounded-full border-2 border-bg flex items-center justify-center text-xs"
-                  style={{ background: 'rgba(255,255,255,0.1)' }}>{c}</div>
+              {['JP','MA','RS','CA','FE'].map((i, k) => (
+                <div key={k} className="w-8 h-8 rounded-full border-2 border-bg flex items-center justify-center text-[10px] font-bold"
+                  style={{ background: `hsl(${k * 60 + 20}, 70%, 45%)`, color: '#fff' }}>{i}</div>
               ))}
             </div>
             <p className="text-sm text-text-secondary">
               <strong className="text-white">+500 brasileiros</strong> já subiram de nível esta semana
             </p>
+          </div>
+
+          {/* Live activity ticker */}
+          <div
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs"
+            style={{ background: 'rgba(0,255,136,0.08)', border: '1px solid rgba(0,255,136,0.2)' }}
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-ping inline-block" />
+            <span className="text-green-400 font-semibold">Ao vivo:</span>
+            <span className="text-text-secondary">João completou 3 hábitos e ganhou +150 XP agora</span>
           </div>
 
           <p className="text-xs text-text-muted">

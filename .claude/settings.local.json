@@ -101,7 +101,16 @@
       "Bash(sed -n '335,360p' src/components/coach/coach-chat.tsx)",
       "Bash(sed -n '460,510p' src/components/coach/coach-chat.tsx)",
       "Bash(xargs grep -l \"Suspense\")",
-      "Bash(grep -v \"^commit\\\\|^Author\\\\|^Date\\\\|^$\\\\|feat:\\\\|Empty\\\\|Streak\\\\|Deploy\\\\|Co-Auth\")"
+      "Bash(grep -v \"^commit\\\\|^Author\\\\|^Date\\\\|^$\\\\|feat:\\\\|Empty\\\\|Streak\\\\|Deploy\\\\|Co-Auth\")",
+      "Bash(awk -F/ '{print $NF}')",
+      "Bash(grep -v \"^#\\\\|^$\")",
+      "Bash(grep -v \"//.*any\\\\|interface.*any\\\\|extends.*any\\\\|Record.*any\\\\|unknown.*any\\\\|as any\\\\b\")",
+      "Bash(grep -v \"node_modules\\\\|\\\\.git\\\\|//.*console\")",
+      "Bash(grep -v \"node_modules\\\\|\\\\.git\\\\|//.*console\\\\.log\")",
+      "Bash(xargs grep -l \"emptyState\\\\|empty.*state\\\\|nenhum\\\\|no.*data\")",
+      "Bash(ls src/components/landing-social-proof.tsx)",
+      "Bash(ls src/components/dashboard/next-action.tsx)",
+      "Bash(xargs ls -t)"
     ],
     "additionalDirectories": [
       "c:\\Users\\SURFACE\\Downloads\\fitquest_2\\fitquest\\src\\app\\treinos",
