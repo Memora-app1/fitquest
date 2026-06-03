@@ -1,4 +1,3 @@
-import { isCronAuthorized, cronUnauthorized } from '@/lib/cron-auth'
 /**
  * Cron diário às 14:00 UTC (~11:00 Brasília)
  * Envia push "Na mesma data, 1 ano atrás..." para usuários com atividades registradas há exatamente 365 dias.
@@ -6,6 +5,7 @@ import { isCronAuthorized, cronUnauthorized } from '@/lib/cron-auth'
  */
 
 import { NextResponse } from 'next/server'
+import { isCronAuthorized, cronUnauthorized } from '@/lib/cron-auth'
 import { createServiceClient } from '@/lib/supabase/server'
 import { sendPushNotification } from '@/lib/webpush'
 
