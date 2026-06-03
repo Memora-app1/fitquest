@@ -111,7 +111,7 @@ export default function OnboardingPage() {
       await fetch('/api/habits/log', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ habit_id: firstHabit.id }),
+        body: JSON.stringify({ habitId: firstHabit.id }),
       })
     } catch { /* silencioso — não bloquear o fluxo */ }
 
