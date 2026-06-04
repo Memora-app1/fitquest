@@ -150,6 +150,18 @@ export async function PATCH(req: NextRequest) {
       const result = await grantXP(user.id, XP_REWARDS.BILL_PAID_ON_TIME, 'Conta paga em dia 💳', 'transaction', body.id)
       xpEarned = result.xpEarned
     }
+
+    // zero_debt: verifica se não há mais despesas não pagas
+    const { count: unpaidCount } = await supabase
+      .from('transactions')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .eq('type', 'expense')
+      .eq('is_paid', false)
+
+    if ((unpaidCount ?? 0) === 0) {
+      await tryUnlockAchievement(user.id, 'zero_debt')
+    }
   }
 
   return NextResponse.json({ transaction: data, xpEarned })
