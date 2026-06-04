@@ -4,8 +4,9 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
-import { Check, Plus, X, Trash2, MoreVertical, Pencil, Flame, Zap, Bell } from 'lucide-react'
+import { Check, Plus, X, Trash2, MoreVertical, Pencil, Flame, Zap, Bell, Sparkles } from 'lucide-react'
 import { useXpToast, XpToastContainer } from '@/components/xp-toast'
+import { HabitPacksModal } from './habit-packs'
 
 interface Habit {
   id: string
@@ -41,6 +42,7 @@ export function HabitsList({
   const [, startTransition] = useTransition()
   const [habits, setHabits] = useState<Habit[]>(initialHabits)
   const [showCreate, setShowCreate] = useState(initialShowCreate)
+  const [showPacks, setShowPacks] = useState(false)
   const [editHabit, setEditHabit] = useState<Habit | null>(null)
   const [optimistic, setOptimistic] = useState(loggedToday)
   const [openMenu, setOpenMenu] = useState<string | null>(null)
@@ -140,15 +142,26 @@ export function HabitsList({
             <div className="text-5xl mb-3">🎯</div>
             <h3 className="text-xl font-bold mb-1">Nenhum hábito ainda</h3>
             <p className="text-text-secondary mb-4">Crie seu primeiro hábito pra começar a ganhar XP</p>
-            <button onClick={() => setShowCreate(true)} className="btn-primary">
-              <Plus size={18} className="inline mr-1" /> Criar primeiro hábito
-            </button>
+            <div className="flex items-center justify-center gap-3 flex-wrap">
+              <button onClick={() => setShowPacks(true)} className="btn-ghost flex items-center gap-2">
+                <Sparkles size={16} className="text-brand-purple" /> Usar um pacote
+              </button>
+              <button onClick={() => setShowCreate(true)} className="btn-primary">
+                <Plus size={18} className="inline mr-1" /> Criar do zero
+              </button>
+            </div>
           </div>
         </div>
         {showCreate && (
           <CreateHabitModal
             onClose={() => setShowCreate(false)}
             onCreated={(h) => setHabits((prev) => [...prev, h])}
+          />
+        )}
+        {showPacks && (
+          <HabitPacksModal
+            onClose={() => setShowPacks(false)}
+            onCreated={() => setShowPacks(false)}
           />
         )}
       </>
@@ -158,7 +171,14 @@ export function HabitsList({
   return (
     <>
       <XpToastContainer toasts={toasts} />
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-2">
+        <button
+          onClick={() => setShowPacks(true)}
+          className="btn-ghost flex items-center gap-2 text-sm"
+        >
+          <Sparkles size={16} className="text-brand-purple" />
+          Pacotes
+        </button>
         <button onClick={() => setShowCreate(true)} className="btn-primary flex items-center gap-2">
           <Plus size={18} /> Novo hábito
         </button>
@@ -365,6 +385,13 @@ export function HabitsList({
             setHabits((prev) => prev.map((h) => (h.id === updated.id ? updated : h)))
             setEditHabit(null)
           }}
+        />
+      )}
+
+      {showPacks && (
+        <HabitPacksModal
+          onClose={() => setShowPacks(false)}
+          onCreated={() => setShowPacks(false)}
         />
       )}
     </>
