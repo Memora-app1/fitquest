@@ -1,0 +1,20 @@
+{
+  "name": "Ascendia — Life OS Gamificado",
+  "short_name": "Ascendia",
+  "description": "Fitness, produtividade, finanças e coach IA. Tudo gamificado.",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#050914",
+  "theme_color": "#050914",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "categories": ["health", "fitness", "productivity", "finance"]
+}

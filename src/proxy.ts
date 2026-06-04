@@ -90,6 +90,15 @@ export async function proxy(request: NextRequest) {
     return response
   }
 
+  // Admin bypass — emails configurados em ADMIN_BYPASS_EMAILS têm acesso total
+  const adminEmails = (process.env.ADMIN_BYPASS_EMAILS ?? '')
+    .split(',')
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean)
+  if (adminEmails.length > 0 && user.email && adminEmails.includes(user.email.toLowerCase())) {
+    return response
+  }
+
   // Rotas do app — verifica subscription
   const isAppRoute =
     pathname.startsWith('/dashboard') ||
@@ -107,7 +116,7 @@ export async function proxy(request: NextRequest) {
   if (isAppRoute) {
     const { data: profile } = await supabase
       .from('profiles')
-      .select('subscription_status, trial_end, subscription_end')
+      .select('subscription_status, trial_end, subscription_end, created_at')
       .eq('id', user.id)
       .single()
 
@@ -127,7 +136,13 @@ export async function proxy(request: NextRequest) {
       profile.subscription_end &&
       new Date(profile.subscription_end) > now
 
-    const hasAccess = isLifetime || isActive || isTrialing || isCancelledButValid
+    // Grace period: conta criada há menos de 7 dias tem acesso mesmo sem trial configurado
+    const accountAge = profile.created_at
+      ? (now.getTime() - new Date(profile.created_at).getTime()) / 86400000
+      : 999
+    const isInGracePeriod = accountAge < 7
+
+    const hasAccess = isLifetime || isActive || isTrialing || isCancelledButValid || isInGracePeriod
 
     if (!hasAccess) {
       return NextResponse.redirect(new URL('/planos', request.url))
