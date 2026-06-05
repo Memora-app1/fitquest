@@ -3,6 +3,9 @@ import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
 import Anthropic from '@anthropic-ai/sdk'
 
+// Claude pode demorar até 30s — sem maxDuration a função faz timeout em 10s no Vercel Hobby
+export const maxDuration = 60
+
 const bodySchema = z.object({
   conversationId: z.string().uuid(),
   message: z.string().min(1).max(2000),
