@@ -1,15 +1,15 @@
 'use client'
 
 /**
- * ShareScoreButton — botão que usa a Web Share API nativa no mobile.
- * No desktop copia o texto para a área de transferência.
- * Texto formatado para parecer bonito no WhatsApp/Instagram.
+ * ShareScoreButton — Web Share API no mobile com imagem OG real.
+ * No desktop abre a imagem em nova aba + copia texto.
  */
 
 import { useState } from 'react'
-import { Share2, Copy, Check } from 'lucide-react'
+import { Share2, Check, Image } from 'lucide-react'
 
 interface Props {
+  userId:       string
   level:        number
   levelTitle:   string
   xpTotal:      number
@@ -17,13 +17,15 @@ interface Props {
   achievements: number
 }
 
-export function ShareScoreButton({ level, levelTitle, xpTotal, streak, achievements }: Props) {
-  const [copied, setCopied] = useState(false)
+export function ShareScoreButton({ userId, level, levelTitle, xpTotal, streak, achievements }: Props) {
+  const [state, setState] = useState<'idle' | 'copied' | 'opening'>('idle')
 
   const LEVEL_EMOJIS: Record<number, string> = {
     1: '🌱', 2: '🥉', 3: '🥈', 4: '🥇', 5: '⚔️', 6: '🛡️', 7: '🏛️', 8: '👑',
   }
   const emoji = LEVEL_EMOJIS[level] ?? '⚡'
+
+  const ogUrl = `/api/og?uid=${userId}`
 
   const shareText = [
     `${emoji} Nível ${level} — ${levelTitle} no Ascendia`,
@@ -39,23 +41,36 @@ export function ShareScoreButton({ level, levelTitle, xpTotal, streak, achieveme
   async function handleShare() {
     if (navigator.share) {
       try {
-        await navigator.share({
-          title: `Meu score no Ascendia — Nível ${level}`,
-          text:  shareText,
-        })
-      } catch {
-        // Usuário cancelou — silencioso
-      }
+        // Tenta compartilhar com imagem real via fetch+blob
+        const appUrl = window.location.origin
+        const imageRes = await fetch(`${appUrl}${ogUrl}`)
+        if (imageRes.ok) {
+          const blob = await imageRes.blob()
+          const file = new File([blob], 'ascendia-score.png', { type: 'image/png' })
+          if (navigator.canShare?.({ files: [file] })) {
+            await navigator.share({
+              title: `Meu score no Ascendia — Nível ${level}`,
+              text: shareText,
+              files: [file],
+            })
+            return
+          }
+        }
+        // Fallback: share sem imagem
+        await navigator.share({ title: `Meu score no Ascendia — Nível ${level}`, text: shareText })
+      } catch { /* silencioso */ }
       return
     }
 
-    // Fallback: copiar para clipboard
+    // Desktop: abre a imagem em nova aba + copia texto
+    setState('opening')
+    window.open(ogUrl, '_blank')
     try {
       await navigator.clipboard.writeText(shareText)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2500)
+      setState('copied')
+      setTimeout(() => setState('idle'), 2500)
     } catch {
-      // ignore
+      setState('idle')
     }
   }
 
@@ -65,15 +80,18 @@ export function ShareScoreButton({ level, levelTitle, xpTotal, streak, achieveme
       className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all hover:scale-105 active:scale-95"
       style={{
         background: 'rgba(124,58,237,0.12)',
-        border:     '1px solid rgba(124,58,237,0.3)',
-        color:      '#9F5AF7',
+        border: '1px solid rgba(124,58,237,0.3)',
+        color: state === 'copied' ? '#00FF88' : '#9F5AF7',
       }}
       title="Compartilhar seu progresso"
     >
-      {copied
-        ? <><Check size={13} style={{ color: '#00FF88' }} /><span style={{ color: '#00FF88' }}>Copiado!</span></>
-        : <><Share2 size={13} />Compartilhar</>
-      }
+      {state === 'copied' ? (
+        <><Check size={13} style={{ color: '#00FF88' }} /><span style={{ color: '#00FF88' }}>Copiado!</span></>
+      ) : state === 'opening' ? (
+        <><Image size={13} />Abrindo imagem...</>
+      ) : (
+        <><Share2 size={13} />Compartilhar</>
+      )}
     </button>
   )
 }

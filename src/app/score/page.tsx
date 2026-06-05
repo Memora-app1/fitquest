@@ -8,6 +8,7 @@ import { XpChartLazy as XpChart } from '@/components/score/xp-chart-lazy'
 import { XpSourceBreakdown } from '@/components/score/xp-source-breakdown'
 import { Lock, Zap, Flame, Star, Trophy, Dumbbell, CheckSquare, Target, TrendingUp } from 'lucide-react'
 import { ShareScoreButton } from '@/components/score/share-score-button'
+import { XpShop } from '@/components/score/xp-shop'
 
 export const metadata: Metadata = {
   title: 'Seu Score',
@@ -145,6 +146,7 @@ export default async function ScorePage() {
                 </div>
               )}
               <ShareScoreButton
+                userId={user.id}
                 level={profile.level}
                 levelTitle={levelInfo.title}
                 xpTotal={profile.xp_total}
@@ -328,6 +330,9 @@ export default async function ScorePage() {
         <Suspense fallback={<div className="h-48 rounded-2xl shimmer" />}>
           <XpSourceBreakdown userId={user.id} />
         </Suspense>
+
+        {/* XP Shop — trocar XP por itens */}
+        <XpShop />
 
         {/* Unlocked achievements */}
         {unlockedAchievements.length > 0 && (
