@@ -17,33 +17,17 @@ export const SHOP_ITEMS = {
   streak_freeze: {
     id: 'streak_freeze',
     name: 'Streak Freeze',
-    description: 'Protege seu streak por 1 dia se você falhar.',
+    description: 'Protege seu streak por 1 dia se você falhar. Máximo 10.',
     emoji: '🛡️',
     cost: 500,
     maxOwn: 10,
-  },
-  perfect_day_boost: {
-    id: 'perfect_day_boost',
-    name: 'Boost de Dia Perfeito',
-    description: 'Dobra o XP de todos os hábitos por 24 horas.',
-    emoji: '⚡',
-    cost: 300,
-    maxOwn: 3,
-  },
-  xp_multiplier: {
-    id: 'xp_multiplier',
-    name: 'Multiplicador 2× XP',
-    description: 'Dobra o XP ganho por 1 hora.',
-    emoji: '🔥',
-    cost: 800,
-    maxOwn: 5,
   },
 } as const
 
 type ShopItemId = keyof typeof SHOP_ITEMS
 
 const bodySchema = z.object({
-  item: z.enum(['streak_freeze', 'perfect_day_boost', 'xp_multiplier']),
+  item: z.enum(['streak_freeze']),
 })
 
 export async function POST(req: NextRequest) {
