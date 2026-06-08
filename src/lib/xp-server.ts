@@ -36,17 +36,39 @@ export async function grantXP(
     p_source_id:   sourceId ?? null,
   })
 
-  if (error) {
-    console.error('grantXP: RPC falhou', error)
-    throw new Error(`Falha ao registrar XP: ${error.message}`)
-  }
+  let result: { xp_total_after: number; xp_before: number; level_new: number; level_old: number; leveled_up: boolean }
 
-  const result = data as {
-    xp_total_after: number
-    xp_before:      number
-    level_new:      number
-    level_old:      number
-    leveled_up:     boolean
+  if (error) {
+    // Fallback: RPC não existe ainda (migration 008 não executada) — usa método clássico
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('xp_total, level')
+      .eq('id', userId)
+      .single()
+
+    const xpBefore = (profile?.xp_total as number) ?? 0
+    const xpAfter  = xpBefore + amount
+    const lvlOld   = (profile?.level as number) ?? 1
+    const lvlNew   = calculateLevel(xpAfter)
+
+    await supabase.from('xp_transactions').insert({
+      user_id:        userId,
+      amount,
+      reason,
+      source_type:    sourceType,
+      source_id:      sourceId ?? null,
+      xp_total_after: xpAfter,
+      level_after:    lvlNew,
+    })
+
+    await supabase
+      .from('profiles')
+      .update({ xp_total: xpAfter, level: lvlNew, last_activity_date: new Date().toISOString().split('T')[0] })
+      .eq('id', userId)
+
+    result = { xp_total_after: xpAfter, xp_before: xpBefore, level_new: lvlNew, level_old: lvlOld, leveled_up: lvlNew > lvlOld }
+  } else {
+    result = data as { xp_total_after: number; xp_before: number; level_new: number; level_old: number; leveled_up: boolean }
   }
 
   const { xp_total_after, xp_before, level_new, level_old, leveled_up } = result
