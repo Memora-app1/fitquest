@@ -76,6 +76,40 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  // Cria conta financeira padrão se o usuário tem interesse em finanças
+  // e ainda não tem nenhuma conta criada
+  if (primary_goal.includes('finance')) {
+    const { count: existingAccounts } = await supabase
+      .from('finance_accounts')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+
+    if ((existingAccounts ?? 0) === 0) {
+      await supabase.from('finance_accounts').insert({
+        user_id: user.id,
+        name: 'Conta Principal',
+        type: 'checking',
+        icon: '🏦',
+        color: '#00FF88',
+        current_balance: 0,
+        is_active: true,
+      })
+    }
+  }
+
+  // Cria lista de tarefas padrão para todos os usuários
+  const { count: existingLists } = await supabase
+    .from('task_lists')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', user.id)
+
+  if ((existingLists ?? 0) === 0) {
+    await supabase.from('task_lists').insert([
+      { user_id: user.id, name: 'Pessoal', color: '#7C3AED', icon: '🎯', display_order: 1 },
+      { user_id: user.id, name: 'Trabalho', color: '#3B82F6', icon: '💼', display_order: 2 },
+    ])
+  }
+
   let xpEarned = 0
   let leveledUp = false
   let newLevel = 0
