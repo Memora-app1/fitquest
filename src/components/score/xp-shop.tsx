@@ -84,7 +84,7 @@ export function XpShop() {
     return (
       <div className="rounded-2xl p-6 animate-pulse" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
         <div className="h-4 w-24 bg-white/10 rounded mb-4" />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {[1, 2, 3].map(i => <div key={i} className="h-32 bg-white/05 rounded-xl" />)}
         </div>
       </div>
@@ -133,7 +133,7 @@ export function XpShop() {
         </div>
 
         {/* Items */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {state.items.map(item => {
             const Icon = ITEM_ICONS[item.id] ?? Zap
             const colors = ITEM_COLORS[item.id] ?? { color: '#8899BB', rgb: '136,153,187' }
