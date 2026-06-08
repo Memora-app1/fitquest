@@ -52,6 +52,13 @@ export async function POST(req: NextRequest) {
   const today = new Date().toISOString().split('T')[0]
   const monthStart = today!.substring(0, 7) + '-01'
 
+  const weekStart = (() => {
+    const d = new Date(); const day = d.getDay()
+    d.setDate(d.getDate() - day + (day === 0 ? -6 : 1))
+    return d.toISOString().split('T')[0]!
+  })()
+  const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString()
+
   const [
     profileRes,
     habitsRes,
@@ -64,8 +71,11 @@ export async function POST(req: NextRequest) {
     waterTodayRes,
     sleepLastNightRes,
     moodTodayRes,
+    recentAchievementsRes,
+    weekXpRes,
+    financeGoalsRes,
   ] = await Promise.all([
-    supabase.from('profiles').select('name, level, xp_total, streak_current, primary_goal, perfect_days').eq('id', user.id).single(),
+    supabase.from('profiles').select('name, level, xp_total, streak_current, streak_longest, primary_goal, perfect_days, streak_freezes').eq('id', user.id).single(),
     supabase.from('habits').select('id, name').eq('user_id', user.id).eq('is_active', true),
     supabase.from('habit_logs').select('habit_id').eq('user_id', user.id).eq('logged_date', today!),
     supabase.from('workouts').select('title, started_at, total_sets, total_volume_kg, xp_earned').eq('user_id', user.id).order('started_at', { ascending: false }).limit(1).maybeSingle(),
@@ -76,6 +86,12 @@ export async function POST(req: NextRequest) {
     supabase.from('water_logs').select('amount_ml').eq('user_id', user.id).eq('date', today!),
     supabase.from('sleep_logs').select('duration_hours, quality').eq('user_id', user.id).gte('date', new Date(Date.now() - 86400000).toISOString().split('T')[0]!).maybeSingle(),
     supabase.from('mood_logs').select('mood, energy, stress').eq('user_id', user.id).eq('date', today!).maybeSingle(),
+    // Conquistas recentes (últimas 3 desbloqueadas)
+    supabase.from('user_achievements').select('unlocked_at, achievement_id, achievements(name, xp_reward)').eq('user_id', user.id).order('unlocked_at', { ascending: false }).limit(3),
+    // XP ganho nesta semana
+    supabase.from('xp_transactions').select('amount').eq('user_id', user.id).gte('created_at', weekStart + 'T00:00:00'),
+    // Metas financeiras ativas
+    supabase.from('finance_goals').select('title, current_amount, target_amount, deadline').eq('user_id', user.id).eq('status', 'active').limit(3),
   ])
 
   const profile = profileRes.data
@@ -92,15 +108,26 @@ export async function POST(req: NextRequest) {
   const sleepLast = sleepLastNightRes.data
   const moodToday = moodTodayRes.data
 
+  const xpThisWeek = (weekXpRes.data ?? []).reduce((s, t) => s + (t.amount as number ?? 0), 0)
+  const recentAchievements = (recentAchievementsRes.data ?? []).map((ua) => {
+    const raw = ua.achievements as unknown
+    const ach = (Array.isArray(raw) ? (raw as { name: string; xp_reward: number }[])[0] : raw as { name: string; xp_reward: number } | null) ?? null
+    return { name: ach?.name ?? '?', xp: ach?.xp_reward ?? 0, date: ua.unlocked_at }
+  })
+
   const contextSnapshot = {
     user: {
       name: profile.name,
       level: profile.level,
-      xp: profile.xp_total,
-      streak: profile.streak_current,
+      xp_total: profile.xp_total,
+      xp_this_week: xpThisWeek,
+      streak_current: profile.streak_current,
+      streak_longest: profile.streak_longest,
+      streak_freezes: profile.streak_freezes ?? 0,
       primary_goal: profile.primary_goal,
       perfect_days: profile.perfect_days,
     },
+    recent_achievements: recentAchievements,
     habits_today: {
       total: habits.length,
       completed: loggedToday.size,
@@ -136,12 +163,19 @@ export async function POST(req: NextRequest) {
       deadline: g.deadline,
       pct: g.target_value > 0 ? Math.round((g.current_value / g.target_value) * 100) : 0,
     })),
+    finance_goals: (financeGoalsRes.data ?? []).map((g) => ({
+      title: g.title,
+      saved: Number(g.current_amount),
+      target: Number(g.target_amount),
+      pct: Number(g.target_amount) > 0 ? Math.round((Number(g.current_amount) / Number(g.target_amount)) * 100) : 0,
+      deadline: g.deadline,
+    })),
   }
 
   const userName = contextSnapshot.user?.name?.split(' ')[0] ?? 'você'
   const level    = contextSnapshot.user?.level ?? 1
-  const streak   = contextSnapshot.user?.streak ?? 0
-  const xpTotal  = contextSnapshot.user?.xp ?? 0
+  const streak   = contextSnapshot.user?.streak_current ?? 0
+  const xpTotal  = contextSnapshot.user?.xp_total ?? 0
 
   const systemPrompt = `Você é o Coach do Ascendia — o assistente pessoal mais contextualizado do Brasil. Você conhece ${userName} melhor do que qualquer app de fitness, produtividade ou finanças separado — porque você vê TUDO.
 

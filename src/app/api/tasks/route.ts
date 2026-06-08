@@ -3,6 +3,8 @@ import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
 import { XP_REWARDS } from '@/lib/xp'
 import { grantXP, tryUnlockAchievement } from '@/lib/xp-server'
+
+export const maxDuration = 30
 import { updateUserStreak } from '@/lib/streak'
 
 const createSchema = z.object({

@@ -28,9 +28,37 @@ export function HabitsToday({
   const [xpGainedToday, setXpGainedToday] = useState(0)
   const { toasts, showXp } = useXpToast()
 
+  function playHabitSound(isPerfectDay = false) {
+    try {
+      const ctx = new (window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext!)()
+      if (isPerfectDay) {
+        // Acorde de celebração: C5-E5-G5
+        [[523, 0], [659, 0.1], [784, 0.2]].forEach(([freq, when]) => {
+          const osc = ctx.createOscillator()
+          const gain = ctx.createGain()
+          osc.connect(gain); gain.connect(ctx.destination)
+          osc.frequency.value = freq!; osc.type = 'sine'
+          gain.gain.setValueAtTime(0.15, ctx.currentTime + when!)
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + when! + 0.3)
+          osc.start(ctx.currentTime + when!); osc.stop(ctx.currentTime + when! + 0.3)
+        })
+      } else {
+        // Tick suave de confirmação: nota G5 rápida
+        const osc = ctx.createOscillator()
+        const gain = ctx.createGain()
+        osc.connect(gain); gain.connect(ctx.destination)
+        osc.frequency.value = 784; osc.type = 'sine'
+        gain.gain.setValueAtTime(0.10, ctx.currentTime)
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15)
+        osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.15)
+      }
+    } catch { /* silencioso se Web Audio não suportado */ }
+  }
+
   async function toggleHabit(habitId: string) {
     if (optimisticLogged.has(habitId) || isPending) return
-    if (navigator.vibrate) navigator.vibrate([15, 5, 30])
+    // Feedback imediato no toque
+    if (navigator.vibrate) navigator.vibrate([10, 5, 20])
 
     const next = new Set(optimisticLogged)
     next.add(habitId)
@@ -60,12 +88,21 @@ export function HabitsToday({
           perfectDay: data.perfectDay,
           leveledUp: data.leveledUp ? data.newLevel : undefined,
         })
+
+        if (data.perfectDay) {
+          // Dia perfeito — feedback máximo
+          if (navigator.vibrate) navigator.vibrate([50, 20, 100, 20, 150])
+          playHabitSound(true)
+          window.dispatchEvent(new CustomEvent('ascendia:perfect-day'))
+        } else {
+          // Hábito normal — tick satisfatório
+          if (navigator.vibrate) navigator.vibrate([30, 10, 50])
+          playHabitSound(false)
+        }
+
         // Sinaliza hábito logado — push-prompt usa isso para timing ideal
         window.dispatchEvent(new CustomEvent('ascendia:habit-logged'))
-        if (data.perfectDay) {
-          if (navigator.vibrate) navigator.vibrate([40, 20, 80, 20, 120])
-          window.dispatchEvent(new CustomEvent('ascendia:perfect-day'))
-        }
+
         if (data.leveledUp && data.newLevel) {
           window.dispatchEvent(new CustomEvent('ascendia:levelup', { detail: { level: data.newLevel } }))
         }

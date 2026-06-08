@@ -555,6 +555,94 @@ export default function OnboardingPage() {
               )}
             </div>
           )}
+          {/* ── Step 6: Push opt-in — momento pós-vitória, maior conversão ── */}
+          {step === 6 && (
+            <div className="space-y-6 text-center">
+              <div>
+                <div className="text-6xl mb-3">
+                  {pushStatus === 'granted' ? '✅' : pushStatus === 'denied' ? '😔' : '🔔'}
+                </div>
+                <h2 className="text-2xl font-bold mb-2">
+                  {pushStatus === 'granted'
+                    ? 'Notificações ativadas!'
+                    : pushStatus === 'denied'
+                    ? 'Tudo bem, pode pular'
+                    : 'Ative os avisos e nunca perca seu streak'}
+                </h2>
+                <p className="text-text-secondary text-sm leading-relaxed">
+                  {pushStatus === 'granted'
+                    ? 'Você vai receber lembretes de hábitos, alertas de streak e conquistas desbloqueadas.'
+                    : pushStatus === 'denied'
+                    ? 'Você pode ativar mais tarde em Configurações do navegador.'
+                    : 'O Ascendia avisa quando seu streak estiver em risco, quando você ganhar conquistas e no recap diário.'}
+                </p>
+              </div>
+
+              {(pushStatus === 'idle' || pushStatus === 'loading') && (
+                <>
+                  {/* Exemplos de notificações */}
+                  <div className="space-y-2 text-left">
+                    {[
+                      { icon: '🔥', text: 'Seu streak de 7 dias está em risco!', color: '#FF4D00' },
+                      { icon: '🏆', text: 'Conquista desbloqueada: Guerreiro da Semana', color: '#F5C842' },
+                      { icon: '⚡', text: '+150 XP hoje — recap do seu dia', color: '#7C3AED' },
+                    ].map((ex, i) => (
+                      <div
+                        key={i}
+                        className="flex items-center gap-3 px-4 py-3 rounded-xl"
+                        style={{ background: 'rgba(13,24,41,0.8)', border: '1px solid rgba(255,255,255,0.07)' }}
+                      >
+                        <span className="text-xl">{ex.icon}</span>
+                        <span className="text-sm text-text-secondary">{ex.text}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <button
+                    onClick={handleEnablePush}
+                    disabled={pushStatus === 'loading'}
+                    className="w-full py-4 rounded-2xl font-black text-base transition-all active:scale-95 disabled:opacity-70"
+                    style={{
+                      background: 'linear-gradient(135deg, #7C3AED, #FF4D00)',
+                      color: '#fff',
+                      boxShadow: '0 8px 32px rgba(124,58,237,0.35)',
+                    }}
+                  >
+                    {pushStatus === 'loading' ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        Ativando...
+                      </span>
+                    ) : (
+                      '🔔 Ativar notificações →'
+                    )}
+                  </button>
+                  <button
+                    onClick={goToDashboard}
+                    className="text-xs text-text-muted hover:text-text-secondary transition-colors"
+                  >
+                    Agora não
+                  </button>
+                </>
+              )}
+
+              {pushStatus === 'granted' && (
+                <div className="flex items-center justify-center gap-2 text-text-muted text-sm">
+                  <span className="w-4 h-4 border-2 border-text-muted border-t-brand-orange rounded-full animate-spin" />
+                  Abrindo seu dashboard...
+                </div>
+              )}
+
+              {pushStatus === 'denied' && (
+                <button
+                  onClick={goToDashboard}
+                  className="btn-primary w-full"
+                >
+                  Ir para o dashboard →
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </main>

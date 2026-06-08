@@ -48,7 +48,7 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
       }}
     >
       <div className="flex min-h-screen min-h-[100dvh]">
-        <Sidebar profile={profile} />
+        <Sidebar profile={profile} unreadNotifications={unreadCount} />
         <div className="flex-1 flex flex-col min-h-screen min-h-[100dvh]">
           <MobileHeader
             name={profile.name}

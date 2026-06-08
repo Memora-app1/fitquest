@@ -23,6 +23,7 @@ import {
   Heart,
   Trophy,
 } from 'lucide-react'
+import { NotificationBell } from './notification-bell'
 
 const NAV_SECTIONS = [
   {
@@ -60,8 +61,10 @@ const NAV_SECTIONS = [
 
 export function Sidebar({
   profile,
+  unreadNotifications = 0,
 }: {
   profile: { name: string; xp_total: number; level: number; streak_current: number }
+  unreadNotifications?: number
 }) {
   const pathname = usePathname()
   const { profile: live, xpBump } = useRealtimeCtx()
@@ -84,10 +87,11 @@ export function Sidebar({
   return (
     <aside className="hidden md:flex w-64 bg-bg-card border-r border-border flex-col h-screen sticky top-0 overflow-hidden">
       {/* Logo */}
-      <div className="p-5 border-b border-border">
+      <div className="p-5 border-b border-border flex items-center justify-between">
         <Link href="/dashboard" className="block">
           <span className="heading-display text-2xl gradient-text">⚡ Ascendia</span>
         </Link>
+        <NotificationBell initialUnread={unreadNotifications} />
       </div>
 
       {/* Profile card */}
