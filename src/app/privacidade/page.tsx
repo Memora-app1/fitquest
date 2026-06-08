@@ -161,7 +161,7 @@ export default function PrivacidadePage() {
                 <div className="flex gap-3 p-4 rounded-xl bg-brand-green/5 border border-brand-green/20">
                   <Lock size={18} className="text-brand-green shrink-0 mt-0.5" />
                   <p className="text-sm">
-                    O Ascendia <strong className="text-white">não armazena dados de cartão de crédito</strong>. Os pagamentos são processados integralmente pelo <strong className="text-white">Mercado Pago</strong> (mercadopago.com.br), certificado pelo Banco Central do Brasil. Recebemos apenas confirmações de pagamento e identificadores de assinatura.
+                    O Ascendia <strong className="text-white">não armazena dados de cartão de crédito</strong>. Os pagamentos são processados integralmente pelo <strong className="text-white">Stripe</strong> (stripe.com), empresa certificada PCI DSS nível 1. Recebemos apenas confirmações de pagamento e identificadores de assinatura.
                   </p>
                 </div>
               </div>
@@ -281,10 +281,10 @@ export default function PrivacidadePage() {
                     emoji: '▲',
                   },
                   {
-                    name: 'Mercado Pago',
-                    url: 'mercadopago.com.br',
-                    desc: 'Processamento de pagamentos. Recebem email e dados de pagamento para processar assinaturas. Certificado pelo Banco Central do Brasil.',
-                    policyUrl: 'https://www.mercadopago.com.br/privacidade',
+                    name: 'Stripe',
+                    url: 'stripe.com',
+                    desc: 'Processamento de pagamentos. Recebem email e dados de pagamento para processar assinaturas. Certificado PCI DSS nível 1.',
+                    policyUrl: 'https://stripe.com/br/privacy',
                     emoji: '💳',
                   },
                   {
