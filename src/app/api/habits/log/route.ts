@@ -6,6 +6,8 @@ import { grantXP, tryUnlockAchievement } from '@/lib/xp-server'
 import { updateUserStreak } from '@/lib/streak'
 import { todayString } from '@/lib/utils'
 
+export const maxDuration = 30
+
 const bodySchema = z.object({
   habitId: z.string().uuid(),
   value: z.number().optional().default(1),

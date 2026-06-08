@@ -28,7 +28,7 @@ const MODULES = [
   { value: 'coach', label: 'Coach IA', icon: '🤖', desc: 'Assistente com contexto total', rgb: '245,200,66' },
 ]
 
-const TOTAL_STEPS = 5
+const TOTAL_STEPS = 6
 
 interface FirstHabit {
   id: string
@@ -46,6 +46,7 @@ export default function OnboardingPage() {
   const [firstHabit, setFirstHabit] = useState<FirstHabit | null>(null)
   const [quickWinLoading, setQuickWinLoading] = useState(false)
   const [quickWinDone, setQuickWinDone] = useState(false)
+  const [pushStatus, setPushStatus] = useState<'idle' | 'loading' | 'granted' | 'denied'>('idle')
 
   const MAX_GOALS = 3
 
@@ -118,15 +119,40 @@ export default function OnboardingPage() {
     setQuickWinDone(true)
     if (navigator.vibrate) navigator.vibrate([30, 20, 80, 20, 120])
 
-    setTimeout(() => {
-      router.push('/dashboard?welcome=1')
-      router.refresh()
-    }, 1400)
+    // Em vez de redirecionar direto, vai para o step de push opt-in
+    setTimeout(() => setStep(6), 1200)
+  }
+
+  async function handleEnablePush() {
+    setPushStatus('loading')
+    try {
+      const reg = await navigator.serviceWorker.register('/sw.js')
+      await navigator.serviceWorker.ready
+      const sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
+      })
+      const json = sub.toJSON()
+      await fetch('/api/push', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ endpoint: json.endpoint, keys: json.keys }),
+      })
+      setPushStatus('granted')
+      if (navigator.vibrate) navigator.vibrate([20, 10, 40])
+      setTimeout(goToDashboard, 1200)
+    } catch {
+      setPushStatus('denied')
+    }
+  }
+
+  function goToDashboard() {
+    router.push('/dashboard?welcome=1')
+    router.refresh()
   }
 
   function skipToDashboard() {
-    router.push('/dashboard?welcome=1')
-    router.refresh()
+    goToDashboard()
   }
 
   return (

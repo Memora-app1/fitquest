@@ -20,7 +20,8 @@ export async function GET() {
   oneYearAgo.setFullYear(today.getFullYear() - 1)
   const oneYearAgoStr = oneYearAgo.toISOString().split('T')[0]!
   const todayStr = today.toISOString().split('T')[0]!
-  const memorySourceId = `memory_${oneYearAgoStr}`
+  // Usamos 'memory_' + date no título para dedup — source_id é UUID e não pode receber texto
+
 
   // Usuários que logaram hábitos 1 ano atrás
   const { data: habitLogs } = await supabase
@@ -41,12 +42,13 @@ export async function GET() {
 
   const userIds = [...byUser.keys()]
 
-  // Verifica quais já receberam essa memória hoje
+  // Deduplicação: tipo coach_insight + título contendo a data de 1 ano atrás + enviado hoje
   const { data: alreadySent } = await supabase
     .from('notifications')
     .select('user_id')
     .eq('type', 'coach_insight')
-    .eq('source_id', memorySourceId)
+    .gte('created_at', `${todayStr}T00:00:00`)
+    .ilike('title', `%${oneYearAgoStr}%`)
     .in('user_id', userIds)
 
   const sentSet = new Set((alreadySent ?? []).map((n) => n.user_id as string))
@@ -93,7 +95,6 @@ export async function GET() {
         title,
         body,
         action_url: '/habitos',
-        source_id: memorySourceId,
         scheduled_for: today.toISOString(),
         sent_at: today.toISOString(),
       })
