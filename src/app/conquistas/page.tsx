@@ -40,10 +40,10 @@ export default async function ConquistasPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const [allAchievementsRes, userAchievementsRes, profileRes] = await Promise.all([
+  const [allAchievementsRes, userAchievementsRes, profileRes, workoutsCountRes, tasksCountRes, habitLogsCountRes] = await Promise.all([
     supabase
       .from('achievements')
-      .select('id, name, description, icon, xp_reward, rarity, category')
+      .select('id, slug, name, description, icon, xp_reward, rarity, category, trigger_type, trigger_value')
       .order('rarity', { ascending: true })
       .order('name'),
     supabase
@@ -52,14 +52,46 @@ export default async function ConquistasPage() {
       .eq('user_id', user.id),
     supabase
       .from('profiles')
-      .select('xp_total, level, streak_current')
+      .select('xp_total, level, streak_current, streak_longest, perfect_days')
       .eq('id', user.id)
       .single(),
+    supabase
+      .from('workouts')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .not('finished_at', 'is', null),
+    supabase
+      .from('tasks')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .eq('status', 'done'),
+    supabase
+      .from('habit_logs')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id),
   ])
 
   const allAchievements = allAchievementsRes.data ?? []
   const userAchievements = userAchievementsRes.data ?? []
   const profile = profileRes.data
+
+  // Contadores para progresso de conquistas bloqueadas
+  const workoutCount = workoutsCountRes.count ?? 0
+  const taskCount = tasksCountRes.count ?? 0
+  const habitLogCount = habitLogsCountRes.count ?? 0
+  const streakCurrent = profile?.streak_current ?? 0
+
+  // Retorna progresso [current, max] para conquistas de contagem
+  function getProgress(slug: string): [number, number] | null {
+    const t = (profile?.streak_current ?? 0)
+    if (slug.startsWith('workouts_'))  return [workoutCount,  parseInt(slug.split('_')[1] ?? '0')]
+    if (slug.startsWith('tasks_'))     return [taskCount,     parseInt(slug.split('_')[1] ?? '0')]
+    if (slug.startsWith('habits_'))    return [habitLogCount, parseInt(slug.split('_')[1] ?? '0')]
+    if (slug.startsWith('streak_'))    return [streakCurrent, parseInt(slug.split('_')[1] ?? '0')]
+    if (slug === 'perfect_week')       return [profile?.perfect_days ?? 0, 7]
+    if (slug === 'subtasks_50')        return [null as unknown as number, 50]
+    return null
+  }
 
   const unlockedIds = new Set(userAchievements.map(a => a.achievement_id))
   const unlockedCount = unlockedIds.size
@@ -295,6 +327,27 @@ export default async function ConquistasPage() {
                         </p>
                       </div>
                     </div>
+
+                    {/* Barra de progresso para conquistas bloqueadas de contagem */}
+                    {!unlocked && (() => {
+                      const slug = achievement.slug as string
+                      const prog = getProgress(slug)
+                      if (!prog || typeof prog[0] !== 'number') return null
+                      const [current, max] = prog
+                      const pct = Math.min(100, Math.round((current / max) * 100))
+                      if (pct === 0) return null
+                      return (
+                        <div className="mt-2.5">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-[9px] text-text-muted">Progresso</span>
+                            <span className="text-[9px] font-bold" style={{ color: rc.color }}>{current}/{max}</span>
+                          </div>
+                          <div className="h-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                            <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: rc.color, opacity: 0.7 }} />
+                          </div>
+                        </div>
+                      )
+                    })()}
 
                     {/* XP reward + date */}
                     <div className="flex items-center justify-between mt-3">
