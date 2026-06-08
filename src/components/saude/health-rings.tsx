@@ -6,9 +6,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { todayString } from '@/lib/utils'
-
-const WATER_GOAL_ML = 2000
-const SLEEP_GOAL_H  = 8
+import { WATER_GOAL_ML, SLEEP_GOAL_H } from '@/lib/constants'
 
 interface Ring {
   label:   string

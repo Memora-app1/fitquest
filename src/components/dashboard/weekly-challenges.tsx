@@ -3,7 +3,13 @@ import { Trophy, Zap, Flame, CheckSquare, Dumbbell, Target, TrendingUp, Clock } 
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-const WATER_GOAL_ML = 2000
+import { WATER_GOAL_ML } from '@/lib/constants'
+import { getISOWeek, getWeekStartString, getWeekEndString, getDaysLeftInWeek } from '@/lib/dates'
+
+// Alias locais para manter compatibilidade com o restante do componente
+const getWeekStart = getWeekStartString
+const getWeekEnd   = getWeekEndString
+const getDaysLeft  = getDaysLeftInWeek
 
 interface Challenge {
   id: string
@@ -17,37 +23,6 @@ interface Challenge {
   color: string
   rgb: string
   completed: boolean
-}
-
-// ── Helper: get ISO week number ────────────────────────────────────────────────
-
-function getISOWeek(date: Date): number {
-  const d = new Date(date)
-  d.setHours(0, 0, 0, 0)
-  d.setDate(d.getDate() + 4 - (d.getDay() || 7))
-  const yearStart = new Date(d.getFullYear(), 0, 1)
-  return Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7)
-}
-
-function getWeekStart(date: Date): string {
-  const d = new Date(date)
-  const day = d.getDay()
-  const diff = d.getDate() - day + (day === 0 ? -6 : 1) // adjust to Monday
-  d.setDate(diff)
-  return d.toISOString().split('T')[0]!
-}
-
-function getWeekEnd(date: Date): string {
-  const start = new Date(getWeekStart(date) + 'T00:00:00')
-  start.setDate(start.getDate() + 6)
-  return start.toISOString().split('T')[0]!
-}
-
-// Days remaining in the week
-function getDaysLeft(date: Date): number {
-  const end = new Date(getWeekEnd(date) + 'T23:59:59')
-  const diff = end.getTime() - date.getTime()
-  return Math.max(1, Math.ceil(diff / 86400000))
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────

@@ -39,6 +39,21 @@ export type NotificationType =
   | 'finance_due'
   | 'coach_insight'
   | 'achievement'
+  | 'daily_login_reward'
+  | 'loot_box'
+  | 'perfect_day_reminder'
+  | 'league_update'
+  | 'guild_activity'
+  | 'streak_record'
+  | 'prestige'
+  | 'season_tier'
+  | 'daily_recap'
+
+export type LootRarity = 'common' | 'rare' | 'epic' | 'legendary'
+export type LootRewardType = 'xp' | 'streak_freeze' | 'cosmetic' | 'multiplier'
+export type GuildRole = 'owner' | 'admin' | 'member'
+export type CosmeticType = 'title' | 'frame' | 'badge' | 'theme'
+export type CosmeticSource = 'season' | 'prestige' | 'achievement' | 'shop' | 'event' | 'loot'
 
 export interface Profile {
   id: string
@@ -66,8 +81,110 @@ export interface Profile {
   referral_code: string | null
   referral_count: number
   referred_by: string | null
+  // Gamification V2
+  login_streak: number
+  last_login_date: string | null
+  prestige_level: number
+  xp_all_time: number
+  recovery_week_active: boolean
+  recovery_week_used_month: number | null
+  league_xp_this_week: number
+  season_xp: number
+  equipped_title: string | null
+  equipped_frame: string | null
+  finance_streak: number
+  last_finance_date: string | null
   created_at: string
   updated_at: string
+}
+
+export interface DailyLoot {
+  id: string
+  user_id: string
+  date: string
+  rarity: LootRarity
+  reward_type: LootRewardType
+  reward_value: number
+  reward_meta: string | null
+  source: string
+  opened_at: string | null
+  created_at: string
+}
+
+export interface Guild {
+  id: string
+  name: string
+  tag: string
+  motto: string | null
+  avatar_emoji: string
+  xp_total: number
+  weekly_xp: number
+  created_by: string
+  max_members: number
+  invite_code: string
+  is_public: boolean
+  created_at: string
+}
+
+export interface GuildMember {
+  guild_id: string
+  user_id: string
+  role: GuildRole
+  joined_at: string
+  weekly_xp: number
+  last_week_xp: number
+}
+
+export interface Season {
+  id: string
+  name: string
+  theme_emoji: string
+  tagline: string | null
+  start_date: string
+  end_date: string
+  is_active: boolean
+  tiers: SeasonTier[]
+  created_at: string
+}
+
+export interface SeasonTier {
+  tier: number
+  season_xp_required: number
+  free: boolean
+  label: string
+  type: 'title' | 'xp' | 'streak_freeze' | 'badge' | 'frame'
+  value: number | string
+  slug: string | null
+  emoji: string
+}
+
+export interface SeasonProgress {
+  user_id: string
+  season_id: string
+  season_xp: number
+  current_tier: number
+  claimed_tiers: number[]
+  created_at: string
+  updated_at: string
+}
+
+export interface Cosmetic {
+  id: string
+  slug: string
+  name: string
+  description: string | null
+  type: CosmeticType
+  rarity: Rarity
+  source: CosmeticSource
+  preview: string | null
+  created_at: string
+}
+
+export interface UserCosmetic {
+  user_id: string
+  cosmetic_id: string
+  acquired_at: string
+  equipped: boolean
 }
 
 export interface Habit {

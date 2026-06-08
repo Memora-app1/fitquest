@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
   // Busca o referenciador pelo código
   const { data: referrer } = await supabase
     .from('profiles')
-    .select('id, referral_count')
+    .select('id')
     .eq('referral_code', code)
     .single()
 
@@ -85,11 +85,8 @@ export async function POST(req: NextRequest) {
     .update({ referred_by: code })
     .eq('id', user.id)
 
-  // Incrementa contador do referenciador
-  await supabase
-    .from('profiles')
-    .update({ referral_count: (referrer.referral_count ?? 0) + 1 })
-    .eq('id', referrer.id)
+  // Incremento atômico — evita read-modify-write com registros simultâneos
+  await supabase.rpc('increment_referral_count', { p_user_id: referrer.id })
 
   // Concede XP para ambos em paralelo
   await Promise.all([

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
 import Anthropic from '@anthropic-ai/sdk'
+import { WATER_GOAL_ML, DAILY_COACH_MESSAGE_LIMIT } from '@/lib/constants'
 
 export const maxDuration = 60
 
@@ -10,7 +11,7 @@ const bodySchema = z.object({
   message: z.string().min(1).max(2000),
 })
 
-const DAILY_MESSAGE_LIMIT = 50
+// DAILY_COACH_MESSAGE_LIMIT agora vem de @/lib/constants como DAILY_COACH_MESSAGE_LIMIT
 
 // ════════ SYSTEM PROMPT ESTÁTICO ════════
 // Definido como constante de módulo — NUNCA contém dados do usuário.
@@ -72,9 +73,9 @@ export async function POST(req: NextRequest) {
     .eq('user_id', user.id)
     .eq('role', 'user')
     .gte('created_at', todayStart.toISOString())
-  if ((count ?? 0) >= DAILY_MESSAGE_LIMIT) {
+  if ((count ?? 0) >= DAILY_COACH_MESSAGE_LIMIT) {
     return NextResponse.json(
-      { error: 'daily_limit_reached', limit: DAILY_MESSAGE_LIMIT },
+      { error: 'daily_limit_reached', limit: DAILY_COACH_MESSAGE_LIMIT },
       { status: 429 }
     )
   }
@@ -176,7 +177,7 @@ export async function POST(req: NextRequest) {
     },
     health: {
       water_today_ml:   waterToday,
-      water_goal_pct:   Math.min(100, Math.round((waterToday / 2000) * 100)),
+      water_goal_pct:   Math.min(100, Math.round((waterToday / WATER_GOAL_ML) * 100)),
       sleep_last_night: sleepLastNightRes.data ? {
         duration_hours: sleepLastNightRes.data.duration_hours,
         quality:        sleepLastNightRes.data.quality,
@@ -219,13 +220,12 @@ export async function POST(req: NextRequest) {
 - Streak atual: ${profile.streak_current} dias (recorde: ${profile.streak_longest})
 - Dados completos: ${JSON.stringify(contextSnapshot, null, 2)}`
 
-  // Salvar mensagem do usuário
+  // Salvar mensagem do usuário (context_snapshot omitido — ephemeral, só para a chamada da IA)
   await supabase.from('ai_messages').insert({
-    conversation_id:  conversationId,
-    user_id:          user.id,
-    role:             'user',
-    content:          message,
-    context_snapshot: contextSnapshot,
+    conversation_id: conversationId,
+    user_id:         user.id,
+    role:            'user',
+    content:         message,
   })
 
   // Montar histórico

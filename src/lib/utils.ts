@@ -61,10 +61,12 @@ export function calcPercentage(current: number, target: number): number {
 }
 
 /**
- * Data de hoje em formato YYYY-MM-DD (timezone do usuário)
+ * Data de hoje em formato YYYY-MM-DD no timezone correto.
+ * Padrão: America/Sao_Paulo (90% dos usuários).
+ * toISOString() era UTC — causava data errada após 21h Brasília (UTC-3 → dia seguinte em UTC).
  */
-export function todayString(): string {
-  return new Date().toISOString().split('T')[0]!
+export function todayString(timezone = 'America/Sao_Paulo'): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: timezone }).format(new Date())
 }
 
 /**

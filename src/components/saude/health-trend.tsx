@@ -7,8 +7,7 @@
 
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, ReferenceLine } from 'recharts'
 
-const WATER_GOAL_ML = 2000
-const SLEEP_GOAL_H  = 7
+import { WATER_GOAL_ML, SLEEP_GOAL_H } from '@/lib/constants'
 
 const DAY_SHORT = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
 

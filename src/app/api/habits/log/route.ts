@@ -100,37 +100,18 @@ export async function POST(req: NextRequest) {
     habitsCount.count > 0 &&
     logsToday.count === habitsCount.count
   ) {
-    // Verifica se já recebeu o bônus hoje
-    const { data: existing } = await supabase
-      .from('xp_transactions')
-      .select('id')
-      .eq('user_id', user.id)
-      .eq('source_type', 'bonus')
-      .eq('reason', 'Dia Perfeito')
-      .gte('created_at', `${today}T00:00:00`)
-      .maybeSingle()
+    // RPC atômico: verifica + concede XP + incrementa perfect_days em uma transação
+    // Previne race condition quando múltiplos hábitos completam simultaneamente
+    const { data: pdResult } = await supabase.rpc('maybe_grant_perfect_day', {
+      p_user_id: user.id,
+    })
+    const pd = pdResult as { granted: boolean; perfect_days: number } | null
 
-    if (!existing) {
+    if (pd?.granted) {
       perfectDayBonus = XP_REWARDS.PERFECT_DAY
-      await grantXP(user.id, perfectDayBonus, 'Dia Perfeito', 'bonus')
       await tryUnlockAchievement(user.id, 'perfect_day')
-
-      // Incrementar perfect_days
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('perfect_days')
-        .eq('id', user.id)
-        .single()
-      if (profile) {
-        const newPerfectDays = profile.perfect_days + 1
-        await supabase
-          .from('profiles')
-          .update({ perfect_days: newPerfectDays })
-          .eq('id', user.id)
-        // Check perfect week achievement
-        if (newPerfectDays === 7 || (newPerfectDays > 7 && newPerfectDays % 7 === 0)) {
-          await tryUnlockAchievement(user.id, 'perfect_week')
-        }
+      if (pd.perfect_days % 7 === 0) {
+        await tryUnlockAchievement(user.id, 'perfect_week')
       }
     }
   }

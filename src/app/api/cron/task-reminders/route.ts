@@ -26,10 +26,16 @@ export async function GET() {
   const today = getTodayBR()
 
   // Tarefas com prazo hoje, não arquivadas, não concluídas
+  // due_date é TIMESTAMPTZ — comparar com .eq(DATE) só casaria meia-noite UTC.
+  // Usa range no fuso de Brasília (UTC-3) para cobrir o dia inteiro.
+  const todayStart = `${today}T00:00:00-03:00`
+  const todayEnd   = `${today}T23:59:59.999-03:00`
+
   const { data: tasks } = await supabase
     .from('tasks')
     .select('id, user_id, title, urgent, important')
-    .eq('due_date', today)
+    .gte('due_date', todayStart)
+    .lte('due_date', todayEnd)
     .not('status', 'eq', 'done')
     .not('status', 'eq', 'archived')
 

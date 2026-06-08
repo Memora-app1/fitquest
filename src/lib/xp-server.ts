@@ -2,7 +2,7 @@
  * Funções server-only para conceder XP. NUNCA importe em Client Components.
  * Para constantes e helpers puros, use src/lib/xp.ts
  *
- * grantXP usa a RPC grant_xp_atomic (migration 007) que:
+ * grantXP usa a RPC grant_xp_atomic (migration 008) que:
  * - Incrementa xp_total com delta atômico (sem race condition)
  * - Atualiza level se necessário
  * - Insere no ledger xp_transactions
@@ -217,6 +217,30 @@ export async function tryUnlockAchievement(
   }
 
   return true
+}
+
+// ════════ STREAK FREEZE ════════
+/**
+ * Concede streak freezes ao usuário (máx 10).
+ * Exportado para uso no cron de streaks ao processar milestones.
+ */
+export async function grantStreakFreeze(userId: string, amount: number): Promise<void> {
+  const supabase = createServiceClient()
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('streak_freezes')
+    .eq('id', userId)
+    .single()
+
+  if (!profile) return
+  const current = (profile.streak_freezes as number) ?? 0
+  const newTotal = Math.min(current + amount, 10)
+  if (newTotal > current) {
+    await supabase
+      .from('profiles')
+      .update({ streak_freezes: newTotal })
+      .eq('id', userId)
+  }
 }
 
 // ════════ HELPERS DE CONTAGEM ════════

@@ -14,29 +14,8 @@ import { sendPushNotification } from '@/lib/webpush'
 
 export const maxDuration = 120
 
-const WATER_GOAL_ML = 2000
-
-function getISOWeek(date: Date): number {
-  const d = new Date(date)
-  d.setHours(0, 0, 0, 0)
-  d.setDate(d.getDate() + 4 - (d.getDay() || 7))
-  const yearStart = new Date(d.getFullYear(), 0, 1)
-  return Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7)
-}
-
-function getWeekStart(date: Date): string {
-  const d = new Date(date)
-  const day = d.getDay()
-  const diff = d.getDate() - day + (day === 0 ? -6 : 1)
-  d.setDate(diff)
-  return d.toISOString().split('T')[0]!
-}
-
-function getWeekEnd(date: Date): string {
-  const start = new Date(getWeekStart(date) + 'T00:00:00')
-  start.setDate(start.getDate() + 6)
-  return start.toISOString().split('T')[0]!
-}
+import { WATER_GOAL_ML } from '@/lib/constants'
+import { getISOWeek, getWeekStartString as getWeekStart, getWeekEndString as getWeekEnd } from '@/lib/dates'
 
 interface ChallengeResult {
   id: string
