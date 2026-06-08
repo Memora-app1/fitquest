@@ -98,8 +98,8 @@ function LoginContent() {
       return
     }
 
-    router.refresh()
-    router.push(redirectTo)
+    // Hard navigation garante que o cookie de sessão seja lido pelo middleware
+    window.location.href = redirectTo
   }
 
   async function handleResendConfirmation() {

@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
   if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
 
   const q = req.nextUrl.searchParams.get('q')?.trim().toLowerCase()
-  if (!q || q.length < 1) {
+  if (!q || q.length < 2) {
     return NextResponse.json({ results: [] })
   }
 

@@ -298,3 +298,34 @@
   60%  { transform: translateX(200%); }
   100% { transform: translateX(200%); }
 }
+
+/* ── BottomNav: icon spring bounce ao selecionar aba ────────────── */
+@keyframes navIconBounce {
+  0%   { transform: scale(1) translateY(0); }
+  35%  { transform: scale(1.32) translateY(-4px); }
+  65%  { transform: scale(0.92) translateY(-1px); }
+  85%  { transform: scale(1.06) translateY(-2px); }
+  100% { transform: scale(1) translateY(-1px); }
+}
+
+/* ── Habit check: pulse de confirmação ao completar ─────────────── */
+@keyframes checkPulse {
+  0%   { transform: scale(0) rotate(-15deg); }
+  55%  { transform: scale(1.35) rotate(5deg); }
+  75%  { transform: scale(0.88) rotate(-2deg); }
+  90%  { transform: scale(1.08) rotate(1deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+/* ── FAB: spring de entrada por rota ────────────────────────────── */
+@keyframes fabSpringIn {
+  0%   { transform: scale(0) translateY(8px); opacity: 0; }
+  60%  { transform: scale(1.1) translateY(-2px); opacity: 1; }
+  80%  { transform: scale(0.95) translateY(1px); opacity: 1; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+@keyframes fabSpringOut {
+  0%   { transform: scale(1); opacity: 1; }
+  100% { transform: scale(0) translateY(6px); opacity: 0; }
+}

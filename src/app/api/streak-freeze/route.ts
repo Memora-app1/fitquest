@@ -87,8 +87,13 @@ export async function POST(req: NextRequest) {
 
   // ── GRANT: adiciona freezes (service-to-service, valida header de admin) ─
   if (parsed.data.action === 'grant') {
-    const adminKey = req.headers.get('x-admin-key')
-    if (adminKey !== process.env.ADMIN_SECRET_KEY) {
+    const { timingSafeEqual } = await import('crypto')
+    const adminKey = req.headers.get('x-admin-key') ?? ''
+    const expected = process.env.ADMIN_SECRET_KEY ?? ''
+    const safe = expected.length > 0 &&
+      adminKey.length === expected.length &&
+      timingSafeEqual(Buffer.from(adminKey), Buffer.from(expected))
+    if (!safe) {
       return NextResponse.json({ error: 'forbidden' }, { status: 403 })
     }
 

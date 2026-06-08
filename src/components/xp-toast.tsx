@@ -31,7 +31,7 @@ export function useXpToast() {
 export function XpToastContainer({ toasts }: { toasts: XpToast[] }) {
   if (toasts.length === 0) return null
   return (
-    <div className="fixed bottom-24 right-4 md:bottom-8 md:right-6 z-50 flex flex-col-reverse gap-2.5 pointer-events-none">
+    <div className="fixed bottom-36 right-4 md:bottom-8 md:right-6 z-50 flex flex-col-reverse gap-2.5 pointer-events-none">
       {toasts.map((t) => (
         <XpToastItem key={t.id} toast={t} />
       ))}
