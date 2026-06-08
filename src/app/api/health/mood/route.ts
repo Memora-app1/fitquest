@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
     .gte('date', since)
     .order('date', { ascending: false })
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) return NextResponse.json({ error: 'internal_error' }, { status: 500 })
   return NextResponse.json({ logs: data ?? [] })
 }
 
@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
     .select('id, date, mood, energy, stress, note, xp_earned')
     .single()
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) return NextResponse.json({ error: 'internal_error' }, { status: 500 })
 
   let xpEarned = 0
   let leveledUp = false

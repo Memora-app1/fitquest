@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
   })
 
   const { data, error } = await supabase.from('transactions').insert(rows).select()
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) return NextResponse.json({ error: 'internal_error' }, { status: 500 })
 
   // Atualizar saldo da conta (só primeira parcela paga)
   if (base.is_paid) {
@@ -99,7 +99,7 @@ export async function GET(req: NextRequest) {
     .order('transaction_date', { ascending: false })
     .limit(100)
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) return NextResponse.json({ error: 'internal_error' }, { status: 500 })
   return NextResponse.json({ transactions: data })
 }
 
@@ -181,6 +181,6 @@ export async function DELETE(req: NextRequest) {
     .eq('id', id)
     .eq('user_id', user.id)
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) return NextResponse.json({ error: 'internal_error' }, { status: 500 })
   return NextResponse.json({ success: true })
 }

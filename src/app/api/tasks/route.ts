@@ -3,9 +3,9 @@ import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
 import { XP_REWARDS } from '@/lib/xp'
 import { grantXP, tryUnlockAchievement } from '@/lib/xp-server'
+import { updateUserStreak } from '@/lib/streak'
 
 export const maxDuration = 30
-import { updateUserStreak } from '@/lib/streak'
 
 const createSchema = z.object({
   title: z.string().min(1).max(200),
@@ -50,7 +50,7 @@ export async function GET(req: NextRequest) {
   if (status) query = query.eq('status', status)
 
   const { data, error } = await query
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) return NextResponse.json({ error: 'internal_error' }, { status: 500 })
 
   return NextResponse.json({ tasks: data })
 }
@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
     .select()
     .single()
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) return NextResponse.json({ error: 'internal_error' }, { status: 500 })
 
   return NextResponse.json({ task: data })
 }
@@ -141,7 +141,7 @@ export async function PATCH(req: NextRequest) {
     .select()
     .single()
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) return NextResponse.json({ error: 'internal_error' }, { status: 500 })
 
   let xpEarned = 0
   let leveledUp = false
@@ -187,7 +187,7 @@ export async function DELETE(req: NextRequest) {
   if (!id) return NextResponse.json({ error: 'missing_id' }, { status: 400 })
 
   const { error } = await supabase.from('tasks').delete().eq('id', id).eq('user_id', user.id)
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) return NextResponse.json({ error: 'internal_error' }, { status: 500 })
 
   return NextResponse.json({ success: true })
 }

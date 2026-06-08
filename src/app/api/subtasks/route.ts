@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
     .eq('user_id', user.id)
     .order('display_order')
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) return NextResponse.json({ error: 'internal_error' }, { status: 500 })
   return NextResponse.json({ subtasks: data ?? [] })
 }
 

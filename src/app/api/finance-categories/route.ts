@@ -29,7 +29,7 @@ export async function GET() {
     .order('is_global', { ascending: false }) // global first
     .order('name')
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) return NextResponse.json({ error: 'internal_error' }, { status: 500 })
   return NextResponse.json({ categories: data ?? [] })
 }
 

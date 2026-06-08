@@ -245,7 +245,7 @@ export async function DELETE(req: NextRequest) {
   await supabase.from('workout_sets').delete().eq('workout_id', id).eq('user_id', user.id)
 
   const { error } = await supabase.from('workouts').delete().eq('id', id).eq('user_id', user.id)
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) return NextResponse.json({ error: 'internal_error' }, { status: 500 })
 
   return NextResponse.json({ success: true })
 }

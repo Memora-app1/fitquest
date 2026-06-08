@@ -43,7 +43,7 @@ export async function GET() {
     .eq('user_id', user.id)
     .order('created_at')
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) return NextResponse.json({ error: 'internal_error' }, { status: 500 })
   return NextResponse.json({ accounts: data })
 }
 
@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
     .select('id, name, type, icon, color, current_balance, credit_limit, closing_day, due_day, is_active, created_at')
     .single()
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) return NextResponse.json({ error: 'internal_error' }, { status: 500 })
   return NextResponse.json({ account: data })
 }
 
@@ -94,7 +94,7 @@ export async function PATCH(req: NextRequest) {
     .select('id, name, type, icon, color, current_balance, credit_limit, closing_day, due_day, is_active, created_at')
     .single()
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) return NextResponse.json({ error: 'internal_error' }, { status: 500 })
   return NextResponse.json({ account: data })
 }
 
@@ -112,6 +112,6 @@ export async function DELETE(req: NextRequest) {
     .eq('id', id)
     .eq('user_id', user.id)
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) return NextResponse.json({ error: 'internal_error' }, { status: 500 })
   return NextResponse.json({ success: true })
 }
