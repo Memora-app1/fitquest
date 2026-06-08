@@ -12,6 +12,7 @@ import { MobileFab } from './mobile-fab'
 import { LevelUpCelebration } from '@/components/level-up-celebration'
 import { PerfectDayOverlay } from '@/components/perfect-day-overlay'
 import { AchievementToast } from '@/components/achievement-toast'
+import { DailyLoginReward } from '@/components/dashboard/daily-login-reward'
 import { AppShellRealtimeProvider } from '@/hooks/use-realtime-context'
 
 export async function AppShell({ children }: { children: React.ReactNode }) {
@@ -69,6 +70,7 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
         <LevelUpCelebration />
         <PerfectDayOverlay />
         <AchievementToast />
+        <DailyLoginReward />
         <ScrollRestoration />
       </div>
     </AppShellRealtimeProvider>
