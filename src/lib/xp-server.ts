@@ -1,6 +1,12 @@
 /**
  * Funções server-only para conceder XP. NUNCA importe em Client Components.
  * Para constantes e helpers puros, use src/lib/xp.ts
+ *
+ * grantXP usa a RPC grant_xp_atomic (migration 007) que:
+ * - Incrementa xp_total com delta atômico (sem race condition)
+ * - Atualiza level se necessário
+ * - Insere no ledger xp_transactions
+ * Tudo em 1 round trip ao banco.
  */
 
 import { createServiceClient } from '@/lib/supabase/server'
@@ -9,13 +15,8 @@ import { sendPushNotification } from '@/lib/webpush'
 
 // ════════ FUNÇÃO PRINCIPAL ════════
 /**
- * Concede XP a um usuário de forma transacional.
- *
- * @param userId - ID do usuário
- * @param amount - Quantidade de XP (pode ser negativo, mas raro)
- * @param reason - Descrição em português ("Hábito: Treinar concluído")
- * @param sourceType - Tipo da fonte do XP
- * @param sourceId - ID do objeto que gerou o XP (habit_id, task_id, etc)
+ * Concede XP de forma atômica via RPC PostgreSQL.
+ * Sem race condition: dois requests simultâneos somam XP corretamente.
  */
 export async function grantXP(
   userId: string,
@@ -26,81 +27,58 @@ export async function grantXP(
 ): Promise<GrantXpResult> {
   const supabase = createServiceClient()
 
-  // 1. Buscar XP atual e level
-  const { data: profile, error: fetchError } = await supabase
-    .from('profiles')
-    .select('xp_total, level')
-    .eq('id', userId)
-    .single()
-
-  if (fetchError || !profile) {
-    throw new Error(`grantXP: profile não encontrado para ${userId}`)
-  }
-
-  const previousLevel = profile.level
-  const xpTotalAfter = Math.max(0, profile.xp_total + amount)
-  const newLevel = calculateLevel(xpTotalAfter)
-  const leveledUp = newLevel > previousLevel
-
-  // 2. Inserir transação no ledger
-  const { error: txError } = await supabase.from('xp_transactions').insert({
-    user_id: userId,
-    amount,
-    reason,
-    source_type: sourceType,
-    source_id: sourceId ?? null,
-    xp_total_after: xpTotalAfter,
-    level_after: newLevel,
+  // 1 round trip atômico: incrementa xp, atualiza level, insere ledger
+  const { data, error } = await supabase.rpc('grant_xp_atomic', {
+    p_user_id:     userId,
+    p_amount:      amount,
+    p_reason:      reason,
+    p_source_type: sourceType,
+    p_source_id:   sourceId ?? null,
   })
 
-  if (txError) {
-    console.error('grantXP: falha ao inserir transaction', txError)
-    throw new Error('Falha ao registrar XP')
+  if (error) {
+    console.error('grantXP: RPC falhou', error)
+    throw new Error(`Falha ao registrar XP: ${error.message}`)
   }
 
-  // 3. Atualizar profile
-  const { error: updateError } = await supabase
-    .from('profiles')
-    .update({
-      xp_total: xpTotalAfter,
-      level: newLevel,
-      last_activity_date: new Date().toISOString().split('T')[0],
-    })
-    .eq('id', userId)
-
-  if (updateError) {
-    console.error('grantXP: falha ao atualizar profile', updateError)
+  const result = data as {
+    xp_total_after: number
+    xp_before:      number
+    level_new:      number
+    level_old:      number
+    leveled_up:     boolean
   }
 
-  // 4. Verificar achievements de level
+  const { xp_total_after, xp_before, level_new, level_old, leveled_up } = result
+
+  // 2. Achievements de level-up
   const achievementsUnlocked: string[] = []
-  if (leveledUp) {
-    const levelAchievementSlug = `level_${newLevel}`
-    const unlocked = await tryUnlockAchievement(userId, levelAchievementSlug)
-    if (unlocked) achievementsUnlocked.push(levelAchievementSlug)
+  if (leveled_up) {
+    const unlocked = await tryUnlockAchievement(userId, `level_${level_new}`)
+    if (unlocked) achievementsUnlocked.push(`level_${level_new}`)
   }
 
-  // 5. XP milestones — notificação a cada marco importante
+  // 3. XP milestones — notificação push quando cruza marco importante
+  //    xp_before é calculado como xp_total_after - amount (atômico garante isso)
   const XP_MILESTONES = [1000, 5000, 10000, 25000, 50000, 100000]
   const crossedMilestone = XP_MILESTONES.find(
-    (m) => profile.xp_total < m && xpTotalAfter >= m
+    (m) => xp_before < m && xp_total_after >= m
   )
+
   if (crossedMilestone) {
     const milestoneTitle = `⚡ ${crossedMilestone.toLocaleString('pt-BR')} XP — Marco atingido!`
-    const milestoneBody = `Você acumulou ${crossedMilestone.toLocaleString('pt-BR')} XP no Ascendia. Evolução real!`
+    const milestoneBody  = `Você acumulou ${crossedMilestone.toLocaleString('pt-BR')} XP no Ascendia. Evolução real!`
 
-    // Notificação no banco
     await supabase.from('notifications').insert({
-      user_id: userId,
-      type: 'xp_milestone',
-      title: milestoneTitle,
-      body: milestoneBody,
-      action_url: '/score',
+      user_id:       userId,
+      type:          'xp_milestone',
+      title:         milestoneTitle,
+      body:          milestoneBody,
+      action_url:    '/score',
       scheduled_for: new Date().toISOString(),
-      sent_at: new Date().toISOString(),
+      sent_at:       new Date().toISOString(),
     })
 
-    // Push para todos os dispositivos
     const { data: subs } = await supabase
       .from('push_subscriptions')
       .select('id, endpoint, keys_p256dh, keys_auth')
@@ -108,21 +86,23 @@ export async function grantXP(
 
     if (subs && subs.length > 0) {
       for (const sub of subs) {
-        const result = await sendPushNotification(
+        const pushResult = await sendPushNotification(
           sub.endpoint, sub.keys_p256dh, sub.keys_auth,
           { title: milestoneTitle, body: milestoneBody, url: '/score' }
         )
-        if (result.gone) await supabase.from('push_subscriptions').delete().eq('id', sub.id)
+        if (pushResult.gone) {
+          await supabase.from('push_subscriptions').delete().eq('id', sub.id)
+        }
       }
     }
   }
 
   return {
-    xpEarned: amount,
-    xpTotalAfter,
-    newLevel,
-    leveledUp,
-    previousLevel,
+    xpEarned:             amount,
+    xpTotalAfter:         xp_total_after,
+    newLevel:             level_new,
+    leveledUp:            leveled_up,
+    previousLevel:        level_old,
     achievementsUnlocked,
   }
 }
@@ -130,7 +110,8 @@ export async function grantXP(
 // ════════ ACHIEVEMENTS ════════
 /**
  * Tenta desbloquear uma conquista. Retorna true se foi desbloqueada agora.
- * Se já estava desbloqueada, retorna false (idempotente).
+ * Idempotente: se já desbloqueada, retorna false silenciosamente.
+ * Race-safe: PK composta (user_id, achievement_id) rejeita duplicatas.
  */
 export async function tryUnlockAchievement(
   userId: string,
@@ -138,7 +119,6 @@ export async function tryUnlockAchievement(
 ): Promise<boolean> {
   const supabase = createServiceClient()
 
-  // Buscar achievement
   const { data: rawAchievement } = await supabase
     .from('achievements')
     .select('id, xp_reward, name, description')
@@ -147,9 +127,14 @@ export async function tryUnlockAchievement(
 
   if (!rawAchievement) return false
 
-  const achievement = rawAchievement as { id: string; xp_reward: number; name: string; description: string }
+  const achievement = rawAchievement as {
+    id: string
+    xp_reward: number
+    name: string
+    description: string
+  }
 
-  // Verificar se já tem
+  // Verificar se já tem — a PK composta também protege, mas evita erro desnecessário
   const { data: existing } = await supabase
     .from('user_achievements')
     .select('user_id')
@@ -159,58 +144,39 @@ export async function tryUnlockAchievement(
 
   if (existing) return false
 
-  // Desbloquear
   const { error } = await supabase.from('user_achievements').insert({
-    user_id: userId,
+    user_id:        userId,
     achievement_id: achievement.id,
   })
 
+  // 23505 = unique violation → já desbloqueado por race condition (idempotente)
   if (error) return false
 
-  // Conceder XP da conquista (sem trigger recursivo de achievements)
+  // Conceder XP da conquista via RPC (atômico, sem recursão de achievements)
   if (achievement.xp_reward > 0) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('xp_total')
-      .eq('id', userId)
-      .single()
-
-    if (profile) {
-      const newXp = profile.xp_total + achievement.xp_reward
-      const newLvl = calculateLevel(newXp)
-
-      await supabase.from('xp_transactions').insert({
-        user_id: userId,
-        amount: achievement.xp_reward,
-        reason: `Conquista: ${achievement.name}`,
-        source_type: 'achievement',
-        source_id: achievement.id,
-        xp_total_after: newXp,
-        level_after: newLvl,
-      })
-
-      await supabase
-        .from('profiles')
-        .update({ xp_total: newXp, level: newLvl })
-        .eq('id', userId)
-    }
+    await supabase.rpc('grant_xp_atomic', {
+      p_user_id:     userId,
+      p_amount:      achievement.xp_reward,
+      p_reason:      `Conquista: ${achievement.name}`,
+      p_source_type: 'achievement',
+      p_source_id:   achievement.id,
+    })
   }
 
-  // Registra notificação + envia push
+  // Notificação in-app + push
   const notifTitle = `🏆 Conquista: ${achievement.name}`
-  const notifBody = `+${achievement.xp_reward} XP — ${achievement.description}`
+  const notifBody  = `+${achievement.xp_reward} XP — ${achievement.description}`
 
   await supabase.from('notifications').insert({
-    user_id: userId,
-    type: 'achievement',
-    title: notifTitle,
-    body: notifBody,
-    action_url: '/conquistas',
+    user_id:       userId,
+    type:          'achievement',
+    title:         notifTitle,
+    body:          notifBody,
+    action_url:    '/conquistas',
     scheduled_for: new Date().toISOString(),
-    sent_at: new Date().toISOString(),
+    sent_at:       new Date().toISOString(),
   })
 
-  // Envia push para todos os dispositivos do usuário
   const { data: subs } = await supabase
     .from('push_subscriptions')
     .select('id, endpoint, keys_p256dh, keys_auth')
@@ -231,21 +197,36 @@ export async function tryUnlockAchievement(
   return true
 }
 
-// ════════ HELPERS DE CONTAGEM (para triggers de count-based achievements) ════════
+// ════════ HELPERS DE CONTAGEM ════════
 export async function getUserStats(userId: string) {
   const supabase = createServiceClient()
 
   const [workouts, tasks, transactions, perfectDays] = await Promise.all([
-    supabase.from('workouts').select('id', { count: 'exact', head: true }).eq('user_id', userId).not('finished_at', 'is', null),
-    supabase.from('tasks').select('id', { count: 'exact', head: true }).eq('user_id', userId).eq('status', 'done'),
-    supabase.from('transactions').select('id', { count: 'exact', head: true }).eq('user_id', userId),
-    supabase.from('profiles').select('perfect_days').eq('id', userId).single(),
+    supabase
+      .from('workouts')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .not('finished_at', 'is', null),
+    supabase
+      .from('tasks')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .eq('status', 'done'),
+    supabase
+      .from('transactions')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', userId),
+    supabase
+      .from('profiles')
+      .select('perfect_days')
+      .eq('id', userId)
+      .single(),
   ])
 
   return {
-    totalWorkouts: workouts.count ?? 0,
-    totalTasks: tasks.count ?? 0,
+    totalWorkouts:    workouts.count ?? 0,
+    totalTasks:       tasks.count ?? 0,
     totalTransactions: transactions.count ?? 0,
-    perfectDays: perfectDays.data?.perfect_days ?? 0,
+    perfectDays:      perfectDays.data?.perfect_days ?? 0,
   }
 }
