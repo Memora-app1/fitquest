@@ -1,7 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { Sparkles } from 'lucide-react'
-
-const WATER_GOAL_ML = 2000
+import { WATER_GOAL_ML } from '@/lib/constants'
 
 export async function LifeBalanceRadar({ userId }: { userId: string }) {
   const supabase = await createClient()

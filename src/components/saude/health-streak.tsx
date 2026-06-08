@@ -5,8 +5,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { Droplets, Moon, Flame, Trophy } from 'lucide-react'
-
-const WATER_GOAL_ML = 2000
+import { WATER_GOAL_ML } from '@/lib/constants'
 
 function calcStreak(
   waterByDay: Record<string, number>,

@@ -3,8 +3,7 @@
 import { useState } from 'react'
 import { Droplets, Trash2, Plus, Check, X } from 'lucide-react'
 import { useXpToast, XpToastContainer } from '@/components/xp-toast'
-
-const WATER_GOAL_ML = 2000
+import { WATER_GOAL_ML } from '@/lib/constants'
 
 const QUICK_AMOUNTS = [
   { ml: 200, label: '200ml', emoji: '🥤', desc: 'Copo' },

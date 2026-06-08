@@ -20,7 +20,7 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const [profileRes, notifRes] = await Promise.all([
+  const [profileRes, notifRes, criticalRes] = await Promise.all([
     supabase
       .from('profiles')
       .select('id, name, xp_total, level, streak_current, onboarding_completed, perfect_days')
@@ -31,13 +31,23 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
       .select('id', { count: 'exact', head: true })
       .eq('user_id', user.id)
       .is('read_at', null),
+    // Tarefas críticas (urgente + importante) pendentes — badge na tab Tarefas
+    supabase
+      .from('tasks')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .eq('urgent', true)
+      .eq('important', true)
+      .not('status', 'eq', 'done')
+      .not('status', 'eq', 'archived'),
   ])
 
   const profile = profileRes.data
   if (!profile) redirect('/onboarding')
   if (!profile.onboarding_completed) redirect('/onboarding')
 
-  const unreadCount = notifRes.count ?? 0
+  const unreadCount        = notifRes.count ?? 0
+  const criticalTaskCount  = criticalRes.count ?? 0
 
   return (
     <AppShellRealtimeProvider
@@ -62,7 +72,7 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
             <PullToRefresh>{children}</PullToRefresh>
           </main>
         </div>
-        <BottomNav />
+        <BottomNav criticalTasks={criticalTaskCount} />
         <MobileFab />
         <PushPrompt />
         <PwaInstallPrompt />

@@ -2,8 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { Droplets, Moon, ArrowRight } from 'lucide-react'
 import { todayString } from '@/lib/utils'
-
-const WATER_GOAL_ML = 2000
+import { WATER_GOAL_ML } from '@/lib/constants'
 
 function sleepColor(h: number | null): string {
   if (!h || h === 0) return '#8899BB'

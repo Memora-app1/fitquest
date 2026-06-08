@@ -13,6 +13,7 @@ import { MoodCheckin } from '@/components/saude/mood-checkin'
 import { HealthStreak } from '@/components/saude/health-streak'
 import type { MoodLog } from '@/lib/supabase/types'
 import { Droplets, Moon, TrendingUp, Trophy, Heart } from 'lucide-react'
+import { WATER_GOAL_ML } from '@/lib/constants'
 
 export const metadata: Metadata = {
   title: 'Saúde',
@@ -20,8 +21,6 @@ export const metadata: Metadata = {
 }
 
 export const dynamic = 'force-dynamic'
-
-const WATER_GOAL_ML = 2000
 
 function formatDuration(h: number | null): string {
   if (!h) return '—'

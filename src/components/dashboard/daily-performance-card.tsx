@@ -2,8 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { todayString } from '@/lib/utils'
 import { Zap, Droplets, Moon, Flame, Target, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
-
-const WATER_GOAL_ML = 2000
+import { WATER_GOAL_ML } from '@/lib/constants'
 
 type PerfState = 'great' | 'good' | 'alert'
 

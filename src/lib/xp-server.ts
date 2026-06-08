@@ -2,21 +2,23 @@
  * Funções server-only para conceder XP. NUNCA importe em Client Components.
  * Para constantes e helpers puros, use src/lib/xp.ts
  *
- * grantXP usa a RPC grant_xp_atomic (migration 008) que:
+ * grantXP usa a RPC grant_xp_atomic (migration 007) que:
  * - Incrementa xp_total com delta atômico (sem race condition)
  * - Atualiza level se necessário
  * - Insere no ledger xp_transactions
  * Tudo em 1 round trip ao banco.
+ *
+ * Após o grant, chama increment_weekly_stats para atualizar league_xp e season_xp.
  */
 
 import { createServiceClient } from '@/lib/supabase/server'
-import { calculateLevel, type XpSourceType, type GrantXpResult } from '@/lib/xp'
+import { calculateLevel, calculatePrestige, type XpSourceType, type GrantXpResult } from '@/lib/xp'
 import { sendPushNotification } from '@/lib/webpush'
 
 // ════════ FUNÇÃO PRINCIPAL ════════
 /**
  * Concede XP de forma atômica via RPC PostgreSQL.
- * Sem race condition: dois requests simultâneos somam XP corretamente.
+ * Atualiza league_xp_this_week e season_xp como side-effect.
  */
 export async function grantXP(
   userId: string,
@@ -39,7 +41,7 @@ export async function grantXP(
   let result: { xp_total_after: number; xp_before: number; level_new: number; level_old: number; leveled_up: boolean }
 
   if (error) {
-    // Fallback: RPC não existe ainda (migration 008 não executada) — usa método clássico
+    // Fallback: RPC não existe ainda — usa método clássico
     const { data: profile } = await supabase
       .from('profiles')
       .select('xp_total, level')
@@ -73,15 +75,47 @@ export async function grantXP(
 
   const { xp_total_after, xp_before, level_new, level_old, leveled_up } = result
 
-  // 2. Achievements de level-up
+  // 2. Atualiza league_xp_this_week + xp_all_time + season_xp (fire-and-forget)
+  if (amount > 0) {
+    void supabase.rpc('increment_weekly_stats', {
+      p_user_id: userId,
+      p_xp:      amount,
+    })
+  }
+
+  // 3. Verifica prestige e atualiza se subiu
+  const newPrestige = calculatePrestige(xp_total_after)
+  const oldPrestige = calculatePrestige(xp_before)
+  if (newPrestige > oldPrestige) {
+    await supabase
+      .from('profiles')
+      .update({ prestige_level: newPrestige })
+      .eq('id', userId)
+
+    const prestigeTitles = ['', 'Ascendido', 'Ascendido II', 'Diamante', 'Diamante II', 'Imortal', 'Imortal II', 'Imortal III', 'Lendário', 'Lendário II', 'Lendário Eterno']
+    const prestigeEmojis = ['', '⭐', '⭐', '💎', '💎', '🔥', '🔥', '🔥', '👑', '👑', '👑']
+    const pTitle = prestigeTitles[newPrestige] ?? 'Ascendido'
+    const pEmoji = prestigeEmojis[newPrestige] ?? '⭐'
+
+    await supabase.from('notifications').insert({
+      user_id:       userId,
+      type:          'prestige',
+      title:         `${pEmoji} Prestige ${newPrestige} — ${pTitle}!`,
+      body:          `Você acumulou ${xp_total_after.toLocaleString('pt-BR')} XP total. Lendário!`,
+      action_url:    '/score',
+      scheduled_for: new Date().toISOString(),
+      sent_at:       new Date().toISOString(),
+    })
+  }
+
+  // 4. Achievements de level-up
   const achievementsUnlocked: string[] = []
   if (leveled_up) {
     const unlocked = await tryUnlockAchievement(userId, `level_${level_new}`)
     if (unlocked) achievementsUnlocked.push(`level_${level_new}`)
   }
 
-  // 3. XP milestones — notificação push quando cruza marco importante
-  //    xp_before é calculado como xp_total_after - amount (atômico garante isso)
+  // 5. XP milestones — push quando cruza marco importante
   const XP_MILESTONES = [1000, 5000, 10000, 25000, 50000, 100000]
   const crossedMilestone = XP_MILESTONES.find(
     (m) => xp_before < m && xp_total_after >= m
@@ -126,13 +160,13 @@ export async function grantXP(
     leveledUp:            leveled_up,
     previousLevel:        level_old,
     achievementsUnlocked,
+    newPrestige:          newPrestige > oldPrestige ? newPrestige : undefined,
   }
 }
 
 // ════════ ACHIEVEMENTS ════════
 /**
- * Tenta desbloquear uma conquista. Retorna true se foi desbloqueada agora.
- * Idempotente: se já desbloqueada, retorna false silenciosamente.
+ * Tenta desbloquear uma conquista. Idempotente.
  * Race-safe: PK composta (user_id, achievement_id) rejeita duplicatas.
  */
 export async function tryUnlockAchievement(
@@ -156,7 +190,6 @@ export async function tryUnlockAchievement(
     description: string
   }
 
-  // Verificar se já tem — a PK composta também protege, mas evita erro desnecessário
   const { data: existing } = await supabase
     .from('user_achievements')
     .select('user_id')
@@ -171,10 +204,8 @@ export async function tryUnlockAchievement(
     achievement_id: achievement.id,
   })
 
-  // 23505 = unique violation → já desbloqueado por race condition (idempotente)
   if (error) return false
 
-  // Conceder XP da conquista via RPC (atômico, sem recursão de achievements)
   if (achievement.xp_reward > 0) {
     await supabase.rpc('grant_xp_atomic', {
       p_user_id:     userId,
@@ -185,7 +216,6 @@ export async function tryUnlockAchievement(
     })
   }
 
-  // Notificação in-app + push
   const notifTitle = `🏆 Conquista: ${achievement.name}`
   const notifBody  = `+${achievement.xp_reward} XP — ${achievement.description}`
 
@@ -219,11 +249,69 @@ export async function tryUnlockAchievement(
   return true
 }
 
-// ════════ STREAK FREEZE ════════
+// ════════ LOOT BOX ════════
 /**
- * Concede streak freezes ao usuário (máx 10).
- * Exportado para uso no cron de streaks ao processar milestones.
+ * Gera um loot box para o usuário (1 por dia, idempotente via UNIQUE constraint).
+ * Determina raridade randomicamente server-side.
  */
+export async function createDailyLoot(
+  userId: string,
+  date: string,
+  source: 'perfect_day' | 'login_streak' = 'perfect_day'
+): Promise<boolean> {
+  const supabase = createServiceClient()
+
+  const rand = Math.random()
+  let rarity: 'common' | 'rare' | 'epic' | 'legendary'
+  let rewardType: 'xp' | 'streak_freeze' | 'cosmetic'
+  let rewardValue: number
+  let rewardMeta: string | null = null
+
+  if (rand < 0.60) {
+    rarity      = 'common'
+    rewardType  = 'xp'
+    rewardValue = 50
+  } else if (rand < 0.85) {
+    rarity      = 'rare'
+    rewardType  = 'xp'
+    rewardValue = 150
+  } else if (rand < 0.97) {
+    rarity      = 'epic'
+    rewardType  = 'streak_freeze'
+    rewardValue = 1
+  } else {
+    rarity      = 'legendary'
+    rewardType  = 'cosmetic'
+    rewardValue = 0
+    const { data: cosm } = await supabase
+      .from('cosmetics')
+      .select('id, slug, name')
+      .eq('source', 'loot')
+      .eq('type', 'title')
+    if (cosm && cosm.length > 0) {
+      const pick = cosm[Math.floor(Math.random() * cosm.length)]!
+      rewardMeta = JSON.stringify({ cosmetic_id: (pick as { id: string; slug: string; name: string }).id, slug: (pick as { id: string; slug: string; name: string }).slug, name: (pick as { id: string; slug: string; name: string }).name })
+    } else {
+      rarity      = 'epic'
+      rewardType  = 'xp'
+      rewardValue = 300
+    }
+  }
+
+  const { error } = await supabase.from('daily_loot').insert({
+    user_id:      userId,
+    date,
+    rarity,
+    reward_type:  rewardType,
+    reward_value: rewardValue,
+    reward_meta:  rewardMeta,
+    source,
+  })
+
+  return !error || error.code === '23505'
+}
+
+// ════════ STREAK FREEZE ════════
 export async function grantStreakFreeze(userId: string, amount: number): Promise<void> {
   const supabase = createServiceClient()
   const { data: profile } = await supabase
@@ -231,16 +319,12 @@ export async function grantStreakFreeze(userId: string, amount: number): Promise
     .select('streak_freezes')
     .eq('id', userId)
     .single()
-
   if (!profile) return
   const current = (profile.streak_freezes as number) ?? 0
-  const newTotal = Math.min(current + amount, 10)
-  if (newTotal > current) {
-    await supabase
-      .from('profiles')
-      .update({ streak_freezes: newTotal })
-      .eq('id', userId)
-  }
+  await supabase
+    .from('profiles')
+    .update({ streak_freezes: Math.min(10, current + amount) })
+    .eq('id', userId)
 }
 
 // ════════ HELPERS DE CONTAGEM ════════
@@ -270,9 +354,9 @@ export async function getUserStats(userId: string) {
   ])
 
   return {
-    totalWorkouts:    workouts.count ?? 0,
-    totalTasks:       tasks.count ?? 0,
+    totalWorkouts:     workouts.count ?? 0,
+    totalTasks:        tasks.count ?? 0,
     totalTransactions: transactions.count ?? 0,
-    perfectDays:      perfectDays.data?.perfect_days ?? 0,
+    perfectDays:       perfectDays.data?.perfect_days ?? 0,
   }
 }

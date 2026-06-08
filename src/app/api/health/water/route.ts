@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { todayString } from '@/lib/utils'
 import { grantXP, tryUnlockAchievement } from '@/lib/xp-server'
-
-export const WATER_GOAL_ML = 2000
+import { WATER_GOAL_ML } from '@/lib/constants'
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient()

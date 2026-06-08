@@ -1,8 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { todayString } from '@/lib/utils'
 import { Shield, Zap, Moon, Droplets, Dumbbell, TrendingUp } from 'lucide-react'
-
-const WATER_GOAL_ML = 2000
+import { WATER_GOAL_ML } from '@/lib/constants'
 
 interface RecoveryFactor {
   label: string
