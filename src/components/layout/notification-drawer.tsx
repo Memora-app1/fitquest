@@ -6,7 +6,7 @@
  * Busca via /api/notifications, marca como lidas ao abrir.
  */
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { X, Bell, Flame, Trophy, Zap, Shield, Target, CheckCircle, Clock } from 'lucide-react'
 import Link from 'next/link'
 
@@ -55,6 +55,18 @@ export function NotificationDrawer({ open, onClose, initialUnread, onRead }: Not
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [loading, setLoading] = useState(false)
   const [marked, setMarked] = useState(false)
+
+  // Detecta desktop para aplicar o slide correto (direita → esquerda vs baixo → cima)
+  const [isDesktop, setIsDesktop] = useState(false)
+  const mqRef = useRef<MediaQueryList | null>(null)
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 768px)')
+    mqRef.current = mq
+    setIsDesktop(mq.matches)
+    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches)
+    mq.addEventListener('change', handler)
+    return () => mq.removeEventListener('change', handler)
+  }, [])
 
   const fetchAndMark = useCallback(async () => {
     setLoading(true)

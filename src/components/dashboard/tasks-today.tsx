@@ -1,6 +1,6 @@
-﻿'use client'
+'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Check, Trash2, Plus, AlertCircle, X, Clock, ChevronRight, CheckSquare } from 'lucide-react'
@@ -31,21 +31,187 @@ function isOverdue(dueDate: string | null): boolean {
 }
 
 function formatDueDate(dueDate: string): string {
-  const d = new Date(dueDate)
-  const today = new Date()
+  const d        = new Date(dueDate)
+  const today    = new Date()
   const tomorrow = new Date(today)
   tomorrow.setDate(tomorrow.getDate() + 1)
-  if (d.toDateString() === today.toDateString()) return 'Hoje'
+  if (d.toDateString() === today.toDateString())    return 'Hoje'
   if (d.toDateString() === tomorrow.toDateString()) return 'Amanhã'
   return d.toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' })
 }
 
+// ── Item individual com swipe ────────────────────────────────────────────────
+
+function TaskItem({
+  task,
+  isCompleting,
+  onComplete,
+  onDelete,
+}: {
+  task: Task
+  isCompleting: boolean
+  onComplete: () => void
+  onDelete: () => void
+}) {
+  const [deltaX, setDeltaX] = useState(0)
+  const startXRef = useRef(0)
+  const startYRef = useRef(0)
+  const dirRef    = useRef<'h' | 'v' | null>(null)
+  const THRESHOLD = 72
+
+  function onTouchStart(e: React.TouchEvent) {
+    if (isCompleting) return
+    startXRef.current = e.touches[0]!.clientX
+    startYRef.current = e.touches[0]!.clientY
+    dirRef.current    = null
+  }
+
+  function onTouchMove(e: React.TouchEvent) {
+    if (isCompleting) return
+    const dx = e.touches[0]!.clientX - startXRef.current
+    const dy = e.touches[0]!.clientY - startYRef.current
+
+    if (!dirRef.current) {
+      if (Math.abs(dy) > Math.abs(dx) + 5) dirRef.current = 'v'
+      else if (Math.abs(dx) > 8)           dirRef.current = 'h'
+    }
+
+    if (dirRef.current === 'h' && dx > 0) {
+      setDeltaX(Math.min(THRESHOLD * 1.3, dx))
+    }
+  }
+
+  function onTouchEnd() {
+    if (deltaX >= THRESHOLD && !isCompleting) {
+      setDeltaX(0)
+      if (navigator.vibrate) navigator.vibrate([20, 10, 40])
+      onComplete()
+    } else {
+      setDeltaX(0)
+    }
+    dirRef.current = null
+  }
+
+  const swipeProgress = Math.min(1, deltaX / THRESHOLD)
+  const badge         = getPriorityStyle(task.urgent, task.important)
+  const overdue       = isOverdue(task.due_date)
+
+  return (
+    <div
+      className="relative rounded-xl overflow-hidden"
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+      style={{ touchAction: 'pan-y' }}
+    >
+      {/* Fundo verde de completar */}
+      <div
+        className="absolute inset-0 flex items-center pl-4 rounded-xl pointer-events-none"
+        style={{
+          background: `rgba(0,255,136,${0.06 + swipeProgress * 0.14})`,
+          opacity: swipeProgress > 0.08 ? 1 : 0,
+          transition: swipeProgress === 0 ? 'opacity 0.2s ease' : 'none',
+        }}
+      >
+        <Check
+          size={18}
+          strokeWidth={3}
+          style={{
+            color:     '#00FF88',
+            opacity:   swipeProgress,
+            transform: `scale(${0.4 + swipeProgress * 0.6})`,
+          }}
+        />
+        <span
+          className="ml-2 text-xs font-bold"
+          style={{ color: '#00FF88', opacity: Math.max(0, swipeProgress - 0.5) * 2 }}
+        >
+          Concluída
+        </span>
+      </div>
+
+      {/* Row principal */}
+      <div
+        className="group flex items-center gap-2.5 p-3 rounded-xl"
+        style={{
+          minHeight:      52,
+          background:     overdue ? 'rgba(239,68,68,0.06)' : 'rgba(255,255,255,0.03)',
+          border:         overdue ? '1px solid rgba(239,68,68,0.2)' : '1px solid rgba(255,255,255,0.07)',
+          opacity:        isCompleting ? 0.5 : 1,
+          pointerEvents:  isCompleting ? 'none' : 'auto',
+          transform:      `translateX(${deltaX}px)`,
+          transition:     deltaX > 0
+            ? 'none'
+            : 'transform 0.3s cubic-bezier(0.34, 1.4, 0.64, 1), opacity 0.3s ease',
+          willChange: 'transform',
+        }}
+      >
+        {/* Botão de completar — tap target 32px */}
+        <button
+          onClick={onComplete}
+          disabled={isCompleting}
+          className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center transition-all active:scale-90"
+          style={
+            isCompleting
+              ? { background: 'rgba(0,255,136,0.2)', border: '2px solid #00FF88' }
+              : { border: '2px solid rgba(255,255,255,0.18)' }
+          }
+          aria-label="Concluir tarefa"
+        >
+          {isCompleting && (
+            <Check size={12} strokeWidth={3} style={{ color: '#00FF88' }} />
+          )}
+        </button>
+
+        {/* Conteúdo */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="font-medium text-sm leading-tight">{task.title}</span>
+            {badge && (
+              <span
+                className="text-[10px] font-bold px-1.5 py-0.5 rounded-md leading-none"
+                style={{ background: badge.bg, border: `1px solid ${badge.border}`, color: badge.color }}
+              >
+                {badge.label}
+              </span>
+            )}
+          </div>
+          {task.due_date && (
+            <div
+              className="flex items-center gap-1 text-xs mt-0.5"
+              style={{ color: overdue ? '#EF4444' : '#8899BB' }}
+            >
+              <Clock size={10} />
+              {overdue && 'Atrasada · '}
+              {formatDueDate(task.due_date)}
+            </div>
+          )}
+        </div>
+
+        {task.urgent && !task.important && (
+          <AlertCircle size={14} className="text-brand-gold shrink-0" />
+        )}
+
+        <button
+          onClick={onDelete}
+          className="opacity-0 group-hover:opacity-100 p-1 text-text-muted hover:text-red-400 transition-all shrink-0"
+          title="Excluir tarefa"
+        >
+          <Trash2 size={13} />
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ── Container principal ──────────────────────────────────────────────────────
+
 export function TasksToday({ tasks: initialTasks }: { tasks: Task[] }) {
-  const router = useRouter()
-  const [items, setItems] = useState<Task[]>(initialTasks)
+  const router   = useRouter()
+  const [items, setItems]         = useState<Task[]>(initialTasks)
   const [completing, setCompleting] = useState<Set<string>>(new Set())
-  const [showAdd, setShowAdd] = useState(false)
-  const [newTitle, setNewTitle] = useState('')
+  const [showAdd, setShowAdd]     = useState(false)
+  const [newTitle, setNewTitle]   = useState('')
   const [addLoading, setAddLoading] = useState(false)
   const { toasts, showXp } = useXpToast()
 
@@ -55,11 +221,16 @@ export function TasksToday({ tasks: initialTasks }: { tasks: Task[] }) {
     setCompleting((prev) => new Set(prev).add(taskId))
     try {
       const res = await fetch('/api/tasks', {
-        method: 'PATCH',
+        method:  'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: taskId, status: 'done' }),
+        body:    JSON.stringify({ id: taskId, status: 'done' }),
       })
-      const data = await res.json() as { xpEarned?: number; leveledUp?: boolean; newLevel?: number; achievementsUnlocked?: string[] }
+      const data = await res.json() as {
+        xpEarned?: number
+        leveledUp?: boolean
+        newLevel?: number
+        achievementsUnlocked?: string[]
+      }
       if (res.ok) {
         setItems((prev) => prev.filter((t) => t.id !== taskId))
         showXp(data.xpEarned ?? 0, { leveledUp: data.leveledUp ? data.newLevel : undefined })
@@ -92,9 +263,9 @@ export function TasksToday({ tasks: initialTasks }: { tasks: Task[] }) {
     const title = newTitle.trim()
     try {
       const res = await fetch('/api/tasks', {
-        method: 'POST',
+        method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, urgent: false, important: false }),
+        body:    JSON.stringify({ title, urgent: false, important: false }),
       })
       const data = await res.json() as { task?: Task }
       if (res.ok && data.task) {
@@ -109,7 +280,7 @@ export function TasksToday({ tasks: initialTasks }: { tasks: Task[] }) {
   }
 
   const criticalCount = items.filter((t) => t.urgent && t.important).length
-  const overdueCount = items.filter((t) => isOverdue(t.due_date)).length
+  const overdueCount  = items.filter((t) => isOverdue(t.due_date)).length
 
   const cardStyle = criticalCount > 0
     ? { bg: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)', glow: 'rgba(239,68,68,0.15)', accent: '#EF4444' }
@@ -176,7 +347,7 @@ export function TasksToday({ tasks: initialTasks }: { tasks: Task[] }) {
             <div className="flex items-center gap-1.5">
               <button
                 onClick={() => { setShowAdd(!showAdd); if (!showAdd) setNewTitle('') }}
-                className="w-7 h-7 rounded-lg flex items-center justify-center transition-all"
+                className="w-7 h-7 rounded-lg flex items-center justify-center transition-all active:scale-90"
                 style={
                   showAdd
                     ? { background: 'rgba(255,77,0,0.15)', border: '1px solid rgba(255,77,0,0.4)', color: '#FF4D00' }
@@ -195,82 +366,20 @@ export function TasksToday({ tasks: initialTasks }: { tasks: Task[] }) {
             </div>
           </div>
 
-          {/* Task list */}
+          {/* Lista de tarefas */}
           <div className="space-y-2">
-            {items.map((task) => {
-              const badge = getPriorityStyle(task.urgent, task.important)
-              const overdue = isOverdue(task.due_date)
-              const isCompleting = completing.has(task.id)
-
-              return (
-                <div
-                  key={task.id}
-                  className="group flex items-center gap-2.5 p-3 rounded-xl transition-all"
-                  style={{
-                    background: overdue ? 'rgba(239,68,68,0.06)' : 'rgba(255,255,255,0.03)',
-                    border: overdue ? '1px solid rgba(239,68,68,0.2)' : '1px solid rgba(255,255,255,0.07)',
-                    opacity: isCompleting ? 0.5 : 1,
-                    pointerEvents: isCompleting ? 'none' : 'auto',
-                  }}
-                >
-                  {/* Complete button */}
-                  <button
-                    onClick={() => quickComplete(task.id)}
-                    disabled={isCompleting}
-                    className="w-6 h-6 rounded-full shrink-0 flex items-center justify-center transition-all"
-                    style={
-                      isCompleting
-                        ? { background: 'rgba(0,255,136,0.2)', border: '2px solid #00FF88', transform: 'scale(1.1)' }
-                        : { border: '2px solid rgba(255,255,255,0.15)' }
-                    }
-                  >
-                    {isCompleting && <Check size={11} strokeWidth={3} className="text-brand-green" />}
-                  </button>
-
-                  {/* Task content */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      <span className="font-medium text-sm leading-tight">{task.title}</span>
-                      {badge && (
-                        <span
-                          className="text-[10px] font-bold px-1.5 py-0.5 rounded-md leading-none"
-                          style={{ background: badge.bg, border: `1px solid ${badge.border}`, color: badge.color }}
-                        >
-                          {badge.label}
-                        </span>
-                      )}
-                    </div>
-                    {task.due_date && (
-                      <div
-                        className="flex items-center gap-1 text-xs mt-0.5"
-                        style={{ color: overdue ? '#EF4444' : '#8899BB' }}
-                      >
-                        <Clock size={10} />
-                        {overdue && 'Atrasada · '}
-                        {formatDueDate(task.due_date)}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Urgent icon */}
-                  {task.urgent && !task.important && (
-                    <AlertCircle size={14} className="text-brand-gold shrink-0" />
-                  )}
-
-                  {/* Delete on hover */}
-                  <button
-                    onClick={() => deleteTask(task.id)}
-                    className="opacity-0 group-hover:opacity-100 p-1 text-text-muted hover:text-brand-red transition-all shrink-0"
-                    title="Excluir tarefa"
-                  >
-                    <Trash2 size={13} />
-                  </button>
-                </div>
-              )
-            })}
+            {items.map((task) => (
+              <TaskItem
+                key={task.id}
+                task={task}
+                isCompleting={completing.has(task.id)}
+                onComplete={() => quickComplete(task.id)}
+                onDelete={() => deleteTask(task.id)}
+              />
+            ))}
           </div>
 
-          {/* Inline add form */}
+          {/* Inline add */}
           {showAdd && (
             <div className="mt-2 flex gap-2">
               <input
@@ -295,13 +404,15 @@ export function TasksToday({ tasks: initialTasks }: { tasks: Task[] }) {
             </div>
           )}
 
-          {/* Footer summary */}
+          {/* Footer */}
           <div className="mt-3 flex items-center justify-between text-xs text-text-muted">
             <span>
               {criticalCount > 0 && (
-                <span className="text-brand-red font-medium">{criticalCount} crítica{criticalCount > 1 ? 's' : ''} · </span>
+                <span className="font-medium" style={{ color: '#EF4444' }}>
+                  {criticalCount} crítica{criticalCount > 1 ? 's' : ''} ·{' '}
+                </span>
               )}
-              {items.length} pendente{items.length !== 1 ? 's' : ''}
+              {items.length} pendente{items.length !== 1 ? 's' : ''} · deslize → para concluir
             </span>
             <Link href="/tarefas/eisenhower" className="hover:text-brand-orange transition-colors">
               Eisenhower →

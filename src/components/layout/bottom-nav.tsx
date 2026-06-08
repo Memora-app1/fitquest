@@ -5,9 +5,16 @@ import { cn } from '@/lib/utils'
 import { LayoutDashboard, CheckSquare, Dumbbell, Heart, Bot } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
-const ITEMS = [
+interface NavItem {
+  href:  string
+  label: string
+  icon:  React.ElementType
+  badgeKey?: 'tasks'
+}
+
+const ITEMS: NavItem[] = [
   { href: '/dashboard', label: 'Home',    icon: LayoutDashboard },
-  { href: '/tarefas',   label: 'Tarefas', icon: CheckSquare },
+  { href: '/tarefas',   label: 'Tarefas', icon: CheckSquare, badgeKey: 'tasks' },
   { href: '/treinos',   label: 'Fitness', icon: Dumbbell },
   { href: '/saude',     label: 'Saúde',   icon: Heart },
   { href: '/coach',     label: 'Coach',   icon: Bot },
@@ -19,13 +26,15 @@ function haptic() {
   }
 }
 
-export function BottomNav() {
+interface BottomNavProps {
+  criticalTasks?: number
+}
+
+export function BottomNav({ criticalTasks = 0 }: BottomNavProps) {
   const pathname = usePathname()
   const router   = useRouter()
 
-  // Slide-up na montagem inicial
-  const [mounted, setMounted] = useState(false)
-  // Rastreia qual aba foi tocada para disparar o bounce do ícone
+  const [mounted, setMounted]         = useState(false)
   const [bouncingHref, setBouncingHref] = useState<string | null>(null)
 
   useEffect(() => {
@@ -35,8 +44,6 @@ export function BottomNav() {
 
   function handleTap(href: string, isActive: boolean) {
     haptic()
-
-    // Dispara animação de bounce no ícone
     setBouncingHref(href)
     setTimeout(() => setBouncingHref(null), 400)
 
@@ -45,6 +52,11 @@ export function BottomNav() {
     } else {
       router.push(href)
     }
+  }
+
+  function getBadgeCount(item: NavItem): number {
+    if (item.badgeKey === 'tasks') return criticalTasks
+    return 0
   }
 
   return (
@@ -62,9 +74,11 @@ export function BottomNav() {
     >
       <div className="grid grid-cols-5">
         {ITEMS.map((item) => {
-          const Icon    = item.icon
-          const active  = pathname === item.href || pathname.startsWith(`${item.href}/`)
-          const bouncing = bouncingHref === item.href
+          const Icon      = item.icon
+          const active    = pathname === item.href || pathname.startsWith(`${item.href}/`)
+          const bouncing  = bouncingHref === item.href
+          const badge     = getBadgeCount(item)
+          const showBadge = badge > 0 && !active
 
           return (
             <button
@@ -95,29 +109,42 @@ export function BottomNav() {
                 className="absolute inset-x-2 top-1.5 bottom-1.5 rounded-2xl pointer-events-none"
                 style={{
                   background: 'rgba(255,77,0,0.08)',
-                  opacity:   active ? 1 : 0,
-                  transform: active ? 'scale(1)' : 'scale(0.75)',
+                  opacity:    active ? 1 : 0,
+                  transform:  active ? 'scale(1)' : 'scale(0.75)',
                   transition: 'opacity 0.22s ease, transform 0.35s cubic-bezier(0.34, 1.5, 0.64, 1)',
                 }}
               />
 
-              {/* Ícone — spring bounce ao tocar */}
-              <Icon
-                size={22}
-                className="relative z-10"
-                style={{
-                  filter: active
-                    ? 'drop-shadow(0 0 8px rgba(255,77,0,0.7))'
-                    : 'none',
-                  transition: 'filter 0.2s ease',
-                  animation: bouncing
-                    ? 'navIconBounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards'
-                    : active
-                    ? 'none'
-                    : 'none',
-                  transform: !bouncing && active ? 'translateY(-1px)' : undefined,
-                }}
-              />
+              {/* Ícone com spring bounce ao tocar — wrapper para posicionar badge */}
+              <div className="relative z-10">
+                <Icon
+                  size={22}
+                  style={{
+                    filter: active ? 'drop-shadow(0 0 8px rgba(255,77,0,0.7))' : 'none',
+                    transition: 'filter 0.2s ease',
+                    animation: bouncing
+                      ? 'navIconBounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards'
+                      : 'none',
+                    transform: !bouncing && active ? 'translateY(-1px)' : undefined,
+                  }}
+                />
+
+                {/* Badge de tarefas críticas */}
+                {showBadge && (
+                  <span
+                    className="absolute -top-1 -right-1.5 min-w-[14px] h-3.5 rounded-full flex items-center justify-center text-[8px] font-black px-0.5"
+                    style={{
+                      background:  '#EF4444',
+                      color:       '#fff',
+                      border:      '1.5px solid #050914',
+                      lineHeight:  1,
+                      animation:   'navIconBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both',
+                    }}
+                  >
+                    {badge > 9 ? '9+' : badge}
+                  </span>
+                )}
+              </div>
 
               {/* Label */}
               <span

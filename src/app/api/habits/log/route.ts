@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
 import { XP_REWARDS } from '@/lib/xp'
-import { grantXP, tryUnlockAchievement } from '@/lib/xp-server'
+import { grantXP, tryUnlockAchievement, createDailyLoot } from '@/lib/xp-server'
 import { updateUserStreak } from '@/lib/streak'
 import { todayString } from '@/lib/utils'
 
@@ -113,6 +113,8 @@ export async function POST(req: NextRequest) {
       if (pd.perfect_days % 7 === 0) {
         await tryUnlockAchievement(user.id, 'perfect_week')
       }
+      // Loot box do Dia Perfeito (idempotente via UNIQUE constraint)
+      await createDailyLoot(user.id, today, 'perfect_day')
     }
   }
 
@@ -120,11 +122,11 @@ export async function POST(req: NextRequest) {
   await updateUserStreak(user.id)
 
   return NextResponse.json({
-    success: true,
-    xpEarned: xpResult.xpEarned + perfectDayBonus,
-    leveledUp: xpResult.leveledUp,
-    newLevel: xpResult.newLevel,
-    perfectDay: perfectDayBonus > 0,
+    success:              true,
+    xpEarned:             xpResult.xpEarned + perfectDayBonus,
+    leveledUp:            xpResult.leveledUp,
+    newLevel:             xpResult.newLevel,
+    perfectDay:           perfectDayBonus > 0,
     achievementsUnlocked: xpResult.achievementsUnlocked,
   })
 }
