@@ -4,11 +4,17 @@
  * Mini Coach FAB — botão flutuante de acesso rápido ao Coach IA.
  * Fica no canto inferior direito, acima do bottom nav no mobile.
  * Pulsa suavemente para chamar atenção sem incomodar.
+ *
+ * NOTA: todos os hooks são chamados antes de qualquer return condicional
+ * para respeitar as Rules of Hooks do React.
  */
 
 import { useState, useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { Bot, X, Zap, MessageCircle } from 'lucide-react'
+
+// Rotas que exibem o MobileFab — usado para empurrar o MiniCoachFab para cima
+const MOBILE_FAB_ROUTES = new Set(['/habitos', '/treinos', '/tarefas', '/financas', '/saude'])
 
 const QUICK_PROMPTS = [
   'Como está meu progresso hoje?',
@@ -18,17 +24,12 @@ const QUICK_PROMPTS = [
 ]
 
 export function MiniCoachFab() {
-  const [open, setOpen] = useState(false)
+  // ── Todos os hooks ANTES de qualquer return condicional ──────────────────
+  const [open, setOpen]   = useState(false)
   const [pulse, setPulse] = useState(false)
-  const router = useRouter()
+  const router   = useRouter()
   const pathname = usePathname()
 
-  // Não mostrar na página do Coach (já tem o chat)
-  if (pathname === '/coach') return null
-  // Não mostrar no onboarding ou login
-  if (pathname === '/onboarding' || pathname === '/login' || pathname === '/signup') return null
-
-  // Pulsa sutilmente a cada 30s para lembrar o usuário
   useEffect(() => {
     const timer = setInterval(() => {
       setPulse(true)
@@ -36,10 +37,22 @@ export function MiniCoachFab() {
     }, 30000)
     return () => clearInterval(timer)
   }, [])
+  // ────────────────────────────────────────────────────────────────────────
+
+  const base   = '/' + pathname.split('/')[1]
+  const hidden =
+    base === '/coach' ||
+    base === '/onboarding' ||
+    base === '/login' ||
+    base === '/signup'
+
+  if (hidden) return null
+
+  // Se o MobileFab também está visível nesta rota, sobe o MiniCoachFab
+  const hasMobileFab = MOBILE_FAB_ROUTES.has(base)
 
   function handleQuickPrompt(prompt: string) {
     setOpen(false)
-    // Encoda o prompt e navega pro coach
     router.push(`/coach?q=${encodeURIComponent(prompt)}`)
   }
 
@@ -50,7 +63,6 @@ export function MiniCoachFab() {
 
   return (
     <>
-      {/* Overlay quando aberto */}
       {open && (
         <div
           className="fixed inset-0 z-40"
@@ -58,21 +70,28 @@ export function MiniCoachFab() {
         />
       )}
 
-      {/* FAB Container */}
-      <div className="fixed bottom-24 right-4 md:bottom-6 md:right-6 z-50 flex flex-col items-end gap-2">
-
+      <div
+        className="fixed right-4 md:right-6 z-50 flex flex-col items-end gap-2"
+        style={{
+          bottom: hasMobileFab
+            ? `calc(env(safe-area-inset-bottom, 0px) + 126px)`
+            : `calc(env(safe-area-inset-bottom, 0px) + 72px)`,
+          transition: 'bottom 0.3s cubic-bezier(0.34, 1.4, 0.64, 1)',
+        }}
+      >
         {/* Quick prompts menu */}
         {open && (
           <div
-            className="mb-2 rounded-2xl overflow-hidden animate-slide-up shadow-2xl"
+            className="mb-2 rounded-2xl overflow-hidden shadow-2xl"
             style={{
-              background: 'rgba(13,24,41,0.98)',
-              border: '1px solid rgba(124,58,237,0.35)',
+              background:     'rgba(13,24,41,0.98)',
+              border:         '1px solid rgba(124,58,237,0.35)',
               backdropFilter: 'blur(20px)',
-              minWidth: '240px',
+              minWidth:       '240px',
+              animation:      'fabSpringIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both',
+              transformOrigin:'bottom right',
             }}
           >
-            {/* Header */}
             <div
               className="flex items-center gap-2 px-4 py-3"
               style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
@@ -87,12 +106,11 @@ export function MiniCoachFab() {
               <span className="text-[9px] text-text-muted ml-auto">perguntas rápidas</span>
             </div>
 
-            {/* Quick prompts */}
-            {QUICK_PROMPTS.map(prompt => (
+            {QUICK_PROMPTS.map((prompt) => (
               <button
                 key={prompt}
                 onClick={() => handleQuickPrompt(prompt)}
-                className="w-full flex items-center gap-3 px-4 py-3 text-left transition-all hover:bg-white/[0.04] group"
+                className="w-full flex items-center gap-3 px-4 py-3 text-left transition-all hover:bg-white/[0.04] active:bg-white/[0.06] group"
                 style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}
               >
                 <Zap size={12} className="text-text-muted group-hover:text-brand-purple transition-colors shrink-0" />
@@ -102,10 +120,9 @@ export function MiniCoachFab() {
               </button>
             ))}
 
-            {/* Open coach button */}
             <button
               onClick={handleOpenCoach}
-              className="w-full flex items-center gap-3 px-4 py-3 text-left transition-all hover:bg-white/[0.04]"
+              className="w-full flex items-center gap-3 px-4 py-3 text-left transition-all hover:bg-white/[0.04] active:bg-white/[0.06]"
               style={{ borderTop: '1px solid rgba(124,58,237,0.15)' }}
             >
               <MessageCircle size={12} style={{ color: '#9F5AF7' }} />
@@ -116,15 +133,10 @@ export function MiniCoachFab() {
           </div>
         )}
 
-        {/* Main FAB button */}
+        {/* Botão principal */}
         <button
-          onClick={() => setOpen(prev => !prev)}
-          className={`
-            w-14 h-14 rounded-2xl flex items-center justify-center
-            transition-all duration-300 shadow-2xl
-            ${pulse && !open ? 'scale-110' : 'scale-100'}
-            hover:scale-105 active:scale-95
-          `}
+          onClick={() => setOpen((prev) => !prev)}
+          className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-2xl transition-all duration-300"
           style={{
             background: open
               ? 'rgba(239,68,68,0.15)'
@@ -135,24 +147,24 @@ export function MiniCoachFab() {
             boxShadow: open
               ? '0 4px 20px rgba(239,68,68,0.2)'
               : `0 4px 20px rgba(124,58,237,0.4), 0 0 ${pulse ? '30px' : '0px'} rgba(124,58,237,0.3)`,
+            transform: pulse && !open ? 'scale(1.1)' : 'scale(1)',
           }}
           aria-label="Abrir Coach IA"
         >
-          {open ? (
-            <X size={20} style={{ color: '#EF4444' }} />
-          ) : (
-            <Bot size={22} className="text-white" />
-          )}
+          {open
+            ? <X size={20} style={{ color: '#EF4444' }} />
+            : <Bot size={22} className="text-white" />
+          }
         </button>
 
-        {/* Pulse ring */}
+        {/* Anel de pulse */}
         {pulse && !open && (
           <div
             className="absolute bottom-0 right-0 w-14 h-14 rounded-2xl pointer-events-none animate-ping"
             style={{
-              background: 'transparent',
-              border: '2px solid rgba(124,58,237,0.4)',
-              animationDuration: '1s',
+              background:       'transparent',
+              border:           '2px solid rgba(124,58,237,0.4)',
+              animationDuration:'1s',
             }}
           />
         )}

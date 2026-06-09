@@ -188,6 +188,13 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl)
   }
 
+  // Rotas Admin — auth verificada via API routes com service role
+  // O proxy só garante que o usuário está logado; a autorização de role
+  // acontece em cada API route e Server Component via getAdminSession()
+  if (pathname.startsWith('/admin') || pathname.startsWith('/api/admin/')) {
+    return response
+  }
+
   // Rotas que requerem só auth (sem subscription)
   if (AUTH_ONLY_ROUTES.some((route) => pathname.startsWith(route))) {
     return response

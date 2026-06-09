@@ -1,7 +1,8 @@
+// Bloco de conteúdo com shimmer deslizante (mais premium que animate-pulse)
 function Shimmer({ className, style }: { className?: string; style?: React.CSSProperties }) {
   return (
     <div
-      className={`animate-pulse rounded-2xl ${className ?? ''}`}
+      className={`shimmer rounded-2xl ${className ?? ''}`}
       style={{ background: 'rgba(21,34,56,0.6)', ...style }}
     />
   )
@@ -13,7 +14,7 @@ function ShimmerRow({ widths }: { widths: string[] }) {
       {widths.map((w, i) => (
         <div
           key={i}
-          className="animate-pulse rounded-full h-3"
+          className="shimmer rounded-full h-3"
           style={{ background: 'rgba(21,34,56,0.8)', width: w }}
         />
       ))}
@@ -27,17 +28,17 @@ export default function DashboardLoading() {
 
       {/* Hero header skeleton */}
       <div
-        className="rounded-2xl p-6 animate-pulse"
+        className="rounded-2xl p-6 shimmer"
         style={{ background: 'rgba(21,34,56,0.5)', border: '1px solid rgba(124,58,237,0.1)' }}
       >
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div className="space-y-2">
-            <div className="h-3 w-24 rounded-full animate-pulse" style={{ background: 'rgba(255,255,255,0.06)' }} />
-            <div className="h-8 w-48 rounded-xl animate-pulse" style={{ background: 'rgba(255,255,255,0.08)' }} />
+            <div className="h-3 w-24 rounded-full shimmer" style={{ background: 'rgba(255,255,255,0.06)' }} />
+            <div className="h-8 w-48 rounded-xl shimmer" style={{ background: 'rgba(255,255,255,0.08)' }} />
           </div>
           <div className="flex gap-2">
-            <div className="h-7 w-14 rounded-xl animate-pulse" style={{ background: 'rgba(124,58,237,0.15)' }} />
-            <div className="h-7 w-16 rounded-xl animate-pulse" style={{ background: 'rgba(255,255,255,0.06)' }} />
+            <div className="h-7 w-14 rounded-xl shimmer" style={{ background: 'rgba(124,58,237,0.15)' }} />
+            <div className="h-7 w-16 rounded-xl shimmer" style={{ background: 'rgba(255,255,255,0.06)' }} />
           </div>
         </div>
       </div>
@@ -47,7 +48,7 @@ export default function DashboardLoading() {
         {[0, 1].map((i) => (
           <div
             key={i}
-            className="rounded-2xl p-5 animate-pulse space-y-3"
+            className="rounded-2xl p-5 shimmer space-y-3"
             style={{ background: 'rgba(21,34,56,0.5)', border: '1px solid rgba(255,255,255,0.05)', minHeight: 120 }}
           >
             <ShimmerRow widths={['1rem', '5rem']} />
@@ -61,7 +62,7 @@ export default function DashboardLoading() {
 
       {/* Life Score skeleton */}
       <div
-        className="rounded-2xl p-6 animate-pulse"
+        className="rounded-2xl p-6 shimmer"
         style={{ background: 'rgba(21,34,56,0.5)', border: '1px solid rgba(255,255,255,0.05)', minHeight: 160 }}
       >
         <div className="flex items-center gap-5">
@@ -92,7 +93,7 @@ export default function DashboardLoading() {
 
       {/* Insights skeleton */}
       <div
-        className="rounded-2xl p-5 animate-pulse space-y-3"
+        className="rounded-2xl p-5 shimmer space-y-3"
         style={{ background: 'rgba(21,34,56,0.5)', border: '1px solid rgba(124,58,237,0.1)' }}
       >
         <ShimmerRow widths={['1rem', '6rem']} />
@@ -114,7 +115,7 @@ export default function DashboardLoading() {
 
       {/* Quick Actions skeleton — 5 items matching QuickActions component */}
       <div>
-        <div className="h-2.5 w-20 rounded-full mb-3 animate-pulse" style={{ background: 'rgba(255,255,255,0.05)' }} />
+        <div className="h-2.5 w-20 rounded-full mb-3 shimmer" style={{ background: 'rgba(255,255,255,0.05)' }} />
         <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
           {[
             'rgba(255,77,0,0.08)',
@@ -125,7 +126,7 @@ export default function DashboardLoading() {
           ].map((bg, i) => (
             <div
               key={i}
-              className="rounded-2xl p-4 animate-pulse flex flex-col items-center gap-2.5 text-center"
+              className="rounded-2xl p-4 shimmer flex flex-col items-center gap-2.5 text-center"
               style={{ background: bg, border: '1px solid rgba(255,255,255,0.05)', minHeight: 96 }}
             >
               <div className="w-12 h-12 rounded-xl" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.06)' }} />
@@ -144,7 +145,7 @@ export default function DashboardLoading() {
         <div className="lg:col-span-2 space-y-6">
           {/* Habits skeleton */}
           <div
-            className="rounded-2xl p-5 animate-pulse space-y-3"
+            className="rounded-2xl p-5 shimmer space-y-3"
             style={{ background: 'rgba(21,34,56,0.5)', border: '1px solid rgba(255,77,0,0.08)', minHeight: 180 }}
           >
             <ShimmerRow widths={['1rem', '7rem']} />
@@ -162,7 +163,7 @@ export default function DashboardLoading() {
 
           {/* Tasks skeleton */}
           <div
-            className="rounded-2xl p-5 animate-pulse space-y-3"
+            className="rounded-2xl p-5 shimmer space-y-3"
             style={{ background: 'rgba(21,34,56,0.5)', border: '1px solid rgba(124,58,237,0.08)', minHeight: 160 }}
           >
             <ShimmerRow widths={['1rem', '5rem']} />
@@ -180,7 +181,7 @@ export default function DashboardLoading() {
         <div className="space-y-6">
           {/* Activity feed skeleton — timeline layout with dot + stem */}
           <div
-            className="rounded-2xl p-5 animate-pulse"
+            className="rounded-2xl p-5 shimmer"
             style={{
               background: 'linear-gradient(135deg, rgba(245,200,66,0.05) 0%, rgba(13,24,41,0.98) 100%)',
               border: '1px solid rgba(245,200,66,0.1)',

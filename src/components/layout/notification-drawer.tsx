@@ -110,17 +110,22 @@ export function NotificationDrawer({ open, onClose, initialUnread, onRead }: Not
         onClick={onClose}
       />
 
-      {/* Drawer — slides up from bottom on mobile, slides in from right on desktop */}
+      {/* Drawer — slide de baixo no mobile, slide da direita no desktop */}
       <div
-        className={`fixed z-[70] transition-transform duration-300 ease-out
+        className={`fixed z-[70]
           bottom-0 left-0 right-0 rounded-t-3xl
           md:bottom-auto md:top-0 md:right-0 md:left-auto md:w-96 md:h-full md:rounded-none md:rounded-l-3xl
         `}
         style={{
-          background: '#0D1829',
-          border: '1px solid rgba(255,255,255,0.06)',
-          transform: open ? 'translateY(0) translateX(0)' : 'translateY(100%) translateX(0)',
-          maxHeight: '85vh',
+          background:  '#0D1829',
+          border:      '1px solid rgba(255,255,255,0.06)',
+          maxHeight:   isDesktop ? '100vh' : '85vh',
+          transform:   open
+            ? 'translateX(0) translateY(0)'
+            : isDesktop
+            ? 'translateX(100%)'
+            : 'translateY(100%)',
+          transition:  'transform 0.32s cubic-bezier(0.34, 1.2, 0.64, 1)',
         }}
       >
         {/* Handle bar (mobile) */}

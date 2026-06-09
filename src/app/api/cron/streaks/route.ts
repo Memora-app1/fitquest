@@ -10,7 +10,11 @@ import { isCronAuthorized, cronUnauthorized } from '@/lib/cron-auth'
 import { NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
 import { grantXP, tryUnlockAchievement, grantStreakFreeze } from '@/lib/xp-server'
+import { sendPushNotification } from '@/lib/webpush'
 import { XP_REWARDS } from '@/lib/xp'
+
+// Thresholds que geram notificação "você fez história" (exceto os de milestone)
+const RECORD_NOTIFY_THRESHOLDS = [10, 15, 20, 25, 50, 75, 100, 150, 200, 250, 300]
 
 export const maxDuration = 60
 
@@ -85,11 +89,57 @@ export async function GET() {
     }
   }
 
+  // Notificações "você fez história" para thresholds de record pessoal
+  const recordUsers = results.filter((u) =>
+    u.new_streak > u.old_streak &&
+    RECORD_NOTIFY_THRESHOLDS.some((t) => u.old_streak < t && u.new_streak >= t)
+  )
+
+  for (const user of recordUsers) {
+    try {
+      const threshold = RECORD_NOTIFY_THRESHOLDS.find((t) => user.old_streak < t && user.new_streak >= t)
+      if (!threshold) continue
+
+      const title = `🏆 Você fez história — ${user.new_streak} dias!`
+      const body  = `Maior streak da sua vida: ${user.new_streak} dias seguidos. Isso é lendário! 🔥`
+
+      await supabase.from('notifications').insert({
+        user_id:       user.user_id,
+        type:          'streak_record',
+        title,
+        body,
+        action_url:    '/score',
+        scheduled_for: new Date().toISOString(),
+        sent_at:       new Date().toISOString(),
+      })
+
+      const { data: subs } = await supabase
+        .from('push_subscriptions')
+        .select('id, endpoint, keys_p256dh, keys_auth')
+        .eq('user_id', user.user_id)
+
+      if (subs && subs.length > 0) {
+        for (const sub of subs) {
+          const result = await sendPushNotification(
+            sub.endpoint, sub.keys_p256dh, sub.keys_auth,
+            { title, body, url: '/score' }
+          )
+          if (result.gone) {
+            await supabase.from('push_subscriptions').delete().eq('id', sub.id)
+          }
+        }
+      }
+    } catch (err) {
+      console.error(`streak record notification error for ${user.user_id}`, err)
+    }
+  }
+
   return NextResponse.json({
-    ok:        true,
-    processed: results.length,
+    ok:         true,
+    processed:  results.length,
     updated,
     reset,
     milestones: milestoneUsers.length,
+    records:    recordUsers.length,
   })
 }

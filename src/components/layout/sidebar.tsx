@@ -22,6 +22,7 @@ import {
   Flame,
   Heart,
   Trophy,
+  Medal,
 } from 'lucide-react'
 import { NotificationBell } from './notification-bell'
 
@@ -32,6 +33,7 @@ const NAV_SECTIONS = [
       { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
       { href: '/score', label: 'Score & XP', icon: BarChart3 },
       { href: '/conquistas', label: 'Conquistas', icon: Trophy },
+      { href: '/ranking', label: 'Ranking', icon: Medal },
     ],
   },
   {
