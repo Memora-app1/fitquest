@@ -134,7 +134,7 @@ export function MobileHeader({
                 : 'linear-gradient(90deg, rgba(245,200,66,0.5), rgba(255,149,0,0.5))',
               boxShadow:   almostLevel ? '0 0 6px rgba(245,200,66,0.6)' : 'none',
               transition:  'width 0.8s cubic-bezier(0.34, 1.2, 0.64, 1)',
-              animation:   almostLevel ? 'pulse-glow 1.8s ease-in-out infinite' : 'none',
+              animation:   almostLevel ? 'pulseGlow 1.8s ease-in-out infinite' : 'none',
             }}
           />
         </div>

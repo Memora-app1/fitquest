@@ -323,7 +323,21 @@ export default async function ConquistasPage() {
                           </span>
                         </div>
                         <p className="text-[11px] text-text-muted leading-relaxed">
-                          {unlocked ? achievement.description : '???'}
+                          {unlocked
+                            ? achievement.description
+                            : achievement.category === 'streak'
+                            ? 'Complete dias consecutivos para desbloquear.'
+                            : achievement.category === 'habit'
+                            ? 'Registre hábitos diariamente para desbloquear.'
+                            : achievement.category === 'workout'
+                            ? 'Complete treinos para desbloquear.'
+                            : achievement.category === 'task'
+                            ? 'Conclua tarefas para desbloquear.'
+                            : achievement.category === 'finance'
+                            ? 'Registre transações para desbloquear.'
+                            : achievement.category === 'xp'
+                            ? 'Acumule XP suficiente para desbloquear.'
+                            : 'Continue usando o Ascendia para desbloquear.'}
                         </p>
                       </div>
                     </div>

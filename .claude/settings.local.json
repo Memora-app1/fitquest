@@ -134,12 +134,23 @@
       "Bash(sort -t: -k2 -rn)",
       "Bash(node -e \"const p = require\\('./package.json'\\); console.log\\('react:', p.dependencies.react, 'react-dom:', p.dependencies['react-dom']\\)\")",
       "Bash(xargs grep -l \"prestige\\\\|login_reward\\\\|DailyLoot\\\\|league\")",
-      "Bash(mkdir -p 'c:\\\\Users\\\\SURFACE\\\\Downloads\\\\fitquest_2\\\\fitquest\\\\src\\\\app\\\\u\\\\[username]' && echo \"done\")"
+      "Bash(mkdir -p 'c:\\\\Users\\\\SURFACE\\\\Downloads\\\\fitquest_2\\\\fitquest\\\\src\\\\app\\\\u\\\\[username]' && echo \"done\")",
+      "Bash(New-Item -ItemType Directory -Force \"c:\\\\Users\\\\SURFACE\\\\Downloads\\\\fitquest_2\\\\fitquest\\\\src\\\\app\\\\ranking\")",
+      "Bash(New-Item -ItemType Directory -Force \"c:\\\\Users\\\\SURFACE\\\\Downloads\\\\fitquest_2\\\\fitquest\\\\src\\\\app\\\\guilds\\\\[id]\")",
+      "Bash(New-Item -ItemType Directory -Force \"c:\\\\Users\\\\SURFACE\\\\Downloads\\\\fitquest_2\\\\fitquest\\\\src\\\\app\\\\season\")",
+      "Bash(mkdir -p 'c:\\\\Users\\\\SURFACE\\\\Downloads\\\\fitquest_2\\\\fitquest\\\\src\\\\app\\\\guilds' && mkdir -p 'c:\\\\Users\\\\SURFACE\\\\Downloads\\\\fitquest_2\\\\fitquest\\\\src\\\\app\\\\guilds\\\\[id]' && mkdir -p 'c:\\\\Users\\\\SURFACE\\\\Downloads\\\\fitquest_2\\\\fitquest\\\\src\\\\app\\\\seasons' && echo \"done\")",
+      "Bash(New-Item -ItemType Directory -Force \"c:\\\\Users\\\\SURFACE\\\\Downloads\\\\fitquest_2\\\\fitquest\\\\src\\\\components\\\\guilds\")",
+      "Bash(echo \"EXIT: $?\")",
+      "Bash(dir src\\\\app\\\\api\\\\cron /b)",
+      "Bash(npm show *)",
+      "PowerShell(New-Item -ItemType Directory -Force \"C:\\\\Users\\\\SURFACE\\\\Downloads\\\\fitquest_2\\\\fitquest\\\\src\\\\components\\\\seasons\")",
+      "Bash(node -e \"const pkg = require\\('./node_modules/@anthropic-ai/sdk/package.json'\\); console.log\\(pkg.version\\)\")"
     ],
     "additionalDirectories": [
       "c:\\Users\\SURFACE\\Downloads\\fitquest_2\\fitquest\\src\\app\\treinos",
       "c:\\Users\\SURFACE\\Downloads\\fitquest_2\\fitquest\\.claude",
-      "c:\\Users\\SURFACE\\Downloads\\fitquest_2\\fitquest\\src\\app\\u"
+      "c:\\Users\\SURFACE\\Downloads\\fitquest_2\\fitquest\\src\\app\\u",
+      "c:\\Users\\SURFACE\\Downloads\\fitquest_2\\fitquest\\src\\app\\guilds\\[id]"
     ]
   }
 }

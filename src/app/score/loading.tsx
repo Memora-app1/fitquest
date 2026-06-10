@@ -2,11 +2,7 @@ function ShimmerRow({ widths }: { widths: string[] }) {
   return (
     <div className="flex gap-2 items-center">
       {widths.map((w, i) => (
-        <div
-          key={i}
-          className="animate-pulse rounded-full h-3"
-          style={{ background: 'rgba(21,34,56,0.9)', width: w }}
-        />
+        <div key={i} className="shimmer rounded-full h-3" style={{ width: w }} />
       ))}
     </div>
   )
@@ -15,7 +11,7 @@ function ShimmerRow({ widths }: { widths: string[] }) {
 function StatCard({ accent }: { accent: string }) {
   return (
     <div
-      className="rounded-2xl p-4 relative overflow-hidden animate-pulse"
+      className="rounded-2xl p-4 relative overflow-hidden"
       style={{
         background: `linear-gradient(135deg, ${accent}0E 0%, rgba(13,24,41,0.98) 100%)`,
         border: `1px solid ${accent}22`,
@@ -27,8 +23,8 @@ function StatCard({ accent }: { accent: string }) {
       />
       <div className="relative z-10 space-y-2">
         <ShimmerRow widths={['0.75rem', '4rem']} />
-        <div className="h-8 w-16 rounded-xl" style={{ background: `${accent}15` }} />
-        <div className="h-2.5 w-20 rounded-full" style={{ background: 'rgba(255,255,255,0.04)' }} />
+        <div className="shimmer h-8 w-16 rounded-xl" />
+        <div className="shimmer h-2.5 w-20 rounded-full" />
       </div>
     </div>
   )
@@ -38,11 +34,13 @@ function AchievementCard({ unlocked, accent }: { unlocked: boolean; accent?: str
   const bg = accent ?? '#8899BB'
   return (
     <div
-      className="rounded-2xl p-4 relative overflow-hidden animate-pulse"
+      className="rounded-2xl p-4 relative overflow-hidden"
       style={{
-        background: unlocked ? `rgba(${bg === '#F5C842' ? '245,200,66' : bg === '#7C3AED' ? '124,58,237' : bg === '#3B82F6' ? '59,130,246' : '136,153,187'},0.06)` : 'rgba(13,24,41,0.5)',
+        background: unlocked
+          ? `linear-gradient(135deg, ${bg}0A 0%, rgba(13,24,41,0.98) 100%)`
+          : 'rgba(13,24,41,0.5)',
         border: unlocked ? `1px solid ${bg}20` : '1px solid rgba(255,255,255,0.04)',
-        opacity: unlocked ? 1 : 0.6,
+        opacity: unlocked ? 1 : 0.55,
       }}
     >
       {!unlocked && (
@@ -56,15 +54,15 @@ function AchievementCard({ unlocked, accent }: { unlocked: boolean; accent?: str
           style={{ background: unlocked ? `${bg}18` : 'rgba(255,255,255,0.05)' }}
         />
         <div className="flex-1 space-y-2 min-w-0">
-          <div className="h-3 w-3/4 rounded-full" style={{ background: 'rgba(255,255,255,0.07)' }} />
-          <div className="h-2.5 w-full rounded-full" style={{ background: 'rgba(255,255,255,0.04)' }} />
-          <div className="h-2.5 w-4/5 rounded-full" style={{ background: 'rgba(255,255,255,0.04)' }} />
+          <div className="shimmer h-3 w-3/4 rounded-full" />
+          <div className="shimmer h-2.5 w-full rounded-full" />
+          <div className="shimmer h-2.5 w-4/5 rounded-full" />
         </div>
       </div>
       {unlocked && (
         <div className="mt-3 flex items-center justify-between">
-          <div className="h-5 w-16 rounded-full" style={{ background: `${bg}15` }} />
-          <div className="h-4 w-12 rounded-full" style={{ background: 'rgba(255,255,255,0.04)' }} />
+          <div className="shimmer h-5 w-16 rounded-full" />
+          <div className="shimmer h-4 w-12 rounded-full" />
         </div>
       )}
     </div>
@@ -77,7 +75,7 @@ export default function ScoreLoading() {
 
       {/* Hero header — level + XP ring */}
       <div
-        className="rounded-2xl p-6 relative overflow-hidden animate-pulse"
+        className="rounded-2xl p-6 relative overflow-hidden"
         style={{
           background: 'linear-gradient(135deg, rgba(245,200,66,0.09) 0%, rgba(13,24,41,0.98) 60%, rgba(124,58,237,0.06) 100%)',
           border: '1px solid rgba(245,200,66,0.22)',
@@ -100,25 +98,25 @@ export default function ScoreLoading() {
               }}
             >
               <div className="text-center space-y-1">
-                <div className="h-8 w-12 rounded-xl mx-auto" style={{ background: 'rgba(245,200,66,0.15)' }} />
-                <div className="h-2.5 w-16 rounded-full mx-auto" style={{ background: 'rgba(255,255,255,0.05)' }} />
+                <div className="shimmer h-8 w-12 rounded-xl mx-auto" />
+                <div className="shimmer h-2.5 w-16 rounded-full mx-auto" />
               </div>
             </div>
-            <div className="h-5 w-24 rounded-full" style={{ background: 'rgba(255,255,255,0.06)' }} />
+            <div className="shimmer h-5 w-24 rounded-full" />
           </div>
 
           {/* XP info */}
           <div className="flex-1 space-y-4 w-full">
             <div className="space-y-2">
-              <div className="h-4 w-36 rounded-full" style={{ background: 'rgba(255,255,255,0.07)' }} />
-              <div className="h-10 w-48 rounded-xl" style={{ background: 'rgba(245,200,66,0.1)' }} />
-              <div className="h-3 w-56 rounded-full" style={{ background: 'rgba(255,255,255,0.05)' }} />
+              <div className="shimmer h-4 w-36 rounded-full" />
+              <div className="shimmer h-10 w-48 rounded-xl" />
+              <div className="shimmer h-3 w-56 rounded-full" />
             </div>
             {/* Progress bar */}
             <div className="space-y-1.5">
               <div className="flex justify-between">
-                <div className="h-2.5 w-24 rounded-full" style={{ background: 'rgba(255,255,255,0.05)' }} />
-                <div className="h-2.5 w-20 rounded-full" style={{ background: 'rgba(255,255,255,0.05)' }} />
+                <div className="shimmer h-2.5 w-24 rounded-full" />
+                <div className="shimmer h-2.5 w-20 rounded-full" />
               </div>
               <div className="h-3 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
                 <div
@@ -149,14 +147,14 @@ export default function ScoreLoading() {
         <StatCard accent="#00FF88" />
       </div>
 
-      {/* XP chart — matches xp-chart.tsx layout: stats row + bars + footer legend */}
+      {/* XP chart */}
       <div
-        className="rounded-2xl p-5 space-y-4 animate-pulse"
+        className="rounded-2xl p-5 space-y-4"
         style={{ background: 'rgba(13,24,41,0.7)', border: '1px solid rgba(255,255,255,0.06)' }}
       >
         <div className="flex items-center justify-between">
           <ShimmerRow widths={['1rem', '9rem']} />
-          <div className="h-2.5 w-16 rounded-full" style={{ background: 'rgba(255,255,255,0.04)' }} />
+          <div className="shimmer h-2.5 w-16 rounded-full" />
         </div>
 
         {/* 3 stat cards */}
@@ -174,8 +172,8 @@ export default function ScoreLoading() {
                 border: `1px solid rgba(${accent},0.16)`,
               }}
             >
-              <div className="h-4 w-14 rounded-lg mx-auto mb-1.5" style={{ background: `rgba(${accent},0.14)` }} />
-              <div className="h-2.5 w-16 rounded-full mx-auto" style={{ background: 'rgba(255,255,255,0.05)' }} />
+              <div className="shimmer h-4 w-14 rounded-lg mx-auto mb-1.5" />
+              <div className="shimmer h-2.5 w-16 rounded-full mx-auto" />
             </div>
           ))}
         </div>
@@ -196,11 +194,8 @@ export default function ScoreLoading() {
                 }}
               />
               <div
-                className="h-2 rounded-full"
-                style={{
-                  width: i === 6 ? 28 : 20,
-                  background: i === 6 ? 'rgba(255,77,0,0.3)' : 'rgba(255,255,255,0.05)',
-                }}
+                className="shimmer h-2 rounded-full"
+                style={{ width: i === 6 ? 28 : 20 }}
               />
             </div>
           ))}
@@ -216,41 +211,37 @@ export default function ScoreLoading() {
             ].map(({ color, w }, i) => (
               <div key={i} className="flex items-center gap-1">
                 <div className="w-2.5 h-2.5 rounded-sm" style={{ background: color }} />
-                <div className="h-2 rounded-full" style={{ background: 'rgba(255,255,255,0.05)', width: w }} />
+                <div className="shimmer h-2 rounded-full" style={{ width: w }} />
               </div>
             ))}
           </div>
-          <div className="h-2 w-32 rounded-full" style={{ background: 'rgba(255,255,255,0.04)' }} />
+          <div className="shimmer h-2 w-32 rounded-full" />
         </div>
       </div>
 
       {/* Activity stats row */}
       <div className="grid grid-cols-3 gap-3">
-        {[
-          { accent: '#FF4D00', label: 'Treinos' },
-          { accent: '#7C3AED', label: 'Tarefas' },
-          { accent: '#FF4D00', label: 'Hábitos' },
-        ].map(({ accent }, i) => (
+        {['#FF4D00', '#7C3AED', '#FF4D00'].map((accent, i) => (
           <div
             key={i}
-            className="rounded-2xl p-4 relative overflow-hidden animate-pulse text-center"
+            className="rounded-2xl p-4 relative overflow-hidden text-center"
             style={{
               background: `linear-gradient(135deg, ${accent}09 0%, rgba(13,24,41,0.98) 100%)`,
               border: `1px solid ${accent}18`,
             }}
           >
             <div className="w-9 h-9 rounded-xl mx-auto mb-2" style={{ background: `${accent}15` }} />
-            <div className="h-7 w-12 rounded-xl mx-auto mb-1" style={{ background: `${accent}12` }} />
-            <div className="h-2.5 w-14 rounded-full mx-auto" style={{ background: 'rgba(255,255,255,0.04)' }} />
+            <div className="shimmer h-7 w-12 rounded-xl mx-auto mb-1" />
+            <div className="shimmer h-2.5 w-14 rounded-full mx-auto" />
           </div>
         ))}
       </div>
 
       {/* Unlocked achievements */}
       <div className="space-y-3">
-        <div className="flex items-center justify-between animate-pulse">
+        <div className="flex items-center justify-between">
           <ShimmerRow widths={['1.1rem', '9rem']} />
-          <div className="h-5 w-16 rounded-full" style={{ background: 'rgba(245,200,66,0.1)' }} />
+          <div className="shimmer h-5 w-16 rounded-full" />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <AchievementCard unlocked accent="#F5C842" />
@@ -262,9 +253,9 @@ export default function ScoreLoading() {
 
       {/* Locked achievements */}
       <div className="space-y-3">
-        <div className="flex items-center justify-between animate-pulse">
+        <div className="flex items-center justify-between">
           <ShimmerRow widths={['1.1rem', '8rem']} />
-          <div className="h-5 w-14 rounded-full" style={{ background: 'rgba(255,255,255,0.05)' }} />
+          <div className="shimmer h-5 w-14 rounded-full" />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {[0, 1, 2, 3, 4, 5].map((i) => (

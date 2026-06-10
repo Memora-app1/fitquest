@@ -12,6 +12,8 @@
     { "path": "/api/cron/weekly-challenges","schedule": "0 7 * * 1"  },
     { "path": "/api/cron/memories",         "schedule": "0 14 * * *" },
     { "path": "/api/cron/daily-recap",      "schedule": "0 0 * * *"  },
-    { "path": "/api/cron/metrics-snapshot", "schedule": "0 1 * * *"  }
+    { "path": "/api/cron/metrics-snapshot", "schedule": "0 1 * * *"  },
+    { "path": "/api/cron/perfect-day-reminder", "schedule": "30 1 * * *" },
+    { "path": "/api/cron/league-reset",    "schedule": "30 3 * * 1" }
   ]
 }

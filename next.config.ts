@@ -2,6 +2,12 @@ import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+
+  experimental: {
+    // Habilita a View Transitions API nativa do browser entre rotas.
+    // Permite CSS ::view-transition-* para animações de navegação premium.
+    viewTransition: true,
+  },
   
   images: {
     remotePatterns: [

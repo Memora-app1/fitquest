@@ -31,14 +31,28 @@ export async function getAdminSession(
 ): Promise<AdminSession | null> {
   if (!supabaseUser) return null
 
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!serviceKey) {
+    console.error('[admin] SUPABASE_SERVICE_ROLE_KEY não configurada — admin panel indisponível')
+    return null
+  }
+
   const db = createServiceClient()
   const { data, error } = await db
     .from('admin_roles')
     .select('role')
     .eq('user_id', supabaseUser.id)
-    .single()
+    .maybeSingle()
 
-  if (error || !data) return null
+  if (error) {
+    console.error('[admin] Erro ao consultar admin_roles:', error.message, '| user_id:', supabaseUser.id)
+    return null
+  }
+
+  if (!data) {
+    console.warn('[admin] Usuário sem role admin:', supabaseUser.email, '| user_id:', supabaseUser.id)
+    return null
+  }
 
   return {
     userId: supabaseUser.id,

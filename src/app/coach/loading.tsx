@@ -1,7 +1,7 @@
 function MessageBubble({ side, widths }: { side: 'left' | 'right'; widths: string[] }) {
   const isRight = side === 'right'
   return (
-    <div className={`flex items-end gap-3 animate-pulse ${isRight ? 'flex-row-reverse' : ''}`}>
+    <div className={`flex items-end gap-3 ${isRight ? 'flex-row-reverse' : ''}`}>
       {!isRight && (
         <div
           className="w-8 h-8 rounded-xl shrink-0 mb-1"
@@ -12,23 +12,17 @@ function MessageBubble({ side, widths }: { side: 'left' | 'right'; widths: strin
         {widths.map((w, i) => (
           <div
             key={i}
-            className="h-10 rounded-2xl"
+            className="h-10 rounded-2xl shimmer"
             style={{
               width: w,
-              background: isRight
-                ? 'rgba(255,77,0,0.12)'
-                : 'rgba(124,58,237,0.1)',
-              border: isRight
-                ? '1px solid rgba(255,77,0,0.2)'
-                : '1px solid rgba(124,58,237,0.15)',
               borderBottomRightRadius: isRight ? 4 : undefined,
               borderBottomLeftRadius: !isRight ? 4 : undefined,
             }}
           />
         ))}
         <div
-          className="h-2.5 w-16 rounded-full"
-          style={{ background: 'rgba(255,255,255,0.04)', alignSelf: isRight ? 'flex-end' : 'flex-start' }}
+          className="shimmer h-2.5 w-16 rounded-full"
+          style={{ alignSelf: isRight ? 'flex-end' : 'flex-start' }}
         />
       </div>
     </div>
@@ -37,7 +31,7 @@ function MessageBubble({ side, widths }: { side: 'left' | 'right'; widths: strin
 
 function ThinkingDots() {
   return (
-    <div className="flex items-end gap-3 animate-pulse">
+    <div className="flex items-end gap-3">
       <div
         className="w-8 h-8 rounded-xl shrink-0 mb-1"
         style={{ background: 'rgba(124,58,237,0.25)', border: '1px solid rgba(124,58,237,0.3)' }}
@@ -67,7 +61,7 @@ export default function CoachLoading() {
 
       {/* Header */}
       <div
-        className="p-4 md:p-6 animate-pulse shrink-0"
+        className="p-4 md:p-6 shrink-0"
         style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
       >
         <div
@@ -89,53 +83,41 @@ export default function CoachLoading() {
               <div className="w-6 h-6 rounded-lg" style={{ background: 'rgba(124,58,237,0.4)' }} />
             </div>
             <div className="flex-1 space-y-1.5">
-              <div className="h-4 w-28 rounded-full" style={{ background: 'rgba(255,255,255,0.1)' }} />
+              <div className="shimmer h-4 w-28 rounded-full" />
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full" style={{ background: 'rgba(0,255,136,0.5)' }} />
-                <div className="h-2.5 w-24 rounded-full" style={{ background: 'rgba(255,255,255,0.05)' }} />
+                <div className="shimmer h-2.5 w-24 rounded-full" />
               </div>
             </div>
-            <div className="h-8 w-24 rounded-xl" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }} />
+            <div
+              className="shimmer h-8 w-24 rounded-xl"
+              style={{ border: '1px solid rgba(255,255,255,0.08)' }}
+            />
           </div>
         </div>
       </div>
 
       {/* Messages area */}
       <div className="flex-1 overflow-hidden p-4 md:p-6 space-y-5">
-        {/* Initial AI greeting — longer */}
         <MessageBubble side="left" widths={['280px', '220px', '180px']} />
-
-        {/* User reply */}
         <MessageBubble side="right" widths={['200px']} />
-
-        {/* AI detailed response */}
         <MessageBubble side="left" widths={['260px', '240px', '200px', '160px']} />
-
-        {/* User short question */}
         <MessageBubble side="right" widths={['160px']} />
-
-        {/* AI response with list feel */}
         <MessageBubble side="left" widths={['240px', '210px', '190px']} />
-
-        {/* Typing indicator */}
         <ThinkingDots />
       </div>
 
       {/* Quick suggestions */}
       <div
-        className="px-4 md:px-6 pb-3 shrink-0 animate-pulse"
+        className="px-4 md:px-6 pb-3 shrink-0"
         style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}
       >
         <div className="pt-3 flex gap-2 overflow-hidden">
           {[120, 100, 140, 110].map((w, i) => (
             <div
               key={i}
-              className="rounded-full h-8 shrink-0"
-              style={{
-                width: w,
-                background: 'rgba(124,58,237,0.08)',
-                border: '1px solid rgba(124,58,237,0.15)',
-              }}
+              className="shimmer rounded-full h-8 shrink-0"
+              style={{ width: w }}
             />
           ))}
         </div>
@@ -143,18 +125,21 @@ export default function CoachLoading() {
 
       {/* Input bar */}
       <div
-        className="p-4 md:p-6 shrink-0 animate-pulse"
+        className="p-4 md:p-6 shrink-0"
         style={{ borderTop: '1px solid rgba(255,255,255,0.06)', background: 'rgba(13,24,41,0.8)' }}
       >
         <div
           className="flex items-center gap-3 rounded-2xl px-4 py-3"
           style={{ background: 'rgba(21,34,56,0.7)', border: '1px solid rgba(255,255,255,0.08)' }}
         >
-          <div className="flex-1 h-5 rounded-full" style={{ background: 'rgba(255,255,255,0.04)' }} />
-          <div className="w-9 h-9 rounded-xl shrink-0" style={{ background: 'rgba(124,58,237,0.15)', border: '1px solid rgba(124,58,237,0.2)' }} />
+          <div className="shimmer flex-1 h-5 rounded-full" />
+          <div
+            className="w-9 h-9 rounded-xl shrink-0 shimmer"
+            style={{ border: '1px solid rgba(124,58,237,0.2)' }}
+          />
         </div>
         <div className="text-center mt-2">
-          <div className="h-2.5 w-48 rounded-full mx-auto" style={{ background: 'rgba(255,255,255,0.03)' }} />
+          <div className="shimmer h-2.5 w-48 rounded-full mx-auto" />
         </div>
       </div>
     </div>

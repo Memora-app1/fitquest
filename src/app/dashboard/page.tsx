@@ -34,6 +34,9 @@ import { NextAction } from '@/components/dashboard/next-action'
 import { LeagueWidget } from '@/components/dashboard/league-widget'
 import { LootBoxWidget } from '@/components/dashboard/loot-box-widget'
 import { SeasonPassWidget } from '@/components/dashboard/season-pass-widget'
+import { LoginCheckinWidget } from '@/components/dashboard/login-checkin-widget'
+import { GuildWidget } from '@/components/dashboard/guild-widget'
+import { RecoveryModeWidget } from '@/components/dashboard/recovery-mode-widget'
 import { getGreeting, todayString } from '@/lib/utils'
 import { getXpProgressToNextLevel } from '@/lib/xp'
 
@@ -72,7 +75,7 @@ export default async function DashboardPage({
   ] = await Promise.all([
     supabase
       .from('profiles')
-      .select('name, xp_total, level, streak_current, streak_longest, subscription_status, trial_end, perfect_days, streak_freezes')
+      .select('name, xp_total, level, streak_current, streak_longest, subscription_status, trial_end, perfect_days, streak_freezes, login_streak, last_login_date, recovery_week_active, recovery_week_used_month')
       .eq('id', user.id)
       .single(),
     supabase
@@ -173,6 +176,18 @@ export default async function DashboardPage({
   // Insights widget data
   const xpProgress = getXpProgressToNextLevel(profile.xp_total)
   const xpToNextLevel = xpProgress.needed > 0 ? xpProgress.needed - xpProgress.current : 0
+
+  // Loot box pendente
+  const { data: pendingLoot } = await supabase
+    .from('daily_loot')
+    .select('id, date, rarity, reward_type, reward_value, reward_meta, source')
+    .eq('user_id', user.id)
+    .is('opened_at', null)
+    .order('date', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  const isPaid = profile.subscription_status === 'active' || profile.subscription_status === 'lifetime'
 
   return (
     <AppShell>
@@ -469,6 +484,46 @@ export default async function DashboardPage({
           <NextAchievementWidget userId={user.id} />
         </Suspense>
 
+        {/* Login check-in diário */}
+        <LoginCheckinWidget
+          lastLoginDate={(profile.last_login_date as string | null) ?? null}
+          loginStreak={(profile.login_streak as number) ?? 0}
+        />
+
+        {/* Loot box — aparece quando há recompensa pendente */}
+        {pendingLoot && (
+          <LootBoxWidget
+            initialLoot={{
+              id:           pendingLoot.id,
+              date:         pendingLoot.date as string,
+              rarity:       pendingLoot.rarity as 'common' | 'rare' | 'epic' | 'legendary',
+              reward_type:  pendingLoot.reward_type as string,
+              reward_value: pendingLoot.reward_value as number,
+              reward_meta:  pendingLoot.reward_meta as string | null,
+              source:       pendingLoot.source as string,
+            }}
+          />
+        )}
+
+        {/* Recovery Mode */}
+        <RecoveryModeWidget
+          isActive={(profile.recovery_week_active as boolean) ?? false}
+          usedThisMonth={
+            (() => {
+              const usedMonth = profile.recovery_week_used_month as string | null
+              if (!usedMonth) return false
+              const now = new Date()
+              const [y, m] = usedMonth.split('-').map(Number)
+              return y === now.getFullYear() && m === now.getMonth() + 1
+            })()
+          }
+        />
+
+        {/* Guild do usuário */}
+        <Suspense fallback={<div className="h-32 rounded-2xl shimmer" />}>
+          <GuildWidget userId={user.id} />
+        </Suspense>
+
         {/* Liga semanal */}
         <Suspense fallback={<div className="h-40 rounded-2xl shimmer" />}>
           <LeagueWidget userId={user.id} />
@@ -478,7 +533,7 @@ export default async function DashboardPage({
         <Suspense fallback={null}>
           <SeasonPassWidget
             userId={user.id}
-            isPaid={profile.subscription_status === 'active' || profile.subscription_status === 'lifetime'}
+            isPaid={isPaid}
           />
         </Suspense>
 

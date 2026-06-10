@@ -59,7 +59,7 @@ export async function SeasonPassWidget({ userId, isPaid }: Props) {
   })
 
   return (
-    <Link href="/season" className="block">
+    <Link href="/seasons" className="block">
       <div
         className="rounded-2xl p-5 relative overflow-hidden hover:scale-[1.01] transition-transform"
         style={{

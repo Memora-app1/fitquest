@@ -22,13 +22,13 @@ Tudo unificado pelo sistema de **XP/Level/Streak** — cada ação concede XP.
 
 | Camada | Tecnologia |
 |---|---|
-| Framework | Next.js 15 (App Router, Server Components) |
+| Framework | Next.js 16 (App Router, Server Components) |
 | Linguagem | TypeScript strict |
 | Estilo | Tailwind CSS + custom design system |
 | Banco | Supabase (PostgreSQL + RLS) |
 | Auth | Supabase Auth (email/password) |
-| Pagamento | Mercado Pago (Subscriptions + Checkout Pro) |
-| IA | Anthropic API (claude-sonnet-4-20250514) |
+| Pagamento | Stripe (Subscriptions + Checkout) |
+| IA | Anthropic API (claude-sonnet-4-6) |
 | Hosting | Vercel (Edge runtime + Cron) |
 | Realtime | Supabase Realtime (futuro: live updates) |
 
@@ -94,13 +94,13 @@ Exceção: `exercises` permite SELECT de exercícios globais (`is_global = true`
 
 ## 🎮 Sistema de XP — Regras de Negócio
 
-Toda concessão de XP passa por `lib/xp.ts → grantXP(userId, amount, reason, sourceType, sourceId)`. Essa função:
+Toda concessão de XP passa por `lib/xp-server.ts → grantXP(userId, amount, reason, sourceType, sourceId)`. Essa função:
 
-1. Insere registro em `xp_transactions`
-2. Atualiza `profiles.xp_total`
-3. Recalcula `profiles.level`
-4. Verifica conquistas desbloqueadas
-5. Retorna `{ xpEarned, newLevel, achievementsUnlocked }`
+1. Chama a RPC PostgreSQL `grant_xp_atomic` (migration 007) — 1 round trip atômico
+2. Incrementa `profiles.xp_total` com delta (sem race condition)
+3. Recalcula `profiles.level` e atualiza se necessário
+4. Insere no ledger `xp_transactions`
+5. Retorna `{ xpEarned, newLevel, leveledUp, achievementsUnlocked }`
 
 **Tabela de XP por ação:** ver `src/lib/xp.ts` (constantes no topo).
 
@@ -144,7 +144,7 @@ Toda concessão de XP passa por `lib/xp.ts → grantXP(userId, amount, reason, s
 | `annual` | R$ 306,60/ano (R$ 25,55/mês) |
 | `lifetime` | R$ 597,00 único |
 
-Proxy (`src/proxy.ts`) verifica em CADA request que entra em `/(app)/*`. (Next.js 16 renomeou middleware → proxy)
+Proxy (`src/proxy.ts`) verifica acesso em rotas `/(app)/*`. Subscription status é cacheado em cookie HMAC-signed por 5 min — reduz queries ao banco ~95%. (Next.js 16 renomeou middleware → proxy)
 
 ---
 
@@ -183,7 +183,7 @@ Sidebar 240px à esquerda, com sub-itens quando aplicável.
 3. **Comentários em português** descrevendo regras de negócio.
 4. **Zod** para validação de inputs de API.
 5. **Error states + Empty states + Loading states** em todo componente.
-6. **Server Actions** preferidas para mutações simples (Next 15+).
+6. **Server Actions** preferidas para mutações simples (Next 16+).
 7. **No `any`** — se precisar, use `unknown` + narrowing.
 
 ---
