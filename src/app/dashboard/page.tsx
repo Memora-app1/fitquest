@@ -31,6 +31,9 @@ import { StreakLeaderboard } from '@/components/dashboard/streak-leaderboard'
 import { StreakRiskBanner } from '@/components/dashboard/streak-risk-banner'
 import { XpToday } from '@/components/dashboard/xp-today'
 import { NextAction } from '@/components/dashboard/next-action'
+import { LeagueWidget } from '@/components/dashboard/league-widget'
+import { LootBoxWidget } from '@/components/dashboard/loot-box-widget'
+import { SeasonPassWidget } from '@/components/dashboard/season-pass-widget'
 import { getGreeting, todayString } from '@/lib/utils'
 import { getXpProgressToNextLevel } from '@/lib/xp'
 
@@ -464,6 +467,19 @@ export default async function DashboardPage({
         {/* Próxima conquista — pull effect constante */}
         <Suspense fallback={null}>
           <NextAchievementWidget userId={user.id} />
+        </Suspense>
+
+        {/* Liga semanal */}
+        <Suspense fallback={<div className="h-40 rounded-2xl shimmer" />}>
+          <LeagueWidget userId={user.id} />
+        </Suspense>
+
+        {/* Season pass */}
+        <Suspense fallback={null}>
+          <SeasonPassWidget
+            userId={user.id}
+            isPaid={profile.subscription_status === 'active' || profile.subscription_status === 'lifetime'}
+          />
         </Suspense>
 
         {/* Heavy analytics — streamed independently for faster initial load */}

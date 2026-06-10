@@ -210,6 +210,49 @@
   }
 }
 
+/* ── View Transitions API — navegação entre rotas ───────────────────── */
+/* Funciona com experimental.viewTransition: true no next.config.ts     */
+
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root) {
+  animation: vtOut 0.18s ease forwards;
+}
+
+::view-transition-new(root) {
+  animation: vtIn 0.22s ease forwards;
+}
+
+@keyframes vtOut {
+  from { opacity: 1;  transform: translateY(0) scale(1); }
+  to   { opacity: 0;  transform: translateY(-5px) scale(0.997); }
+}
+
+@keyframes vtIn {
+  from { opacity: 0;  transform: translateY(7px) scale(0.997); }
+  to   { opacity: 1;  transform: translateY(0) scale(1); }
+}
+
+/* No mobile, slide lateral (aba → aba) */
+@media (max-width: 767px) {
+  ::view-transition-old(root) {
+    animation: vtOutMobile 0.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+  ::view-transition-new(root) {
+    animation: vtInMobile 0.25s cubic-bezier(0.34, 1.2, 0.64, 1) forwards;
+  }
+  @keyframes vtOutMobile {
+    from { opacity: 1;  transform: translateY(0); }
+    to   { opacity: 0;  transform: translateY(-8px); }
+  }
+  @keyframes vtInMobile {
+    from { opacity: 0;  transform: translateY(12px); }
+    to   { opacity: 1;  transform: translateY(0); }
+  }
+}
+
 /* ── Custom keyframes (outside @layer to keep specificity) ─────────── */
 
 @keyframes glowTextOrange {

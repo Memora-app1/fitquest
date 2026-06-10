@@ -64,11 +64,23 @@ export function StreakRiskBanner({ streakCurrent, hasActivityToday, freezes = 0 
 
   useEffect(() => {
     if (!mounted) return
+    let prevShow = false
     function evaluate() {
       const hour = new Date().getHours()
       const show = streakCurrent > 0 && !hasActivityToday && hour >= SHOW_AFTER_HOUR
       setShouldShow(show)
       if (show) setTimeLeft(getTimeLeftToMidnight())
+
+      // Haptic na primeira vez que o banner aparece
+      if (show && !prevShow && navigator.vibrate) {
+        const hour2 = new Date().getHours()
+        if (hour2 >= 22) {
+          navigator.vibrate([100, 40, 200, 40, 100]) // urgência alta
+        } else {
+          navigator.vibrate([40, 20, 80])             // aviso suave
+        }
+      }
+      prevShow = show
     }
     evaluate()
     intervalRef.current = setInterval(evaluate, 30000)

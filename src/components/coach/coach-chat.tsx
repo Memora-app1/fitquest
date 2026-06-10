@@ -49,7 +49,8 @@ function CopyButton({ text }: { text: string }) {
   return (
     <button
       onClick={handleCopy}
-      className="p-1.5 rounded-lg text-text-muted hover:text-white hover:bg-bg-elevated transition-all"
+      className="w-9 h-9 rounded-lg text-text-muted hover:text-white hover:bg-bg-elevated transition-all flex items-center justify-center"
+      style={{ WebkitTapHighlightColor: 'transparent' }}
       title="Copiar mensagem"
     >
       {copied ? <Check size={13} className="text-brand-green" /> : <Copy size={13} />}
@@ -72,7 +73,8 @@ function ReactionButton({
     <button
       onClick={onClick}
       title={title}
-      className={`p-1.5 rounded-lg transition-all ${
+      style={{ WebkitTapHighlightColor: 'transparent' }}
+      className={`w-9 h-9 rounded-lg transition-all flex items-center justify-center ${
         active
           ? 'text-brand-orange bg-brand-orange/10'
           : 'text-text-muted hover:text-white hover:bg-bg-elevated'
@@ -145,6 +147,8 @@ export function CoachChat({
   async function send(messageText?: string) {
     const text = (messageText ?? input).trim()
     if (!text || loading) return
+
+    if (navigator.vibrate) navigator.vibrate([10, 5, 20])
 
     const userMsg: Message = {
       id: crypto.randomUUID(),
@@ -364,7 +368,7 @@ export function CoachChat({
             <div
               key={msg.id}
               className={`flex gap-3 ${isUser ? 'flex-row-reverse' : ''} ${isLast ? 'pb-1' : ''}`}
-              style={{ animation: 'fadeIn 0.2s ease-out' }}
+              style={{ animation: 'fadeSlideIn 0.28s cubic-bezier(0.34, 1.2, 0.64, 1) both' }}
             >
               {/* Avatar */}
               <div
@@ -424,7 +428,7 @@ export function CoachChat({
 
         {/* Typing indicator */}
         {loading && (
-          <div className="flex gap-3" style={{ animation: 'fadeIn 0.2s ease-out' }}>
+          <div className="flex gap-3" style={{ animation: 'fadeSlideIn 0.28s cubic-bezier(0.34, 1.2, 0.64, 1) both' }}>
             <div className="w-8 h-8 rounded-full bg-gradient-brand flex items-center justify-center shrink-0 shadow-[0_0_12px_rgba(255,77,0,0.25)]">
               <Bot size={15} />
             </div>
@@ -464,7 +468,7 @@ export function CoachChat({
         {!isEmpty && (
           <div className="flex items-center justify-between mb-2">
             {/* Quick chips */}
-            <div className="flex gap-1.5 overflow-x-auto scrollbar-hide">
+            <div className="flex gap-1.5 overflow-x-auto scrollbar-hide" style={{ WebkitOverflowScrolling: 'touch' }}>
               {SUGGESTIONS.slice(0, 3).map((s) => (
                 <button
                   key={s.label}
@@ -501,7 +505,7 @@ export function CoachChat({
               placeholder="Pergunte qualquer coisa… (Enter para enviar)"
               disabled={loading}
               rows={1}
-              className="input w-full resize-none min-h-[42px] max-h-36 py-2.5 pr-14 text-sm leading-relaxed"
+              className="input w-full resize-none min-h-[48px] max-h-36 py-2.5 pr-14 text-sm leading-relaxed"
               onInput={(e) => {
                 const el = e.target as HTMLTextAreaElement
                 el.style.height = 'auto'
@@ -538,7 +542,8 @@ export function CoachChat({
           <button
             type="submit"
             disabled={loading || !input.trim()}
-            className="btn-primary p-3 disabled:opacity-40 shrink-0 self-end"
+            className="btn-primary p-3 disabled:opacity-40 shrink-0 self-end active:scale-90 transition-transform"
+            style={{ WebkitTapHighlightColor: 'transparent' }}
             aria-label="Enviar"
           >
             {loading ? <RefreshCw size={18} className="animate-spin" /> : <Send size={18} />}
@@ -546,9 +551,10 @@ export function CoachChat({
         </form>
 
         <div className="flex items-center justify-between mt-1.5">
-          <p className="text-[11px] text-text-muted">
+          <p className="hidden md:block text-[11px] text-text-muted">
             Shift+Enter para nova linha · Enter para enviar
           </p>
+          <span className="md:hidden" />
           {msgCount > 0 && (
             <p className="text-[11px] text-text-muted">
               {msgCount} mensagem{msgCount !== 1 ? 'ns' : ''}
@@ -558,9 +564,9 @@ export function CoachChat({
       </div>
 
       <style jsx>{`
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(6px); }
-          to { opacity: 1; transform: translateY(0); }
+        @keyframes fadeSlideIn {
+          from { opacity: 0; transform: translateY(10px) scale(0.98); }
+          to   { opacity: 1; transform: translateY(0)    scale(1);    }
         }
         @keyframes typingDot {
           0%, 60%, 100% { transform: scale(1); opacity: 0.5; }

@@ -45,8 +45,9 @@ export function HabitsList({
   const [showPacks, setShowPacks] = useState(false)
   const [editHabit, setEditHabit] = useState<Habit | null>(null)
   const [optimistic, setOptimistic] = useState(loggedToday)
-  const [openMenu, setOpenMenu] = useState<string | null>(null)
-  const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [openMenu, setOpenMenu]       = useState<string | null>(null)
+  const [deletingId, setDeletingId]   = useState<string | null>(null)
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
   const { toasts, showXp } = useXpToast()
 
   async function toggle(id: string) {
@@ -87,10 +88,16 @@ export function HabitsList({
     })
   }
 
-  async function deleteHabit(id: string) {
-    if (!confirm('Remover este hábito? O histórico de logs será mantido.')) return
-    setDeletingId(id)
+  function requestDeleteHabit(id: string) {
     setOpenMenu(null)
+    setConfirmDeleteId(id)
+  }
+
+  async function confirmDelete() {
+    const id = confirmDeleteId
+    if (!id) return
+    setConfirmDeleteId(null)
+    setDeletingId(id)
     const res = await fetch(`/api/habits?id=${id}`, { method: 'DELETE' })
     setDeletingId(null)
     if (res.ok) {
@@ -315,7 +322,7 @@ export function HabitsList({
                             Editar
                           </button>
                           <button
-                            onClick={() => deleteHabit(h.id)}
+                            onClick={() => requestDeleteHabit(h.id)}
                             className="flex items-center gap-2 w-full px-4 py-3 text-sm text-brand-red hover:bg-brand-red/10 transition-colors"
                           >
                             <Trash2 size={14} />
@@ -393,6 +400,53 @@ export function HabitsList({
           onClose={() => setShowPacks(false)}
           onCreated={() => setShowPacks(false)}
         />
+      )}
+
+      {/* Confirmação de exclusão — inline, sem confirm() nativo */}
+      {confirmDeleteId && (
+        <>
+          <div
+            className="fixed inset-0 z-[80]"
+            style={{ background: 'rgba(5,9,20,0.7)', backdropFilter: 'blur(4px)' }}
+            onClick={() => setConfirmDeleteId(null)}
+          />
+          <div
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[90] rounded-2xl p-6 w-[90vw] max-w-sm"
+            style={{
+              background: '#0D1829',
+              border: '1px solid rgba(239,68,68,0.3)',
+              boxShadow: '0 24px 60px rgba(0,0,0,0.5)',
+              animation: 'bounceIn 0.35s cubic-bezier(0.34,1.56,0.64,1) both',
+            }}
+          >
+            <div
+              className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4"
+              style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.25)' }}
+            >
+              <Trash2 size={22} style={{ color: '#EF4444' }} />
+            </div>
+            <h3 className="text-base font-black text-center mb-1">Remover hábito?</h3>
+            <p className="text-xs text-text-secondary text-center mb-5">
+              O histórico de logs será mantido. Essa ação não pode ser desfeita.
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setConfirmDeleteId(null)}
+                className="flex-1 py-3 rounded-xl text-sm font-semibold transition-all active:scale-95"
+                style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="flex-1 py-3 rounded-xl text-sm font-black transition-all active:scale-95"
+                style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', color: '#EF4444' }}
+              >
+                Remover
+              </button>
+            </div>
+          </div>
+        </>
       )}
     </>
   )

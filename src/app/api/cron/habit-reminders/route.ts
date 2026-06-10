@@ -1,43 +1,40 @@
 import { isCronAuthorized, cronUnauthorized } from '@/lib/cron-auth'
 /**
  * Cron horário — envia push de lembrete para hábitos com reminder_time na hora atual.
- * Horário de referência: America/Sao_Paulo (UTC-3, sem DST desde 2019).
  * Só envia se o hábito ainda não foi logado hoje.
- * Deduplicação: verifica notifications table antes de enviar.
+ *
+ * Antes: 2 queries por usuário (dedup + push subs) = O(2N).
+ * Agora: batch dedup + batch push subs = O(2) queries extras.
  */
 
 import { NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
 import { sendPushNotification } from '@/lib/webpush'
+import { todayString } from '@/lib/utils'
+import { DEFAULT_TIMEZONE } from '@/lib/constants'
 
 export const maxDuration = 60
 
-// Brasília é UTC-3 sem horário de verão desde 2019
-const SP_OFFSET_HOURS = -3
-
 function getSaoPauloHour(): number {
-  const utcHour = new Date().getUTCHours()
-  return ((utcHour + SP_OFFSET_HOURS) + 24) % 24
-}
-
-function getTodayBR(): string {
-  const now = new Date()
-  const utcMs = now.getTime()
-  const spMs = utcMs + SP_OFFSET_HOURS * 3600000
-  return new Date(spMs).toISOString().split('T')[0]!
+  return parseInt(
+    new Intl.DateTimeFormat('en-US', {
+      timeZone:     DEFAULT_TIMEZONE,
+      hour:         '2-digit',
+      hour12:       false,
+    }).format(new Date()),
+    10
+  )
 }
 
 export async function GET() {
   if (!await isCronAuthorized()) return cronUnauthorized()
-  const supabase = createServiceClient()
 
-  const currentHour = getSaoPauloHour()
-  const today = getTodayBR()
+  const supabase      = createServiceClient()
+  const currentHour   = getSaoPauloHour()
+  const today         = todayString()
+  const hourStr       = String(currentHour).padStart(2, '0') + ':00:00'
 
-  // Formato 'HH:00:00' — reminder_time é armazenado como TIME no PG
-  const hourStr = String(currentHour).padStart(2, '0') + ':00:00'
-
-  // Busca hábitos com lembrete na hora atual
+  // ── 1. Hábitos com lembrete na hora atual ─────────────────────────────────────
   const { data: habits } = await supabase
     .from('habits')
     .select('id, user_id, name, icon')
@@ -48,7 +45,7 @@ export async function GET() {
     return NextResponse.json({ ok: true, sent: 0, hour: currentHour })
   }
 
-  // Para cada hábito, verifica se já foi logado hoje
+  // ── 2. Batch: hábitos já logados hoje ─────────────────────────────────────────
   const habitIds = habits.map((h) => h.id)
   const { data: logsToday } = await supabase
     .from('habit_logs')
@@ -56,16 +53,14 @@ export async function GET() {
     .in('habit_id', habitIds)
     .eq('logged_date', today)
 
-  const loggedSet = new Set((logsToday ?? []).map((l) => l.habit_id))
-
-  // Filtra só hábitos não logados
-  const toRemind = habits.filter((h) => !loggedSet.has(h.id))
+  const loggedSet  = new Set((logsToday ?? []).map((l) => l.habit_id))
+  const toRemind   = habits.filter((h) => !loggedSet.has(h.id))
 
   if (toRemind.length === 0) {
     return NextResponse.json({ ok: true, sent: 0, skipped: habits.length })
   }
 
-  // Agrupa por user_id para evitar múltiplos push no mesmo usuário
+  // Agrupa hábitos por user_id
   const byUser: Record<string, Array<{ id: string; name: string; icon: string }>> = {}
   for (const h of toRemind) {
     const uid = h.user_id as string
@@ -73,63 +68,80 @@ export async function GET() {
     byUser[uid].push({ id: h.id, name: h.name as string, icon: h.icon as string })
   }
 
-  let sent = 0
+  const allUserIds = Object.keys(byUser)
+
+  // ── 3. Batch: deduplicação para todos de uma vez ──────────────────────────────
+  const { data: alreadySentRows } = await supabase
+    .from('notifications')
+    .select('user_id')
+    .eq('type', 'habit_reminder')
+    .gte('created_at', `${today}T00:00:00`)
+    .in('user_id', allUserIds)
+
+  const alreadySentSet = new Set((alreadySentRows ?? []).map((r) => r.user_id as string))
+  const toNotify       = allUserIds.filter((uid) => !alreadySentSet.has(uid))
+
+  if (toNotify.length === 0) {
+    return NextResponse.json({ ok: true, sent: 0, skipped: allUserIds.length })
+  }
+
+  // ── 4. Batch: push subscriptions para todos de uma vez ───────────────────────
+  const { data: allSubs } = await supabase
+    .from('push_subscriptions')
+    .select('id, user_id, endpoint, keys_p256dh, keys_auth')
+    .in('user_id', toNotify)
+
+  const subsByUser = new Map<string, typeof allSubs>()
+  for (const sub of allSubs ?? []) {
+    const uid = sub.user_id as string
+    if (!subsByUser.has(uid)) subsByUser.set(uid, [])
+    subsByUser.get(uid)!.push(sub)
+  }
+
+  // ── 5. Enviar push e registrar notificações ───────────────────────────────────
+  let sent   = 0
   let failed = 0
+  const deadSubIds:       string[] = []
+  const notificationsToInsert: {
+    user_id:       string
+    type:          string
+    title:         string
+    body:          string
+    action_url:    string
+    scheduled_for: string
+    sent_at:       string
+  }[] = []
 
-  for (const [userId, userHabits] of Object.entries(byUser)) {
+  for (const userId of toNotify) {
+    const subs       = subsByUser.get(userId)
+    const userHabits = byUser[userId]
+    if (!subs || subs.length === 0 || !userHabits) { failed++; continue }
+
     try {
-      // Verifica deduplicação: já enviou lembrete de hábito hoje?
-      const { data: alreadySent } = await supabase
-        .from('notifications')
-        .select('id')
-        .eq('user_id', userId)
-        .eq('type', 'habit_reminder')
-        .gte('created_at', `${today}T00:00:00`)
-        .limit(1)
-
-      if (alreadySent && alreadySent.length > 0) continue
-
-      // Monta mensagem
-      const habitNames = userHabits.map((h) => h.icon + ' ' + h.name).join(', ')
       const title = userHabits.length === 1
         ? `Hora do hábito: ${userHabits[0]!.icon} ${userHabits[0]!.name}`
         : `${userHabits.length} hábitos te esperam`
       const body = userHabits.length === 1
         ? 'Registre agora e mantenha seu streak!'
-        : `${habitNames}. Não quebre sua sequência!`
+        : `${userHabits.map((h) => h.icon + ' ' + h.name).join(', ')}. Não quebre sua sequência!`
 
-      // Busca subscriptions do usuário
-      const { data: subs } = await supabase
-        .from('push_subscriptions')
-        .select('id, endpoint, keys_p256dh, keys_auth')
-        .eq('user_id', userId)
-
-      if (subs && subs.length > 0) {
-        for (const sub of subs) {
-          const result = await sendPushNotification(
-            sub.endpoint,
-            sub.keys_p256dh,
-            sub.keys_auth,
-            { title, body, url: '/habitos' }
-          )
-          if (result.gone) {
-            await supabase.from('push_subscriptions').delete().eq('id', sub.id)
-          }
-        }
+      for (const sub of subs) {
+        const result = await sendPushNotification(
+          sub.endpoint, sub.keys_p256dh, sub.keys_auth,
+          { title, body, url: '/habitos' }
+        )
+        if (result.gone) deadSubIds.push(sub.id as string)
       }
 
-      // Registra no banco para deduplicação e histórico
-      await supabase
-        .from('notifications')
-        .insert({
-          user_id: userId,
-          type: 'habit_reminder',
-          title,
-          body,
-          action_url: '/habitos',
-          scheduled_for: new Date().toISOString(),
-          sent_at: new Date().toISOString(),
-        })
+      notificationsToInsert.push({
+        user_id:       userId,
+        type:          'habit_reminder',
+        title,
+        body,
+        action_url:    '/habitos',
+        scheduled_for: new Date().toISOString(),
+        sent_at:       new Date().toISOString(),
+      })
 
       sent++
     } catch (err) {
@@ -138,5 +150,19 @@ export async function GET() {
     }
   }
 
-  return NextResponse.json({ ok: true, sent, failed, hour: currentHour, usersChecked: Object.keys(byUser).length })
+  // Batch insert + batch delete
+  if (notificationsToInsert.length > 0) {
+    await supabase.from('notifications').insert(notificationsToInsert)
+  }
+  if (deadSubIds.length > 0) {
+    await supabase.from('push_subscriptions').delete().in('id', deadSubIds)
+  }
+
+  return NextResponse.json({
+    ok:           true,
+    sent,
+    failed,
+    hour:         currentHour,
+    usersChecked: allUserIds.length,
+  })
 }

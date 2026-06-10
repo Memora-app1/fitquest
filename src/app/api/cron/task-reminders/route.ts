@@ -9,21 +9,15 @@ import { isCronAuthorized, cronUnauthorized } from '@/lib/cron-auth'
 import { NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
 import { sendPushNotification } from '@/lib/webpush'
+import { todayString } from '@/lib/utils'
 
 export const maxDuration = 60
-
-function getTodayBR(): string {
-  // Brasil = UTC-3
-  const now = new Date()
-  const spMs = now.getTime() + (-3) * 3600000
-  return new Date(spMs).toISOString().split('T')[0]!
-}
 
 export async function GET() {
   if (!await isCronAuthorized()) return cronUnauthorized()
 
   const supabase = createServiceClient()
-  const today = getTodayBR()
+  const today = todayString()
 
   // Tarefas com prazo hoje, não arquivadas, não concluídas
   // due_date é TIMESTAMPTZ — comparar com .eq(DATE) só casaria meia-noite UTC.

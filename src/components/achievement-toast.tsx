@@ -89,7 +89,7 @@ export function AchievementToast() {
   if (queue.length === 0) return null
 
   return (
-    <div className="fixed bottom-24 left-4 md:bottom-8 md:left-6 z-50 flex flex-col-reverse gap-2 pointer-events-none max-w-[280px]">
+    <div className="fixed bottom-36 left-4 md:bottom-8 md:left-6 z-50 flex flex-col-reverse gap-2 pointer-events-none max-w-[280px]">
       {queue.map((item) => (
         <AchievementItem key={item.id} item={item} onDismiss={() => setQueue((p) => p.filter((t) => t.id !== item.id))} />
       ))}
@@ -98,18 +98,34 @@ export function AchievementToast() {
 }
 
 function AchievementItem({ item, onDismiss }: { item: AchievementItem; onDismiss: () => void }) {
-  const [exiting, setExiting] = useState(false)
+  const [entering, setEntering] = useState(true)   // começa fora de cena
+  const [exiting, setExiting]   = useState(false)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const data = ACHIEVEMENT_MAP[item.slug]!
+  const data  = ACHIEVEMENT_MAP[item.slug]!
   const style = RARITY_STYLE[data.rarity]
 
   useEffect(() => {
+    // Haptic + som ao entrar — diferenciado por raridade
+    if (navigator.vibrate) {
+      if (data.rarity === 'legendary') navigator.vibrate([80, 30, 150, 30, 200])
+      else if (data.rarity === 'epic') navigator.vibrate([50, 20, 100, 20, 150])
+      else if (data.rarity === 'rare') navigator.vibrate([30, 15, 70])
+      else                              navigator.vibrate([20, 10, 40])
+    }
+
+    // Entra na cena após 1 tick
+    const t0 = setTimeout(() => setEntering(false), 16)
+
     timerRef.current = setTimeout(() => {
       setExiting(true)
       setTimeout(onDismiss, 400)
     }, TOAST_DURATION)
-    return () => { if (timerRef.current) clearTimeout(timerRef.current) }
+
+    return () => {
+      clearTimeout(t0)
+      if (timerRef.current) clearTimeout(timerRef.current)
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -120,9 +136,15 @@ function AchievementItem({ item, onDismiss }: { item: AchievementItem; onDismiss
         background: `linear-gradient(135deg, rgba(${style.rgb},0.18) 0%, rgba(13,24,41,0.97) 100%)`,
         border: `1px solid ${style.border}`,
         boxShadow: `0 8px 32px rgba(${style.rgb},0.2), 0 0 0 1px rgba(${style.rgb},0.08) inset`,
-        transform: exiting ? 'translateX(calc(-100% - 1.5rem))' : 'translateX(0)',
-        opacity: exiting ? 0 : 1,
-        transition: 'transform 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.25s ease',
+        transform: exiting
+          ? 'translateX(calc(-100% - 1.5rem))'
+          : entering
+          ? 'translateX(calc(-100% - 1.5rem))'
+          : 'translateX(0)',
+        opacity: exiting || entering ? 0 : 1,
+        transition: entering
+          ? 'none'
+          : 'transform 0.38s cubic-bezier(0.34, 1.3, 0.64, 1), opacity 0.22s ease',
       }}
     >
       {/* Left accent */}

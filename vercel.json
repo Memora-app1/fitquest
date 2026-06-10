@@ -11,6 +11,7 @@
     { "path": "/api/cron/calendar-sync",    "schedule": "0 6 * * *"  },
     { "path": "/api/cron/weekly-challenges","schedule": "0 7 * * 1"  },
     { "path": "/api/cron/memories",         "schedule": "0 14 * * *" },
-    { "path": "/api/cron/daily-recap",      "schedule": "0 0 * * *"  }
+    { "path": "/api/cron/daily-recap",      "schedule": "0 0 * * *"  },
+    { "path": "/api/cron/metrics-snapshot", "schedule": "0 1 * * *"  }
   ]
 }
