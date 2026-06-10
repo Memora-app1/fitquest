@@ -16,6 +16,16 @@ const ActionSchema = z.discriminatedUnion('action', [
   }),
   z.object({ action: z.literal('unsuspend') }),
   z.object({ action: z.literal('reset_streak') }),
+  z.object({
+    action: z.literal('extend_trial'),
+    days:   z.number().int().min(1).max(365),
+  }),
+  z.object({ action: z.literal('reset_password') }),
+  z.object({
+    action: z.literal('change_plan'),
+    status: z.enum(['trial', 'active', 'cancelled', 'expired', 'lifetime']),
+    plan:   z.enum(['monthly', 'annual', 'lifetime']).optional(),
+  }),
 ])
 
 export async function POST(
@@ -165,6 +175,112 @@ export async function POST(
     })
 
     return NextResponse.json({ message: 'Streak resetado para 0.' })
+  }
+
+  // ── extend_trial ───────────────────────────────────────────────────────────
+  if (cmd.action === 'extend_trial') {
+    if (!hasMinRole(session, 'admin')) {
+      return NextResponse.json({ error: 'Permissão insuficiente' }, { status: 403 })
+    }
+
+    const { data: profile } = await db
+      .from('profiles')
+      .select('trial_end, subscription_status')
+      .eq('id', userId)
+      .single()
+
+    if (!profile) {
+      return NextResponse.json({ error: 'Usuário não encontrado' }, { status: 404 })
+    }
+
+    const currentEnd = profile.trial_end ? new Date(profile.trial_end as string) : new Date()
+    const base = Math.max(currentEnd.getTime(), Date.now())
+    const newEnd = new Date(base + cmd.days * 86400000)
+
+    const updates: Record<string, unknown> = { trial_end: newEnd.toISOString() }
+    if (profile.subscription_status === 'expired') {
+      updates.subscription_status = 'trial'
+    }
+
+    await db.from('profiles').update(updates).eq('id', userId)
+
+    await auditLog({
+      adminId:    session.userId,
+      adminRole:  session.role,
+      action:     'user.extend_trial',
+      targetType: 'user',
+      targetId:   userId,
+      payload:    { days: cmd.days, newEnd: newEnd.toISOString() },
+    })
+
+    return NextResponse.json({
+      message: `Trial estendido +${cmd.days} dias. Novo vencimento: ${newEnd.toLocaleDateString('pt-BR')}`,
+    })
+  }
+
+  // ── reset_password ─────────────────────────────────────────────────────────
+  if (cmd.action === 'reset_password') {
+    if (!hasMinRole(session, 'support')) {
+      return NextResponse.json({ error: 'Permissão insuficiente' }, { status: 403 })
+    }
+
+    const { data: authUser, error: authErr } = await db.auth.admin.getUserById(userId)
+    if (authErr || !authUser?.user) {
+      return NextResponse.json({ error: 'Usuário não encontrado no auth' }, { status: 404 })
+    }
+
+    const email = authUser.user.email
+    if (!email) {
+      return NextResponse.json({ error: 'Usuário não tem e-mail cadastrado' }, { status: 400 })
+    }
+
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
+    const { data: linkData, error: linkErr } = await db.auth.admin.generateLink({
+      type:    'recovery',
+      email,
+      options: { redirectTo: `${appUrl}/login` },
+    })
+
+    if (linkErr || !linkData) {
+      return NextResponse.json({ error: linkErr?.message ?? 'Erro ao gerar link de reset' }, { status: 500 })
+    }
+
+    await auditLog({
+      adminId:    session.userId,
+      adminRole:  session.role,
+      action:     'user.reset_password',
+      targetType: 'user',
+      targetId:   userId,
+      payload:    { email, triggered_by: session.email },
+    })
+
+    return NextResponse.json({
+      message:    `Link de reset gerado para ${email}`,
+      reset_link: linkData.properties?.action_link ?? null,
+    })
+  }
+
+  // ── change_plan ────────────────────────────────────────────────────────────
+  if (cmd.action === 'change_plan') {
+    if (!hasMinRole(session, 'admin')) {
+      return NextResponse.json({ error: 'Permissão insuficiente' }, { status: 403 })
+    }
+
+    const updates: Record<string, unknown> = { subscription_status: cmd.status }
+    if (cmd.plan) updates.subscription_plan = cmd.plan
+
+    await db.from('profiles').update(updates).eq('id', userId)
+
+    await auditLog({
+      adminId:    session.userId,
+      adminRole:  session.role,
+      action:     'user.change_plan',
+      targetType: 'user',
+      targetId:   userId,
+      payload:    { status: cmd.status, plan: cmd.plan },
+    })
+
+    return NextResponse.json({ message: `Plano atualizado para ${cmd.status}.` })
   }
 
   return NextResponse.json({ error: 'Ação desconhecida' }, { status: 400 })

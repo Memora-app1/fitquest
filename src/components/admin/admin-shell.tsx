@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard, Users, Gamepad2, BarChart3, Megaphone,
   ShieldAlert, ChevronRight, LogOut, Zap, Flag, Bell, Image as ImageIcon,
-  Trophy, Lock,
+  Trophy, Lock, Server,
 } from 'lucide-react'
 
 interface NavItem {
@@ -67,6 +67,16 @@ const NAV: NavItem[] = [
       { label: 'Audit Log',   href: '/admin/seguranca/audit-log' },
       { label: 'Denúncias',   href: '/admin/seguranca/denuncias' },
       { label: 'Suspensões',  href: '/admin/seguranca/suspensoes' },
+    ],
+  },
+  {
+    label:   'Sistema',
+    href:    '/admin/sistema',
+    icon:    <Server size={16} />,
+    minRole: 'admin',
+    children: [
+      { label: 'Saúde',  href: '/admin/sistema/saude' },
+      { label: 'Crons',  href: '/admin/sistema/crons' },
     ],
   },
 ]

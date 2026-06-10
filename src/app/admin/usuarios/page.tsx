@@ -3,7 +3,7 @@ import { createServiceClient } from '@/lib/supabase/server'
 import { getAdminSession, hasMinRole } from '@/lib/admin'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Search, UserX, Crown, Flame, Zap, ChevronRight, Filter } from 'lucide-react'
+import { Search, UserX, Flame, Zap, ChevronRight, Download } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
@@ -61,13 +61,22 @@ export default async function AdminUsersPage({
     <div className="p-6 max-w-6xl mx-auto space-y-5">
 
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-black" style={{ color: '#fff' }}>Usuários</h1>
           <p className="text-sm mt-0.5" style={{ color: '#8899BB' }}>
             {(count ?? 0).toLocaleString('pt-BR')} usuários encontrados
           </p>
         </div>
+        <a
+          href={`/api/admin/users/export${status ? `?status=${status}` : ''}`}
+          download
+          className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all hover:opacity-80 shrink-0"
+          style={{ background: 'rgba(0,255,136,0.08)', color: '#00FF88', border: '1px solid rgba(0,255,136,0.2)' }}
+        >
+          <Download size={13} />
+          Exportar CSV
+        </a>
       </div>
 
       {/* Filtros */}

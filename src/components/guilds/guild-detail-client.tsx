@@ -52,10 +52,13 @@ interface Props {
   }
 }
 
+const DEFAULT_ROLE: { label: string; color: string; icon: React.ElementType } =
+  { label: 'Membro', color: '#8899BB', icon: Users }
+
 const ROLE_LABELS: Record<string, { label: string; color: string; icon: React.ElementType }> = {
   owner:     { label: 'Líder',    color: '#F5C842', icon: Crown },
   moderator: { label: 'Mod',      color: '#7C3AED', icon: Shield },
-  member:    { label: 'Membro',   color: '#8899BB', icon: Users },
+  member:    DEFAULT_ROLE,
 }
 
 const POSITION_STYLES: Record<number, { bg: string; color: string; shadow: string }> = {
