@@ -73,6 +73,7 @@ export default async function DashboardPage({
     transactionsRes,
     xpFeedRes,
     weekXpRes,
+    pendingLootRes,
   ] = await Promise.all([
     supabase
       .from('profiles')
@@ -125,6 +126,15 @@ export default async function DashboardPage({
       .eq('user_id', user.id)
       .gte('created_at', sevenDaysAgo)
       .order('created_at', { ascending: true }),
+    // Loot box pendente — movido para o batch (evita round trip extra ao banco)
+    supabase
+      .from('daily_loot')
+      .select('id, date, rarity, reward_type, reward_value, reward_meta, source')
+      .eq('user_id', user.id)
+      .is('opened_at', null)
+      .order('date', { ascending: false })
+      .limit(1)
+      .maybeSingle(),
   ])
 
   const profile = profileRes.data
@@ -179,14 +189,7 @@ export default async function DashboardPage({
   const xpToNextLevel = xpProgress.needed > 0 ? xpProgress.needed - xpProgress.current : 0
 
   // Loot box pendente
-  const { data: pendingLoot } = await supabase
-    .from('daily_loot')
-    .select('id, date, rarity, reward_type, reward_value, reward_meta, source')
-    .eq('user_id', user.id)
-    .is('opened_at', null)
-    .order('date', { ascending: false })
-    .limit(1)
-    .maybeSingle()
+  const pendingLoot = pendingLootRes.data
 
   const isPaid = profile.subscription_status === 'active' || profile.subscription_status === 'lifetime'
 
