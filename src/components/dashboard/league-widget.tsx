@@ -5,8 +5,8 @@
 
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-import { getLeagueDivision } from '@/lib/xp'
-import { TrendingUp } from 'lucide-react'
+import { getLeagueDivision, LEAGUE_DIVISIONS } from '@/lib/xp'
+import { TrendingUp, ArrowUp } from 'lucide-react'
 
 interface Props {
   userId: string
@@ -15,7 +15,6 @@ interface Props {
 export async function LeagueWidget({ userId }: Props) {
   const supabase = await createClient()
 
-  // XP do usuário esta semana
   const { data: profile } = await supabase
     .from('profiles')
     .select('league_xp_this_week, name')
@@ -24,30 +23,36 @@ export async function LeagueWidget({ userId }: Props) {
 
   const myWeeklyXp = (profile?.league_xp_this_week as number) ?? 0
 
-  // Conta quantos usuários têm mais XP que eu esta semana
-  const { count: aboveMe } = await supabase
-    .from('profiles')
-    .select('id', { count: 'exact', head: true })
-    .in('subscription_status', ['trial', 'active', 'lifetime'])
-    .gt('league_xp_this_week', myWeeklyXp)
+  const [aboveMeRes, totalRes, top3Res] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('id', { count: 'exact', head: true })
+      .in('subscription_status', ['trial', 'active', 'lifetime'])
+      .gt('league_xp_this_week', myWeeklyXp),
+    supabase
+      .from('profiles')
+      .select('id', { count: 'exact', head: true })
+      .in('subscription_status', ['trial', 'active', 'lifetime']),
+    supabase
+      .from('profiles')
+      .select('id, name, league_xp_this_week')
+      .in('subscription_status', ['trial', 'active', 'lifetime'])
+      .order('league_xp_this_week', { ascending: false })
+      .limit(3),
+  ])
 
-  const { count: totalPlayers } = await supabase
-    .from('profiles')
-    .select('id', { count: 'exact', head: true })
-    .in('subscription_status', ['trial', 'active', 'lifetime'])
-
-  const position   = (aboveMe ?? 0) + 1
-  const total      = totalPlayers ?? 1
+  const position   = (aboveMeRes.count ?? 0) + 1
+  const total      = totalRes.count ?? 1
   const division   = getLeagueDivision(position, total)
   const topPercent = total > 0 ? Math.round((position / total) * 100) : 100
+  const top3       = top3Res.data ?? []
 
-  // Top 3 desta semana (para referência)
-  const { data: top3 } = await supabase
-    .from('profiles')
-    .select('id, name, league_xp_this_week')
-    .in('subscription_status', ['trial', 'active', 'lifetime'])
-    .order('league_xp_this_week', { ascending: false })
-    .limit(3)
+  // Calcula posições necessárias para próxima divisão
+  const divIdx = LEAGUE_DIVISIONS.findIndex(d => d.name === division.name)
+  const nextDiv = divIdx > 0 ? LEAGUE_DIVISIONS[divIdx - 1] : null
+  const positionsToNext = nextDiv
+    ? position - Math.floor(total * (1 - nextDiv.minPct / 100))
+    : null
 
   return (
     <Link href="/ranking">
@@ -64,15 +69,11 @@ export async function LeagueWidget({ userId }: Props) {
         />
 
         <div className="relative z-10">
-          {/* Header */}
           <div className="flex items-start justify-between mb-3">
             <div>
               <div className="flex items-center gap-1.5 mb-0.5">
                 <span className="text-sm">{division.emoji}</span>
-                <span
-                  className="text-[10px] font-black uppercase tracking-widest"
-                  style={{ color: division.color }}
-                >
+                <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: division.color }}>
                   {division.name}
                 </span>
               </div>
@@ -99,14 +100,29 @@ export async function LeagueWidget({ userId }: Props) {
                 }}
               />
             </div>
-            <p className="text-[10px] text-text-muted flex items-center gap-1">
-              <TrendingUp size={9} />
-              Top {topPercent}% dos jogadores ativos
-            </p>
+            <div className="flex items-center justify-between">
+              <p className="text-[10px] text-text-muted flex items-center gap-1">
+                <TrendingUp size={9} />
+                Top {topPercent}% dos jogadores
+              </p>
+              {/* Nudge social: posições para próxima divisão */}
+              {nextDiv && positionsToNext !== null && positionsToNext > 0 && positionsToNext <= 50 && (
+                <p className="text-[10px] font-bold flex items-center gap-0.5" style={{ color: nextDiv.color }}>
+                  <ArrowUp size={9} />
+                  {positionsToNext} pos. para {nextDiv.emoji} {nextDiv.name}
+                </p>
+              )}
+              {nextDiv && positionsToNext !== null && positionsToNext === 1 && (
+                <p className="text-[10px] font-black flex items-center gap-0.5 animate-pulse" style={{ color: nextDiv.color }}>
+                  <ArrowUp size={9} />
+                  1 passo para {nextDiv.name}!
+                </p>
+              )}
+            </div>
           </div>
 
           {/* Top 3 mini */}
-          {top3 && top3.length > 0 && (
+          {top3.length > 0 && (
             <div className="flex gap-2">
               {top3.map((p, idx) => {
                 const medals = ['🥇', '🥈', '🥉']

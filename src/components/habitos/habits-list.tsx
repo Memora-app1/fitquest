@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useTransition, useOptimistic } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
-import { Check, Plus, X, Trash2, MoreVertical, Pencil, Flame, Zap, Bell, Sparkles } from 'lucide-react'
+import { Check, Plus, X, Trash2, MoreVertical, Pencil, Flame, Zap, Bell, Sparkles, Target } from 'lucide-react'
 import { useXpToast, XpToastContainer } from '@/components/xp-toast'
 import { HabitPacksModal } from './habit-packs'
 import { useScrollLock } from '@/hooks/use-scroll-lock'
@@ -40,36 +40,46 @@ export function HabitsList({
   initialShowCreate?: boolean
 }) {
   const router = useRouter()
-  const [, startTransition] = useTransition()
+  const [isPending, startTransition] = useTransition()
   const [habits, setHabits] = useState<Habit[]>(initialHabits)
   const [showCreate, setShowCreate] = useState(initialShowCreate)
   const [showPacks, setShowPacks] = useState(false)
   const [editHabit, setEditHabit] = useState<Habit | null>(null)
-  const [optimistic, setOptimistic] = useState(loggedToday)
   const [openMenu, setOpenMenu]       = useState<string | null>(null)
   const [deletingId, setDeletingId]   = useState<string | null>(null)
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
   const { toasts, showXp } = useXpToast()
 
-  async function toggle(id: string) {
+  // React 19 useOptimistic — atualiza a UI instantaneamente antes da resposta do servidor.
+  // Se o fetch falhar, o estado base (loggedToday) prevalece e o optimistic é revertido automaticamente.
+  const [optimistic, addOptimistic] = useOptimistic(
+    loggedToday,
+    (current: Set<string>, habitId: string) => {
+      const next = new Set(current)
+      next.add(habitId)
+      return next
+    }
+  )
+
+  function toggle(id: string) {
     if (optimistic.has(id)) return
-    // Haptic imediato ao tocar
     if (navigator.vibrate) navigator.vibrate([15, 5, 30])
-    const next = new Set(optimistic)
-    next.add(id)
-    setOptimistic(next)
 
     startTransition(async () => {
+      // Atualiza UI antes do servidor responder
+      addOptimistic(id)
+
       const res = await fetch('/api/habits/log', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ habitId: id }),
       })
-      if (!res.ok) {
-        next.delete(id)
-        setOptimistic(new Set(next))
-      } else {
-        const data = await res.json()
+      if (res.ok) {
+        const data = await res.json() as {
+          xpEarned?: number; perfectDay?: boolean;
+          leveledUp?: boolean; newLevel?: number;
+          achievementsUnlocked?: string[]
+        }
         showXp(data.xpEarned ?? 0, {
           perfectDay: data.perfectDay,
           leveledUp: data.leveledUp ? data.newLevel : undefined,
@@ -86,6 +96,7 @@ export function HabitsList({
         }
         router.refresh()
       }
+      // Se falhar, useOptimistic reverte automaticamente para loggedToday
     })
   }
 
@@ -176,9 +187,75 @@ export function HabitsList({
     )
   }
 
+  // Progresso do dia: quantos hábitos já foram feitos vs total ativo
+  const doneCount = habits.filter(h => optimistic.has(h.id)).length
+  const totalCount = habits.length
+  const remaining = totalCount - doneCount
+  const progressPct = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0
+  const allDone = doneCount === totalCount && totalCount > 0
+
   return (
     <>
       <XpToastContainer toasts={toasts} />
+
+      {/* Banner de Progresso — Dia Perfeito (maior gatilho de retenção segundo pesquisa 2026) */}
+      {totalCount > 0 && (
+        <div
+          className="rounded-2xl p-4 relative overflow-hidden"
+          style={{
+            background: allDone
+              ? 'linear-gradient(135deg, rgba(0,255,136,0.12) 0%, rgba(13,24,41,0.98) 100%)'
+              : 'linear-gradient(135deg, rgba(245,200,66,0.08) 0%, rgba(13,24,41,0.98) 100%)',
+            border: allDone
+              ? '1px solid rgba(0,255,136,0.3)'
+              : remaining === 1
+              ? '1px solid rgba(255,77,0,0.4)'
+              : '1px solid rgba(245,200,66,0.2)',
+            boxShadow: remaining === 1 && !allDone ? '0 0 20px rgba(255,77,0,0.1)' : 'none',
+          }}
+        >
+          <div className="flex items-center justify-between mb-2.5">
+            <div className="flex items-center gap-2">
+              <Target size={14} style={{ color: allDone ? '#00FF88' : '#F5C842' }} />
+              <span className="text-xs font-bold" style={{ color: allDone ? '#00FF88' : '#F5C842' }}>
+                {allDone
+                  ? '🎉 Dia Perfeito!'
+                  : remaining === 1
+                  ? '⚡ Falta 1 hábito para +200 XP!'
+                  : `${doneCount}/${totalCount} hábitos hoje`}
+              </span>
+            </div>
+            <span className="text-xs font-black" style={{ color: allDone ? '#00FF88' : '#8899BB' }}>
+              {allDone ? '+200 XP ✓' : `${progressPct}%`}
+            </span>
+          </div>
+
+          {/* Barra de progresso */}
+          <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+            <div
+              className="h-full rounded-full transition-all duration-700"
+              style={{
+                width: `${progressPct}%`,
+                background: allDone
+                  ? '#00FF88'
+                  : remaining === 1
+                  ? 'linear-gradient(90deg, #F5C842, #FF4D00)'
+                  : 'linear-gradient(90deg, #F5C842, #7C3AED)',
+                boxShadow: allDone ? '0 0 8px rgba(0,255,136,0.6)' : 'none',
+              }}
+            />
+          </div>
+
+          {!allDone && remaining <= 2 && (
+            <p className="text-[11px] text-text-muted mt-1.5">
+              {remaining === 1
+                ? 'Complete o último hábito e garanta +200 XP de Dia Perfeito!'
+                : `Faltam ${remaining} hábitos — você está quase lá!`}
+            </p>
+          )}
+        </div>
+      )}
+
       <div className="flex justify-end gap-2">
         <button
           onClick={() => setShowPacks(true)}
