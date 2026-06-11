@@ -47,6 +47,7 @@ export function KanbanBoard({ initialTasks, initialLists = [] }: { initialTasks:
   const [newListName, setNewListName] = useState('')
   const [newListColor, setNewListColor] = useState('#7C3AED')
   const [savingList, setSavingList] = useState(false)
+  const [confirmDeleteListId, setConfirmDeleteListId] = useState<string | null>(null)
   const { toasts, showXp } = useXpToast()
 
   const LIST_COLORS = ['#7C3AED', '#FF4D00', '#00FF88', '#F5C842', '#3B82F6', '#EC4899']
@@ -77,8 +78,14 @@ export function KanbanBoard({ initialTasks, initialLists = [] }: { initialTasks:
     setSavingList(false)
   }
 
-  async function deleteList(id: string) {
-    if (!confirm('Remover esta lista? As tarefas serão mantidas sem lista.')) return
+  function requestDeleteList(id: string) {
+    setConfirmDeleteListId(id)
+  }
+
+  async function confirmDeleteList() {
+    const id = confirmDeleteListId
+    if (!id) return
+    setConfirmDeleteListId(null)
     const res = await fetch(`/api/task-lists?id=${id}`, { method: 'DELETE' })
     if (res.ok) {
       setLists(prev => prev.filter(l => l.id !== id))
@@ -242,10 +249,10 @@ export function KanbanBoard({ initialTasks, initialLists = [] }: { initialTasks:
               </button>
               {isSelected && (
                 <button
-                  onClick={() => deleteList(list.id)}
-                  className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-brand-red flex items-center justify-center opacity-0 group-hover/list:opacity-100 transition-opacity"
+                  onClick={() => requestDeleteList(list.id)}
+                  className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-brand-red flex items-center justify-center opacity-0 group-hover/list:opacity-100 transition-opacity active:scale-90"
                 >
-                  <X size={8} className="text-white" />
+                  <X size={9} className="text-white" />
                 </button>
               )}
             </div>
@@ -263,24 +270,24 @@ export function KanbanBoard({ initialTasks, initialLists = [] }: { initialTasks:
               className="text-xs bg-bg-elevated border border-border rounded-xl px-3 py-1.5 outline-none focus:border-brand-purple"
               maxLength={50}
             />
-            <div className="flex gap-1">
+            <div className="flex gap-1.5">
               {LIST_COLORS.map(c => (
                 <button
                   key={c}
                   onClick={() => setNewListColor(c)}
-                  className="w-4 h-4 rounded-full transition-transform"
+                  className="w-7 h-7 rounded-full transition-all active:scale-90"
                   style={{
                     backgroundColor: c,
-                    transform: newListColor === c ? 'scale(1.3)' : 'scale(1)',
-                    boxShadow: newListColor === c ? `0 0 0 2px rgba(255,255,255,0.4)` : 'none',
+                    transform: newListColor === c ? 'scale(1.2)' : 'scale(1)',
+                    boxShadow: newListColor === c ? `0 0 0 2px rgba(255,255,255,0.5), 0 0 8px ${c}60` : 'none',
                   }}
                 />
               ))}
             </div>
-            <button onClick={() => void createList()} disabled={savingList || !newListName.trim()} className="text-brand-purple hover:text-white transition-colors disabled:opacity-40">
+            <button onClick={() => void createList()} disabled={savingList || !newListName.trim()} className="w-9 h-9 rounded-lg flex items-center justify-center text-brand-purple active:scale-90 transition-transform disabled:opacity-40" style={{ background: 'rgba(124,58,237,0.15)' }}>
               <Check size={14} />
             </button>
-            <button onClick={() => { setShowNewList(false); setNewListName('') }} className="text-text-muted hover:text-white transition-colors">
+            <button onClick={() => { setShowNewList(false); setNewListName('') }} className="w-9 h-9 rounded-lg flex items-center justify-center text-text-muted active:scale-90 transition-transform" style={{ background: 'rgba(255,255,255,0.06)' }}>
               <X size={14} />
             </button>
           </div>
@@ -370,13 +377,11 @@ export function KanbanBoard({ initialTasks, initialLists = [] }: { initialTasks:
                   </div>
                   <button
                     onClick={() => setShowNew(col.id)}
-                    className="w-7 h-7 rounded-lg flex items-center justify-center text-text-muted hover:text-white transition-colors"
-                    style={{}}
-                    onMouseEnter={(e) => { e.currentTarget.style.background = `rgba(${col.rgb},0.15)`; e.currentTarget.style.color = `rgb(${col.rgb})` }}
-                    onMouseLeave={(e) => { e.currentTarget.style.background = ''; e.currentTarget.style.color = '' }}
+                    className="w-9 h-9 rounded-lg flex items-center justify-center text-text-muted active:scale-90 transition-transform"
+                    style={{ background: `rgba(${col.rgb},0.08)` }}
                     title="Adicionar tarefa"
                   >
-                    <Plus size={15} />
+                    <Plus size={16} />
                   </button>
                 </div>
 
@@ -418,6 +423,52 @@ export function KanbanBoard({ initialTasks, initialLists = [] }: { initialTasks:
           onClose={() => setShowNew(null)}
           onCreated={onCreated}
         />
+      )}
+
+      {confirmDeleteListId && (
+        <>
+          <div
+            className="fixed inset-0 z-[80]"
+            style={{ background: 'rgba(5,9,20,0.7)', backdropFilter: 'blur(4px)' }}
+            onClick={() => setConfirmDeleteListId(null)}
+          />
+          <div
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[90] rounded-2xl p-6 w-[90vw] max-w-sm"
+            style={{
+              background: '#0D1829',
+              border: '1px solid rgba(239,68,68,0.3)',
+              boxShadow: '0 24px 60px rgba(0,0,0,0.5)',
+              animation: 'bounceIn 0.35s cubic-bezier(0.34,1.56,0.64,1) both',
+            }}
+          >
+            <div
+              className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4"
+              style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.25)' }}
+            >
+              <Trash2 size={22} style={{ color: '#EF4444' }} />
+            </div>
+            <h3 className="text-base font-black text-center mb-1">Remover lista?</h3>
+            <p className="text-xs text-text-secondary text-center mb-5">
+              As tarefas serão mantidas sem lista. Essa ação não pode ser desfeita.
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setConfirmDeleteListId(null)}
+                className="flex-1 py-3 rounded-xl text-sm font-semibold transition-all active:scale-95"
+                style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => void confirmDeleteList()}
+                className="flex-1 py-3 rounded-xl text-sm font-black transition-all active:scale-95"
+                style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', color: '#EF4444' }}
+              >
+                Remover
+              </button>
+            </div>
+          </div>
+        </>
       )}
     </div>
   )
@@ -779,7 +830,7 @@ function NewTaskModal({
         <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full pointer-events-none blur-xl" style={{ background: 'rgba(255,77,0,0.12)' }} />
         <div className="flex items-center justify-between relative z-10">
           <h2 className="text-xl font-bold">Nova tarefa</h2>
-          <button onClick={onClose} className="text-text-muted hover:text-white transition-colors">
+          <button onClick={onClose} className="w-10 h-10 rounded-lg flex items-center justify-center text-text-muted active:text-white active:scale-90 transition-all" style={{ background: 'rgba(255,255,255,0.05)' }}>
             <X size={20} />
           </button>
         </div>

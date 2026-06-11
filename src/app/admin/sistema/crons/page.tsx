@@ -90,6 +90,15 @@ const CRONS: CronDef[] = [
     category:    'Notificações',
   },
   {
+    path:        '/api/cron/task-reminders',
+    schedule:    '0 9 * * *',
+    label:       'Lembretes de Tarefas',
+    description: 'Push para tarefas com prazo hoje que ainda não foram concluídas',
+    time:        '09:00 UTC (06:00 Brasília)',
+    frequency:   'daily',
+    category:    'Notificações',
+  },
+  {
     path:        '/api/cron/trial-emails',
     schedule:    '0 10 * * *',
     label:       'Emails de Trial',

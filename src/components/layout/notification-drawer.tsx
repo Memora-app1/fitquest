@@ -169,7 +169,7 @@ export function NotificationDrawer({ open, onClose, initialUnread, onRead }: Not
         </div>
 
         {/* Content */}
-        <div className="overflow-y-auto" style={{ maxHeight: 'calc(85vh - 72px)' }}>
+        <div className="overflow-y-auto" style={{ maxHeight: 'calc(100dvh - 72px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px))' }}>
           {loading && notifications.length === 0 ? (
             <div className="space-y-3 p-4">
               {[1, 2, 3].map((i) => (

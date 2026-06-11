@@ -311,18 +311,10 @@ export function NovoTreinoForm() {
                     key={t.name}
                     type="button"
                     onClick={() => applyTemplate(t)}
-                    className="p-3 rounded-xl text-left transition-all hover:scale-[1.02] group"
+                    className="p-3 rounded-xl text-left transition-all active:scale-95 active:opacity-80"
                     style={{
                       background: `rgba(${r},${g},${b},0.06)`,
                       border: `1px solid rgba(${r},${g},${b},0.2)`,
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = `rgba(${r},${g},${b},0.12)`
-                      e.currentTarget.style.borderColor = `rgba(${r},${g},${b},0.4)`
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = `rgba(${r},${g},${b},0.06)`
-                      e.currentTarget.style.borderColor = `rgba(${r},${g},${b},0.2)`
                     }}
                   >
                     <div className="text-2xl mb-1">{t.emoji}</div>
@@ -396,7 +388,8 @@ export function NovoTreinoForm() {
                       <button
                         type="button"
                         onClick={() => duplicateEntry(i)}
-                        className="text-xs text-text-muted hover:text-brand-orange px-2 py-1 rounded-lg hover:bg-brand-orange/10 transition-all"
+                        className="text-xs text-text-muted active:text-brand-orange rounded-lg transition-all active:scale-95 flex items-center px-3"
+                        style={{ minHeight: '36px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}
                         title="Duplicar exercício"
                       >
                         Copiar
@@ -405,9 +398,10 @@ export function NovoTreinoForm() {
                         <button
                           type="button"
                           onClick={() => removeEntry(i)}
-                          className="text-text-muted hover:text-brand-red transition-colors p-1.5 rounded-lg hover:bg-brand-red/10"
+                          className="w-9 h-9 flex items-center justify-center rounded-lg text-text-muted active:text-brand-red active:scale-90 transition-all"
+                          style={{ background: 'rgba(255,255,255,0.04)' }}
                         >
-                          <Trash2 size={14} />
+                          <Trash2 size={15} />
                         </button>
                       )}
                     </div>
@@ -426,6 +420,7 @@ export function NovoTreinoForm() {
                       <label className="block text-xs text-text-muted text-center uppercase tracking-wider">Peso (kg)</label>
                       <input
                         type="number"
+                        inputMode="decimal"
                         min="0"
                         step="0.5"
                         value={entry.weight_kg}
@@ -438,6 +433,7 @@ export function NovoTreinoForm() {
                       <label className="block text-xs text-text-muted text-center uppercase tracking-wider">Reps</label>
                       <input
                         type="number"
+                        inputMode="numeric"
                         min="0"
                         value={entry.reps}
                         onChange={(e) => updateEntry(i, 'reps', e.target.value)}
@@ -449,6 +445,7 @@ export function NovoTreinoForm() {
                       <label className="block text-xs text-text-muted text-center uppercase tracking-wider">Sets</label>
                       <input
                         type="number"
+                        inputMode="numeric"
                         min="1"
                         value={entry.sets}
                         onChange={(e) => updateEntry(i, 'sets', e.target.value)}
@@ -476,19 +473,11 @@ export function NovoTreinoForm() {
           <button
             type="button"
             onClick={addEntry}
-            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl font-medium text-sm transition-all"
+            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl font-medium text-sm transition-all active:scale-[0.98] active:opacity-80"
             style={{
               background: 'rgba(255,77,0,0.06)',
               border: '1px dashed rgba(255,77,0,0.3)',
               color: '#FF4D00',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(255,77,0,0.12)'
-              e.currentTarget.style.borderColor = 'rgba(255,77,0,0.5)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'rgba(255,77,0,0.06)'
-              e.currentTarget.style.borderColor = 'rgba(255,77,0,0.3)'
             }}
           >
             <Plus size={18} />

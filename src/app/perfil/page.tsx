@@ -12,7 +12,7 @@ import { XpLevelJourney } from '@/components/perfil/xp-level-journey'
 import { DailyActivityMap } from '@/components/perfil/daily-activity-map'
 import { RpgCharacter } from '@/components/perfil/rpg-character'
 import { ReferralWidget } from '@/components/perfil/referral-widget'
-import { Trophy, Flame, Zap, Star, Calendar, Target, Dumbbell, CheckSquare, Crown } from 'lucide-react'
+import { Trophy, Flame, Zap, Star, Calendar, Target, Dumbbell, CheckSquare, Crown, ExternalLink } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Perfil',
@@ -55,7 +55,7 @@ export default async function PerfilPage() {
   const [profileRes, workoutsRes, habitsRes, tasksRes, achievementsRes] = await Promise.all([
     supabase
       .from('profiles')
-      .select('name, avatar_url, bio, subscription_status, subscription_plan, trial_end, subscription_end, created_at, xp_total, level, streak_current, streak_longest, perfect_days')
+      .select('name, avatar_url, bio, subscription_status, subscription_plan, trial_end, subscription_end, created_at, xp_total, level, streak_current, streak_longest, perfect_days, stripe_customer_id')
       .eq('id', user.id)
       .single(),
     supabase
@@ -304,10 +304,25 @@ export default async function PerfilPage() {
             )}
           </div>
 
-          <Link href="/planos" className="btn-primary inline-flex items-center gap-2">
-            <Star size={16} />
-            Gerenciar assinatura
-          </Link>
+          <div className="flex flex-wrap gap-3">
+            <Link href="/planos" className="btn-primary inline-flex items-center gap-2">
+              <Star size={16} />
+              Ver planos
+            </Link>
+            {profile.stripe_customer_id && (
+              profile.subscription_status === 'active' || profile.subscription_status === 'cancelled'
+            ) && (
+              <form action="/api/billing-portal" method="POST">
+                <button
+                  type="submit"
+                  className="btn-ghost inline-flex items-center gap-2"
+                >
+                  <ExternalLink size={16} />
+                  Portal Stripe
+                </button>
+              </form>
+            )}
+          </div>
         </section>
 
         {/* Danger zone */}

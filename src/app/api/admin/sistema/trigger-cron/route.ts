@@ -18,6 +18,7 @@ const ALLOWED_PATHS = new Set([
   '/api/cron/metrics-snapshot',
   '/api/cron/perfect-day-reminder',
   '/api/cron/league-reset',
+  '/api/cron/task-reminders',
 ])
 
 const Schema = z.object({

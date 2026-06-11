@@ -509,13 +509,7 @@ export default async function DashboardPage({
         <RecoveryModeWidget
           isActive={(profile.recovery_week_active as boolean) ?? false}
           usedThisMonth={
-            (() => {
-              const usedMonth = profile.recovery_week_used_month as string | null
-              if (!usedMonth) return false
-              const now = new Date()
-              const [y, m] = usedMonth.split('-').map(Number)
-              return y === now.getFullYear() && m === now.getMonth() + 1
-            })()
+            (profile.recovery_week_used_month as number | null) === (new Date().getMonth() + 1)
           }
         />
 

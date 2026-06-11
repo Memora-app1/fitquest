@@ -304,9 +304,9 @@ export function HabitsList({
                     <div className="relative">
                       <button
                         onClick={() => setOpenMenu(openMenu === h.id ? null : h.id)}
-                        className="w-8 h-8 rounded-lg bg-bg-elevated flex items-center justify-center text-text-muted hover:text-white hover:bg-border transition-colors"
+                        className="w-10 h-10 rounded-lg bg-bg-elevated flex items-center justify-center text-text-muted active:text-white active:bg-border transition-colors"
                       >
-                        <MoreVertical size={14} />
+                        <MoreVertical size={16} />
                       </button>
 
                       {openMenu === h.id && (
@@ -515,7 +515,7 @@ function CreateHabitModal({
         <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full pointer-events-none blur-xl" style={{ background: 'rgba(255,77,0,0.15)' }} />
         <div className="flex items-center justify-between relative z-10">
           <h2 className="text-xl font-bold">Novo hábito</h2>
-          <button onClick={onClose} className="text-text-muted hover:text-white transition-colors">
+          <button onClick={onClose} className="w-10 h-10 rounded-lg flex items-center justify-center text-text-muted active:text-white active:scale-90 transition-all" style={{ background: 'rgba(255,255,255,0.05)' }}>
             <X size={20} />
           </button>
         </div>
@@ -703,7 +703,7 @@ function EditHabitModal({
         <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full pointer-events-none blur-xl" style={{ background: 'rgba(124,58,237,0.15)' }} />
         <div className="flex items-center justify-between relative z-10">
           <h2 className="text-xl font-bold">Editar hábito</h2>
-          <button onClick={onClose} className="text-text-muted hover:text-white transition-colors">
+          <button onClick={onClose} className="w-10 h-10 rounded-lg flex items-center justify-center text-text-muted active:text-white active:scale-90 transition-all" style={{ background: 'rgba(255,255,255,0.05)' }}>
             <X size={20} />
           </button>
         </div>

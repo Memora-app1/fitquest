@@ -373,7 +373,7 @@ export default async function PlanosPage({
         {/* ── Trust signals ─────────────────────────────────── */}
         <div className="flex flex-wrap justify-center gap-6 text-sm text-text-muted">
           {[
-            { icon: <Shield size={14} style={{ color: '#00FF88' }} />, label: 'Pagamento seguro via Mercado Pago' },
+            { icon: <Shield size={14} style={{ color: '#00FF88' }} />, label: 'Pagamento seguro via Stripe' },
             { icon: <Zap size={14} style={{ color: '#F5C842' }} fill="currentColor" />, label: 'Pix · cartão · boleto' },
             { icon: <RefreshCw size={14} style={{ color: '#FF4D00' }} />, label: 'Garantia de 7 dias — devolução total' },
             { icon: <Trophy size={14} style={{ color: '#7C3AED' }} />, label: '+2.400 pessoas já evoluindo' },

@@ -112,7 +112,7 @@ export default async function ReceitaPage() {
         </h1>
         <p className="text-sm mt-0.5" style={{ color: '#8899BB' }}>
           MRR estimado, distribuição de planos e funil de conversão.{' '}
-          <span style={{ color: '#FF4D00' }}>Mercado Pago é a fonte de verdade — estes são valores estimados.</span>
+          <span style={{ color: '#FF4D00' }}>Stripe é a fonte de verdade — estes são valores estimados.</span>
         </p>
       </div>
 
@@ -235,13 +235,13 @@ export default async function ReceitaPage() {
         </div>
       )}
 
-      {/* Aviso Mercado Pago */}
+      {/* Aviso Stripe */}
       <div className="rounded-xl p-4 flex items-start gap-3" style={{ background: 'rgba(255,77,0,0.06)', border: '1px solid rgba(255,77,0,0.15)' }}>
         <AlertTriangle size={16} style={{ color: '#F5C842', marginTop: 2, flexShrink: 0 }} />
         <div>
           <p className="text-xs font-bold" style={{ color: '#fff' }}>Atenção — dados estimados</p>
           <p className="text-xs mt-0.5" style={{ color: '#8899BB' }}>
-            Os valores de MRR/ARR são calculados com base nos campos <code className="px-1 rounded" style={{ background: 'rgba(255,255,255,0.06)' }}>subscription_plan</code> e <code className="px-1 rounded" style={{ background: 'rgba(255,255,255,0.06)' }}>subscription_status</code> na tabela profiles. Podem divergir do Mercado Pago por causa de cancelamentos parciais, reembolsos, ou defasagem no webhook. Consulte o painel do Mercado Pago para receita oficial.
+            Os valores de MRR/ARR são calculados com base nos campos <code className="px-1 rounded" style={{ background: 'rgba(255,255,255,0.06)' }}>subscription_plan</code> e <code className="px-1 rounded" style={{ background: 'rgba(255,255,255,0.06)' }}>subscription_status</code> na tabela profiles. Podem divergir do Stripe por causa de cancelamentos parciais, reembolsos, ou defasagem no webhook. Consulte o painel do Stripe para receita oficial.
           </p>
         </div>
       </div>

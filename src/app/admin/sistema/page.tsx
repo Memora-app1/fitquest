@@ -25,7 +25,7 @@ export default async function SistemaPage() {
       href:        '/admin/sistema/saude',
       icon:        <Activity size={20} />,
       color:       '#00FF88',
-      description: 'Conectividade com Supabase, Anthropic, Resend e Mercado Pago. Status de variáveis de ambiente.',
+      description: 'Conectividade com Supabase, Stripe, Anthropic e Resend. Status de variáveis de ambiente.',
       stat:        'Verificar agora →',
     },
     {
@@ -33,8 +33,8 @@ export default async function SistemaPage() {
       href:        '/admin/sistema/crons',
       icon:        <Clock size={20} />,
       color:       '#F5C842',
-      description: '14 automações agendadas. Streaks, notificações, emails, métricas diárias e mais.',
-      stat:        '14 crons configurados',
+      description: '15 automações agendadas. Streaks, notificações, emails, métricas diárias e mais.',
+      stat:        '15 crons configurados',
     },
   ]
 

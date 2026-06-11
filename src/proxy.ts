@@ -125,8 +125,8 @@ function hasValidAccess(profile: SubCacheData): boolean {
 }
 
 // ════════ ROTAS ════════
-const PUBLIC_ROUTES    = ['/', '/login', '/signup', '/recuperar-senha', '/nova-senha', '/sobre', '/termos', '/privacidade']
-const AUTH_ONLY_ROUTES = ['/planos', '/perfil', '/onboarding', '/api/checkout']
+const PUBLIC_ROUTES    = ['/', '/login', '/signup', '/recuperar-senha', '/nova-senha', '/sobre', '/termos', '/privacidade', '/planos']
+const AUTH_ONLY_ROUTES = ['/perfil', '/onboarding', '/api/checkout']
 
 // ════════ PROXY PRINCIPAL ════════
 export async function proxy(request: NextRequest) {

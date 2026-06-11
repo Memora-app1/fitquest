@@ -189,7 +189,7 @@ export default function TermosPage() {
               <div className="flex gap-3 p-4 rounded-xl bg-brand-green/5 border border-brand-green/20">
                 <Shield size={18} className="text-brand-green shrink-0 mt-0.5" />
                 <p className="text-sm text-text-secondary">
-                  Os pagamentos são processados pelo <strong className="text-white">Mercado Pago</strong>, plataforma de pagamentos segura certificada pelo Banco Central do Brasil. O Ascendia não armazena dados de cartão — eles ficam exclusivamente com o Mercado Pago. Aceitamos cartão de crédito, débito, Pix e boleto conforme disponibilidade.
+                  Os pagamentos são processados pelo <strong className="text-white">Stripe</strong>, plataforma de pagamentos segura e líder mundial certificada por PCI DSS. O Ascendia não armazena dados de cartão — eles ficam exclusivamente com o Stripe. Aceitamos cartão de crédito, débito e Pix conforme disponibilidade.
                 </p>
               </div>
 

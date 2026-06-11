@@ -27,6 +27,8 @@
     overscroll-behavior: none;
     /* Suporte a notch/Dynamic Island */
     height: -webkit-fill-available;
+    /* Previne scroll horizontal em telas pequenas (375px) */
+    overflow-x: hidden;
   }
 
   body {
@@ -371,4 +373,16 @@
 @keyframes fabSpringOut {
   0%   { transform: scale(1); opacity: 1; }
   100% { transform: scale(0) translateY(6px); opacity: 0; }
+}
+
+/* ── Acessibilidade: respeita preferência de redução de movimento ── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
