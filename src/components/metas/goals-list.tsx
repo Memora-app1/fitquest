@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Plus, X, Trash2, CheckCircle2, Pause, ChevronUp, ChevronDown, Flag } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useXpToast, XpToastContainer } from '@/components/xp-toast'
+import { useScrollLock } from '@/hooks/use-scroll-lock'
 
 interface Goal {
   id: string
@@ -378,6 +379,7 @@ function CreateGoalModal({
   onClose: () => void
   onCreated: (goal: Goal) => void
 }) {
+  useScrollLock(true)
   const [loading, setLoading] = useState(false)
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
@@ -554,6 +556,7 @@ function UpdateProgressModal({
   onClose: () => void
   onUpdated: (goal: Goal, xpEarned?: number, leveledUp?: boolean, newLevel?: number) => void
 }) {
+  useScrollLock(true)
   const [loading, setLoading] = useState(false)
   const [value, setValue] = useState(String(goal.current_value))
   const progress = calcProgress(parseFloat(value) || 0, goal.target_value)

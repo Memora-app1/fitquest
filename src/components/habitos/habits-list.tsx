@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition, useOptimistic } from 'react'
+import { useState, useTransition, useOptimistic, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
@@ -49,6 +49,27 @@ export function HabitsList({
   const [deletingId, setDeletingId]   = useState<string | null>(null)
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
   const { toasts, showXp } = useXpToast()
+
+  // Pre-computa Map<habitId, Set<dateString>> uma vez — O(N) vs O(N × M) anterior.
+  // Sem isso, cada getLast30Days() e getCurrentStreak() filtrava weekLogs inteiro por hábito.
+  const logsByHabit = useMemo(() => {
+    const map = new Map<string, Set<string>>()
+    for (const log of weekLogs) {
+      if (!map.has(log.habit_id)) map.set(log.habit_id, new Set())
+      map.get(log.habit_id)!.add(log.logged_date)
+    }
+    return map
+  }, [weekLogs])
+
+  // Array de strings dos últimos 30 dias, calculado uma única vez por render.
+  const last30Dates = useMemo(() => {
+    const today = new Date()
+    return Array.from({ length: 30 }, (_, i) => {
+      const d = new Date(today)
+      d.setDate(today.getDate() - (29 - i))
+      return d.toISOString().split('T')[0]!
+    })
+  }, [])
 
   // React 19 useOptimistic — atualiza a UI instantaneamente antes da resposta do servidor.
   // Se o fetch falhar, o estado base (loggedToday) prevalece e o optimistic é revertido automaticamente.
@@ -118,30 +139,19 @@ export function HabitsList({
   }
 
   function getLast30Days(habitId: string): boolean[] {
-    const out: boolean[] = []
-    const logsByDate = new Set(
-      weekLogs.filter((l) => l.habit_id === habitId).map((l) => l.logged_date),
-    )
-    for (let i = 29; i >= 0; i--) {
-      const d = new Date()
-      d.setDate(d.getDate() - i)
-      out.push(logsByDate.has(d.toISOString().split('T')[0]!))
-    }
-    return out
+    const loggedDates = logsByHabit.get(habitId) ?? new Set<string>()
+    return last30Dates.map((d) => loggedDates.has(d))
   }
 
-  // Compute consecutive streak from today backwards
   function getCurrentStreak(habitId: string): number {
-    const logsByDate = new Set(
-      weekLogs.filter((l) => l.habit_id === habitId).map((l) => l.logged_date),
-    )
+    const loggedDates = logsByHabit.get(habitId) ?? new Set<string>()
+    const today = new Date()
     let streak = 0
-    const d = new Date()
-    while (true) {
-      const key = d.toISOString().split('T')[0]!
-      if (!logsByDate.has(key)) break
+    while (streak <= 30) {
+      const d = new Date(today)
+      d.setDate(today.getDate() - streak)
+      if (!loggedDates.has(d.toISOString().split('T')[0]!)) break
       streak++
-      d.setDate(d.getDate() - 1)
     }
     return streak
   }

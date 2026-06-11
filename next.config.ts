@@ -3,17 +3,29 @@ import type { NextConfig } from 'next'
 const nextConfig: NextConfig = {
   reactStrictMode: true,
 
+  // Remove o header "X-Powered-By: Next.js" — evita fingerprinting da stack
+  poweredByHeader: false,
+
+  // web-push usa módulos nativos do Node.js (crypto, http2).
+  // Marcá-lo como externo impede o bundler de tentar processá-lo para o browser.
+  serverExternalPackages: ['web-push'],
+
   experimental: {
     // Habilita a View Transitions API nativa do browser entre rotas.
     // Permite CSS ::view-transition-* para animações de navegação premium.
     viewTransition: true,
   },
-  
+
   images: {
+    // Prioriza formatos modernos: AVIF (~50% menor que JPEG) → WebP → JPEG fallback
+    formats: ['image/avif', 'image/webp'],
     remotePatterns: [
       { protocol: 'https', hostname: '*.supabase.co' },
       { protocol: 'https', hostname: 'lh3.googleusercontent.com' }, // Google avatars
     ],
+    // Tamanhos de device para gerar srcset correto — alinhado com breakpoints mobile-first
+    deviceSizes: [375, 430, 768, 1024, 1280, 1440],
+    imageSizes: [48, 96, 128, 256],
   },
 
   async headers() {

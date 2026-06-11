@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { useScrollLock } from '@/hooks/use-scroll-lock'
 import {
   ChevronLeft,
   ChevronRight,
@@ -112,6 +113,7 @@ interface EventModalProps {
 }
 
 function EventModal({ prefillDate, prefillEvent, onClose, onSaved }: EventModalProps) {
+  useScrollLock(true)
   const isEdit = !!prefillEvent
   const defaultHour = String(new Date().getHours()).padStart(2, '0')
   const defaultStart = `${prefillDate}T${defaultHour}:00`
@@ -407,6 +409,7 @@ interface DeleteConfirmProps {
 }
 
 function DeleteConfirm({ event, onClose, onDeleted }: DeleteConfirmProps) {
+  useScrollLock(true)
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {

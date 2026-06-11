@@ -27,6 +27,7 @@ import {
   Sparkles,
   Users,
   Layers,
+  Bell,
 } from 'lucide-react'
 import { NotificationBell } from './notification-bell'
 
@@ -63,6 +64,12 @@ const NAV_SECTIONS = [
     label: 'IA',
     items: [
       { href: '/coach', label: 'Coach IA', icon: Bot },
+    ],
+  },
+  {
+    label: 'Conta',
+    items: [
+      { href: '/notificacoes', label: 'Notificações', icon: Bell },
     ],
   },
 ]

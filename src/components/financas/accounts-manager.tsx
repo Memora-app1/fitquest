@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Plus, X, Pencil, Trash2, Wallet, CreditCard, TrendingUp, Building2 } from 'lucide-react'
 import { formatBRL } from '@/lib/utils'
 import { cn } from '@/lib/utils'
+import { useScrollLock } from '@/hooks/use-scroll-lock'
 
 interface Account {
   id: string
@@ -372,6 +373,7 @@ function AccountModal({
   onClose: () => void
   onSave: (account: Account) => void
 }) {
+  useScrollLock(true)
   const [name, setName] = useState(account?.name ?? '')
   const [type, setType] = useState(account?.type ?? 'checking')
   const [balance, setBalance] = useState(account ? String(Math.abs(account.current_balance)) : '')

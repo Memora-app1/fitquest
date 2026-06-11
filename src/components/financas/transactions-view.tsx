@@ -6,6 +6,7 @@ import { Plus, X, Search, Trash2, CheckCircle, Clock, TrendingUp, TrendingDown, 
 import { useXpToast, XpToastContainer } from '@/components/xp-toast'
 import { formatBRL, formatRelativeDate } from '@/lib/utils'
 import { cn } from '@/lib/utils'
+import { useScrollLock } from '@/hooks/use-scroll-lock'
 
 interface Transaction {
   id: string
@@ -405,6 +406,7 @@ export function TransactionsView({
 
 // ─── NoAccount ────────────────────────────────────────────────────────────────
 function NoAccountModal({ onClose }: { onClose: () => void }) {
+  useScrollLock(true)
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" style={{ backdropFilter: 'blur(4px)' }}>
       <div
@@ -443,6 +445,7 @@ function NewTransactionModal({
   onClose: () => void
   onCreated: (tx: Transaction) => void
 }) {
+  useScrollLock(true)
   const [type, setType] = useState<'expense' | 'income'>('expense')
   const [description, setDescription] = useState('')
   const [amount, setAmount] = useState('')

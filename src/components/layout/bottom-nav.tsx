@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils'
 import {
   LayoutDashboard, CheckSquare, Dumbbell, Bot,
   BarChart3, Trophy, Medal, Shield, Sparkles,
-  Heart, Wallet, Calendar, Flag, Target,
+  Heart, Wallet, Calendar, Flag, Target, Bell,
   MoreHorizontal, X,
 } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
@@ -34,7 +34,8 @@ const MORE_ITEMS: Array<{ href: string; label: string; icon: React.ElementType; 
   { href: '/financas',   label: 'Finanças',     icon: Wallet,     color: '#00D9FF' },
   { href: '/habitos',    label: 'Hábitos',      icon: Target,     color: '#FF4D00' },
   { href: '/metas',      label: 'Metas',        icon: Flag,       color: '#F5C842' },
-  { href: '/calendario', label: 'Calendário',   icon: Calendar,   color: '#7C3AED' },
+  { href: '/calendario',    label: 'Calendário',    icon: Calendar,  color: '#7C3AED' },
+  { href: '/notificacoes', label: 'Notificações',  icon: Bell,      color: '#FF4D00' },
 ]
 
 function haptic(pattern: number | number[] = 8) {

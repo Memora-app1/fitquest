@@ -74,6 +74,11 @@ export async function GET() {
   }
 
   let sent = 0
+  const deadSubIds: string[] = []
+  const notificationsToInsert: {
+    user_id: string; type: string; title: string; body: string
+    action_url: string; scheduled_for: string; sent_at: string
+  }[] = []
 
   for (const userId of toNotify) {
     const userTasks = byUser.get(userId) ?? []
@@ -96,10 +101,10 @@ export async function GET() {
           sub.keys_auth as string,
           { title, body, url: '/tarefas' }
         )
-        if (result.gone) await supabase.from('push_subscriptions').delete().eq('id', sub.id)
+        if (result.gone) deadSubIds.push(sub.id as string)
       }
 
-      await supabase.from('notifications').insert({
+      notificationsToInsert.push({
         user_id: userId,
         type: 'task_reminder',
         title,
@@ -114,6 +119,16 @@ export async function GET() {
       console.error(`task-reminders error for user ${userId}`, err)
     }
   }
+
+  // Batch: 2 queries no lugar de N queries individuais
+  await Promise.all([
+    notificationsToInsert.length > 0
+      ? supabase.from('notifications').insert(notificationsToInsert)
+      : Promise.resolve(),
+    deadSubIds.length > 0
+      ? supabase.from('push_subscriptions').delete().in('id', deadSubIds)
+      : Promise.resolve(),
+  ])
 
   return NextResponse.json({ ok: true, sent, total: toNotify.length, date: today })
 }

@@ -48,11 +48,20 @@ export async function GET() {
 
   const userIds = users.map((u) => u.id)
 
-  // ── 2. Emails via auth admin (1 chamada) ──────────────────────────────────────
-  const { data: authUsers } = await supabase.auth.admin.listUsers()
+  // ── 2. Emails via auth admin — paginado para cobrir >50 usuários ──────────────
+  // listUsers() retorna no máx. 50 por página por padrão.
+  // Sem paginação, usuários acima do 50º nunca recebem o digest.
   const emailMap = new Map<string, string>()
-  for (const u of authUsers?.users ?? []) {
-    if (u.email) emailMap.set(u.id, u.email)
+  let page = 1
+  const perPage = 1000
+  while (true) {
+    const { data: authPage } = await supabase.auth.admin.listUsers({ page, perPage })
+    const pageUsers = authPage?.users ?? []
+    for (const u of pageUsers) {
+      if (u.email) emailMap.set(u.id, u.email)
+    }
+    if (pageUsers.length < perPage) break
+    page++
   }
 
   // ── 3. Batch: todas as queries de dados em paralelo (4 queries para TODOS) ───

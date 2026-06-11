@@ -29,6 +29,7 @@ import { WeeklyReport } from '@/components/dashboard/weekly-report'
 import { NextAchievementWidget } from '@/components/dashboard/next-achievement-widget'
 import { StreakLeaderboard } from '@/components/dashboard/streak-leaderboard'
 import { StreakRiskBanner } from '@/components/dashboard/streak-risk-banner'
+import { StreakNudgeBanner } from '@/components/dashboard/streak-nudge-banner'
 import { XpToday } from '@/components/dashboard/xp-today'
 import { NextAction } from '@/components/dashboard/next-action'
 import { LeagueWidget } from '@/components/dashboard/league-widget'
@@ -359,6 +360,9 @@ export default async function DashboardPage({
           hasActivityToday={hasActivityToday}
           freezes={(profile.streak_freezes as number) ?? 0}
         />
+
+        {/* Streak nudge — aparece quando está a 1 dia de um marco XP (7, 30, 90) */}
+        <StreakNudgeBanner streakCurrent={profile.streak_current} />
 
         {/* Streak milestone — celebração em marcos especiais */}
         <Suspense fallback={null}>
