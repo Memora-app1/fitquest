@@ -15,16 +15,20 @@ export default function Icon() {
           alignItems: 'center',
           justifyContent: 'center',
           background: '#050914',
-          borderRadius: '115px',
         }}
       >
         <div
           style={{
-            fontSize: 320,
-            lineHeight: 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: 384,
+            height: 384,
+            background: 'linear-gradient(135deg, #FF4D00 0%, #7C3AED 100%)',
+            borderRadius: 84,
           }}
         >
-          ⚡
+          <span style={{ fontSize: 220, lineHeight: 1 }}>⚡</span>
         </div>
       </div>
     ),

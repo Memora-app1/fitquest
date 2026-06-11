@@ -7,40 +7,39 @@
   "background_color": "#050914",
   "theme_color": "#050914",
   "orientation": "portrait",
+  "scope": "/",
   "icons": [
     {
-      "src": "/favicon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/icon-192.png",
-      "sizes": "192x192",
+      "src": "/icon",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icon-512.png",
-      "sizes": "512x512",
+      "src": "/apple-icon",
+      "sizes": "180x180",
       "type": "image/png",
       "purpose": "maskable"
     }
   ],
-  "screenshots": [
+  "shortcuts": [
     {
-      "src": "/screenshots/mobile-dashboard.png",
-      "sizes": "390x844",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Dashboard com XP e hábitos do dia"
+      "name": "Novo hábito",
+      "short_name": "Hábito",
+      "url": "/habitos?new=1",
+      "icons": [{ "src": "/icon", "sizes": "512x512", "type": "image/png" }]
     },
     {
-      "src": "/screenshots/mobile-fitness.png",
-      "sizes": "390x844",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Módulo de fitness com treinos e streaks"
+      "name": "Novo treino",
+      "short_name": "Treino",
+      "url": "/treinos/novo",
+      "icons": [{ "src": "/icon", "sizes": "512x512", "type": "image/png" }]
+    },
+    {
+      "name": "Nova tarefa",
+      "short_name": "Tarefa",
+      "url": "/tarefas?new=1",
+      "icons": [{ "src": "/icon", "sizes": "512x512", "type": "image/png" }]
     }
   ],
   "categories": ["health", "fitness", "productivity", "finance"]

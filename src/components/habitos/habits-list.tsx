@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils'
 import { Check, Plus, X, Trash2, MoreVertical, Pencil, Flame, Zap, Bell, Sparkles } from 'lucide-react'
 import { useXpToast, XpToastContainer } from '@/components/xp-toast'
 import { HabitPacksModal } from './habit-packs'
+import { useScrollLock } from '@/hooks/use-scroll-lock'
 
 interface Habit {
   id: string
@@ -468,6 +469,7 @@ function CreateHabitModal({
   const [color, setColor] = useState('#FF4D00')
   const [freq, setFreq] = useState(4)
   const [reminderTime, setReminderTime] = useState('')
+  useScrollLock(true)
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
@@ -505,8 +507,9 @@ function CreateHabitModal({
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end md:items-center justify-center p-4">
       <div
-        className="w-full max-w-md p-6 space-y-4 animate-slide-up rounded-2xl relative overflow-hidden"
+        className="w-full max-w-md p-6 space-y-4 animate-slide-up rounded-2xl relative overflow-hidden overflow-y-auto"
         style={{
+          maxHeight: '90dvh',
           background: 'linear-gradient(135deg, rgba(255,77,0,0.08) 0%, rgba(13,24,41,0.99) 100%)',
           border: '1px solid rgba(255,77,0,0.25)',
           boxShadow: '0 24px 60px rgba(0,0,0,0.5)',
@@ -666,6 +669,7 @@ function EditHabitModal({
   const [reminderTime, setReminderTime] = useState(
     habit.reminder_time ? habit.reminder_time.slice(0, 5) : ''
   )
+  useScrollLock(true)
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
@@ -693,8 +697,9 @@ function EditHabitModal({
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end md:items-center justify-center p-4">
       <div
-        className="w-full max-w-md p-6 space-y-4 animate-slide-up rounded-2xl relative overflow-hidden"
+        className="w-full max-w-md p-6 space-y-4 animate-slide-up rounded-2xl relative overflow-hidden overflow-y-auto"
         style={{
+          maxHeight: '90dvh',
           background: 'linear-gradient(135deg, rgba(124,58,237,0.08) 0%, rgba(13,24,41,0.99) 100%)',
           border: '1px solid rgba(124,58,237,0.25)',
           boxShadow: '0 24px 60px rgba(0,0,0,0.5)',

@@ -7,6 +7,7 @@ import {
   DragOverlay,
   DragStartEvent,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   closestCorners,
@@ -14,6 +15,7 @@ import {
 import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { useRouter } from 'next/navigation'
+import { useScrollLock } from '@/hooks/use-scroll-lock'
 import {
   Plus, X, AlertCircle, GripVertical, Check, Trash2, Calendar,
   ChevronRight, ListTodo, Loader2, CheckCircle2, Zap, ChevronDown, ListChecks,
@@ -49,6 +51,7 @@ export function KanbanBoard({ initialTasks, initialLists = [] }: { initialTasks:
   const [savingList, setSavingList] = useState(false)
   const [confirmDeleteListId, setConfirmDeleteListId] = useState<string | null>(null)
   const { toasts, showXp } = useXpToast()
+  useScrollLock(!!confirmDeleteListId)
 
   const LIST_COLORS = ['#7C3AED', '#FF4D00', '#00FF88', '#F5C842', '#3B82F6', '#EC4899']
 
@@ -98,7 +101,10 @@ export function KanbanBoard({ initialTasks, initialLists = [] }: { initialTasks:
     ? tasks.filter(t => t.list_id === selectedListId)
     : tasks
 
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }))
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 8 } }),
+  )
 
   function setTaskLoading(id: string, loading: boolean) {
     setLoadingIds((prev) => {
@@ -786,6 +792,7 @@ function NewTaskModal({
   const [dueDate, setDueDate] = useState('')
   const [description, setDescription] = useState('')
   const [loading, setLoading] = useState(false)
+  useScrollLock(true)
 
   const xpPreview = urgent && important ? 50 : 30
 
@@ -820,8 +827,9 @@ function NewTaskModal({
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-end md:items-center justify-center p-4" style={{ backdropFilter: 'blur(4px)' }}>
       <div
-        className="w-full max-w-md p-6 space-y-4 rounded-2xl relative overflow-hidden"
+        className="w-full max-w-md p-6 space-y-4 rounded-2xl relative overflow-hidden overflow-y-auto"
         style={{
+          maxHeight: '90dvh',
           background: 'linear-gradient(135deg, rgba(255,77,0,0.08) 0%, rgba(13,24,41,0.99) 100%)',
           border: '1px solid rgba(255,77,0,0.25)',
           boxShadow: '0 24px 60px rgba(0,0,0,0.5)',

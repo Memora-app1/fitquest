@@ -72,6 +72,27 @@ export async function POST(req: NextRequest) {
   // XP
   await grantXP(user.id, XP_REWARDS.TRANSACTION_LOGGED, `Transação: ${base.description}`, 'transaction', data?.[0]?.id)
 
+  // Finance streak — atualiza consecutividade de dias com transações
+  const todayStr = new Date().toISOString().split('T')[0]!
+  const { data: prof } = await supabase
+    .from('profiles')
+    .select('finance_streak, last_finance_date')
+    .eq('id', user.id)
+    .single()
+  if (prof) {
+    const lastDate = prof.last_finance_date as string | null
+    const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0]!
+    if (lastDate !== todayStr) {
+      const newStreak = lastDate === yesterday ? ((prof.finance_streak as number) ?? 0) + 1 : 1
+      await supabase
+        .from('profiles')
+        .update({ finance_streak: newStreak, last_finance_date: todayStr })
+        .eq('id', user.id)
+      if (newStreak === 7)  await grantXP(user.id, XP_REWARDS.FINANCE_STREAK_7,  'Finance Streak 7 dias',  'bonus')
+      if (newStreak === 30) await grantXP(user.id, XP_REWARDS.FINANCE_STREAK_30, 'Finance Streak 30 dias', 'bonus')
+    }
+  }
+
   // Conquistas de transação
   const { count } = await supabase
     .from('transactions')

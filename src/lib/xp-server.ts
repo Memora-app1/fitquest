@@ -257,7 +257,7 @@ export async function tryUnlockAchievement(
 export async function createDailyLoot(
   userId: string,
   date: string,
-  source: 'perfect_day' | 'login_streak' = 'perfect_day'
+  source: 'perfect_day' | 'login_streak' | 'login_day7' = 'perfect_day'
 ): Promise<boolean> {
   const supabase = createServiceClient()
 

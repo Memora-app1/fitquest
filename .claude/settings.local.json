@@ -144,7 +144,20 @@
       "Bash(dir src\\\\app\\\\api\\\\cron /b)",
       "Bash(npm show *)",
       "PowerShell(New-Item -ItemType Directory -Force \"C:\\\\Users\\\\SURFACE\\\\Downloads\\\\fitquest_2\\\\fitquest\\\\src\\\\components\\\\seasons\")",
-      "Bash(node -e \"const pkg = require\\('./node_modules/@anthropic-ai/sdk/package.json'\\); console.log\\(pkg.version\\)\")"
+      "Bash(node -e \"const pkg = require\\('./node_modules/@anthropic-ai/sdk/package.json'\\); console.log\\(pkg.version\\)\")",
+      "Bash(gh run *)",
+      "PowerShell(Get-Content \"c:\\\\Users\\\\SURFACE\\\\Downloads\\\\fitquest_2\\\\fitquest\\\\.env.local\" | ForEach-Object { if \\($_ -match '^\\([A-Z_]+\\)=\\(.+\\)'\\) { $name = $matches[1]; $val = $matches[2]; if \\($val -notmatch '^\\\\.\\\\.\\\\.|^$|^seu_'\\) { \"$name=SET\" } else { \"$name=EMPTY\" } } elseif \\($_ -match '^\\([A-Z_]+\\)=$'\\) { \"$\\($matches[1]\\)=EMPTY\" } })",
+      "Bash(xargs grep -l \"max-width\\\\|max-h\\\\|w-\\\\|h-\")",
+      "PowerShell(cd \"c:\\\\Users\\\\SURFACE\\\\Downloads\\\\fitquest_2\\\\fitquest\"; Get-Content src/components/guilds/guilds-client.tsx | Select-Object -First 5; Write-Host \"---LINES:\"; \\(Get-Content src/components/guilds/guilds-client.tsx\\).Count)",
+      "Bash(Test-Path \"c:\\\\Users\\\\SURFACE\\\\Downloads\\\\fitquest_2\\\\fitquest\\\\src\\\\app\\\\icon.tsx\")",
+      "Bash(Test-Path \"c:\\\\Users\\\\SURFACE\\\\Downloads\\\\fitquest_2\\\\fitquest\\\\src\\\\app\\\\apple-icon.tsx\")",
+      "Bash(Test-Path \"c:\\\\Users\\\\SURFACE\\\\Downloads\\\\fitquest_2\\\\fitquest\\\\src\\\\components\\\\service-worker-init.tsx\")",
+      "Bash(Test-Path \"c:\\\\Users\\\\SURFACE\\\\Downloads\\\\fitquest_2\\\\fitquest\\\\src\\\\hooks\\\\use-scroll-lock.ts\")",
+      "Bash(find src/app/api/cron -name \"*.ts\")",
+      "Bash(dir /s /b src\\\\app\\\\api\\\\cron\\\\*.ts)",
+      "Bash(node -e \"const wp = require\\('web-push'\\); const keys = wp.generateVAPIDKeys\\(\\); console.log\\('PUBLIC:', keys.publicKey\\); console.log\\('PRIVATE:', keys.privateKey\\);\")",
+      "Bash(find src/app/api/recovery-mode -name \"*.ts\")",
+      "Bash(dir /s /b src\\\\app\\\\api\\\\recovery-mode\\\\*.ts)"
     ],
     "additionalDirectories": [
       "c:\\Users\\SURFACE\\Downloads\\fitquest_2\\fitquest\\src\\app\\treinos",

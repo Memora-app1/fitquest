@@ -10,7 +10,7 @@
 
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { grantXP } from '@/lib/xp-server'
+import { grantXP, createDailyLoot } from '@/lib/xp-server'
 import { getLoginReward } from '@/lib/xp'
 
 const SP_OFFSET = -3 * 3600000
@@ -71,6 +71,11 @@ export async function POST() {
     `Login diário — Dia ${dayInCycle} do ciclo`,
     'login'
   )
+
+  // Dia 7 do ciclo: cria loot box bônus (idempotente via UNIQUE constraint)
+  if (isWeekComplete) {
+    await createDailyLoot(user.id, today, 'login_day7')
+  }
 
   return NextResponse.json({
     alreadyClaimed: false,

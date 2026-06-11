@@ -2,6 +2,7 @@
 import { DM_Sans, Bebas_Neue } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { SpeedInsights } from '@vercel/speed-insights/next'
+import { ServiceWorkerInit } from '@/components/service-worker-init'
 import './globals.css'
 
 const dmSans = DM_Sans({
@@ -50,11 +51,6 @@ export const metadata: Metadata = {
     address: false,
     email: false,
   },
-  icons: {
-    icon: '/favicon.svg',
-    shortcut: '/favicon.svg',
-    apple: '/favicon.svg',
-  },
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
@@ -76,6 +72,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="pt-BR" className={`${dmSans.variable} ${bebas.variable}`}>
       <body className="min-h-screen">
+        <ServiceWorkerInit />
         {children}
         <Analytics />
         <SpeedInsights />

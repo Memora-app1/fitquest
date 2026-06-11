@@ -34,7 +34,6 @@ import { NextAction } from '@/components/dashboard/next-action'
 import { LeagueWidget } from '@/components/dashboard/league-widget'
 import { LootBoxWidget } from '@/components/dashboard/loot-box-widget'
 import { SeasonPassWidget } from '@/components/dashboard/season-pass-widget'
-import { LoginCheckinWidget } from '@/components/dashboard/login-checkin-widget'
 import { GuildWidget } from '@/components/dashboard/guild-widget'
 import { RecoveryModeWidget } from '@/components/dashboard/recovery-mode-widget'
 import { getGreeting, todayString } from '@/lib/utils'
@@ -483,12 +482,6 @@ export default async function DashboardPage({
         <Suspense fallback={null}>
           <NextAchievementWidget userId={user.id} />
         </Suspense>
-
-        {/* Login check-in diário */}
-        <LoginCheckinWidget
-          lastLoginDate={(profile.last_login_date as string | null) ?? null}
-          loginStreak={(profile.login_streak as number) ?? 0}
-        />
 
         {/* Loot box — aparece quando há recompensa pendente */}
         {pendingLoot && (

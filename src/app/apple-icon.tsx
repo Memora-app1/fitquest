@@ -15,16 +15,20 @@ export default function AppleIcon() {
           alignItems: 'center',
           justifyContent: 'center',
           background: '#050914',
-          borderRadius: '40px',
         }}
       >
         <div
           style={{
-            fontSize: 110,
-            lineHeight: 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: 144,
+            height: 144,
+            background: 'linear-gradient(135deg, #FF4D00 0%, #7C3AED 100%)',
+            borderRadius: 32,
           }}
         >
-          ⚡
+          <span style={{ fontSize: 80, lineHeight: 1 }}>⚡</span>
         </div>
       </div>
     ),
