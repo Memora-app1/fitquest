@@ -8,6 +8,7 @@ interface XpToast {
   xp: number
   perfectDay?: boolean
   leveledUp?: number
+  criticalHit?: boolean
   timestamp: number
 }
 
@@ -17,7 +18,7 @@ let toastId = 0
 export function useXpToast() {
   const [toasts, setToasts] = useState<XpToast[]>([])
 
-  function showXp(xp: number, opts?: { perfectDay?: boolean; leveledUp?: number }) {
+  function showXp(xp: number, opts?: { perfectDay?: boolean; leveledUp?: number; criticalHit?: boolean }) {
     if (xp <= 0) return
     const id = ++toastId
     const timestamp = Date.now()
@@ -141,6 +142,37 @@ function XpToastItem({ toast: t }: { toast: XpToast }) {
           <div className="text-xs text-text-secondary flex items-center gap-1 mt-0.5">
             <Zap size={10} fill="currentColor" className="text-brand-gold" />
             +{t.xp} XP desta ação
+          </div>
+        </div>
+        <ProgressBar duration={TOAST_DURATION} />
+      </div>
+    )
+  }
+
+  if (t.criticalHit) {
+    return (
+      <div
+        className="relative rounded-2xl px-5 py-3.5 flex items-center gap-3 shadow-2xl overflow-hidden"
+        style={{
+          ...baseStyle,
+          background: 'linear-gradient(135deg, rgba(255,77,0,0.28) 0%, rgba(245,200,66,0.18) 50%, rgba(13,24,41,0.98) 100%)',
+          border: '1px solid rgba(255,77,0,0.6)',
+          boxShadow: '0 8px 32px rgba(255,77,0,0.35)',
+          minWidth: 230,
+        }}
+      >
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{ background: 'radial-gradient(circle at 10% 50%, rgba(255,77,0,0.18) 0%, transparent 60%)' }}
+        />
+        <div className="text-3xl relative z-10" style={{ animation: 'bounceIn 0.4s cubic-bezier(0.34,1.56,0.64,1)' }}>⚡</div>
+        <div className="relative z-10">
+          <div className="font-black text-brand-orange leading-tight text-base tracking-wide uppercase">
+            Golpe Crítico!
+          </div>
+          <div className="text-xs text-brand-gold flex items-center gap-1 mt-0.5 font-bold">
+            <Zap size={10} fill="currentColor" />
+            +{t.xp} XP · 2× multiplicador
           </div>
         </div>
         <ProgressBar duration={TOAST_DURATION} />

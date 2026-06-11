@@ -60,11 +60,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'db_error', detail: logError.message }, { status: 500 })
   }
 
+  // Golpe Crítico — 10% de chance de XP 2× (variable reward schedule)
+  const criticalHit = Math.random() < 0.10
+  const finalXp = criticalHit ? habit.xp_per_completion * 2 : habit.xp_per_completion
+
   // Conceder XP
   const xpResult = await grantXP(
     user.id,
-    habit.xp_per_completion,
-    `Hábito: ${habit.name}`,
+    finalXp,
+    criticalHit ? `⚡ CRÍTICO: ${habit.name}` : `Hábito: ${habit.name}`,
     'habit',
     habitId
   )
@@ -127,6 +131,7 @@ export async function POST(req: NextRequest) {
     leveledUp:            xpResult.leveledUp,
     newLevel:             xpResult.newLevel,
     perfectDay:           perfectDayBonus > 0,
+    criticalHit:          criticalHit,
     achievementsUnlocked: xpResult.achievementsUnlocked,
   })
 }

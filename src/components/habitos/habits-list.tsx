@@ -99,11 +99,16 @@ export function HabitsList({
         const data = await res.json() as {
           xpEarned?: number; perfectDay?: boolean;
           leveledUp?: boolean; newLevel?: number;
+          criticalHit?: boolean;
           achievementsUnlocked?: string[]
+        }
+        if (data.criticalHit) {
+          if (navigator.vibrate) navigator.vibrate([15, 8, 30, 8, 60, 15, 100])
         }
         showXp(data.xpEarned ?? 0, {
           perfectDay: data.perfectDay,
           leveledUp: data.leveledUp ? data.newLevel : undefined,
+          criticalHit: data.criticalHit,
         })
         if (data.perfectDay) {
           if (navigator.vibrate) navigator.vibrate([40, 20, 80, 20, 120])
@@ -341,6 +346,10 @@ export function HabitsList({
                         <Zap size={10} fill="currentColor" />
                         +{h.xp_per_completion} XP
                       </span>
+                      <span>·</span>
+                      <span className="text-[10px] font-semibold">
+                        {h.xp_per_completion >= 100 ? '🔴 Difícil' : h.xp_per_completion >= 75 ? '🟡 Médio' : '🟢 Fácil'}
+                      </span>
                       {currentStreak > 0 && (
                         <>
                           <span>·</span>
@@ -556,6 +565,8 @@ function CreateHabitModal({
   const [color, setColor] = useState('#FF4D00')
   const [freq, setFreq] = useState(4)
   const [reminderTime, setReminderTime] = useState('')
+  const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('easy')
+  const XP_BY_DIFFICULTY = { easy: 50, medium: 75, hard: 100 }
   useScrollLock(true)
 
   async function submit(e: React.FormEvent) {
@@ -580,7 +591,7 @@ function CreateHabitModal({
         target_period: 'week',
         target_unit: 'vez',
         frequency_per_week: freq,
-        xp_per_completion: 50,
+        xp_per_completion: XP_BY_DIFFICULTY[difficulty],
         reminder_time: reminderTime ? reminderTime + ':00' : null,
       })
       .select('id, name, icon, color, category, xp_per_completion, frequency_per_week')
@@ -717,6 +728,36 @@ function CreateHabitModal({
                 🔔 Push às {reminderTime} se não logado ainda
               </p>
             )}
+          </div>
+
+          {/* Dificuldade */}
+          <div>
+            <label className="text-sm text-text-secondary block mb-2">
+              Dificuldade
+              <span className="ml-2 text-xs text-text-muted">(define o XP ganho)</span>
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              {([
+                { key: 'easy',   label: 'Fácil',   emoji: '🟢', xp: 50,  color: '#00FF88' },
+                { key: 'medium', label: 'Médio',   emoji: '🟡', xp: 75,  color: '#F5C842' },
+                { key: 'hard',   label: 'Difícil', emoji: '🔴', xp: 100, color: '#FF4D00' },
+              ] as const).map((d) => (
+                <button
+                  key={d.key}
+                  type="button"
+                  onClick={() => setDifficulty(d.key)}
+                  className="py-2.5 rounded-xl text-xs font-semibold transition-all active:scale-95 flex flex-col items-center gap-0.5"
+                  style={
+                    difficulty === d.key
+                      ? { background: `${d.color}20`, border: `1.5px solid ${d.color}`, color: d.color }
+                      : { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#8899BB' }
+                  }
+                >
+                  <span>{d.emoji} {d.label}</span>
+                  <span className="text-[10px] font-bold opacity-75">+{d.xp} XP</span>
+                </button>
+              ))}
+            </div>
           </div>
 
           <button

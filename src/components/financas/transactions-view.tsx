@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Plus, X, Search, Trash2, CheckCircle, Clock, TrendingUp, TrendingDown, Minus } from 'lucide-react'
+import { Plus, X, Search, Trash2, CheckCircle, Clock, TrendingUp, TrendingDown, Minus, RefreshCw } from 'lucide-react'
 import { useXpToast, XpToastContainer } from '@/components/xp-toast'
 import { formatBRL, formatRelativeDate } from '@/lib/utils'
 import { cn } from '@/lib/utils'
@@ -18,6 +18,7 @@ interface Transaction {
   is_installment: boolean
   installment_current: number | null
   installment_total: number | null
+  is_recurring: boolean
   category_id: string | null
   account_id: string | null
 }
@@ -38,7 +39,7 @@ interface Category {
   is_global: boolean
 }
 
-type FilterType = 'all' | 'income' | 'expense' | 'pending'
+type FilterType = 'all' | 'income' | 'expense' | 'pending' | 'subscription'
 
 function groupByDate(txs: Transaction[]): [string, Transaction[]][] {
   const map = new Map<string, Transaction[]>()
@@ -89,6 +90,7 @@ export function TransactionsView({
     if (filter === 'income') result = result.filter((t) => t.type === 'income')
     else if (filter === 'expense') result = result.filter((t) => t.type === 'expense')
     else if (filter === 'pending') result = result.filter((t) => !t.is_paid)
+    else if (filter === 'subscription') result = result.filter((t) => t.is_recurring && t.type === 'expense')
     if (search.trim()) {
       const q = search.toLowerCase()
       result = result.filter((t) => t.description.toLowerCase().includes(q))
@@ -128,11 +130,16 @@ export function TransactionsView({
     router.refresh()
   }
 
+  const subscriptionTotal = localTxs
+    .filter((t) => t.is_recurring && t.type === 'expense')
+    .reduce((s, t) => s + Number(t.amount), 0)
+
   const FILTER_TABS: { key: FilterType; label: string }[] = [
     { key: 'all', label: 'Tudo' },
     { key: 'income', label: 'Receitas' },
     { key: 'expense', label: 'Despesas' },
     { key: 'pending', label: `Pendentes${pendingCount > 0 ? ` (${pendingCount})` : ''}` },
+    { key: 'subscription', label: '🔄 Assinaturas' },
   ]
 
   return (
@@ -207,6 +214,36 @@ export function TransactionsView({
           Nova transação
         </button>
       </div>
+
+      {/* Subscription summary panel */}
+      {filter === 'subscription' && (
+        <div
+          className="rounded-2xl p-4 relative overflow-hidden"
+          style={{
+            background: 'linear-gradient(135deg, rgba(124,58,237,0.10) 0%, rgba(13,24,41,0.98) 100%)',
+            border: '1px solid rgba(124,58,237,0.3)',
+          }}
+        >
+          <div className="absolute -top-4 -right-4 w-20 h-20 rounded-full pointer-events-none blur-xl" style={{ background: 'rgba(124,58,237,0.18)' }} />
+          <div className="relative z-10 flex items-center justify-between">
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <RefreshCw size={14} style={{ color: '#7C3AED' }} />
+                <span className="text-xs font-bold uppercase tracking-wider" style={{ color: '#7C3AED' }}>
+                  Assinaturas recorrentes
+                </span>
+              </div>
+              <div className="text-xs text-text-muted">
+                {filtered.length} assinatura{filtered.length !== 1 ? 's' : ''} ativa{filtered.length !== 1 ? 's' : ''}
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="heading-display text-2xl text-brand-red">{formatBRL(subscriptionTotal)}</div>
+              <div className="text-[10px] text-text-muted">total registrado</div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Filter tabs */}
       <div className="flex gap-2 overflow-x-auto pb-1">
