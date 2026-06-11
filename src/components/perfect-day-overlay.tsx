@@ -8,6 +8,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { X, Star, Zap } from 'lucide-react'
+import { useScrollLock } from '@/hooks/use-scroll-lock'
 
 const CONFETTI_COLORS = ['#F5C842', '#FF4D00', '#00FF88', '#7C3AED', '#FFFFFF', '#FFB347']
 const CONFETTI_COUNT = 50
@@ -67,6 +68,7 @@ export function PerfectDayOverlay() {
   const [animating, setAnimating]   = useState(false)
   const [dismissing, setDismissing] = useState(false)
   const [confetti] = useState<Piece[]>(generateConfetti)
+  useScrollLock(visible)
   const lastFired = useRef(0)
 
   const dismiss = useCallback(() => {

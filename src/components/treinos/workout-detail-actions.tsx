@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Trash2, RefreshCw, AlertTriangle } from 'lucide-react'
+import { useScrollLock } from '@/hooks/use-scroll-lock'
 
 interface ExerciseEntry {
   exercise_name: string
@@ -24,6 +25,7 @@ export function WorkoutDetailActions({
   const router = useRouter()
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  useScrollLock(showDeleteConfirm)
 
   async function deleteWorkout() {
     setDeleting(true)

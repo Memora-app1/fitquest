@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { X, Sparkles, Check, Loader2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { useScrollLock } from '@/hooks/use-scroll-lock'
 
 interface HabitTemplate {
   name: string
@@ -108,6 +109,7 @@ export function HabitPacksModal({
   const [selectedPack, setSelectedPack] = useState<Pack | null>(null)
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
+  useScrollLock(true)
 
   async function handleInstall() {
     if (!selectedPack || loading) return

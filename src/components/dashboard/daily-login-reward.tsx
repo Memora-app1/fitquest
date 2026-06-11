@@ -9,6 +9,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Zap, X, Star, Gift } from 'lucide-react'
 import { useXpToast, XpToastContainer } from '@/components/xp-toast'
+import { useScrollLock } from '@/hooks/use-scroll-lock'
 
 const DAY_REWARDS = [20, 30, 50, 75, 100, 150, 300]
 const DAY_EMOJIS  = ['🌟', '⚡', '🔥', '💪', '🏆', '💎', '🎁']
@@ -29,6 +30,7 @@ export function DailyLoginReward() {
   const [open, setOpen] = useState(false)
   const [claiming, setClaiming] = useState(false)
   const [claimed, setClaimed] = useState(false)
+  useScrollLock(open)
   const [data, setData] = useState<{
     loginStreak: number
     xpReward: number

@@ -13,6 +13,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { X, Zap, Star, TrendingUp } from 'lucide-react'
 import { getLevelInfo, LEVELS } from '@/lib/xp'
+import { useScrollLock } from '@/hooks/use-scroll-lock'
 
 // ─── Confetti config ─────────────────────────────────────────────────────────
 const CONFETTI_COLORS = [
@@ -134,6 +135,7 @@ export function LevelUpCelebration() {
   const [confetti] = useState<ConfettiPiece[]>(generateConfetti)
   const [dismissing, setDismissing] = useState(false)
   const [visible, setVisible] = useState(false)
+  useScrollLock(visible)
 
   const dismiss = useCallback(() => {
     setDismissing(true)

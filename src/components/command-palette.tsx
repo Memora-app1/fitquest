@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import { useScrollLock } from '@/hooks/use-scroll-lock'
 import {
   Search,
   X,
@@ -358,6 +359,7 @@ export function CommandPalette({ variant = 'bar' }: CommandPaletteProps) {
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
+  useScrollLock(open)
 
   // Open on Cmd+K / Ctrl+K — register only once per variant='bar' to avoid double-firing
   useEffect(() => {

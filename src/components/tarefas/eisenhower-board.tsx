@@ -6,6 +6,7 @@ import { Plus, X, Check, Trash2, AlertCircle, Star, Clock, SkipForward, ChevronD
 import { cn } from '@/lib/utils'
 import type { Task, TaskStatus } from '@/lib/supabase/types'
 import { useXpToast, XpToastContainer } from '@/components/xp-toast'
+import { useScrollLock } from '@/hooks/use-scroll-lock'
 
 const QUADRANTS = [
   {
@@ -544,6 +545,7 @@ function NewTaskModal({
   const [title, setTitle] = useState('')
   const [dueDate, setDueDate] = useState('')
   const [loading, setLoading] = useState(false)
+  useScrollLock(true)
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()

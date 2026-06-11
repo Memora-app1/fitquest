@@ -6,6 +6,7 @@ import { Plus, X, Trash2, PlusCircle, Trophy, TrendingUp, Calendar } from 'lucid
 import { formatBRL, calcPercentage } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 import { useXpToast, XpToastContainer } from '@/components/xp-toast'
+import { useScrollLock } from '@/hooks/use-scroll-lock'
 
 interface FinanceGoal {
   id: string
@@ -306,6 +307,7 @@ function CreateGoalModal({
   onClose: () => void
   onCreate: (goal: FinanceGoal) => void
 }) {
+  useScrollLock(true)
   const [title, setTitle] = useState('')
   const [icon, setIcon] = useState('🎯')
   const [color, setColor] = useState('#00FF88')
@@ -501,6 +503,7 @@ function ContributeModal({
   onClose: () => void
   onUpdate: (updated: FinanceGoal, xpEarned?: number, leveledUp?: boolean, newLevel?: number, achievementsUnlocked?: string[]) => void
 }) {
+  useScrollLock(true)
   const [amount, setAmount] = useState('')
   const [loading, setLoading] = useState(false)
 

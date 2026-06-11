@@ -12,6 +12,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { Bot, X, Zap, MessageCircle } from 'lucide-react'
+import { useScrollLock } from '@/hooks/use-scroll-lock'
 
 // Rotas que exibem o MobileFab — usado para empurrar o MiniCoachFab para cima
 const MOBILE_FAB_ROUTES = new Set(['/habitos', '/treinos', '/tarefas', '/financas', '/saude'])
@@ -29,6 +30,7 @@ export function MiniCoachFab() {
   const [pulse, setPulse] = useState(false)
   const router   = useRouter()
   const pathname = usePathname()
+  useScrollLock(open)
 
   useEffect(() => {
     const timer = setInterval(() => {

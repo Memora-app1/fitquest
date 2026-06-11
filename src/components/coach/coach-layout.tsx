@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Plus, Trash2, MessageSquare, X, Edit3, Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { CoachChat } from '@/components/coach/coach-chat'
+import { useScrollLock } from '@/hooks/use-scroll-lock'
 
 interface Conversation {
   id: string
@@ -48,6 +49,7 @@ export function CoachLayout({
   const [conversations, setConversations] = useState<Conversation[]>(serverConversations)
   const [showSidebar, setShowSidebar] = useState(false)
   const [creatingNew, setCreatingNew] = useState(false)
+  useScrollLock(showSidebar)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editTitle, setEditTitle] = useState('')

@@ -9,6 +9,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { X, Bell, Flame, Trophy, Zap, Shield, Target, CheckCircle, Clock } from 'lucide-react'
 import Link from 'next/link'
+import { useScrollLock } from '@/hooks/use-scroll-lock'
 
 interface Notification {
   id: string
@@ -55,6 +56,7 @@ export function NotificationDrawer({ open, onClose, initialUnread, onRead }: Not
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [loading, setLoading] = useState(false)
   const [marked, setMarked] = useState(false)
+  useScrollLock(open)
 
   // Detecta desktop para aplicar o slide correto (direita → esquerda vs baixo → cima)
   const [isDesktop, setIsDesktop] = useState(false)
