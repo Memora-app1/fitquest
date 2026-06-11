@@ -21,6 +21,7 @@ interface UserStats {
   perfectDays: number
   totalTransactions: number
   level: number
+  totalHabits: number
 }
 
 // Estimativa de progresso para cada slug de conquista
@@ -33,8 +34,17 @@ function estimateProgress(slug: string, stats: UserStats): { current: number; ta
   if (s === 'streak_14')   return { current: stats.streakCurrent, target: 14 }
   if (s === 'streak_30')   return { current: stats.streakCurrent, target: 30 }
   if (s === 'streak_60')   return { current: stats.streakCurrent, target: 60 }
+  if (s === 'streak_90')   return { current: stats.streakCurrent, target: 90 }
   if (s === 'streak_100')  return { current: stats.streakCurrent, target: 100 }
+  if (s === 'streak_180')  return { current: stats.streakCurrent, target: 180 }
   if (s === 'streak_365')  return { current: stats.streakCurrent, target: 365 }
+
+  // Habit-based (first_habit usa totalHabits criados; logs usam totalHabitLogs)
+  if (s === 'first_habit')        return { current: stats.totalHabits,    target: 1 }
+  if (s === 'habit_logs_10')      return { current: stats.totalHabitLogs, target: 10 }
+  if (s === 'habit_logs_50')      return { current: stats.totalHabitLogs, target: 50 }
+  if (s === 'habit_logs_100')     return { current: stats.totalHabitLogs, target: 100 }
+  if (s === 'habit_logs_365')     return { current: stats.totalHabitLogs, target: 365 }
 
   // Workout-based
   if (s === 'first_workout')      return { current: stats.totalWorkouts, target: 1 }
@@ -50,6 +60,7 @@ function estimateProgress(slug: string, stats: UserStats): { current: number; ta
   if (s === 'tasks_25')           return { current: stats.totalTasks, target: 25 }
   if (s === 'tasks_50')           return { current: stats.totalTasks, target: 50 }
   if (s === 'tasks_100')          return { current: stats.totalTasks, target: 100 }
+  if (s === 'tasks_200')          return { current: stats.totalTasks, target: 200 }
 
   // Level-based
   if (s.startsWith('level_')) {
@@ -60,6 +71,7 @@ function estimateProgress(slug: string, stats: UserStats): { current: number; ta
   // Perfect days
   if (s === 'perfect_day')        return { current: stats.perfectDays, target: 1 }
   if (s === 'perfect_days_3')     return { current: stats.perfectDays, target: 3 }
+  if (s === 'perfect_week')       return { current: stats.perfectDays, target: 7 }
   if (s === 'perfect_days_7')     return { current: stats.perfectDays, target: 7 }
   if (s === 'perfect_days_30')    return { current: stats.perfectDays, target: 30 }
 
@@ -82,7 +94,7 @@ const RARITY_COLOR: Record<string, string> = {
 export async function NextAchievementWidget({ userId }: { userId: string }) {
   const supabase = await createClient()
 
-  const [unlockedRes, allRes, profileRes, workoutsRes, tasksRes, habitLogsRes, txRes] = await Promise.all([
+  const [unlockedRes, allRes, profileRes, workoutsRes, tasksRes, habitLogsRes, txRes, habitsRes] = await Promise.all([
     supabase.from('user_achievements').select('achievement_id').eq('user_id', userId),
     supabase.from('achievements').select('id, slug, name, description, icon, xp_reward, rarity, category'),
     supabase.from('profiles').select('level, streak_current, streak_longest, perfect_days').eq('id', userId).single(),
@@ -90,6 +102,7 @@ export async function NextAchievementWidget({ userId }: { userId: string }) {
     supabase.from('tasks').select('id', { count: 'exact', head: true }).eq('user_id', userId).eq('status', 'done'),
     supabase.from('habit_logs').select('id', { count: 'exact', head: true }).eq('user_id', userId),
     supabase.from('transactions').select('id', { count: 'exact', head: true }).eq('user_id', userId),
+    supabase.from('habits').select('id', { count: 'exact', head: true }).eq('user_id', userId).eq('is_active', true),
   ])
 
   const unlockedIds = new Set((unlockedRes.data ?? []).map(u => u.achievement_id))
@@ -107,6 +120,7 @@ export async function NextAchievementWidget({ userId }: { userId: string }) {
     perfectDays: profileRes.data?.perfect_days ?? 0,
     totalTransactions: txRes.count ?? 0,
     level: profileRes.data?.level ?? 1,
+    totalHabits: habitsRes.count ?? 0,
   }
 
   // Encontra a conquista mais próxima de ser desbloqueada

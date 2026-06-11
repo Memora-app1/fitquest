@@ -31,6 +31,7 @@ import { StreakLeaderboard } from '@/components/dashboard/streak-leaderboard'
 import { StreakRiskBanner } from '@/components/dashboard/streak-risk-banner'
 import { StreakNudgeBanner } from '@/components/dashboard/streak-nudge-banner'
 import { XpToday } from '@/components/dashboard/xp-today'
+import { XpVelocityBanner } from '@/components/dashboard/xp-velocity-banner'
 import { NextAction } from '@/components/dashboard/next-action'
 import { LeagueWidget } from '@/components/dashboard/league-widget'
 import { LootBoxWidget } from '@/components/dashboard/loot-box-widget'
@@ -352,6 +353,11 @@ export default async function DashboardPage({
         {/* XP earned today — aparece apenas quando há XP no dia */}
         <Suspense fallback={null}>
           <XpToday userId={user.id} />
+        </Suspense>
+
+        {/* XP velocity — compara ritmo desta semana vs média das últimas 4 */}
+        <Suspense fallback={null}>
+          <XpVelocityBanner userId={user.id} />
         </Suspense>
 
         {/* Streak at risk — aparece após 20:00 local sem atividade */}

@@ -16,6 +16,9 @@ import { getStripe } from '@/lib/stripe'
 import { createServiceClient } from '@/lib/supabase/server'
 import type Stripe from 'stripe'
 
+// Força Node.js runtime — Edge Functions não suportam crypto nativo do Stripe
+export const runtime = 'nodejs'
+
 export async function POST(req: NextRequest) {
   const body = await req.text()
   const sig = req.headers.get('stripe-signature')

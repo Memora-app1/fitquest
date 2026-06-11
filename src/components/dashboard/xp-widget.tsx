@@ -30,12 +30,18 @@ export function XpWidget({ xpTotal, level }: { xpTotal: number; level: number })
               <Trophy size={11} className="text-brand-gold" />
               Level {level} de 8
             </div>
-            <div className="heading-display text-3xl leading-tight">
+            <div
+              className="heading-display text-3xl leading-tight"
+              style={{ viewTransitionName: 'xp-level-title' }}
+            >
               {info.emoji} {info.title}
             </div>
           </div>
           <div className="text-right">
-            <div className="heading-display text-3xl text-brand-gold leading-tight flex items-center gap-1.5 justify-end">
+            <div
+              className="heading-display text-3xl text-brand-gold leading-tight flex items-center gap-1.5 justify-end"
+              style={{ viewTransitionName: 'xp-total-counter' }}
+            >
               <Zap size={20} fill="currentColor" className="text-brand-gold" />
               {xpTotal.toLocaleString('pt-BR')}
             </div>

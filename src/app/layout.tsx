@@ -69,8 +69,20 @@ export const viewport: Viewport = {
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
+  const supabaseHost = supabaseUrl ? new URL(supabaseUrl).hostname : ''
+
   return (
     <html lang="pt-BR" className={`${dmSans.variable} ${bebas.variable}`}>
+      <head>
+        {/* Preconnect reduz ~100-200ms de latência nas queries do Supabase */}
+        {supabaseHost && (
+          <>
+            <link rel="preconnect" href={`https://${supabaseHost}`} />
+            <link rel="dns-prefetch" href={`https://${supabaseHost}`} />
+          </>
+        )}
+      </head>
       <body className="min-h-screen">
         <ServiceWorkerInit />
         {children}

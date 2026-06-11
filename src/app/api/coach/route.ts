@@ -236,59 +236,73 @@ export async function POST(req: NextRequest) {
 
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! })
 
-  try {
-    const response = await anthropic.beta.messages.create({
-      model:      'claude-sonnet-4-6',
-      max_tokens: 1024,
-      // Bloco 1: instruções estáticas — CACHEADO pela Anthropic após a 1ª request
-      // Economiza ~70% do custo de input tokens em mensagens subsequentes
-      // Bloco 2: contexto dinâmico do usuário — NÃO cacheado (muda a cada request)
-      system: [
-        {
-          type:          'text',
-          text:          STATIC_COACH_PROMPT,
-          cache_control: { type: 'ephemeral' },
-        },
-        {
-          type: 'text',
-          text: dynamicContextBlock,
-          // Sem cache_control — conteúdo muda em cada request
-        },
-      ],
-      messages: [...history, { role: 'user', content: message }],
-      betas: ['prompt-caching-2024-07-31'],
-    })
+  const isFirstReply = history.length === 0
+  const encoder = new TextEncoder()
 
-    const reply = response.content
-      .filter((block) => block.type === 'text')
-      .map((block)  => (block.type === 'text' ? block.text : ''))
-      .join('\n')
+  // Streaming SSE — o cliente recebe tokens em tempo real em vez de esperar 3-5s pela resposta completa.
+  // Mantém prompt caching da Anthropic (~70% de economia em input tokens).
+  const readable = new ReadableStream<Uint8Array>({
+    async start(controller) {
+      let fullText = ''
+      let inputTokens = 0
+      let outputTokens = 0
 
-    // Salvar resposta
-    await supabase.from('ai_messages').insert({
-      conversation_id: conversationId,
-      user_id:         user.id,
-      role:            'assistant',
-      content:         reply,
-      tokens_used:     response.usage.input_tokens + response.usage.output_tokens,
-    })
+      try {
+        const stream = await anthropic.beta.messages.create({
+          model:      'claude-sonnet-4-6',
+          max_tokens: 1024,
+          system: [
+            { type: 'text', text: STATIC_COACH_PROMPT, cache_control: { type: 'ephemeral' } },
+            { type: 'text', text: dynamicContextBlock },
+          ],
+          messages: [...history, { role: 'user', content: message }],
+          stream: true,
+          betas:  ['prompt-caching-2024-07-31'],
+        })
 
-    // Auto-título na primeira resposta
-    const isFirstReply = history.length === 0
-    const titleUpdates: Record<string, unknown> = { last_message_at: new Date().toISOString() }
-    if (isFirstReply) {
-      const rawTitle = message.replace(/\s+/g, ' ').trim().slice(0, 60)
-      titleUpdates.title = rawTitle.length < message.trim().length ? rawTitle + '…' : rawTitle
-    }
+        for await (const event of stream) {
+          if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
+            fullText += event.delta.text
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text: event.delta.text })}\n\n`))
+          } else if (event.type === 'message_start') {
+            inputTokens = event.message.usage?.input_tokens ?? 0
+          } else if (event.type === 'message_delta') {
+            outputTokens = event.usage.output_tokens
+          }
+        }
 
-    await supabase
-      .from('ai_conversations')
-      .update(titleUpdates)
-      .eq('id', conversationId)
+        // Stream concluído — persiste no banco
+        await supabase.from('ai_messages').insert({
+          conversation_id: conversationId,
+          user_id:         user.id,
+          role:            'assistant',
+          content:         fullText,
+          tokens_used:     inputTokens + outputTokens,
+        })
 
-    return NextResponse.json({ reply, tokens: response.usage })
-  } catch (err) {
-    console.error('coach error', err)
-    return NextResponse.json({ error: 'ai_error' }, { status: 500 })
-  }
+        const titleUpdates: Record<string, unknown> = { last_message_at: new Date().toISOString() }
+        if (isFirstReply) {
+          const rawTitle = message.replace(/\s+/g, ' ').trim().slice(0, 60)
+          titleUpdates.title = rawTitle.length < message.trim().length ? rawTitle + '…' : rawTitle
+        }
+        await supabase.from('ai_conversations').update(titleUpdates).eq('id', conversationId)
+
+      } catch (err) {
+        console.error('coach streaming error', err)
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ error: 'ai_error' })}\n\n`))
+      } finally {
+        controller.enqueue(encoder.encode('data: [DONE]\n\n'))
+        controller.close()
+      }
+    },
+  })
+
+  return new Response(readable, {
+    headers: {
+      'Content-Type':    'text/event-stream',
+      'Cache-Control':   'no-cache, no-transform',
+      'Connection':      'keep-alive',
+      'X-Accel-Buffering': 'no', // Desativa buffering de proxy Nginx — necessário para SSE
+    },
+  })
 }

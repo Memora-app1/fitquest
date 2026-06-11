@@ -164,6 +164,8 @@ export function CoachChat({
       inputRef.current.style.height = 'auto'
     }
 
+    const assistantMsgId = crypto.randomUUID()
+
     try {
       const res = await fetch('/api/coach', {
         method: 'POST',
@@ -171,35 +173,70 @@ export function CoachChat({
         body: JSON.stringify({ conversationId, message: text }),
       })
 
-      const data = await res.json() as {
-        reply?: string
-        error?: string
-        limit?: number
-      }
-
       if (!res.ok) {
+        // Erros retornam JSON (429, 401, 500)
+        const data = await res.json() as { error?: string; limit?: number }
         const errorContent =
           res.status === 429 && data.error === 'daily_limit_reached'
             ? `⚠️ Você atingiu o limite de ${data.limit} mensagens por dia. O limite é renovado à meia-noite.`
             : '❌ Desculpe, deu um erro. Tenta novamente em alguns segundos.'
         setMessages((prev) => [
           ...prev,
-          { id: crypto.randomUUID(), role: 'assistant', content: errorContent, created_at: new Date().toISOString() },
+          { id: assistantMsgId, role: 'assistant', content: errorContent, created_at: new Date().toISOString() },
         ])
-      } else {
-        setMessages((prev) => [
-          ...prev,
-          { id: crypto.randomUUID(), role: 'assistant', content: data.reply ?? '', created_at: new Date().toISOString() },
-        ])
+        return
+      }
+
+      // Resposta é SSE — adiciona mensagem vazia e vai preenchendo com chunks
+      setMessages((prev) => [...prev, { id: assistantMsgId, role: 'assistant', content: '', created_at: new Date().toISOString() }])
+
+      const reader = res.body?.getReader()
+      if (!reader) return
+
+      const decoder = new TextDecoder()
+      let buffer = ''
+
+      outer: while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        buffer += decoder.decode(value, { stream: true })
+        const lines = buffer.split('\n')
+        buffer = lines.pop() ?? ''
+
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue
+          const raw = line.slice(6).trim()
+          if (raw === '[DONE]') {
+            reader.cancel()
+            break outer
+          }
+          try {
+            const parsed = JSON.parse(raw) as { text?: string; error?: string }
+            if (parsed.text) {
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === assistantMsgId ? { ...m, content: m.content + parsed.text } : m
+                )
+              )
+              // Auto-scroll para o fim a cada chunk
+              if (scrollRef.current) {
+                const el = scrollRef.current
+                const isNearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 200
+                if (isNearBottom) el.scrollTop = el.scrollHeight
+              }
+            }
+          } catch { /* ignora SSE malformado */ }
+        }
       }
     } catch {
       setMessages((prev) => [
         ...prev,
-        { id: crypto.randomUUID(), role: 'assistant', content: '❌ Erro de conexão. Verifique sua internet e tente novamente.', created_at: new Date().toISOString() },
+        { id: assistantMsgId, role: 'assistant', content: '❌ Erro de conexão. Verifique sua internet e tente novamente.', created_at: new Date().toISOString() },
       ])
+    } finally {
+      setLoading(false)
     }
-
-    setLoading(false)
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {

@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { createServiceClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { unstable_cache } from 'next/cache'
 import { AppShell } from '@/components/layout/app-shell'
 import { Trophy, Flame, Zap, TrendingUp, Crown } from 'lucide-react'
 import { getLeagueDivision, getLevelInfo, LEAGUE_DIVISIONS } from '@/lib/xp'
@@ -15,30 +14,28 @@ export const metadata: Metadata = {
 
 export const dynamic = 'force-dynamic'
 
-// Leaderboard top 100 cacheado por 60s — reduz carga no banco sem sacrificar frescura
-const getCachedLeaderboard = unstable_cache(
-  async () => {
-    const db = createServiceClient()
-    const [leadersRes, totalRes] = await Promise.all([
-      db
-        .from('profiles')
-        .select('id, name, level, prestige_level, equipped_title, league_xp_this_week, streak_current, avatar_url')
-        .in('subscription_status', ['trial', 'active', 'lifetime'])
-        .order('league_xp_this_week', { ascending: false })
-        .limit(100),
-      db
-        .from('profiles')
-        .select('id', { count: 'exact', head: true })
-        .in('subscription_status', ['trial', 'active', 'lifetime']),
-    ])
-    return {
-      leaders: leadersRes.data ?? [],
-      total:   totalRes.count ?? 0,
-    }
-  },
-  ['ranking-leaderboard'],
-  { revalidate: 60, tags: ['ranking'] }
-)
+// Leaderboard top 100 cacheado por 60s via "use cache" (Next.js 16.2 stable)
+// Cache key gerado automaticamente; tags permitem revalidação por evento.
+async function getCachedLeaderboard() {
+  'use cache'
+  const db = createServiceClient()
+  const [leadersRes, totalRes] = await Promise.all([
+    db
+      .from('profiles')
+      .select('id, name, level, prestige_level, equipped_title, league_xp_this_week, streak_current, avatar_url')
+      .in('subscription_status', ['trial', 'active', 'lifetime'])
+      .order('league_xp_this_week', { ascending: false })
+      .limit(100),
+    db
+      .from('profiles')
+      .select('id', { count: 'exact', head: true })
+      .in('subscription_status', ['trial', 'active', 'lifetime']),
+  ])
+  return {
+    leaders: leadersRes.data ?? [],
+    total:   totalRes.count ?? 0,
+  }
+}
 
 export default async function RankingPage() {
   const supabase = await createClient()
@@ -185,6 +182,7 @@ export default async function RankingPage() {
                           alt={player.name as string}
                           width={48}
                           height={48}
+                          sizes="48px"
                           className="w-full h-full rounded-full object-cover"
                         />
                       ) : (
@@ -257,6 +255,7 @@ export default async function RankingPage() {
                       alt={player.name as string}
                       width={36}
                       height={36}
+                      sizes="36px"
                       className="w-full h-full rounded-full object-cover"
                     />
                   ) : (
