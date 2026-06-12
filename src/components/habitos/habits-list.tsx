@@ -1,32 +1,44 @@
-'use client'
+'use client';
 
-import { useState, useTransition, useOptimistic, useMemo } from 'react'
-import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
-import { cn } from '@/lib/utils'
-import { Check, Plus, X, Trash2, MoreVertical, Pencil, Flame, Zap, Bell, Sparkles, Target } from 'lucide-react'
-import { useXpToast, XpToastContainer } from '@/components/xp-toast'
-import { HabitPacksModal } from './habit-packs'
-import { useScrollLock } from '@/hooks/use-scroll-lock'
+import { useState, useTransition, useOptimistic, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
+import { createClient } from '@/lib/supabase/client';
+import { cn } from '@/lib/utils';
+import {
+  Check,
+  Plus,
+  X,
+  Trash2,
+  MoreVertical,
+  Pencil,
+  Flame,
+  Zap,
+  Bell,
+  Sparkles,
+  Target,
+} from 'lucide-react';
+import { useXpToast, XpToastContainer } from '@/components/xp-toast';
+import { HabitPacksModal } from './habit-packs';
+import { useScrollLock } from '@/hooks/use-scroll-lock';
 
 interface Habit {
-  id: string
-  name: string
-  icon: string
-  color: string
-  category: string
-  xp_per_completion: number
-  frequency_per_week: number
-  reminder_time?: string | null
+  id: string;
+  name: string;
+  icon: string;
+  color: string;
+  category: string;
+  xp_per_completion: number;
+  frequency_per_week: number;
+  reminder_time?: string | null;
 }
 
 interface HabitLog {
-  habit_id: string
-  logged_date: string
+  habit_id: string;
+  logged_date: string;
 }
 
-const ICONS = ['💪', '🏃', '🧘', '💧', '📖', '🍎', '😴', '🎯', '⚡', '🔥', '✨', '🧠']
-const COLORS = ['#FF4D00', '#7C3AED', '#00FF88', '#F5C842', '#3B82F6', '#EC4899']
+const ICONS = ['💪', '🏃', '🧘', '💧', '📖', '🍎', '😴', '🎯', '⚡', '🔥', '✨', '🧠'];
+const COLORS = ['#FF4D00', '#7C3AED', '#00FF88', '#F5C842', '#3B82F6', '#EC4899'];
 
 export function HabitsList({
   habits: initialHabits,
@@ -34,154 +46,167 @@ export function HabitsList({
   weekLogs,
   initialShowCreate = false,
 }: {
-  habits: Habit[]
-  loggedToday: Set<string>
-  weekLogs: HabitLog[]
-  initialShowCreate?: boolean
+  habits: Habit[];
+  loggedToday: Set<string>;
+  weekLogs: HabitLog[];
+  initialShowCreate?: boolean;
 }) {
-  const router = useRouter()
-  const [isPending, startTransition] = useTransition()
-  const [habits, setHabits] = useState<Habit[]>(initialHabits)
-  const [showCreate, setShowCreate] = useState(initialShowCreate)
-  const [showPacks, setShowPacks] = useState(false)
-  const [editHabit, setEditHabit] = useState<Habit | null>(null)
-  const [openMenu, setOpenMenu]       = useState<string | null>(null)
-  const [deletingId, setDeletingId]   = useState<string | null>(null)
-  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
-  const { toasts, showXp } = useXpToast()
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [habits, setHabits] = useState<Habit[]>(initialHabits);
+  const [showCreate, setShowCreate] = useState(initialShowCreate);
+  const [showPacks, setShowPacks] = useState(false);
+  const [editHabit, setEditHabit] = useState<Habit | null>(null);
+  const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const { toasts, showXp } = useXpToast();
 
   // Pre-computa Map<habitId, Set<dateString>> uma vez — O(N) vs O(N × M) anterior.
   // Sem isso, cada getLast30Days() e getCurrentStreak() filtrava weekLogs inteiro por hábito.
   const logsByHabit = useMemo(() => {
-    const map = new Map<string, Set<string>>()
+    const map = new Map<string, Set<string>>();
     for (const log of weekLogs) {
-      if (!map.has(log.habit_id)) map.set(log.habit_id, new Set())
-      map.get(log.habit_id)!.add(log.logged_date)
+      if (!map.has(log.habit_id)) map.set(log.habit_id, new Set());
+      map.get(log.habit_id)!.add(log.logged_date);
     }
-    return map
-  }, [weekLogs])
+    return map;
+  }, [weekLogs]);
 
   // Array de strings dos últimos 30 dias, calculado uma única vez por render.
   const last30Dates = useMemo(() => {
-    const today = new Date()
+    const today = new Date();
     return Array.from({ length: 30 }, (_, i) => {
-      const d = new Date(today)
-      d.setDate(today.getDate() - (29 - i))
-      return d.toISOString().split('T')[0]!
-    })
-  }, [])
+      const d = new Date(today);
+      d.setDate(today.getDate() - (29 - i));
+      return d.toISOString().split('T')[0]!;
+    });
+  }, []);
 
   // React 19 useOptimistic — atualiza a UI instantaneamente antes da resposta do servidor.
   // Se o fetch falhar, o estado base (loggedToday) prevalece e o optimistic é revertido automaticamente.
   const [optimistic, addOptimistic] = useOptimistic(
     loggedToday,
     (current: Set<string>, habitId: string) => {
-      const next = new Set(current)
-      next.add(habitId)
-      return next
+      const next = new Set(current);
+      next.add(habitId);
+      return next;
     }
-  )
+  );
 
   function toggle(id: string) {
-    if (optimistic.has(id)) return
-    if (navigator.vibrate) navigator.vibrate([15, 5, 30])
+    if (optimistic.has(id)) return;
+    if (navigator.vibrate) navigator.vibrate([15, 5, 30]);
 
     startTransition(async () => {
       // Atualiza UI antes do servidor responder
-      addOptimistic(id)
+      addOptimistic(id);
 
       const res = await fetch('/api/habits/log', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ habitId: id }),
-      })
+      });
       if (res.ok) {
-        const data = await res.json() as {
-          xpEarned?: number; perfectDay?: boolean;
-          leveledUp?: boolean; newLevel?: number;
+        const data = (await res.json()) as {
+          xpEarned?: number;
+          perfectDay?: boolean;
+          leveledUp?: boolean;
+          newLevel?: number;
           criticalHit?: boolean;
-          achievementsUnlocked?: string[]
-        }
+          achievementsUnlocked?: string[];
+        };
         if (data.criticalHit) {
-          if (navigator.vibrate) navigator.vibrate([15, 8, 30, 8, 60, 15, 100])
+          if (navigator.vibrate) navigator.vibrate([15, 8, 30, 8, 60, 15, 100]);
         }
         showXp(data.xpEarned ?? 0, {
           perfectDay: data.perfectDay,
           leveledUp: data.leveledUp ? data.newLevel : undefined,
           criticalHit: data.criticalHit,
-        })
+        });
         if (data.perfectDay) {
-          if (navigator.vibrate) navigator.vibrate([40, 20, 80, 20, 120])
-          window.dispatchEvent(new CustomEvent('ascendia:perfect-day'))
+          if (navigator.vibrate) navigator.vibrate([40, 20, 80, 20, 120]);
+          window.dispatchEvent(new CustomEvent('ascendia:perfect-day'));
         }
         if (data.leveledUp && data.newLevel) {
-          window.dispatchEvent(new CustomEvent('ascendia:levelup', { detail: { level: data.newLevel } }))
+          window.dispatchEvent(
+            new CustomEvent('ascendia:levelup', { detail: { level: data.newLevel } })
+          );
         }
-        for (const slug of (data.achievementsUnlocked ?? [])) {
-          window.dispatchEvent(new CustomEvent('ascendia:achievement', { detail: { slug } }))
+        for (const slug of data.achievementsUnlocked ?? []) {
+          window.dispatchEvent(new CustomEvent('ascendia:achievement', { detail: { slug } }));
         }
-        router.refresh()
+        router.refresh();
       }
       // Se falhar, useOptimistic reverte automaticamente para loggedToday
-    })
+    });
   }
 
   function requestDeleteHabit(id: string) {
-    setOpenMenu(null)
-    setConfirmDeleteId(id)
+    setOpenMenu(null);
+    setConfirmDeleteId(id);
   }
 
   async function confirmDelete() {
-    const id = confirmDeleteId
-    if (!id) return
-    setConfirmDeleteId(null)
-    setDeletingId(id)
-    const res = await fetch(`/api/habits?id=${id}`, { method: 'DELETE' })
-    setDeletingId(null)
+    const id = confirmDeleteId;
+    if (!id) return;
+    setConfirmDeleteId(null);
+    setDeletingId(id);
+    const res = await fetch(`/api/habits?id=${id}`, { method: 'DELETE' });
+    setDeletingId(null);
     if (res.ok) {
-      setHabits((prev) => prev.filter((h) => h.id !== id))
+      setHabits((prev) => prev.filter((h) => h.id !== id));
     }
   }
 
   function getLast30Days(habitId: string): boolean[] {
-    const loggedDates = logsByHabit.get(habitId) ?? new Set<string>()
-    return last30Dates.map((d) => loggedDates.has(d))
+    const loggedDates = logsByHabit.get(habitId) ?? new Set<string>();
+    return last30Dates.map((d) => loggedDates.has(d));
   }
 
   function getCurrentStreak(habitId: string): number {
-    const loggedDates = logsByHabit.get(habitId) ?? new Set<string>()
-    const today = new Date()
-    let streak = 0
+    const loggedDates = logsByHabit.get(habitId) ?? new Set<string>();
+    const today = new Date();
+    let streak = 0;
     while (streak <= 30) {
-      const d = new Date(today)
-      d.setDate(today.getDate() - streak)
-      if (!loggedDates.has(d.toISOString().split('T')[0]!)) break
-      streak++
+      const d = new Date(today);
+      d.setDate(today.getDate() - streak);
+      if (!loggedDates.has(d.toISOString().split('T')[0]!)) break;
+      streak++;
     }
-    return streak
+    return streak;
   }
 
   if (habits.length === 0) {
     return (
       <>
         <div
-          className="rounded-2xl p-8 text-center relative overflow-hidden"
+          className="relative overflow-hidden rounded-2xl p-8 text-center"
           style={{
-            background: 'linear-gradient(135deg, rgba(124,58,237,0.07) 0%, rgba(13,24,41,0.98) 100%)',
+            background:
+              'linear-gradient(135deg, rgba(124,58,237,0.07) 0%, rgba(13,24,41,0.98) 100%)',
             border: '1px solid rgba(124,58,237,0.2)',
           }}
         >
-          <div className="absolute -top-4 -right-4 w-20 h-20 rounded-full pointer-events-none blur-xl" style={{ background: 'rgba(124,58,237,0.2)' }} />
+          <div
+            className="pointer-events-none absolute -right-4 -top-4 h-20 w-20 rounded-full blur-xl"
+            style={{ background: 'rgba(124,58,237,0.2)' }}
+          />
           <div className="relative z-10">
-            <div className="text-5xl mb-3">🎯</div>
-            <h3 className="text-xl font-bold mb-1">Nenhum hábito ainda</h3>
-            <p className="text-text-secondary mb-4">Crie seu primeiro hábito pra começar a ganhar XP</p>
-            <div className="flex items-center justify-center gap-3 flex-wrap">
-              <button onClick={() => setShowPacks(true)} className="btn-ghost flex items-center gap-2">
+            <div className="mb-3 text-5xl">🎯</div>
+            <h3 className="mb-1 text-xl font-bold">Nenhum hábito ainda</h3>
+            <p className="mb-4 text-text-secondary">
+              Crie seu primeiro hábito pra começar a ganhar XP
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <button
+                onClick={() => setShowPacks(true)}
+                className="btn-ghost flex items-center gap-2"
+              >
                 <Sparkles size={16} className="text-brand-purple" /> Usar um pacote
               </button>
               <button onClick={() => setShowCreate(true)} className="btn-primary">
-                <Plus size={18} className="inline mr-1" /> Criar do zero
+                <Plus size={18} className="mr-1 inline" /> Criar do zero
               </button>
             </div>
           </div>
@@ -199,15 +224,15 @@ export function HabitsList({
           />
         )}
       </>
-    )
+    );
   }
 
   // Progresso do dia: quantos hábitos já foram feitos vs total ativo
-  const doneCount = habits.filter(h => optimistic.has(h.id)).length
-  const totalCount = habits.length
-  const remaining = totalCount - doneCount
-  const progressPct = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0
-  const allDone = doneCount === totalCount && totalCount > 0
+  const doneCount = habits.filter((h) => optimistic.has(h.id)).length;
+  const totalCount = habits.length;
+  const remaining = totalCount - doneCount;
+  const progressPct = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0;
+  const allDone = doneCount === totalCount && totalCount > 0;
 
   return (
     <>
@@ -216,7 +241,7 @@ export function HabitsList({
       {/* Banner de Progresso — Dia Perfeito (maior gatilho de retenção segundo pesquisa 2026) */}
       {totalCount > 0 && (
         <div
-          className="rounded-2xl p-4 relative overflow-hidden"
+          className="relative overflow-hidden rounded-2xl p-4"
           style={{
             background: allDone
               ? 'linear-gradient(135deg, rgba(0,255,136,0.12) 0%, rgba(13,24,41,0.98) 100%)'
@@ -224,20 +249,23 @@ export function HabitsList({
             border: allDone
               ? '1px solid rgba(0,255,136,0.3)'
               : remaining === 1
-              ? '1px solid rgba(255,77,0,0.4)'
-              : '1px solid rgba(245,200,66,0.2)',
+                ? '1px solid rgba(255,77,0,0.4)'
+                : '1px solid rgba(245,200,66,0.2)',
             boxShadow: remaining === 1 && !allDone ? '0 0 20px rgba(255,77,0,0.1)' : 'none',
           }}
         >
-          <div className="flex items-center justify-between mb-2.5">
+          <div className="mb-2.5 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Target size={14} style={{ color: allDone ? '#00FF88' : '#F5C842' }} />
-              <span className="text-xs font-bold" style={{ color: allDone ? '#00FF88' : '#F5C842' }}>
+              <span
+                className="text-xs font-bold"
+                style={{ color: allDone ? '#00FF88' : '#F5C842' }}
+              >
                 {allDone
                   ? '🎉 Dia Perfeito!'
                   : remaining === 1
-                  ? '⚡ Falta 1 hábito para +200 XP!'
-                  : `${doneCount}/${totalCount} hábitos hoje`}
+                    ? '⚡ Falta 1 hábito para +200 XP!'
+                    : `${doneCount}/${totalCount} hábitos hoje`}
               </span>
             </div>
             <span className="text-xs font-black" style={{ color: allDone ? '#00FF88' : '#8899BB' }}>
@@ -246,7 +274,10 @@ export function HabitsList({
           </div>
 
           {/* Barra de progresso */}
-          <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+          <div
+            className="h-1.5 overflow-hidden rounded-full"
+            style={{ background: 'rgba(255,255,255,0.06)' }}
+          >
             <div
               className="h-full rounded-full transition-all duration-700"
               style={{
@@ -254,15 +285,15 @@ export function HabitsList({
                 background: allDone
                   ? '#00FF88'
                   : remaining === 1
-                  ? 'linear-gradient(90deg, #F5C842, #FF4D00)'
-                  : 'linear-gradient(90deg, #F5C842, #7C3AED)',
+                    ? 'linear-gradient(90deg, #F5C842, #FF4D00)'
+                    : 'linear-gradient(90deg, #F5C842, #7C3AED)',
                 boxShadow: allDone ? '0 0 8px rgba(0,255,136,0.6)' : 'none',
               }}
             />
           </div>
 
           {!allDone && remaining <= 2 && (
-            <p className="text-[11px] text-text-muted mt-1.5">
+            <p className="mt-1.5 text-[11px] text-text-muted">
               {remaining === 1
                 ? 'Complete o último hábito e garanta +200 XP de Dia Perfeito!'
                 : `Faltam ${remaining} hábitos — você está quase lá!`}
@@ -286,20 +317,20 @@ export function HabitsList({
 
       <div className="space-y-3">
         {habits.map((h) => {
-          const done = optimistic.has(h.id)
-          const last30 = getLast30Days(h.id)
-          const total30 = last30.filter(Boolean).length
-          const currentStreak = getCurrentStreak(h.id)
-          const isDeleting = deletingId === h.id
-          const pct30 = Math.round((total30 / 30) * 100)
+          const done = optimistic.has(h.id);
+          const last30 = getLast30Days(h.id);
+          const total30 = last30.filter(Boolean).length;
+          const currentStreak = getCurrentStreak(h.id);
+          const isDeleting = deletingId === h.id;
+          const pct30 = Math.round((total30 / 30) * 100);
 
           return (
             <div
               key={h.id}
               className={cn(
-                'rounded-2xl p-5 relative overflow-hidden transition-all',
+                'relative overflow-hidden rounded-2xl p-5 transition-all',
                 done && 'opacity-90',
-                isDeleting && 'opacity-40',
+                isDeleting && 'opacity-40'
               )}
               style={{
                 background: done
@@ -311,15 +342,15 @@ export function HabitsList({
             >
               {/* Color glow top-right */}
               <div
-                className="absolute -top-6 -right-6 w-24 h-24 rounded-full pointer-events-none blur-xl transition-opacity"
+                className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full blur-xl transition-opacity"
                 style={{ backgroundColor: h.color, opacity: done ? 0.15 : 0.06 }}
               />
 
               <div className="relative z-10">
                 {/* Top row: icon + name + actions */}
-                <div className="flex items-center gap-3 mb-4">
+                <div className="mb-4 flex items-center gap-3">
                   <div
-                    className="text-2xl w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-all"
+                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-2xl transition-all"
                     style={{
                       backgroundColor: done ? `${h.color}25` : `${h.color}15`,
                       border: `1px solid ${h.color}30`,
@@ -327,28 +358,31 @@ export function HabitsList({
                   >
                     {h.icon}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-bold truncate flex items-center gap-2">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 truncate font-bold">
                       {h.name}
                       {done && (
                         <span
-                          className="text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wider"
+                          className="rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider"
                           style={{ background: `${h.color}20`, color: h.color }}
                         >
                           ✓ Feito hoje
                         </span>
                       )}
                     </div>
-                    <div className="text-xs text-text-muted flex items-center gap-2 mt-0.5">
+                    <div className="mt-0.5 flex items-center gap-2 text-xs text-text-muted">
                       <span>{h.frequency_per_week}x/semana</span>
                       <span>·</span>
                       <span className="flex items-center gap-0.5 text-brand-gold">
-                        <Zap size={10} fill="currentColor" />
-                        +{h.xp_per_completion} XP
+                        <Zap size={10} fill="currentColor" />+{h.xp_per_completion} XP
                       </span>
                       <span>·</span>
                       <span className="text-[10px] font-semibold">
-                        {h.xp_per_completion >= 100 ? '🔴 Difícil' : h.xp_per_completion >= 75 ? '🟡 Médio' : '🟢 Fácil'}
+                        {h.xp_per_completion >= 100
+                          ? '🔴 Difícil'
+                          : h.xp_per_completion >= 75
+                            ? '🟡 Médio'
+                            : '🟢 Fácil'}
                       </span>
                       {currentStreak > 0 && (
                         <>
@@ -372,15 +406,13 @@ export function HabitsList({
                   </div>
 
                   {/* Actions */}
-                  <div className="flex items-center gap-2 shrink-0">
+                  <div className="flex shrink-0 items-center gap-2">
                     <button
                       onClick={() => toggle(h.id)}
                       disabled={done || isDeleting}
                       className={cn(
-                        'px-3 py-1.5 rounded-xl font-semibold transition-all text-sm flex items-center gap-1.5',
-                        done
-                          ? 'cursor-default'
-                          : 'hover:opacity-90 active:scale-95',
+                        'flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-sm font-semibold transition-all',
+                        done ? 'cursor-default' : 'hover:opacity-90 active:scale-95'
                       )}
                       style={
                         done
@@ -401,26 +433,26 @@ export function HabitsList({
                     <div className="relative">
                       <button
                         onClick={() => setOpenMenu(openMenu === h.id ? null : h.id)}
-                        className="w-10 h-10 rounded-lg bg-bg-elevated flex items-center justify-center text-text-muted active:text-white active:bg-border transition-colors"
+                        className="flex h-10 w-10 items-center justify-center rounded-lg bg-bg-elevated text-text-muted transition-colors active:bg-border active:text-white"
                       >
                         <MoreVertical size={16} />
                       </button>
 
                       {openMenu === h.id && (
-                        <div className="absolute right-0 top-10 bg-bg-card border border-border rounded-xl shadow-xl z-20 w-40 overflow-hidden">
+                        <div className="absolute right-0 top-10 z-20 w-40 overflow-hidden rounded-xl border border-border bg-bg-card shadow-xl">
                           <button
                             onClick={() => {
-                              setEditHabit(h)
-                              setOpenMenu(null)
+                              setEditHabit(h);
+                              setOpenMenu(null);
                             }}
-                            className="flex items-center gap-2 w-full px-4 py-3 text-sm hover:bg-bg-elevated transition-colors"
+                            className="flex w-full items-center gap-2 px-4 py-3 text-sm transition-colors hover:bg-bg-elevated"
                           >
                             <Pencil size={14} className="text-brand-orange" />
                             Editar
                           </button>
                           <button
                             onClick={() => requestDeleteHabit(h.id)}
-                            className="flex items-center gap-2 w-full px-4 py-3 text-sm text-brand-red hover:bg-brand-red/10 transition-colors"
+                            className="flex w-full items-center gap-2 px-4 py-3 text-sm text-brand-red transition-colors hover:bg-brand-red/10"
                           >
                             <Trash2 size={14} />
                             Remover
@@ -437,7 +469,7 @@ export function HabitsList({
                     {last30.map((d, i) => (
                       <div
                         key={i}
-                        className="flex-1 h-3 rounded-sm transition-all"
+                        className="h-3 flex-1 rounded-sm transition-all"
                         style={{
                           backgroundColor: d ? h.color : '#152238',
                           opacity: d ? (i > 24 ? 1 : i > 14 ? 0.85 : 0.7) : 1,
@@ -450,11 +482,15 @@ export function HabitsList({
                     <span>30 dias atrás</span>
                     <div className="flex items-center gap-3">
                       <span>
-                        <span style={{ color: h.color }} className="font-bold">{total30}</span>
+                        <span style={{ color: h.color }} className="font-bold">
+                          {total30}
+                        </span>
                         /30 dias ·{' '}
                         <span
                           className="font-semibold"
-                          style={{ color: pct30 >= 80 ? '#00FF88' : pct30 >= 50 ? '#F5C842' : '#FF4D00' }}
+                          style={{
+                            color: pct30 >= 80 ? '#00FF88' : pct30 >= 50 ? '#F5C842' : '#FF4D00',
+                          }}
                         >
                           {pct30}%
                         </span>
@@ -465,14 +501,12 @@ export function HabitsList({
                 </div>
               </div>
             </div>
-          )
+          );
         })}
       </div>
 
       {/* Backdrop para fechar menus */}
-      {openMenu && (
-        <div className="fixed inset-0 z-10" onClick={() => setOpenMenu(null)} />
-      )}
+      {openMenu && <div className="fixed inset-0 z-10" onClick={() => setOpenMenu(null)} />}
 
       {showCreate && (
         <CreateHabitModal
@@ -486,8 +520,8 @@ export function HabitsList({
           habit={editHabit}
           onClose={() => setEditHabit(null)}
           onSaved={(updated) => {
-            setHabits((prev) => prev.map((h) => (h.id === updated.id ? updated : h)))
-            setEditHabit(null)
+            setHabits((prev) => prev.map((h) => (h.id === updated.id ? updated : h)));
+            setEditHabit(null);
           }}
         />
       )}
@@ -508,7 +542,7 @@ export function HabitsList({
             onClick={() => setConfirmDeleteId(null)}
           />
           <div
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[90] rounded-2xl p-6 w-[90vw] max-w-sm"
+            className="fixed left-1/2 top-1/2 z-[90] w-[90vw] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl p-6"
             style={{
               background: '#0D1829',
               border: '1px solid rgba(239,68,68,0.3)',
@@ -517,27 +551,37 @@ export function HabitsList({
             }}
           >
             <div
-              className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4"
-              style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.25)' }}
+              className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl"
+              style={{
+                background: 'rgba(239,68,68,0.12)',
+                border: '1px solid rgba(239,68,68,0.25)',
+              }}
             >
               <Trash2 size={22} style={{ color: '#EF4444' }} />
             </div>
-            <h3 className="text-base font-black text-center mb-1">Remover hábito?</h3>
-            <p className="text-xs text-text-secondary text-center mb-5">
+            <h3 className="mb-1 text-center text-base font-black">Remover hábito?</h3>
+            <p className="mb-5 text-center text-xs text-text-secondary">
               O histórico de logs será mantido. Essa ação não pode ser desfeita.
             </p>
             <div className="flex gap-2">
               <button
                 onClick={() => setConfirmDeleteId(null)}
-                className="flex-1 py-3 rounded-xl text-sm font-semibold transition-all active:scale-95"
-                style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }}
+                className="flex-1 rounded-xl py-3 text-sm font-semibold transition-all active:scale-95"
+                style={{
+                  background: 'rgba(255,255,255,0.06)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                }}
               >
                 Cancelar
               </button>
               <button
                 onClick={confirmDelete}
-                className="flex-1 py-3 rounded-xl text-sm font-black transition-all active:scale-95"
-                style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', color: '#EF4444' }}
+                className="flex-1 rounded-xl py-3 text-sm font-black transition-all active:scale-95"
+                style={{
+                  background: 'rgba(239,68,68,0.15)',
+                  border: '1px solid rgba(239,68,68,0.3)',
+                  color: '#EF4444',
+                }}
               >
                 Remover
               </button>
@@ -546,7 +590,7 @@ export function HabitsList({
         </>
       )}
     </>
-  )
+  );
 }
 
 // ─── Create Modal ───────────────────────────────────────────────────────────
@@ -555,28 +599,28 @@ function CreateHabitModal({
   onClose,
   onCreated,
 }: {
-  onClose: () => void
-  onCreated: (habit: Habit) => void
+  onClose: () => void;
+  onCreated: (habit: Habit) => void;
 }) {
-  const router = useRouter()
-  const [loading, setLoading] = useState(false)
-  const [name, setName] = useState('')
-  const [icon, setIcon] = useState('💪')
-  const [color, setColor] = useState('#FF4D00')
-  const [freq, setFreq] = useState(4)
-  const [reminderTime, setReminderTime] = useState('')
-  const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('easy')
-  const XP_BY_DIFFICULTY = { easy: 50, medium: 75, hard: 100 }
-  useScrollLock(true)
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [name, setName] = useState('');
+  const [icon, setIcon] = useState('💪');
+  const [color, setColor] = useState('#FF4D00');
+  const [freq, setFreq] = useState(4);
+  const [reminderTime, setReminderTime] = useState('');
+  const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('easy');
+  const XP_BY_DIFFICULTY = { easy: 50, medium: 75, hard: 100 };
+  useScrollLock(true);
 
   async function submit(e: React.FormEvent) {
-    e.preventDefault()
-    setLoading(true)
-    const supabase = createClient()
+    e.preventDefault();
+    setLoading(true);
+    const supabase = createClient();
     const {
       data: { user },
-    } = await supabase.auth.getUser()
-    if (!user) return
+    } = await supabase.auth.getUser();
+    if (!user) return;
 
     const { data } = await supabase
       .from('habits')
@@ -595,17 +639,17 @@ function CreateHabitModal({
         reminder_time: reminderTime ? reminderTime + ':00' : null,
       })
       .select('id, name, icon, color, category, xp_per_completion, frequency_per_week')
-      .single()
+      .single();
 
-    if (data) onCreated(data)
-    router.refresh()
-    onClose()
+    if (data) onCreated(data);
+    router.refresh();
+    onClose();
   }
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end md:items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-4 backdrop-blur-sm md:items-center">
       <div
-        className="w-full max-w-md p-6 space-y-4 animate-slide-up rounded-2xl relative overflow-hidden overflow-y-auto"
+        className="relative w-full max-w-md animate-slide-up space-y-4 overflow-hidden overflow-y-auto rounded-2xl p-6"
         style={{
           maxHeight: '90dvh',
           background: 'linear-gradient(135deg, rgba(255,77,0,0.08) 0%, rgba(13,24,41,0.99) 100%)',
@@ -613,17 +657,24 @@ function CreateHabitModal({
           boxShadow: '0 24px 60px rgba(0,0,0,0.5)',
         }}
       >
-        <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full pointer-events-none blur-xl" style={{ background: 'rgba(255,77,0,0.15)' }} />
-        <div className="flex items-center justify-between relative z-10">
+        <div
+          className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full blur-xl"
+          style={{ background: 'rgba(255,77,0,0.15)' }}
+        />
+        <div className="relative z-10 flex items-center justify-between">
           <h2 className="text-xl font-bold">Novo hábito</h2>
-          <button onClick={onClose} className="w-10 h-10 rounded-lg flex items-center justify-center text-text-muted active:text-white active:scale-90 transition-all" style={{ background: 'rgba(255,255,255,0.05)' }}>
+          <button
+            onClick={onClose}
+            className="flex h-10 w-10 items-center justify-center rounded-lg text-text-muted transition-all active:scale-90 active:text-white"
+            style={{ background: 'rgba(255,255,255,0.05)' }}
+          >
             <X size={20} />
           </button>
         </div>
 
         <form onSubmit={submit} className="space-y-5">
           <div>
-            <label className="text-sm text-text-secondary block mb-2">Nome do hábito</label>
+            <label className="mb-2 block text-sm text-text-secondary">Nome do hábito</label>
             <input
               required
               value={name}
@@ -635,23 +686,19 @@ function CreateHabitModal({
           </div>
 
           <div>
-            <label className="text-sm text-text-secondary block mb-2">Ícone</label>
-            <div className="flex gap-2 flex-wrap">
+            <label className="mb-2 block text-sm text-text-secondary">Ícone</label>
+            <div className="flex flex-wrap gap-2">
               {ICONS.map((i) => (
                 <button
                   key={i}
                   type="button"
                   onClick={() => setIcon(i)}
                   className={cn(
-                    'w-10 h-10 rounded-lg text-xl flex items-center justify-center transition-all',
-                    icon === i
-                      ? 'ring-2 scale-110'
-                      : 'bg-bg-elevated hover:bg-border',
+                    'flex h-10 w-10 items-center justify-center rounded-lg text-xl transition-all',
+                    icon === i ? 'scale-110 ring-2' : 'bg-bg-elevated hover:bg-border'
                   )}
                   style={
-                    icon === i
-                      ? { background: `${color}20`, boxShadow: `0 0 0 2px ${color}` }
-                      : {}
+                    icon === i ? { background: `${color}20`, boxShadow: `0 0 0 2px ${color}` } : {}
                   }
                 >
                   {i}
@@ -661,17 +708,18 @@ function CreateHabitModal({
           </div>
 
           <div>
-            <label className="text-sm text-text-secondary block mb-2">Cor</label>
+            <label className="mb-2 block text-sm text-text-secondary">Cor</label>
             <div className="flex gap-2">
               {COLORS.map((c) => (
                 <button
                   key={c}
                   type="button"
                   onClick={() => setColor(c)}
-                  className="w-10 h-10 rounded-lg transition-all"
+                  className="h-10 w-10 rounded-lg transition-all"
                   style={{
                     backgroundColor: c,
-                    boxShadow: color === c ? `0 0 0 3px rgba(255,255,255,0.9), 0 0 12px ${c}60` : 'none',
+                    boxShadow:
+                      color === c ? `0 0 0 3px rgba(255,255,255,0.9), 0 0 12px ${c}60` : 'none',
                     transform: color === c ? 'scale(1.15)' : 'scale(1)',
                   }}
                 />
@@ -680,9 +728,9 @@ function CreateHabitModal({
           </div>
 
           <div>
-            <label className="text-sm text-text-secondary block mb-2">
+            <label className="mb-2 block text-sm text-text-secondary">
               Frequência:{' '}
-              <span className="text-white font-bold">
+              <span className="font-bold text-white">
                 {freq === 7 ? 'Todo dia' : `${freq}x/semana`}
               </span>
             </label>
@@ -694,7 +742,7 @@ function CreateHabitModal({
               onChange={(e) => setFreq(Number(e.target.value))}
               className="w-full accent-brand-orange"
             />
-            <div className="flex justify-between text-xs text-text-muted mt-1">
+            <div className="mt-1 flex justify-between text-xs text-text-muted">
               <span>1x/sem</span>
               <span>Todo dia</span>
             </div>
@@ -702,9 +750,7 @@ function CreateHabitModal({
 
           {/* Reminder time (optional) */}
           <div>
-            <label className="text-sm text-text-secondary block mb-2">
-              Lembrete (opcional)
-            </label>
+            <label className="mb-2 block text-sm text-text-secondary">Lembrete (opcional)</label>
             <div className="flex items-center gap-3">
               <input
                 type="time"
@@ -717,14 +763,14 @@ function CreateHabitModal({
                 <button
                   type="button"
                   onClick={() => setReminderTime('')}
-                  className="text-text-muted hover:text-white transition-colors text-xs"
+                  className="text-xs text-text-muted transition-colors hover:text-white"
                 >
                   Remover
                 </button>
               )}
             </div>
             {reminderTime && (
-              <p className="text-[11px] text-text-muted mt-1">
+              <p className="mt-1 text-[11px] text-text-muted">
                 🔔 Push às {reminderTime} se não logado ainda
               </p>
             )}
@@ -732,51 +778,59 @@ function CreateHabitModal({
 
           {/* Dificuldade */}
           <div>
-            <label className="text-sm text-text-secondary block mb-2">
+            <label className="mb-2 block text-sm text-text-secondary">
               Dificuldade
               <span className="ml-2 text-xs text-text-muted">(define o XP ganho)</span>
             </label>
             <div className="grid grid-cols-3 gap-2">
-              {([
-                { key: 'easy',   label: 'Fácil',   emoji: '🟢', xp: 50,  color: '#00FF88' },
-                { key: 'medium', label: 'Médio',   emoji: '🟡', xp: 75,  color: '#F5C842' },
-                { key: 'hard',   label: 'Difícil', emoji: '🔴', xp: 100, color: '#FF4D00' },
-              ] as const).map((d) => (
+              {(
+                [
+                  { key: 'easy', label: 'Fácil', emoji: '🟢', xp: 50, color: '#00FF88' },
+                  { key: 'medium', label: 'Médio', emoji: '🟡', xp: 75, color: '#F5C842' },
+                  { key: 'hard', label: 'Difícil', emoji: '🔴', xp: 100, color: '#FF4D00' },
+                ] as const
+              ).map((d) => (
                 <button
                   key={d.key}
                   type="button"
                   onClick={() => setDifficulty(d.key)}
-                  className="py-2.5 rounded-xl text-xs font-semibold transition-all active:scale-95 flex flex-col items-center gap-0.5"
+                  className="flex flex-col items-center gap-0.5 rounded-xl py-2.5 text-xs font-semibold transition-all active:scale-95"
                   style={
                     difficulty === d.key
-                      ? { background: `${d.color}20`, border: `1.5px solid ${d.color}`, color: d.color }
-                      : { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#8899BB' }
+                      ? {
+                          background: `${d.color}20`,
+                          border: `1.5px solid ${d.color}`,
+                          color: d.color,
+                        }
+                      : {
+                          background: 'rgba(255,255,255,0.04)',
+                          border: '1px solid rgba(255,255,255,0.08)',
+                          color: '#8899BB',
+                        }
                   }
                 >
-                  <span>{d.emoji} {d.label}</span>
+                  <span>
+                    {d.emoji} {d.label}
+                  </span>
                   <span className="text-[10px] font-bold opacity-75">+{d.xp} XP</span>
                 </button>
               ))}
             </div>
           </div>
 
-          <button
-            type="submit"
-            disabled={loading || !name}
-            className="btn-primary w-full"
-          >
+          <button type="submit" disabled={loading || !name} className="btn-primary w-full">
             {loading ? 'Criando...' : '+ Criar hábito'}
           </button>
         </form>
       </div>
     </div>
-  )
+  );
 }
 
 // ─── Edit Modal ──────────────────────────────────────────────────────────────
 
 interface HabitWithReminder extends Habit {
-  reminder_time?: string | null
+  reminder_time?: string | null;
 }
 
 function EditHabitModal({
@@ -784,24 +838,24 @@ function EditHabitModal({
   onClose,
   onSaved,
 }: {
-  habit: HabitWithReminder
-  onClose: () => void
-  onSaved: (habit: HabitWithReminder) => void
+  habit: HabitWithReminder;
+  onClose: () => void;
+  onSaved: (habit: HabitWithReminder) => void;
 }) {
-  const [loading, setLoading] = useState(false)
-  const [name, setName] = useState(habit.name)
-  const [icon, setIcon] = useState(habit.icon)
-  const [color, setColor] = useState(habit.color)
-  const [freq, setFreq] = useState(habit.frequency_per_week)
+  const [loading, setLoading] = useState(false);
+  const [name, setName] = useState(habit.name);
+  const [icon, setIcon] = useState(habit.icon);
+  const [color, setColor] = useState(habit.color);
+  const [freq, setFreq] = useState(habit.frequency_per_week);
   // Converte 'HH:MM:00' → 'HH:MM' para o input type="time"
   const [reminderTime, setReminderTime] = useState(
     habit.reminder_time ? habit.reminder_time.slice(0, 5) : ''
-  )
-  useScrollLock(true)
+  );
+  useScrollLock(true);
 
   async function submit(e: React.FormEvent) {
-    e.preventDefault()
-    setLoading(true)
+    e.preventDefault();
+    setLoading(true);
 
     const res = await fetch('/api/habits', {
       method: 'PATCH',
@@ -814,18 +868,25 @@ function EditHabitModal({
         frequency_per_week: freq,
         reminder_time: reminderTime || null,
       }),
-    })
+    });
 
-    setLoading(false)
+    setLoading(false);
     if (res.ok) {
-      onSaved({ ...habit, name, icon, color, frequency_per_week: freq, reminder_time: reminderTime || null })
+      onSaved({
+        ...habit,
+        name,
+        icon,
+        color,
+        frequency_per_week: freq,
+        reminder_time: reminderTime || null,
+      });
     }
   }
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end md:items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-4 backdrop-blur-sm md:items-center">
       <div
-        className="w-full max-w-md p-6 space-y-4 animate-slide-up rounded-2xl relative overflow-hidden overflow-y-auto"
+        className="relative w-full max-w-md animate-slide-up space-y-4 overflow-hidden overflow-y-auto rounded-2xl p-6"
         style={{
           maxHeight: '90dvh',
           background: 'linear-gradient(135deg, rgba(124,58,237,0.08) 0%, rgba(13,24,41,0.99) 100%)',
@@ -833,17 +894,24 @@ function EditHabitModal({
           boxShadow: '0 24px 60px rgba(0,0,0,0.5)',
         }}
       >
-        <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full pointer-events-none blur-xl" style={{ background: 'rgba(124,58,237,0.15)' }} />
-        <div className="flex items-center justify-between relative z-10">
+        <div
+          className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full blur-xl"
+          style={{ background: 'rgba(124,58,237,0.15)' }}
+        />
+        <div className="relative z-10 flex items-center justify-between">
           <h2 className="text-xl font-bold">Editar hábito</h2>
-          <button onClick={onClose} className="w-10 h-10 rounded-lg flex items-center justify-center text-text-muted active:text-white active:scale-90 transition-all" style={{ background: 'rgba(255,255,255,0.05)' }}>
+          <button
+            onClick={onClose}
+            className="flex h-10 w-10 items-center justify-center rounded-lg text-text-muted transition-all active:scale-90 active:text-white"
+            style={{ background: 'rgba(255,255,255,0.05)' }}
+          >
             <X size={20} />
           </button>
         </div>
 
         <form onSubmit={submit} className="space-y-5">
           <div>
-            <label className="text-sm text-text-secondary block mb-2">Nome do hábito</label>
+            <label className="mb-2 block text-sm text-text-secondary">Nome do hábito</label>
             <input
               required
               value={name}
@@ -854,21 +922,19 @@ function EditHabitModal({
           </div>
 
           <div>
-            <label className="text-sm text-text-secondary block mb-2">Ícone</label>
-            <div className="flex gap-2 flex-wrap">
+            <label className="mb-2 block text-sm text-text-secondary">Ícone</label>
+            <div className="flex flex-wrap gap-2">
               {ICONS.map((i) => (
                 <button
                   key={i}
                   type="button"
                   onClick={() => setIcon(i)}
                   className={cn(
-                    'w-10 h-10 rounded-lg text-xl flex items-center justify-center transition-all',
-                    icon === i ? 'scale-110' : 'bg-bg-elevated hover:bg-border',
+                    'flex h-10 w-10 items-center justify-center rounded-lg text-xl transition-all',
+                    icon === i ? 'scale-110' : 'bg-bg-elevated hover:bg-border'
                   )}
                   style={
-                    icon === i
-                      ? { background: `${color}20`, boxShadow: `0 0 0 2px ${color}` }
-                      : {}
+                    icon === i ? { background: `${color}20`, boxShadow: `0 0 0 2px ${color}` } : {}
                   }
                 >
                   {i}
@@ -878,17 +944,18 @@ function EditHabitModal({
           </div>
 
           <div>
-            <label className="text-sm text-text-secondary block mb-2">Cor</label>
+            <label className="mb-2 block text-sm text-text-secondary">Cor</label>
             <div className="flex gap-2">
               {COLORS.map((c) => (
                 <button
                   key={c}
                   type="button"
                   onClick={() => setColor(c)}
-                  className="w-10 h-10 rounded-lg transition-all"
+                  className="h-10 w-10 rounded-lg transition-all"
                   style={{
                     backgroundColor: c,
-                    boxShadow: color === c ? `0 0 0 3px rgba(255,255,255,0.9), 0 0 12px ${c}60` : 'none',
+                    boxShadow:
+                      color === c ? `0 0 0 3px rgba(255,255,255,0.9), 0 0 12px ${c}60` : 'none',
                     transform: color === c ? 'scale(1.15)' : 'scale(1)',
                   }}
                 />
@@ -897,9 +964,9 @@ function EditHabitModal({
           </div>
 
           <div>
-            <label className="text-sm text-text-secondary block mb-2">
+            <label className="mb-2 block text-sm text-text-secondary">
               Frequência:{' '}
-              <span className="text-white font-bold">
+              <span className="font-bold text-white">
                 {freq === 7 ? 'Todo dia' : `${freq}x/semana`}
               </span>
             </label>
@@ -911,7 +978,7 @@ function EditHabitModal({
               onChange={(e) => setFreq(Number(e.target.value))}
               className="w-full accent-brand-orange"
             />
-            <div className="flex justify-between text-xs text-text-muted mt-1">
+            <div className="mt-1 flex justify-between text-xs text-text-muted">
               <span>1x/sem</span>
               <span>Todo dia</span>
             </div>
@@ -919,9 +986,7 @@ function EditHabitModal({
 
           {/* Reminder time (optional) */}
           <div>
-            <label className="text-sm text-text-secondary block mb-2">
-              Lembrete (opcional)
-            </label>
+            <label className="mb-2 block text-sm text-text-secondary">Lembrete (opcional)</label>
             <div className="flex items-center gap-3">
               <input
                 type="time"
@@ -934,14 +999,14 @@ function EditHabitModal({
                 <button
                   type="button"
                   onClick={() => setReminderTime('')}
-                  className="text-text-muted hover:text-white transition-colors text-xs"
+                  className="text-xs text-text-muted transition-colors hover:text-white"
                 >
                   Remover
                 </button>
               )}
             </div>
             {reminderTime && (
-              <p className="text-[11px] text-text-muted mt-1">
+              <p className="mt-1 text-[11px] text-text-muted">
                 🔔 Push às {reminderTime} se não logado ainda
               </p>
             )}
@@ -958,5 +1023,5 @@ function EditHabitModal({
         </form>
       </div>
     </div>
-  )
+  );
 }

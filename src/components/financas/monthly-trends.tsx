@@ -1,6 +1,6 @@
-'use client'
+'use client';
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react';
 import {
   BarChart,
   Bar,
@@ -11,115 +11,134 @@ import {
   Cell,
   ReferenceLine,
   CartesianGrid,
-} from 'recharts'
-import { TrendingUp, TrendingDown, Minus } from 'lucide-react'
+} from 'recharts';
+import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 
 export interface MonthData {
-  month: string
-  income: number
-  expense: number
-  net: number
-  savingsRate: number
-  isCurrent: boolean
+  month: string;
+  income: number;
+  expense: number;
+  net: number;
+  savingsRate: number;
+  isCurrent: boolean;
 }
 
 function formatBRL(v: number) {
-  if (v >= 1000) return `R$${(v / 1000).toFixed(1)}k`
-  return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })
+  if (v >= 1000) return `R$${(v / 1000).toFixed(1)}k`;
+  return v.toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+    maximumFractionDigits: 0,
+  });
 }
 
 function formatBRLFull(v: number) {
-  return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+  return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
 
 interface TooltipProps {
-  active?: boolean
-  payload?: Array<{ name: string; value: number; fill?: string }>
-  label?: string
+  active?: boolean;
+  payload?: Array<{ name: string; value: number; fill?: string }>;
+  label?: string;
 }
 
 function ChartTooltip({ active, payload, label }: TooltipProps) {
-  if (!active || !payload?.length) return null
-  const income = payload.find(p => p.name === 'income')?.value ?? 0
-  const expense = payload.find(p => p.name === 'expense')?.value ?? 0
-  const net = income - expense
+  if (!active || !payload?.length) return null;
+  const income = payload.find((p) => p.name === 'income')?.value ?? 0;
+  const expense = payload.find((p) => p.name === 'expense')?.value ?? 0;
+  const net = income - expense;
   return (
     <div
-      className="rounded-xl px-4 py-3 text-sm pointer-events-none min-w-[170px]"
+      className="pointer-events-none min-w-[170px] rounded-xl px-4 py-3 text-sm"
       style={{
         background: 'rgba(13,24,41,0.98)',
         border: '1px solid rgba(255,255,255,0.1)',
         boxShadow: '0 12px 32px rgba(0,0,0,0.5)',
       }}
     >
-      <div className="font-bold text-white mb-2.5 text-xs uppercase tracking-widest opacity-60">{label}</div>
+      <div className="mb-2.5 text-xs font-bold uppercase tracking-widest text-white opacity-60">
+        {label}
+      </div>
       <div className="space-y-1.5">
         {income > 0 && (
           <div className="flex items-center justify-between gap-4">
             <span className="text-xs text-text-muted">Receitas</span>
-            <span className="font-bold text-sm" style={{ color: '#00FF88' }}>{formatBRLFull(income)}</span>
+            <span className="text-sm font-bold" style={{ color: '#00FF88' }}>
+              {formatBRLFull(income)}
+            </span>
           </div>
         )}
         {expense > 0 && (
           <div className="flex items-center justify-between gap-4">
             <span className="text-xs text-text-muted">Gastos</span>
-            <span className="font-bold text-sm" style={{ color: '#FF4D00' }}>{formatBRLFull(expense)}</span>
+            <span className="text-sm font-bold" style={{ color: '#FF4D00' }}>
+              {formatBRLFull(expense)}
+            </span>
           </div>
         )}
         <div
-          className="flex items-center justify-between gap-4 pt-1.5 mt-1.5"
+          className="mt-1.5 flex items-center justify-between gap-4 pt-1.5"
           style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}
         >
           <span className="text-xs font-semibold">Saldo</span>
-          <span
-            className="font-black text-sm"
-            style={{ color: net >= 0 ? '#00FF88' : '#FF4D00' }}
-          >
-            {net >= 0 ? '+' : ''}{formatBRLFull(net)}
+          <span className="text-sm font-black" style={{ color: net >= 0 ? '#00FF88' : '#FF4D00' }}>
+            {net >= 0 ? '+' : ''}
+            {formatBRLFull(net)}
           </span>
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export function MonthlyTrendsChart({ data }: { data: MonthData[] }) {
-  const [animated, setAnimated] = useState(false)
-  const containerRef = useRef<HTMLDivElement>(null)
+  const [animated, setAnimated] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const el = containerRef.current
-    if (!el) return
+    const el = containerRef.current;
+    if (!el) return;
     const obs = new IntersectionObserver(
       ([entry]) => {
         if (entry?.isIntersecting) {
-          setTimeout(() => setAnimated(true), 80)
-          obs.disconnect()
+          setTimeout(() => setAnimated(true), 80);
+          obs.disconnect();
         }
       },
-      { threshold: 0.2 },
-    )
-    obs.observe(el)
-    return () => obs.disconnect()
-  }, [])
+      { threshold: 0.2 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
 
-  if (!data.length) return null
+  if (!data.length) return null;
 
-  const totalIncome = data.reduce((s, d) => s + d.income, 0)
-  const totalExpense = data.reduce((s, d) => s + d.expense, 0)
-  const totalNet = totalIncome - totalExpense
-  const avgSavings = data.filter(d => d.income > 0).reduce((s, d) => s + d.savingsRate, 0) / Math.max(1, data.filter(d => d.income > 0).length)
-  const bestMonth = [...data].sort((a, b) => b.net - a.net)[0]
+  const totalIncome = data.reduce((s, d) => s + d.income, 0);
+  const totalExpense = data.reduce((s, d) => s + d.expense, 0);
+  const totalNet = totalIncome - totalExpense;
+  const avgSavings =
+    data.filter((d) => d.income > 0).reduce((s, d) => s + d.savingsRate, 0) /
+    Math.max(1, data.filter((d) => d.income > 0).length);
+  const bestMonth = [...data].sort((a, b) => b.net - a.net)[0];
 
   return (
     <div ref={containerRef} className="space-y-5">
-
       {/* ── Summary strip ──────────────────────────────────────────────── */}
       <div className="grid grid-cols-3 gap-2.5">
         {(
           [
-            { label: 'Receitas (6m)', value: formatBRLFull(totalIncome), color: '#00FF88', rgb: '0,255,136' },
-            { label: 'Gastos (6m)', value: formatBRLFull(totalExpense), color: '#FF4D00', rgb: '255,77,0' },
+            {
+              label: 'Receitas (6m)',
+              value: formatBRLFull(totalIncome),
+              color: '#00FF88',
+              rgb: '0,255,136',
+            },
+            {
+              label: 'Gastos (6m)',
+              value: formatBRLFull(totalExpense),
+              color: '#FF4D00',
+              rgb: '255,77,0',
+            },
             {
               label: 'Saldo acumulado',
               value: `${totalNet >= 0 ? '+' : ''}${formatBRLFull(totalNet)}`,
@@ -136,8 +155,12 @@ export function MonthlyTrendsChart({ data }: { data: MonthData[] }) {
               border: `1px solid rgba(${s.rgb},0.16)`,
             }}
           >
-            <div className="text-[10px] text-text-muted uppercase tracking-wider mb-1.5 leading-none">{s.label}</div>
-            <div className="font-black text-sm leading-none" style={{ color: s.color }}>{s.value}</div>
+            <div className="mb-1.5 text-[10px] uppercase leading-none tracking-wider text-text-muted">
+              {s.label}
+            </div>
+            <div className="text-sm font-black leading-none" style={{ color: s.color }}>
+              {s.value}
+            </div>
           </div>
         ))}
       </div>
@@ -176,19 +199,15 @@ export function MonthlyTrendsChart({ data }: { data: MonthData[] }) {
             </filter>
           </defs>
 
-          <CartesianGrid
-            vertical={false}
-            stroke="rgba(255,255,255,0.04)"
-            strokeDasharray="0"
-          />
+          <CartesianGrid vertical={false} stroke="rgba(255,255,255,0.04)" strokeDasharray="0" />
 
           <XAxis
             dataKey="month"
             axisLine={false}
             tickLine={false}
             tick={(props: { x: number; y: number; payload: { value: string } }) => {
-              const item = data.find(d => d.month === props.payload.value)
-              const isCurrent = item?.isCurrent ?? false
+              const item = data.find((d) => d.month === props.payload.value);
+              const isCurrent = item?.isCurrent ?? false;
               return (
                 <g transform={`translate(${props.x},${props.y})`}>
                   {isCurrent && (
@@ -205,7 +224,7 @@ export function MonthlyTrendsChart({ data }: { data: MonthData[] }) {
                     {isCurrent ? `${props.payload.value}★` : props.payload.value}
                   </text>
                 </g>
-              )
+              );
             }}
           />
 
@@ -219,7 +238,9 @@ export function MonthlyTrendsChart({ data }: { data: MonthData[] }) {
 
           <Tooltip
             content={<ChartTooltip />}
-            cursor={{ fill: 'rgba(255,255,255,0.025)', radius: 4 } as { fill: string; radius: number }}
+            cursor={
+              { fill: 'rgba(255,255,255,0.025)', radius: 4 } as { fill: string; radius: number }
+            }
           />
 
           {/* Zero reference line */}
@@ -270,35 +291,39 @@ export function MonthlyTrendsChart({ data }: { data: MonthData[] }) {
       {/* ── Per-month savings rate strip ───────────────────────────────── */}
       <div className="grid gap-1.5" style={{ gridTemplateColumns: `repeat(${data.length}, 1fr)` }}>
         {data.map((m, i) => {
-          const hasData = m.income > 0 || m.expense > 0
-          const rate = m.savingsRate
-          const rateColor = rate >= 25 ? '#00FF88' : rate >= 10 ? '#F5C842' : rate >= 0 ? '#FF4D00' : '#EF4444'
+          const hasData = m.income > 0 || m.expense > 0;
+          const rate = m.savingsRate;
+          const rateColor =
+            rate >= 25 ? '#00FF88' : rate >= 10 ? '#F5C842' : rate >= 0 ? '#FF4D00' : '#EF4444';
           return (
             <div
               key={i}
               className="rounded-lg p-2 text-center"
               style={{
                 background: m.isCurrent ? 'rgba(0,255,136,0.05)' : 'rgba(255,255,255,0.02)',
-                border: m.isCurrent ? '1px solid rgba(0,255,136,0.15)' : '1px solid rgba(255,255,255,0.04)',
+                border: m.isCurrent
+                  ? '1px solid rgba(0,255,136,0.15)'
+                  : '1px solid rgba(255,255,255,0.04)',
               }}
             >
-              <div className="text-[9px] text-text-muted mb-1 leading-none truncate">{m.month}</div>
+              <div className="mb-1 truncate text-[9px] leading-none text-text-muted">{m.month}</div>
               {hasData ? (
                 <div className="text-[11px] font-black leading-none" style={{ color: rateColor }}>
-                  {rate >= 0 ? '+' : ''}{rate}%
+                  {rate >= 0 ? '+' : ''}
+                  {rate}%
                 </div>
               ) : (
-                <div className="text-[11px] text-text-muted leading-none">–</div>
+                <div className="text-[11px] leading-none text-text-muted">–</div>
               )}
             </div>
-          )
+          );
         })}
       </div>
-      <div className="text-[10px] text-text-muted text-center -mt-1">% poupado por mês</div>
+      <div className="-mt-1 text-center text-[10px] text-text-muted">% poupado por mês</div>
 
       {/* ── Footer legend & insight ─────────────────────────────────────── */}
       <div
-        className="rounded-xl p-3.5 flex items-center justify-between gap-4"
+        className="flex items-center justify-between gap-4 rounded-xl p-3.5"
         style={{
           background: 'rgba(255,255,255,0.03)',
           border: '1px solid rgba(255,255,255,0.06)',
@@ -306,21 +331,24 @@ export function MonthlyTrendsChart({ data }: { data: MonthData[] }) {
       >
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded-sm" style={{ background: '#00FF88' }} />
+            <div className="h-3 w-3 rounded-sm" style={{ background: '#00FF88' }} />
             <span className="text-[11px] text-text-muted">Receitas</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded-sm" style={{ background: '#FF4D00' }} />
+            <div className="h-3 w-3 rounded-sm" style={{ background: '#FF4D00' }} />
             <span className="text-[11px] text-text-muted">Gastos</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded-sm" style={{ background: 'rgba(0,255,136,0.3)', border: '1px solid rgba(0,255,136,0.5)' }} />
+            <div
+              className="h-3 w-3 rounded-sm"
+              style={{ background: 'rgba(0,255,136,0.3)', border: '1px solid rgba(0,255,136,0.5)' }}
+            />
             <span className="text-[11px] text-text-muted">Mês atual</span>
           </div>
         </div>
-        <div className="text-right shrink-0">
+        <div className="shrink-0 text-right">
           {avgSavings > 0 ? (
-            <div className="flex items-center gap-1 justify-end">
+            <div className="flex items-center justify-end gap-1">
               {avgSavings >= 15 ? (
                 <TrendingUp size={12} style={{ color: '#00FF88' }} />
               ) : avgSavings >= 0 ? (
@@ -332,7 +360,9 @@ export function MonthlyTrendsChart({ data }: { data: MonthData[] }) {
                 Média:{' '}
                 <span
                   className="font-bold"
-                  style={{ color: avgSavings >= 15 ? '#00FF88' : avgSavings >= 0 ? '#F5C842' : '#FF4D00' }}
+                  style={{
+                    color: avgSavings >= 15 ? '#00FF88' : avgSavings >= 0 ? '#F5C842' : '#FF4D00',
+                  }}
                 >
                   {Math.round(avgSavings)}% poupado
                 </span>
@@ -340,7 +370,7 @@ export function MonthlyTrendsChart({ data }: { data: MonthData[] }) {
             </div>
           ) : null}
           {bestMonth && bestMonth.net > 0 && (
-            <div className="text-[10px] text-text-muted mt-0.5">
+            <div className="mt-0.5 text-[10px] text-text-muted">
               Melhor:{' '}
               <span className="font-semibold" style={{ color: '#00FF88' }}>
                 {bestMonth.month} +{formatBRLFull(bestMonth.net)}
@@ -350,5 +380,5 @@ export function MonthlyTrendsChart({ data }: { data: MonthData[] }) {
         </div>
       </div>
     </div>
-  )
+  );
 }

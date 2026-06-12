@@ -1,43 +1,44 @@
-'use client'
+'use client';
 
-import { useEffect } from 'react'
-import { RefreshCw, Zap, TrendingUp, AlertTriangle } from 'lucide-react'
+import { useEffect } from 'react';
+import { RefreshCw, Zap, TrendingUp, AlertTriangle } from 'lucide-react';
 
 export default function DashboardError({
   error,
   reset,
 }: {
-  error: Error & { digest?: string }
-  reset: () => void
+  error: Error & { digest?: string };
+  reset: () => void;
 }) {
   useEffect(() => {
-    console.error('[DashboardError]', error)
-  }, [error])
+    console.error('[DashboardError]', error);
+  }, [error]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6">
+    <div className="flex min-h-screen items-center justify-center p-6">
       <div
-        className="w-full max-w-md p-8 rounded-2xl relative overflow-hidden text-center"
+        className="relative w-full max-w-md overflow-hidden rounded-2xl p-8 text-center"
         style={{
-          background: 'linear-gradient(135deg, rgba(255,77,0,0.08) 0%, rgba(13,24,41,0.99) 60%, rgba(124,58,237,0.05) 100%)',
+          background:
+            'linear-gradient(135deg, rgba(255,77,0,0.08) 0%, rgba(13,24,41,0.99) 60%, rgba(124,58,237,0.05) 100%)',
           border: '1px solid rgba(255,77,0,0.22)',
           boxShadow: '0 24px 60px rgba(0,0,0,0.5)',
         }}
       >
         {/* Glows */}
         <div
-          className="absolute -top-8 -right-8 w-40 h-40 rounded-full pointer-events-none blur-2xl"
+          className="pointer-events-none absolute -right-8 -top-8 h-40 w-40 rounded-full blur-2xl"
           style={{ background: 'rgba(255,77,0,0.14)' }}
         />
         <div
-          className="absolute -bottom-6 -left-6 w-32 h-32 rounded-full pointer-events-none blur-xl"
+          className="pointer-events-none absolute -bottom-6 -left-6 h-32 w-32 rounded-full blur-xl"
           style={{ background: 'rgba(124,58,237,0.1)' }}
         />
 
         <div className="relative z-10 space-y-5">
           {/* Icon */}
           <div
-            className="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center"
+            className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl"
             style={{
               background: 'linear-gradient(135deg, rgba(255,77,0,0.15), rgba(124,58,237,0.1))',
               border: '1px solid rgba(255,77,0,0.3)',
@@ -50,12 +51,12 @@ export default function DashboardError({
           {/* Copy */}
           <div className="space-y-2">
             <h1 className="text-2xl font-black">Dashboard indisponível</h1>
-            <p className="text-text-secondary text-sm leading-relaxed">
-              Um erro inesperado aconteceu ao carregar seu dashboard.
-              Suas metas, hábitos e progresso estão seguros.
+            <p className="text-sm leading-relaxed text-text-secondary">
+              Um erro inesperado aconteceu ao carregar seu dashboard. Suas metas, hábitos e
+              progresso estão seguros.
             </p>
             {error.digest && (
-              <p className="text-xs text-text-muted font-mono mt-1 select-all">
+              <p className="mt-1 select-all font-mono text-xs text-text-muted">
                 Código de erro: {error.digest}
               </p>
             )}
@@ -72,7 +73,7 @@ export default function DashboardError({
               <a
                 key={href}
                 href={href}
-                className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium transition-all hover:opacity-80"
+                className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium transition-all hover:opacity-80"
                 style={{
                   background: `${accent}0D`,
                   border: `1px solid ${accent}20`,
@@ -86,20 +87,23 @@ export default function DashboardError({
 
           {/* XP reminder */}
           <div
-            className="rounded-xl p-3 flex items-center gap-3"
-            style={{ background: 'rgba(245,200,66,0.06)', border: '1px solid rgba(245,200,66,0.14)' }}
+            className="flex items-center gap-3 rounded-xl p-3"
+            style={{
+              background: 'rgba(245,200,66,0.06)',
+              border: '1px solid rgba(245,200,66,0.14)',
+            }}
           >
-            <Zap size={14} className="text-brand-gold shrink-0" fill="currentColor" />
-            <p className="text-xs text-text-secondary text-left">
+            <Zap size={14} className="shrink-0 text-brand-gold" fill="currentColor" />
+            <p className="text-left text-xs text-text-secondary">
               Seu XP total e streak continuam protegidos no servidor.
             </p>
-            <TrendingUp size={12} className="text-brand-gold/50 ml-auto shrink-0" />
+            <TrendingUp size={12} className="ml-auto shrink-0 text-brand-gold/50" />
           </div>
 
           {/* Retry */}
           <button
             onClick={reset}
-            className="w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl font-bold text-sm transition-all hover:opacity-90 active:scale-[0.98]"
+            className="flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3.5 text-sm font-bold transition-all hover:opacity-90 active:scale-[0.98]"
             style={{
               background: 'linear-gradient(135deg, #C03A00, #FF4D00)',
               color: '#fff',
@@ -112,5 +116,5 @@ export default function DashboardError({
         </div>
       </div>
     </div>
-  )
+  );
 }

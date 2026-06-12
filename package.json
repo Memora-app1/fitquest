@@ -7,7 +7,7 @@
     "prebuild": "node -e \"try{require('fs').unlinkSync('src/middleware.ts')}catch(e){}\"",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "tsc --noEmit && eslint src/ --ext .ts,.tsx --max-warnings 0",
     "type-check": "tsc --noEmit",
     "deploy": "npm run type-check && vercel --prod --yes"
   },
@@ -48,7 +48,12 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.5",
     "@types/react": "^19.2.17",
-    "@types/react-dom": "^19.2.3"
+    "@types/react-dom": "^19.2.3",
+    "eslint": "^9.39.4",
+    "eslint-config-next": "^16.2.9",
+    "prettier": "^3.8.4",
+    "prettier-plugin-tailwindcss": "^0.8.0"
   }
 }

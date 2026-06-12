@@ -1,6 +1,6 @@
-'use client'
+'use client';
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react';
 import {
   BarChart,
   Bar,
@@ -10,76 +10,75 @@ import {
   ResponsiveContainer,
   Cell,
   ReferenceLine,
-} from 'recharts'
+} from 'recharts';
 
 export interface DayXP {
-  day: string
-  xp: number
+  day: string;
+  xp: number;
 }
 
 interface TooltipPayload {
-  value: number
+  value: number;
 }
 
 interface TooltipProps {
-  active?: boolean
-  payload?: TooltipPayload[]
-  label?: string
+  active?: boolean;
+  payload?: TooltipPayload[];
+  label?: string;
 }
 
 function rgbFor(hex: string): string {
-  if (hex === '#F5C842') return '245,200,66'
-  if (hex === '#FF4D00') return '255,77,0'
-  if (hex === '#00FF88') return '0,255,136'
-  return '124,58,237'
+  if (hex === '#F5C842') return '245,200,66';
+  if (hex === '#FF4D00') return '255,77,0';
+  if (hex === '#00FF88') return '0,255,136';
+  return '124,58,237';
 }
 
 export function XpChart({ data }: { data: DayXP[] }) {
-  const [animated, setAnimated] = useState(false)
-  const containerRef = useRef<HTMLDivElement>(null)
+  const [animated, setAnimated] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // Trigger bar animation once the chart scrolls into view
   useEffect(() => {
-    const el = containerRef.current
-    if (!el) return
+    const el = containerRef.current;
+    if (!el) return;
     const obs = new IntersectionObserver(
       ([entry]) => {
         if (entry?.isIntersecting) {
           // Small delay so the element has actually painted
-          setTimeout(() => setAnimated(true), 80)
-          obs.disconnect()
+          setTimeout(() => setAnimated(true), 80);
+          obs.disconnect();
         }
       },
-      { threshold: 0.25 },
-    )
-    obs.observe(el)
-    return () => obs.disconnect()
-  }, [])
+      { threshold: 0.25 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
 
-  if (!data.length) return null
+  if (!data.length) return null;
 
-  const totalXp = data.reduce((s, d) => s + d.xp, 0)
-  const maxXp = Math.max(...data.map((d) => d.xp), 0)
-  const avgXp = data.length > 0 ? Math.round(totalXp / data.length) : 0
-  const todayLabel = data[data.length - 1]?.day ?? ''
-  const bestDay = data.reduce<DayXP | null>((best, d) => (!best || d.xp > best.xp ? d : best), null)
+  const totalXp = data.reduce((s, d) => s + d.xp, 0);
+  const maxXp = Math.max(...data.map((d) => d.xp), 0);
+  const avgXp = data.length > 0 ? Math.round(totalXp / data.length) : 0;
+  const todayLabel = data[data.length - 1]?.day ?? '';
+  const bestDay = data.reduce<DayXP | null>(
+    (best, d) => (!best || d.xp > best.xp ? d : best),
+    null
+  );
 
   // Inline tooltip component has closure over todayLabel
   function TooltipContent({ active, payload, label }: TooltipProps) {
-    if (!active || !payload?.length) return null
-    const isToday = label === todayLabel
-    const xp = payload[0]?.value ?? 0
+    if (!active || !payload?.length) return null;
+    const isToday = label === todayLabel;
+    const xp = payload[0]?.value ?? 0;
     return (
       <div
-        className="rounded-xl px-3 py-2.5 text-sm pointer-events-none"
+        className="pointer-events-none rounded-xl px-3 py-2.5 text-sm"
         style={{
           background: 'rgba(13,24,41,0.98)',
-          border: isToday
-            ? '1px solid rgba(255,77,0,0.45)'
-            : '1px solid rgba(124,58,237,0.3)',
-          boxShadow: isToday
-            ? '0 8px 24px rgba(255,77,0,0.2)'
-            : '0 8px 24px rgba(0,0,0,0.45)',
+          border: isToday ? '1px solid rgba(255,77,0,0.45)' : '1px solid rgba(124,58,237,0.3)',
+          boxShadow: isToday ? '0 8px 24px rgba(255,77,0,0.2)' : '0 8px 24px rgba(0,0,0,0.45)',
         }}
       >
         <div
@@ -89,11 +88,11 @@ export function XpChart({ data }: { data: DayXP[] }) {
           +{xp.toLocaleString('pt-BR')}
           <span className="text-xs font-normal opacity-60">XP</span>
         </div>
-        <div className="text-xs mt-0.5" style={{ color: '#8899BB' }}>
+        <div className="mt-0.5 text-xs" style={{ color: '#8899BB' }}>
           {isToday ? 'Hoje' : label}
         </div>
       </div>
-    )
+    );
   }
 
   const stats: Array<{ label: string; value: string; unit: string; color: string }> = [
@@ -115,7 +114,7 @@ export function XpChart({ data }: { data: DayXP[] }) {
       unit: 'XP',
       color: '#00FF88',
     },
-  ]
+  ];
 
   return (
     <div ref={containerRef} className="space-y-4">
@@ -130,11 +129,11 @@ export function XpChart({ data }: { data: DayXP[] }) {
               border: `1px solid rgba(${rgbFor(color)},0.16)`,
             }}
           >
-            <div className="font-black text-sm leading-none" style={{ color }}>
+            <div className="text-sm font-black leading-none" style={{ color }}>
               {value}
-              <span className="text-[10px] font-normal opacity-55 ml-0.5">{unit}</span>
+              <span className="ml-0.5 text-[10px] font-normal opacity-55">{unit}</span>
             </div>
-            <div className="text-[10px] mt-1 leading-none" style={{ color: '#8899BB' }}>
+            <div className="mt-1 text-[10px] leading-none" style={{ color: '#8899BB' }}>
               {label}
             </div>
           </div>
@@ -179,18 +178,11 @@ export function XpChart({ data }: { data: DayXP[] }) {
             axisLine={false}
             tickLine={false}
             tick={(props: { x: number; y: number; payload: { value: string } }) => {
-              const isToday = props.payload.value === todayLabel
+              const isToday = props.payload.value === todayLabel;
               return (
                 <g transform={`translate(${props.x},${props.y})`}>
                   {isToday && (
-                    <rect
-                      x={-14}
-                      y={4}
-                      width={28}
-                      height={16}
-                      rx={8}
-                      fill="rgba(255,77,0,0.14)"
-                    />
+                    <rect x={-14} y={4} width={28} height={16} rx={8} fill="rgba(255,77,0,0.14)" />
                   )}
                   <text
                     x={0}
@@ -203,7 +195,7 @@ export function XpChart({ data }: { data: DayXP[] }) {
                     {isToday ? 'Hoje' : props.payload.value}
                   </text>
                 </g>
-              )
+              );
             }}
           />
 
@@ -231,7 +223,9 @@ export function XpChart({ data }: { data: DayXP[] }) {
 
           <Tooltip
             content={<TooltipContent />}
-            cursor={{ fill: 'rgba(255,255,255,0.025)', radius: 6 } as { fill: string; radius: number }}
+            cursor={
+              { fill: 'rgba(255,255,255,0.025)', radius: 6 } as { fill: string; radius: number }
+            }
           />
 
           <Bar
@@ -243,39 +237,48 @@ export function XpChart({ data }: { data: DayXP[] }) {
             animationBegin={0}
           >
             {data.map((entry, index) => {
-              const isToday = entry.day === todayLabel
+              const isToday = entry.day === todayLabel;
               // Only mark best day gold if it's not today (today is orange and already stands out)
-              const isBest = !isToday && entry.xp === maxXp && maxXp > 0
-              let fill = 'url(#xpGradRegular)'
-              if (isToday) fill = 'url(#xpGradToday)'
-              else if (isBest) fill = 'url(#xpGradBest)'
+              const isBest = !isToday && entry.xp === maxXp && maxXp > 0;
+              let fill = 'url(#xpGradRegular)';
+              if (isToday) fill = 'url(#xpGradToday)';
+              else if (isBest) fill = 'url(#xpGradBest)';
               return (
                 <Cell
                   key={`cell-${index}`}
                   fill={fill}
                   filter={isToday ? 'url(#xpTodayGlow)' : undefined}
                 />
-              )
+              );
             })}
           </Bar>
         </BarChart>
       </ResponsiveContainer>
 
       {/* Footer legend */}
-      <div className="flex items-center justify-between text-[10px] px-1">
+      <div className="flex items-center justify-between px-1 text-[10px]">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1">
-            <span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: '#FF4D00' }} />
+            <span
+              className="inline-block h-2.5 w-2.5 rounded-sm"
+              style={{ background: '#FF4D00' }}
+            />
             <span style={{ color: '#8899BB' }}>Hoje</span>
           </div>
           {bestDay && bestDay.day !== todayLabel && (
             <div className="flex items-center gap-1">
-              <span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: '#F5C842' }} />
+              <span
+                className="inline-block h-2.5 w-2.5 rounded-sm"
+                style={{ background: '#F5C842' }}
+              />
               <span style={{ color: '#8899BB' }}>Melhor dia</span>
             </div>
           )}
           <div className="flex items-center gap-1">
-            <span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: 'rgba(124,58,237,0.7)' }} />
+            <span
+              className="inline-block h-2.5 w-2.5 rounded-sm"
+              style={{ background: 'rgba(124,58,237,0.7)' }}
+            />
             <span style={{ color: '#8899BB' }}>Demais dias</span>
           </div>
         </div>
@@ -283,11 +286,12 @@ export function XpChart({ data }: { data: DayXP[] }) {
           <div style={{ color: '#8899BB' }}>
             Melhor:{' '}
             <span style={{ color: '#F5C842', fontWeight: 700 }}>
-              {bestDay.day === todayLabel ? 'Hoje' : bestDay.day} — {maxXp.toLocaleString('pt-BR')} XP
+              {bestDay.day === todayLabel ? 'Hoje' : bestDay.day} — {maxXp.toLocaleString('pt-BR')}{' '}
+              XP
             </span>
           </div>
         )}
       </div>
     </div>
-  )
+  );
 }

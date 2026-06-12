@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 /**
  * PerfectDayOverlay — celebração quando o usuário completa TODOS os hábitos do dia.
@@ -6,21 +6,21 @@
  * Auto-dismiss após 5 segundos.
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react'
-import { X, Star, Zap } from 'lucide-react'
-import { useScrollLock } from '@/hooks/use-scroll-lock'
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { X, Star, Zap } from 'lucide-react';
+import { useScrollLock } from '@/hooks/use-scroll-lock';
 
-const CONFETTI_COLORS = ['#F5C842', '#FF4D00', '#00FF88', '#7C3AED', '#FFFFFF', '#FFB347']
-const CONFETTI_COUNT = 50
+const CONFETTI_COLORS = ['#F5C842', '#FF4D00', '#00FF88', '#7C3AED', '#FFFFFF', '#FFB347'];
+const CONFETTI_COUNT = 50;
 
 interface Piece {
-  id: number
-  left: number
-  color: string
-  delay: number
-  duration: number
-  size: number
-  rotation: number
+  id: number;
+  left: number;
+  color: string;
+  delay: number;
+  duration: number;
+  size: number;
+  rotation: number;
 }
 
 function generateConfetti(): Piece[] {
@@ -32,70 +32,79 @@ function generateConfetti(): Piece[] {
     duration: 1.5 + Math.random() * 1.5,
     size: 5 + Math.random() * 7,
     rotation: Math.random() * 360,
-  }))
+  }));
 }
 
 function CountdownBar({ duration, onDismiss }: { duration: number; onDismiss: () => void }) {
-  const [width, setWidth] = useState(100)
-  const rafRef = useRef<number | null>(null)
-  const startRef = useRef<number | null>(null)
+  const [width, setWidth] = useState(100);
+  const rafRef = useRef<number | null>(null);
+  const startRef = useRef<number | null>(null);
 
   useEffect(() => {
-    startRef.current = null
+    startRef.current = null;
     function tick(ts: number) {
-      if (!startRef.current) startRef.current = ts
-      const remaining = Math.max(0, 1 - (ts - startRef.current) / duration)
-      setWidth(remaining * 100)
-      if (remaining > 0) rafRef.current = requestAnimationFrame(tick)
-      else onDismiss()
+      if (!startRef.current) startRef.current = ts;
+      const remaining = Math.max(0, 1 - (ts - startRef.current) / duration);
+      setWidth(remaining * 100);
+      if (remaining > 0) rafRef.current = requestAnimationFrame(tick);
+      else onDismiss();
     }
-    rafRef.current = requestAnimationFrame(tick)
-    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current) }
-  }, [duration, onDismiss])
+    rafRef.current = requestAnimationFrame(tick);
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, [duration, onDismiss]);
 
   return (
-    <div className="absolute bottom-0 left-0 right-0 h-1 rounded-b-3xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)' }}>
+    <div
+      className="absolute bottom-0 left-0 right-0 h-1 overflow-hidden rounded-b-3xl"
+      style={{ background: 'rgba(255,255,255,0.08)' }}
+    >
       <div
         className="h-full rounded-b-3xl"
-        style={{ width: `${width}%`, background: 'linear-gradient(90deg, #F5C842, #FF4D00)', transition: 'width 0.1s linear' }}
+        style={{
+          width: `${width}%`,
+          background: 'linear-gradient(90deg, #F5C842, #FF4D00)',
+          transition: 'width 0.1s linear',
+        }}
       />
     </div>
-  )
+  );
 }
 
 export function PerfectDayOverlay() {
-  const [visible, setVisible]       = useState(false)
-  const [animating, setAnimating]   = useState(false)
-  const [dismissing, setDismissing] = useState(false)
-  const [confetti] = useState<Piece[]>(generateConfetti)
-  useScrollLock(visible)
-  const lastFired = useRef(0)
+  const [visible, setVisible] = useState(false);
+  const [animating, setAnimating] = useState(false);
+  const [dismissing, setDismissing] = useState(false);
+  const [confetti] = useState<Piece[]>(generateConfetti);
+  useScrollLock(visible);
+  const lastFired = useRef(0);
 
   const dismiss = useCallback(() => {
-    setDismissing(true)
+    setDismissing(true);
     setTimeout(() => {
-      setVisible(false)
-      setAnimating(false)
-      setDismissing(false)
-    }, 400)
-  }, [])
+      setVisible(false);
+      setAnimating(false);
+      setDismissing(false);
+    }, 400);
+  }, []);
 
   useEffect(() => {
     function handlePerfectDay() {
       // Dedup — ignora se disparado nos últimos 10s
-      const now = Date.now()
-      if (now - lastFired.current < 10000) return
-      lastFired.current = now
+      const now = Date.now();
+      if (now - lastFired.current < 10000) return;
+      lastFired.current = now;
 
-      setVisible(true)
-      setDismissing(false)
-      setTimeout(() => setAnimating(true), 30)
+      setVisible(true);
+      setDismissing(false);
+      setTimeout(() => setAnimating(true), 30);
     }
-    window.addEventListener('ascendia:perfect-day', handlePerfectDay)
-    return () => window.removeEventListener('ascendia:perfect-day', handlePerfectDay)
-  }, [])
+    window.addEventListener('ascendia:perfect-day', handlePerfectDay);
+    return () => window.removeEventListener('ascendia:perfect-day', handlePerfectDay);
+  }, []);
 
-  if (!visible) return null
+  if (!visible) return null;
 
   return (
     <div
@@ -110,33 +119,37 @@ export function PerfectDayOverlay() {
       onClick={dismiss}
     >
       {/* Confetti */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
         {confetti.map((p) => (
           <div
             key={p.id}
             className="confetti-deep"
-            style={{
-              left: `${p.left}%`,
-              width: `${p.size}px`,
-              height: `${p.size}px`,
-              backgroundColor: p.color,
-              borderRadius: '2px',
-              transform: `rotate(${p.rotation}deg)`,
-              '--duration': `${p.duration}s`,
-              '--delay': `${p.delay}s`,
-            } as React.CSSProperties}
+            style={
+              {
+                left: `${p.left}%`,
+                width: `${p.size}px`,
+                height: `${p.size}px`,
+                backgroundColor: p.color,
+                borderRadius: '2px',
+                transform: `rotate(${p.rotation}deg)`,
+                '--duration': `${p.duration}s`,
+                '--delay': `${p.delay}s`,
+              } as React.CSSProperties
+            }
           />
         ))}
       </div>
 
       {/* Card */}
       <div
-        className="relative rounded-3xl p-8 text-center max-w-xs w-full overflow-hidden"
+        className="relative w-full max-w-xs overflow-hidden rounded-3xl p-8 text-center"
         style={{
-          background: 'linear-gradient(145deg, rgba(245,200,66,0.18) 0%, rgba(13,24,41,0.99) 45%, rgba(255,77,0,0.10) 100%)',
+          background:
+            'linear-gradient(145deg, rgba(245,200,66,0.18) 0%, rgba(13,24,41,0.99) 45%, rgba(255,77,0,0.10) 100%)',
           border: '1px solid rgba(245,200,66,0.55)',
           boxShadow: '0 0 80px rgba(245,200,66,0.22), 0 0 160px rgba(245,200,66,0.08)',
-          transform: animating && !dismissing ? 'scale(1) translateY(0)' : 'scale(0.75) translateY(40px)',
+          transform:
+            animating && !dismissing ? 'scale(1) translateY(0)' : 'scale(0.75) translateY(40px)',
           transition: 'transform 0.55s cubic-bezier(0.34,1.56,0.64,1)',
         }}
         onClick={(e) => e.stopPropagation()}
@@ -145,33 +158,38 @@ export function PerfectDayOverlay() {
 
         <button
           onClick={dismiss}
-          className="absolute top-4 right-4 w-7 h-7 rounded-full flex items-center justify-center hover:bg-white/10 transition-all"
+          className="absolute right-4 top-4 flex h-7 w-7 items-center justify-center rounded-full transition-all hover:bg-white/10"
           style={{ color: '#8899BB' }}
         >
           <X size={13} />
         </button>
 
         {/* Stars row */}
-        <div className="flex justify-center gap-1 mb-4">
+        <div className="mb-4 flex justify-center gap-1">
           {[0, 1, 2].map((i) => (
             <Star
               key={i}
               size={16}
               fill="currentColor"
               className="text-brand-gold"
-              style={{ animation: `bounceIn 0.5s cubic-bezier(0.34,1.56,0.64,1) ${i * 0.12}s both` }}
+              style={{
+                animation: `bounceIn 0.5s cubic-bezier(0.34,1.56,0.64,1) ${i * 0.12}s both`,
+              }}
             />
           ))}
         </div>
 
         {/* Emoji */}
-        <div className="text-6xl mb-3" style={{ animation: 'bounceIn 0.6s cubic-bezier(0.34,1.56,0.64,1) 0.1s both' }}>
+        <div
+          className="mb-3 text-6xl"
+          style={{ animation: 'bounceIn 0.6s cubic-bezier(0.34,1.56,0.64,1) 0.1s both' }}
+        >
           ⭐
         </div>
 
         {/* Heading */}
         <div
-          className="heading-display text-4xl mb-1"
+          className="heading-display mb-1 text-4xl"
           style={{
             color: '#F5C842',
             textShadow: '0 0 30px rgba(245,200,66,0.6)',
@@ -179,14 +197,14 @@ export function PerfectDayOverlay() {
         >
           DIA PERFEITO
         </div>
-        <p className="text-white font-bold text-base mb-2">Todos os hábitos completos!</p>
-        <p className="text-text-secondary text-sm mb-5 leading-relaxed">
+        <p className="mb-2 text-base font-bold text-white">Todos os hábitos completos!</p>
+        <p className="mb-5 text-sm leading-relaxed text-text-secondary">
           Você fechou o dia sem deixar nada pra trás. Isso é raridade — e você conseguiu.
         </p>
 
         {/* XP badge */}
         <div
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl mb-5"
+          className="mb-5 inline-flex items-center gap-2 rounded-xl px-4 py-2"
           style={{ background: 'rgba(245,200,66,0.10)', border: '1px solid rgba(245,200,66,0.25)' }}
         >
           <Zap size={13} className="text-brand-gold" fill="currentColor" />
@@ -196,7 +214,7 @@ export function PerfectDayOverlay() {
         {/* CTA */}
         <button
           onClick={dismiss}
-          className="w-full py-3 rounded-2xl font-black text-sm text-white transition-all hover:brightness-110 active:scale-95"
+          className="w-full rounded-2xl py-3 text-sm font-black text-white transition-all hover:brightness-110 active:scale-95"
           style={{
             background: 'linear-gradient(135deg, rgba(245,200,66,0.75), rgba(255,77,0,0.60))',
             border: '1px solid rgba(245,200,66,0.4)',
@@ -207,5 +225,5 @@ export function PerfectDayOverlay() {
         </button>
       </div>
     </div>
-  )
+  );
 }

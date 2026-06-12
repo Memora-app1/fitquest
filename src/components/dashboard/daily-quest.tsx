@@ -4,47 +4,35 @@
  * Garante que o usuário sempre tenha um objetivo imediato e alcançável.
  */
 
-import { createClient } from '@/lib/supabase/server'
-import { todayString } from '@/lib/utils'
-import { Target, Droplets, Moon, Dumbbell, CheckSquare, Zap, Trophy } from 'lucide-react'
-import { WATER_GOAL_ML } from '@/lib/constants'
+import { createClient } from '@/lib/supabase/server';
+import { todayString } from '@/lib/utils';
+import { Target, Droplets, Moon, Dumbbell, CheckSquare, Zap, Trophy } from 'lucide-react';
+import { WATER_GOAL_ML } from '@/lib/constants';
 
 interface Quest {
-  id: string
-  emoji: string
-  label: string
-  description: string
-  xpReward: number
-  current: number
-  target: number
-  completed: boolean
-  color: string
-  rgb: string
-  href: string
+  id: string;
+  emoji: string;
+  label: string;
+  description: string;
+  xpReward: number;
+  current: number;
+  target: number;
+  completed: boolean;
+  color: string;
+  rgb: string;
+  href: string;
 }
 
 export async function DailyQuest({ userId }: { userId: string }) {
-  const supabase = await createClient()
-  const today = todayString()
-  const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0]!
-  const todayStart = `${today}T00:00:00`
+  const supabase = await createClient();
+  const today = todayString();
+  const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0]!;
+  const todayStart = `${today}T00:00:00`;
 
   const [habitsRes, habitLogsRes, waterRes, sleepRes, tasksRes, workoutRes] = await Promise.all([
-    supabase
-      .from('habits')
-      .select('id, name')
-      .eq('user_id', userId)
-      .eq('is_active', true),
-    supabase
-      .from('habit_logs')
-      .select('habit_id')
-      .eq('user_id', userId)
-      .eq('logged_date', today),
-    supabase
-      .from('water_logs')
-      .select('amount_ml')
-      .eq('user_id', userId)
-      .eq('date', today),
+    supabase.from('habits').select('id, name').eq('user_id', userId).eq('is_active', true),
+    supabase.from('habit_logs').select('habit_id').eq('user_id', userId).eq('logged_date', today),
+    supabase.from('water_logs').select('amount_ml').eq('user_id', userId).eq('date', today),
     supabase
       .from('sleep_logs')
       .select('id')
@@ -64,22 +52,22 @@ export async function DailyQuest({ userId }: { userId: string }) {
       .eq('user_id', userId)
       .gte('started_at', todayStart)
       .limit(1),
-  ])
+  ]);
 
-  const habits = habitsRes.data ?? []
-  const loggedHabits = new Set((habitLogsRes.data ?? []).map(l => l.habit_id))
-  const doneHabits = loggedHabits.size
-  const totalHabits = habits.length
+  const habits = habitsRes.data ?? [];
+  const loggedHabits = new Set((habitLogsRes.data ?? []).map((l) => l.habit_id));
+  const doneHabits = loggedHabits.size;
+  const totalHabits = habits.length;
 
-  const waterTotal = (waterRes.data ?? []).reduce((s, r) => s + (r.amount_ml as number), 0)
-  const sleepLogged = sleepRes.data !== null
-  const tasks = tasksRes.data ?? []
-  const urgentTasks = tasks.filter(t => t.urgent && t.important && t.status !== 'done')
-  const doneTasksToday = tasks.filter(t => t.status === 'done').length
-  const hasTrained = (workoutRes.data ?? []).length > 0
+  const waterTotal = (waterRes.data ?? []).reduce((s, r) => s + (r.amount_ml as number), 0);
+  const sleepLogged = sleepRes.data !== null;
+  const tasks = tasksRes.data ?? [];
+  const urgentTasks = tasks.filter((t) => t.urgent && t.important && t.status !== 'done');
+  const doneTasksToday = tasks.filter((t) => t.status === 'done').length;
+  const hasTrained = (workoutRes.data ?? []).length > 0;
 
   // ── Build candidate quests ─────────────────────────────────────────
-  const candidates: Quest[] = []
+  const candidates: Quest[] = [];
 
   if (totalHabits > 0) {
     candidates.push({
@@ -94,7 +82,7 @@ export async function DailyQuest({ userId }: { userId: string }) {
       color: '#FF4D00',
       rgb: '255,77,0',
       href: '/habitos',
-    })
+    });
   }
 
   candidates.push({
@@ -109,7 +97,7 @@ export async function DailyQuest({ userId }: { userId: string }) {
     color: '#00D9FF',
     rgb: '0,217,255',
     href: '/saude',
-  })
+  });
 
   if (!sleepLogged) {
     candidates.push({
@@ -124,7 +112,7 @@ export async function DailyQuest({ userId }: { userId: string }) {
       color: '#7C3AED',
       rgb: '124,58,237',
       href: '/saude',
-    })
+    });
   } else {
     candidates.push({
       id: 'sleep',
@@ -138,7 +126,7 @@ export async function DailyQuest({ userId }: { userId: string }) {
       color: '#7C3AED',
       rgb: '124,58,237',
       href: '/saude',
-    })
+    });
   }
 
   if (urgentTasks.length > 0) {
@@ -154,7 +142,7 @@ export async function DailyQuest({ userId }: { userId: string }) {
       color: '#EF4444',
       rgb: '239,68,68',
       href: '/tarefas',
-    })
+    });
   } else {
     candidates.push({
       id: 'task',
@@ -168,7 +156,7 @@ export async function DailyQuest({ userId }: { userId: string }) {
       color: '#7C3AED',
       rgb: '124,58,237',
       href: '/tarefas',
-    })
+    });
   }
 
   candidates.push({
@@ -183,41 +171,45 @@ export async function DailyQuest({ userId }: { userId: string }) {
     color: '#00FF88',
     rgb: '0,255,136',
     href: '/treinos/novo',
-  })
+  });
 
   // Sort: incomplete first, then completed. Always show 4.
   const quests = [
-    ...candidates.filter(q => !q.completed),
-    ...candidates.filter(q => q.completed),
-  ].slice(0, 4)
+    ...candidates.filter((q) => !q.completed),
+    ...candidates.filter((q) => q.completed),
+  ].slice(0, 4);
 
-  const completedCount = quests.filter(q => q.completed).length
-  const totalXpAvailable = quests.reduce((s, q) => s + (q.completed ? 0 : q.xpReward), 0)
-  const totalXpEarned = quests.filter(q => q.completed).reduce((s, q) => s + q.xpReward, 0)
+  const completedCount = quests.filter((q) => q.completed).length;
+  const totalXpAvailable = quests.reduce((s, q) => s + (q.completed ? 0 : q.xpReward), 0);
+  const totalXpEarned = quests.filter((q) => q.completed).reduce((s, q) => s + q.xpReward, 0);
 
-  if (quests.length === 0) return null
+  if (quests.length === 0) return null;
 
   return (
     <div
-      className="rounded-2xl p-5 md:p-6 relative overflow-hidden animate-fade-in"
+      className="relative animate-fade-in overflow-hidden rounded-2xl p-5 md:p-6"
       style={{
-        background: 'linear-gradient(135deg, rgba(245,200,66,0.07) 0%, rgba(13,24,41,0.98) 60%, rgba(124,58,237,0.04) 100%)',
+        background:
+          'linear-gradient(135deg, rgba(245,200,66,0.07) 0%, rgba(13,24,41,0.98) 60%, rgba(124,58,237,0.04) 100%)',
         border: '1px solid rgba(245,200,66,0.15)',
       }}
     >
       <div
-        className="absolute -top-8 -right-8 w-40 h-40 rounded-full pointer-events-none blur-3xl"
+        className="pointer-events-none absolute -right-8 -top-8 h-40 w-40 rounded-full blur-3xl"
         style={{ background: 'rgba(245,200,66,0.06)' }}
       />
 
       <div className="relative z-10">
         {/* Header */}
-        <div className="flex items-center justify-between mb-4">
+        <div className="mb-4 flex items-center justify-between">
           <div>
-            <div className="flex items-center gap-2 mb-1">
+            <div className="mb-1 flex items-center gap-2">
               <div
-                className="w-6 h-6 rounded-lg flex items-center justify-center"
-                style={{ background: 'rgba(245,200,66,0.15)', border: '1px solid rgba(245,200,66,0.3)' }}
+                className="flex h-6 w-6 items-center justify-center rounded-lg"
+                style={{
+                  background: 'rgba(245,200,66,0.15)',
+                  border: '1px solid rgba(245,200,66,0.3)',
+                }}
               >
                 <Trophy size={12} className="text-brand-gold" />
               </div>
@@ -234,7 +226,7 @@ export async function DailyQuest({ userId }: { userId: string }) {
 
           <div className="text-right">
             {totalXpEarned > 0 && (
-              <div className="flex items-center gap-1 justify-end animate-counter">
+              <div className="flex animate-counter items-center justify-end gap-1">
                 <Zap size={12} className="text-brand-gold" fill="currentColor" />
                 <span className="text-sm font-black text-brand-gold">+{totalXpEarned} XP</span>
               </div>
@@ -246,14 +238,15 @@ export async function DailyQuest({ userId }: { userId: string }) {
         </div>
 
         {/* Progress bar geral */}
-        <div className="h-1.5 bg-bg-elevated rounded-full overflow-hidden mb-5">
+        <div className="mb-5 h-1.5 overflow-hidden rounded-full bg-bg-elevated">
           <div
             className="h-full rounded-full transition-all duration-1000"
             style={{
               width: `${quests.length > 0 ? Math.round((completedCount / quests.length) * 100) : 0}%`,
-              background: completedCount === quests.length
-                ? 'linear-gradient(90deg, #00FF88, #00CC6A)'
-                : 'linear-gradient(90deg, #F5C842, #FF4D00)',
+              background:
+                completedCount === quests.length
+                  ? 'linear-gradient(90deg, #00FF88, #00CC6A)'
+                  : 'linear-gradient(90deg, #F5C842, #FF4D00)',
             }}
           />
         </div>
@@ -261,11 +254,17 @@ export async function DailyQuest({ userId }: { userId: string }) {
         {/* Quest list */}
         <div className="space-y-2.5">
           {quests.map((quest) => {
-            const pct = quest.target > 0 ? Math.min(100, Math.round((quest.current / quest.target) * 100)) : 0
-            const displayCurrent = quest.id === 'water'
-              ? quest.current >= 1000 ? `${(quest.current / 1000).toFixed(1)}L` : `${quest.current}ml`
-              : quest.current
-            const displayTarget = quest.id === 'water' ? '2L' : quest.target
+            const pct =
+              quest.target > 0
+                ? Math.min(100, Math.round((quest.current / quest.target) * 100))
+                : 0;
+            const displayCurrent =
+              quest.id === 'water'
+                ? quest.current >= 1000
+                  ? `${(quest.current / 1000).toFixed(1)}L`
+                  : `${quest.current}ml`
+                : quest.current;
+            const displayTarget = quest.id === 'water' ? '2L' : quest.target;
 
             return (
               <a
@@ -284,7 +283,7 @@ export async function DailyQuest({ userId }: { userId: string }) {
                 <div className="flex items-center gap-3">
                   {/* Icon */}
                   <div
-                    className="w-9 h-9 rounded-xl flex items-center justify-center text-lg shrink-0 transition-all"
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-lg transition-all"
                     style={{
                       background: quest.completed
                         ? `rgba(${quest.rgb},0.2)`
@@ -296,8 +295,8 @@ export async function DailyQuest({ userId }: { userId: string }) {
                   </div>
 
                   {/* Content */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-1">
+                  <div className="min-w-0 flex-1">
+                    <div className="mb-1 flex items-center justify-between">
                       <span
                         className="text-sm font-bold leading-none"
                         style={{
@@ -308,12 +307,12 @@ export async function DailyQuest({ userId }: { userId: string }) {
                       >
                         {quest.label}
                       </span>
-                      <div className="flex items-center gap-1.5 shrink-0 ml-2">
+                      <div className="ml-2 flex shrink-0 items-center gap-1.5">
                         <span className="text-[10px] text-text-muted">
                           {displayCurrent}/{displayTarget}
                         </span>
                         <span
-                          className="text-[10px] font-black px-1.5 py-0.5 rounded-full"
+                          className="rounded-full px-1.5 py-0.5 text-[10px] font-black"
                           style={{
                             color: quest.color,
                             background: `rgba(${quest.rgb},0.15)`,
@@ -325,7 +324,10 @@ export async function DailyQuest({ userId }: { userId: string }) {
                     </div>
 
                     {/* Progress bar */}
-                    <div className="h-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                    <div
+                      className="h-1 overflow-hidden rounded-full"
+                      style={{ background: 'rgba(255,255,255,0.06)' }}
+                    >
                       <div
                         className="h-full rounded-full transition-all duration-700"
                         style={{
@@ -338,10 +340,10 @@ export async function DailyQuest({ userId }: { userId: string }) {
                   </div>
                 </div>
               </a>
-            )
+            );
           })}
         </div>
       </div>
     </div>
-  )
+  );
 }

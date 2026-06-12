@@ -1,43 +1,44 @@
-'use client'
+'use client';
 
-import { useEffect } from 'react'
-import Link from 'next/link'
-import { RefreshCw, Home, Target, AlertCircle, ChevronRight } from 'lucide-react'
+import { useEffect } from 'react';
+import Link from 'next/link';
+import { RefreshCw, Home, Target, AlertCircle, ChevronRight } from 'lucide-react';
 
 export default function MetasError({
   error,
   reset,
 }: {
-  error: Error & { digest?: string }
-  reset: () => void
+  error: Error & { digest?: string };
+  reset: () => void;
 }) {
   useEffect(() => {
-    console.error('[MetasError]', error)
-  }, [error])
+    console.error('[MetasError]', error);
+  }, [error]);
 
   return (
-    <div className="min-h-[60vh] flex items-center justify-center p-6">
+    <div className="flex min-h-[60vh] items-center justify-center p-6">
       <div
-        className="w-full max-w-lg p-8 rounded-2xl relative overflow-hidden"
+        className="relative w-full max-w-lg overflow-hidden rounded-2xl p-8"
         style={{
-          background: 'linear-gradient(135deg, rgba(0,255,136,0.08) 0%, rgba(13,24,41,0.99) 60%, rgba(245,200,66,0.04) 100%)',
+          background:
+            'linear-gradient(135deg, rgba(0,255,136,0.08) 0%, rgba(13,24,41,0.99) 60%, rgba(245,200,66,0.04) 100%)',
           border: '1px solid rgba(0,255,136,0.22)',
           boxShadow: '0 24px 60px rgba(0,0,0,0.5)',
         }}
       >
         <div
-          className="absolute -top-6 -right-6 w-32 h-32 rounded-full pointer-events-none blur-2xl"
+          className="pointer-events-none absolute -right-6 -top-6 h-32 w-32 rounded-full blur-2xl"
           style={{ background: 'rgba(0,255,136,0.14)' }}
         />
         <div
-          className="absolute -bottom-4 -left-4 w-24 h-24 rounded-full pointer-events-none blur-xl"
+          className="pointer-events-none absolute -bottom-4 -left-4 h-24 w-24 rounded-full blur-xl"
           style={{ background: 'rgba(245,200,66,0.07)' }}
         />
 
         <div className="relative z-10 space-y-6">
           <div className="flex items-center gap-4">
             <div
-              className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0"
+              className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl"
               style={{
                 background: 'rgba(0,255,136,0.1)',
                 border: '1px solid rgba(0,255,136,0.25)',
@@ -47,8 +48,12 @@ export default function MetasError({
             </div>
             <div>
               <div
-                className="text-xs font-bold uppercase tracking-widest mb-1 px-2 py-0.5 rounded-full inline-block"
-                style={{ background: 'rgba(0,255,136,0.1)', color: '#00FF88', border: '1px solid rgba(0,255,136,0.2)' }}
+                className="mb-1 inline-block rounded-full px-2 py-0.5 text-xs font-bold uppercase tracking-widest"
+                style={{
+                  background: 'rgba(0,255,136,0.1)',
+                  color: '#00FF88',
+                  border: '1px solid rgba(0,255,136,0.2)',
+                }}
               >
                 Seção: Metas
               </div>
@@ -57,7 +62,7 @@ export default function MetasError({
           </div>
 
           <div
-            className="rounded-xl p-4 flex items-start gap-3"
+            className="flex items-start gap-3 rounded-xl p-4"
             style={{ background: 'rgba(0,255,136,0.06)', border: '1px solid rgba(0,255,136,0.12)' }}
           >
             <AlertCircle size={16} style={{ color: '#00FF88' }} className="mt-0.5 shrink-0" />
@@ -67,7 +72,7 @@ export default function MetasError({
                 cadastradas estão seguros e não foram alterados.
               </p>
               {error.digest && (
-                <p className="text-xs text-text-muted font-mono mt-2 select-all">
+                <p className="mt-2 select-all font-mono text-xs text-text-muted">
                   Código: {error.digest}
                 </p>
               )}
@@ -75,7 +80,9 @@ export default function MetasError({
           </div>
 
           <div className="space-y-2">
-            <p className="text-xs font-semibold text-text-muted uppercase tracking-wider">Sugestões:</p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+              Sugestões:
+            </p>
             {[
               'Tente recarregar a seção de metas',
               'Verifique sua conexão com a internet',
@@ -88,10 +95,10 @@ export default function MetasError({
             ))}
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3 pt-2">
+          <div className="flex flex-col gap-3 pt-2 sm:flex-row">
             <button
               onClick={reset}
-              className="flex-1 flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-bold text-sm transition-all hover:opacity-90 active:scale-[0.98]"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-bold transition-all hover:opacity-90 active:scale-[0.98]"
               style={{
                 background: 'linear-gradient(135deg, #00CC6A, #00FF88)',
                 color: '#050914',
@@ -103,7 +110,7 @@ export default function MetasError({
             </button>
             <Link
               href="/dashboard"
-              className="flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-semibold text-sm text-text-secondary transition-all hover:text-white hover:bg-white/5"
+              className="flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-text-secondary transition-all hover:bg-white/5 hover:text-white"
               style={{ border: '1px solid rgba(255,255,255,0.08)' }}
             >
               <Home size={14} />
@@ -113,5 +120,5 @@ export default function MetasError({
         </div>
       </div>
     </div>
-  )
+  );
 }

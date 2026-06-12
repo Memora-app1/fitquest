@@ -1,44 +1,44 @@
-import { createClient } from '@/lib/supabase/server'
-import { Trophy, Zap, Flame, CheckSquare, Dumbbell, Target, TrendingUp, Clock } from 'lucide-react'
+import { createClient } from '@/lib/supabase/server';
+import { Trophy, Zap, Flame, CheckSquare, Dumbbell, Target, TrendingUp, Clock } from 'lucide-react';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-import { WATER_GOAL_ML } from '@/lib/constants'
-import { getISOWeek, getWeekStartString, getWeekEndString, getDaysLeftInWeek } from '@/lib/dates'
+import { WATER_GOAL_ML } from '@/lib/constants';
+import { getISOWeek, getWeekStartString, getWeekEndString, getDaysLeftInWeek } from '@/lib/dates';
 
 // Alias locais para manter compatibilidade com o restante do componente
-const getWeekStart = getWeekStartString
-const getWeekEnd   = getWeekEndString
-const getDaysLeft  = getDaysLeftInWeek
+const getWeekStart = getWeekStartString;
+const getWeekEnd = getWeekEndString;
+const getDaysLeft = getDaysLeftInWeek;
 
 interface Challenge {
-  id: string
-  icon: string
-  label: string
-  description: string
-  target: number
-  current: number
-  xpReward: number
-  type: 'habit' | 'workout' | 'task' | 'xp' | 'streak' | 'transaction' | 'health'
-  color: string
-  rgb: string
-  completed: boolean
+  id: string;
+  icon: string;
+  label: string;
+  description: string;
+  target: number;
+  current: number;
+  xpReward: number;
+  type: 'habit' | 'workout' | 'task' | 'xp' | 'streak' | 'transaction' | 'health';
+  color: string;
+  rgb: string;
+  completed: boolean;
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
 interface WeeklyChallengesProps {
-  userId: string
+  userId: string;
 }
 
 export async function WeeklyChallenges({ userId }: WeeklyChallengesProps) {
-  const supabase = await createClient()
-  const now = new Date()
+  const supabase = await createClient();
+  const now = new Date();
 
-  const weekStart = getWeekStart(now)
-  const weekEnd = getWeekEnd(now)
-  const weekNum = getISOWeek(now)
-  const daysLeft = getDaysLeft(now)
+  const weekStart = getWeekStart(now);
+  const weekEnd = getWeekEnd(now);
+  const weekNum = getISOWeek(now);
+  const daysLeft = getDaysLeft(now);
 
   // Fetch week activity in parallel
   const [
@@ -59,11 +59,7 @@ export async function WeeklyChallenges({ userId }: WeeklyChallengesProps) {
       .gte('logged_date', weekStart)
       .lte('logged_date', weekEnd),
 
-    supabase
-      .from('habits')
-      .select('id')
-      .eq('user_id', userId)
-      .eq('is_active', true),
+    supabase.from('habits').select('id').eq('user_id', userId).eq('is_active', true),
 
     supabase
       .from('workouts')
@@ -80,11 +76,7 @@ export async function WeeklyChallenges({ userId }: WeeklyChallengesProps) {
       .gte('updated_at', weekStart + 'T00:00:00')
       .lte('updated_at', weekEnd + 'T23:59:59'),
 
-    supabase
-      .from('tasks')
-      .select('id')
-      .eq('user_id', userId)
-      .neq('status', 'archived'),
+    supabase.from('tasks').select('id').eq('user_id', userId).neq('status', 'archived'),
 
     supabase
       .from('xp_transactions')
@@ -100,11 +92,7 @@ export async function WeeklyChallenges({ userId }: WeeklyChallengesProps) {
       .gte('transaction_date', weekStart)
       .lte('transaction_date', weekEnd),
 
-    supabase
-      .from('profiles')
-      .select('streak_current, level')
-      .eq('id', userId)
-      .single(),
+    supabase.from('profiles').select('streak_current, level').eq('id', userId).single(),
 
     supabase
       .from('water_logs')
@@ -112,49 +100,49 @@ export async function WeeklyChallenges({ userId }: WeeklyChallengesProps) {
       .eq('user_id', userId)
       .gte('date', weekStart)
       .lte('date', weekEnd),
-  ])
+  ]);
 
   // ── Compute current values ─────────────────────────────────────────────────
 
   // Water goal days this week
-  const waterByDay: Record<string, number> = {}
+  const waterByDay: Record<string, number> = {};
   for (const row of waterLogsRes.data ?? []) {
-    const d = row.date as string
-    waterByDay[d] = (waterByDay[d] ?? 0) + (row.amount_ml as number ?? 0)
+    const d = row.date as string;
+    waterByDay[d] = (waterByDay[d] ?? 0) + ((row.amount_ml as number) ?? 0);
   }
-  const waterGoalDaysThisWeek = Object.values(waterByDay).filter(v => v >= WATER_GOAL_ML).length
+  const waterGoalDaysThisWeek = Object.values(waterByDay).filter((v) => v >= WATER_GOAL_ML).length;
 
-  const habitsCount = habitsRes.data?.length ?? 0
-  const habitLogsCount = habitLogsRes.data?.length ?? 0
-  const workoutsCount = workoutsRes.data?.length ?? 0
-  const tasksDoneCount = tasksDoneRes.data?.length ?? 0
-  const totalTasksCount = tasksAllRes.data?.length ?? 0
-  const weekXp = (xpRes.data ?? []).reduce((s, t) => s + (t.amount ?? 0), 0)
-  const transactionsCount = transactionsRes.data?.length ?? 0
-  const streakCurrent = profileRes.data?.streak_current ?? 0
-  const level = profileRes.data?.level ?? 1
+  const habitsCount = habitsRes.data?.length ?? 0;
+  const habitLogsCount = habitLogsRes.data?.length ?? 0;
+  const workoutsCount = workoutsRes.data?.length ?? 0;
+  const tasksDoneCount = tasksDoneRes.data?.length ?? 0;
+  const totalTasksCount = tasksAllRes.data?.length ?? 0;
+  const weekXp = (xpRes.data ?? []).reduce((s, t) => s + (t.amount ?? 0), 0);
+  const transactionsCount = transactionsRes.data?.length ?? 0;
+  const streakCurrent = profileRes.data?.streak_current ?? 0;
+  const level = profileRes.data?.level ?? 1;
 
   // ── Generate challenges scaled to user level ────────────────────────────────
   // Uses seeded determinism: challenges rotate each week but are consistent within a week.
   // Seed = week number + year so challenges are unique but predictable.
-  const seed = weekNum + now.getFullYear() * 100
+  const seed = weekNum + now.getFullYear() * 100;
 
   function pickTarget(base: number, variance: number): number {
     // Pseudo-random but deterministic per week
-    const v = ((seed * 7919) % variance) + 1
-    return base + v
+    const v = ((seed * 7919) % variance) + 1;
+    return base + v;
   }
 
   // Scale targets based on user level (higher level = harder challenges)
-  const levelMult = 1 + (level - 1) * 0.2
+  const levelMult = 1 + (level - 1) * 0.2;
 
   // Build challenge pool
-  const allChallenges: Challenge[] = []
+  const allChallenges: Challenge[] = [];
 
   // 1. Habit challenge
   if (habitsCount > 0) {
-    const target = Math.max(3, Math.round(habitsCount * 4 * levelMult))
-    const xpReward = Math.round(150 * levelMult)
+    const target = Math.max(3, Math.round(habitsCount * 4 * levelMult));
+    const xpReward = Math.round(150 * levelMult);
     allChallenges.push({
       id: 'habits',
       icon: '🎯',
@@ -167,14 +155,14 @@ export async function WeeklyChallenges({ userId }: WeeklyChallengesProps) {
       color: '#FF4D00',
       rgb: '255,77,0',
       completed: habitLogsCount >= target,
-    })
+    });
   }
 
   // 2. Workout challenge
   {
-    const baseTarget = level <= 2 ? 1 : level <= 4 ? 2 : 3
-    const target = Math.max(1, Math.round(baseTarget * levelMult))
-    const xpReward = Math.round(200 * levelMult)
+    const baseTarget = level <= 2 ? 1 : level <= 4 ? 2 : 3;
+    const target = Math.max(1, Math.round(baseTarget * levelMult));
+    const xpReward = Math.round(200 * levelMult);
     allChallenges.push({
       id: 'workouts',
       icon: '💪',
@@ -187,14 +175,14 @@ export async function WeeklyChallenges({ userId }: WeeklyChallengesProps) {
       color: '#00FF88',
       rgb: '0,255,136',
       completed: workoutsCount >= target,
-    })
+    });
   }
 
   // 3. Tasks challenge
   if (totalTasksCount > 0) {
-    const baseTarget = level <= 2 ? 3 : level <= 4 ? 5 : 7
-    const target = Math.round(baseTarget * levelMult)
-    const xpReward = Math.round(120 * levelMult)
+    const baseTarget = level <= 2 ? 3 : level <= 4 ? 5 : 7;
+    const target = Math.round(baseTarget * levelMult);
+    const xpReward = Math.round(120 * levelMult);
     allChallenges.push({
       id: 'tasks',
       icon: '✅',
@@ -207,15 +195,15 @@ export async function WeeklyChallenges({ userId }: WeeklyChallengesProps) {
       color: '#7C3AED',
       rgb: '124,58,237',
       completed: tasksDoneCount >= target,
-    })
+    });
   }
 
   // 4. XP challenge
   {
-    const baseXpTarget = level <= 2 ? 200 : level <= 4 ? 500 : level <= 6 ? 1000 : 2000
-    const xpVariance = Math.round(baseXpTarget * 0.2)
-    const target = Math.round((baseXpTarget + ((seed * 3571) % xpVariance)) * levelMult)
-    const xpReward = Math.round(250 * levelMult)
+    const baseXpTarget = level <= 2 ? 200 : level <= 4 ? 500 : level <= 6 ? 1000 : 2000;
+    const xpVariance = Math.round(baseXpTarget * 0.2);
+    const target = Math.round((baseXpTarget + ((seed * 3571) % xpVariance)) * levelMult);
+    const xpReward = Math.round(250 * levelMult);
     allChallenges.push({
       id: 'xp',
       icon: '⚡',
@@ -228,13 +216,13 @@ export async function WeeklyChallenges({ userId }: WeeklyChallengesProps) {
       color: '#F5C842',
       rgb: '245,200,66',
       completed: weekXp >= target,
-    })
+    });
   }
 
   // 5. Streak challenge
   {
-    const streakTarget = level <= 2 ? 3 : level <= 4 ? 5 : 7
-    const xpReward = Math.round(300 * levelMult)
+    const streakTarget = level <= 2 ? 3 : level <= 4 ? 5 : 7;
+    const xpReward = Math.round(300 * levelMult);
     allChallenges.push({
       id: 'streak',
       icon: '🔥',
@@ -247,13 +235,13 @@ export async function WeeklyChallenges({ userId }: WeeklyChallengesProps) {
       color: '#FF4D00',
       rgb: '255,77,0',
       completed: streakCurrent >= streakTarget,
-    })
+    });
   }
 
   // 6. Health challenge — water goal days
   {
-    const target = 5
-    const xpReward = Math.round(130 * levelMult)
+    const target = 5;
+    const xpReward = Math.round(130 * levelMult);
     allChallenges.push({
       id: 'health',
       icon: '💧',
@@ -266,13 +254,13 @@ export async function WeeklyChallenges({ userId }: WeeklyChallengesProps) {
       color: '#00D9FF',
       rgb: '0,217,255',
       completed: waterGoalDaysThisWeek >= target,
-    })
+    });
   }
 
   // 7. Finance challenge (if seed is even — rotates every other week)
   if (seed % 2 === 0 || transactionsCount > 0) {
-    const target = level <= 2 ? 3 : level <= 4 ? 5 : 8
-    const xpReward = Math.round(100 * levelMult)
+    const target = level <= 2 ? 3 : level <= 4 ? 5 : 8;
+    const xpReward = Math.round(100 * levelMult);
     allChallenges.push({
       id: 'finance',
       icon: '💰',
@@ -285,59 +273,58 @@ export async function WeeklyChallenges({ userId }: WeeklyChallengesProps) {
       color: '#3B82F6',
       rgb: '59,130,246',
       completed: transactionsCount >= target,
-    })
+    });
   }
 
   // Pick top 4 challenges by priority (incomplete first, then higher XP reward)
   const sorted = allChallenges
     .sort((a, b) => {
-      if (a.completed !== b.completed) return a.completed ? 1 : -1
-      return b.xpReward - a.xpReward
+      if (a.completed !== b.completed) return a.completed ? 1 : -1;
+      return b.xpReward - a.xpReward;
     })
-    .slice(0, 4)
+    .slice(0, 4);
 
-  const completedCount = sorted.filter((c) => c.completed).length
-  const totalXpAvailable = sorted.reduce((s, c) => s + c.xpReward, 0)
-  const totalXpEarned = sorted.filter((c) => c.completed).reduce((s, c) => s + c.xpReward, 0)
-  const allCompleted = completedCount === sorted.length
+  const completedCount = sorted.filter((c) => c.completed).length;
+  const totalXpAvailable = sorted.reduce((s, c) => s + c.xpReward, 0);
+  const totalXpEarned = sorted.filter((c) => c.completed).reduce((s, c) => s + c.xpReward, 0);
+  const allCompleted = completedCount === sorted.length;
 
   return (
     <div
-      className="rounded-2xl relative overflow-hidden"
+      className="relative overflow-hidden rounded-2xl"
       style={{
         background: allCompleted
           ? 'linear-gradient(135deg, rgba(245,200,66,0.1) 0%, rgba(13,24,41,0.98) 100%)'
           : 'linear-gradient(135deg, rgba(124,58,237,0.07) 0%, rgba(13,24,41,0.98) 100%)',
-        border: allCompleted
-          ? '1px solid rgba(245,200,66,0.3)'
-          : '1px solid rgba(124,58,237,0.18)',
+        border: allCompleted ? '1px solid rgba(245,200,66,0.3)' : '1px solid rgba(124,58,237,0.18)',
       }}
     >
       {/* Corner glow */}
       <div
-        className="absolute -top-8 -right-8 w-40 h-40 rounded-full pointer-events-none blur-3xl"
+        className="pointer-events-none absolute -right-8 -top-8 h-40 w-40 rounded-full blur-3xl"
         style={{ background: allCompleted ? 'rgba(245,200,66,0.15)' : 'rgba(124,58,237,0.12)' }}
       />
 
-      <div className="relative z-10 p-5 md:p-6 space-y-4">
-
+      <div className="relative z-10 space-y-4 p-5 md:p-6">
         {/* ── Header ──────────────────────────────────────────────────────── */}
-        <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-start gap-3">
             <div
-              className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5"
+              className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
               style={{
                 background: allCompleted ? 'rgba(245,200,66,0.15)' : 'rgba(124,58,237,0.15)',
-                border: allCompleted ? '1px solid rgba(245,200,66,0.3)' : '1px solid rgba(124,58,237,0.3)',
+                border: allCompleted
+                  ? '1px solid rgba(245,200,66,0.3)'
+                  : '1px solid rgba(124,58,237,0.3)',
               }}
             >
               <Trophy size={16} style={{ color: allCompleted ? '#F5C842' : '#7C3AED' }} />
             </div>
             <div>
-              <h2 className="font-bold text-base leading-tight">
+              <h2 className="text-base font-bold leading-tight">
                 {allCompleted ? '🏆 Desafios da Semana — Completos!' : 'Desafios da Semana'}
               </h2>
-              <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+              <div className="mt-0.5 flex flex-wrap items-center gap-2">
                 <span className="text-xs text-text-muted">
                   {completedCount}/{sorted.length} concluído{completedCount !== 1 ? 's' : ''}
                 </span>
@@ -345,7 +332,8 @@ export async function WeeklyChallenges({ userId }: WeeklyChallengesProps) {
                 <div className="flex items-center gap-1 text-xs" style={{ color: '#F5C842' }}>
                   <Zap size={10} fill="currentColor" />
                   <span className="font-bold">
-                    {totalXpEarned.toLocaleString('pt-BR')}/{totalXpAvailable.toLocaleString('pt-BR')} XP
+                    {totalXpEarned.toLocaleString('pt-BR')}/
+                    {totalXpAvailable.toLocaleString('pt-BR')} XP
                   </span>
                 </div>
                 <span className="text-text-muted">·</span>
@@ -359,7 +347,7 @@ export async function WeeklyChallenges({ userId }: WeeklyChallengesProps) {
 
           {/* Week tag */}
           <div
-            className="text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shrink-0"
+            className="shrink-0 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider"
             style={{
               background: 'rgba(255,255,255,0.06)',
               color: '#8899BB',
@@ -372,7 +360,10 @@ export async function WeeklyChallenges({ userId }: WeeklyChallengesProps) {
 
         {/* ── Overall progress bar ─────────────────────────────────────────── */}
         <div className="space-y-1.5">
-          <div className="h-2 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+          <div
+            className="h-2 overflow-hidden rounded-full"
+            style={{ background: 'rgba(255,255,255,0.06)' }}
+          >
             <div
               className="h-full rounded-full transition-all duration-700"
               style={{
@@ -380,24 +371,28 @@ export async function WeeklyChallenges({ userId }: WeeklyChallengesProps) {
                 background: allCompleted
                   ? 'linear-gradient(90deg, #F5C842, #FF4D00)'
                   : 'linear-gradient(90deg, #7C3AED, #FF4D00)',
-                boxShadow: allCompleted ? '0 0 8px rgba(245,200,66,0.5)' : '0 0 8px rgba(124,58,237,0.4)',
+                boxShadow: allCompleted
+                  ? '0 0 8px rgba(245,200,66,0.5)'
+                  : '0 0 8px rgba(124,58,237,0.4)',
               }}
             />
           </div>
         </div>
 
         {/* ── Challenge cards ──────────────────────────────────────────────── */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           {sorted.map((challenge) => {
-            const pct = Math.min(100, Math.round((challenge.current / challenge.target) * 100))
+            const pct = Math.min(100, Math.round((challenge.current / challenge.target) * 100));
             const progressColor = challenge.completed
               ? '#00FF88'
-              : pct >= 60 ? challenge.color : 'rgba(255,255,255,0.3)'
+              : pct >= 60
+                ? challenge.color
+                : 'rgba(255,255,255,0.3)';
 
             return (
               <div
                 key={challenge.id}
-                className="rounded-xl p-4 relative overflow-hidden transition-all"
+                className="relative overflow-hidden rounded-xl p-4 transition-all"
                 style={{
                   background: challenge.completed
                     ? `linear-gradient(135deg, rgba(0,255,136,0.08) 0%, rgba(13,24,41,0.98) 100%)`
@@ -409,7 +404,7 @@ export async function WeeklyChallenges({ userId }: WeeklyChallengesProps) {
               >
                 {/* Glow */}
                 <div
-                  className="absolute -top-3 -right-3 w-12 h-12 rounded-full pointer-events-none blur-lg"
+                  className="pointer-events-none absolute -right-3 -top-3 h-12 w-12 rounded-full blur-lg"
                   style={{
                     background: challenge.completed
                       ? 'rgba(0,255,136,0.2)'
@@ -423,16 +418,14 @@ export async function WeeklyChallenges({ userId }: WeeklyChallengesProps) {
                     <div className="flex items-center gap-2">
                       <span className="text-xl">{challenge.icon}</span>
                       <div>
-                        <div className="text-xs font-bold leading-tight">
-                          {challenge.label}
-                        </div>
-                        <div className="text-[10px] text-text-muted mt-0.5 leading-snug">
+                        <div className="text-xs font-bold leading-tight">{challenge.label}</div>
+                        <div className="mt-0.5 text-[10px] leading-snug text-text-muted">
                           {challenge.description}
                         </div>
                       </div>
                     </div>
                     <div
-                      className="flex items-center gap-0.5 text-[10px] font-black px-2 py-0.5 rounded-lg shrink-0"
+                      className="flex shrink-0 items-center gap-0.5 rounded-lg px-2 py-0.5 text-[10px] font-black"
                       style={{
                         background: challenge.completed
                           ? 'rgba(0,255,136,0.12)'
@@ -443,8 +436,8 @@ export async function WeeklyChallenges({ userId }: WeeklyChallengesProps) {
                           : `1px solid rgba(${challenge.rgb},0.2)`,
                       }}
                     >
-                      <Zap size={9} fill="currentColor" />
-                      +{challenge.xpReward.toLocaleString('pt-BR')}
+                      <Zap size={9} fill="currentColor" />+
+                      {challenge.xpReward.toLocaleString('pt-BR')}
                     </div>
                   </div>
 
@@ -452,7 +445,8 @@ export async function WeeklyChallenges({ userId }: WeeklyChallengesProps) {
                   <div className="space-y-1">
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] text-text-muted">
-                        {challenge.current.toLocaleString('pt-BR')} / {challenge.target.toLocaleString('pt-BR')}
+                        {challenge.current.toLocaleString('pt-BR')} /{' '}
+                        {challenge.target.toLocaleString('pt-BR')}
                       </span>
                       <span
                         className="text-[10px] font-bold"
@@ -461,7 +455,10 @@ export async function WeeklyChallenges({ userId }: WeeklyChallengesProps) {
                         {challenge.completed ? '✓ Completo' : `${pct}%`}
                       </span>
                     </div>
-                    <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                    <div
+                      className="h-1.5 overflow-hidden rounded-full"
+                      style={{ background: 'rgba(255,255,255,0.06)' }}
+                    >
                       <div
                         className="h-full rounded-full transition-all duration-700"
                         style={{
@@ -469,35 +466,35 @@ export async function WeeklyChallenges({ userId }: WeeklyChallengesProps) {
                           background: challenge.completed
                             ? 'linear-gradient(90deg, #00FF88, rgba(0,255,136,0.6))'
                             : `linear-gradient(90deg, ${challenge.color}, rgba(${challenge.rgb},0.5))`,
-                          boxShadow: pct > 0
-                            ? `0 0 6px rgba(${challenge.rgb},0.4)`
-                            : 'none',
+                          boxShadow: pct > 0 ? `0 0 6px rgba(${challenge.rgb},0.4)` : 'none',
                         }}
                       />
                     </div>
                   </div>
                 </div>
               </div>
-            )
+            );
           })}
         </div>
 
         {/* ── Completion banner ────────────────────────────────────────────── */}
         {allCompleted && (
           <div
-            className="rounded-xl p-4 flex items-center gap-3"
+            className="flex items-center gap-3 rounded-xl p-4"
             style={{
-              background: 'linear-gradient(135deg, rgba(245,200,66,0.12) 0%, rgba(0,255,136,0.06) 100%)',
+              background:
+                'linear-gradient(135deg, rgba(245,200,66,0.12) 0%, rgba(0,255,136,0.06) 100%)',
               border: '1px solid rgba(245,200,66,0.25)',
             }}
           >
             <span className="text-2xl">🎉</span>
             <div>
-              <p className="font-bold text-sm" style={{ color: '#F5C842' }}>
+              <p className="text-sm font-bold" style={{ color: '#F5C842' }}>
                 Todos os desafios concluídos!
               </p>
-              <p className="text-xs text-text-muted mt-0.5">
-                +{totalXpEarned.toLocaleString('pt-BR')} XP ganhos com os desafios. Semana perfeita! 🏆
+              <p className="mt-0.5 text-xs text-text-muted">
+                +{totalXpEarned.toLocaleString('pt-BR')} XP ganhos com os desafios. Semana perfeita!
+                🏆
               </p>
             </div>
           </div>
@@ -506,18 +503,19 @@ export async function WeeklyChallenges({ userId }: WeeklyChallengesProps) {
         {/* ── Motivational footer ──────────────────────────────────────────── */}
         {!allCompleted && daysLeft <= 2 && (
           <div
-            className="rounded-xl p-3 flex items-center gap-2.5"
+            className="flex items-center gap-2.5 rounded-xl p-3"
             style={{ background: 'rgba(255,77,0,0.08)', border: '1px solid rgba(255,77,0,0.2)' }}
           >
-            <Flame size={14} className="text-brand-orange shrink-0" />
+            <Flame size={14} className="shrink-0 text-brand-orange" />
             <p className="text-xs text-text-secondary">
-              <span className="font-bold text-brand-orange">Últimas {daysLeft === 1 ? 'horas' : '2 dias'}</span>{' '}
+              <span className="font-bold text-brand-orange">
+                Últimas {daysLeft === 1 ? 'horas' : '2 dias'}
+              </span>{' '}
               para concluir os desafios. Não deixe o XP escapar!
             </p>
           </div>
         )}
-
       </div>
     </div>
-  )
+  );
 }

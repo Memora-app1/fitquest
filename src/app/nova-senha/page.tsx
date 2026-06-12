@@ -1,133 +1,143 @@
-﻿'use client'
+﻿'use client';
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { createClient } from '@/lib/supabase/client'
-import { Eye, EyeOff, Lock, CheckCircle2 } from 'lucide-react'
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { createClient } from '@/lib/supabase/client';
+import { Eye, EyeOff, Lock, CheckCircle2 } from 'lucide-react';
 
 function getPasswordStrength(pwd: string): { score: number; label: string; color: string } {
-  if (pwd.length === 0) return { score: 0, label: '', color: '' }
-  let score = 0
-  if (pwd.length >= 6) score++
-  if (pwd.length >= 10) score++
-  if (/[A-Z]/.test(pwd)) score++
-  if (/[0-9]/.test(pwd)) score++
-  if (/[^A-Za-z0-9]/.test(pwd)) score++
+  if (pwd.length === 0) return { score: 0, label: '', color: '' };
+  let score = 0;
+  if (pwd.length >= 6) score++;
+  if (pwd.length >= 10) score++;
+  if (/[A-Z]/.test(pwd)) score++;
+  if (/[0-9]/.test(pwd)) score++;
+  if (/[^A-Za-z0-9]/.test(pwd)) score++;
 
-  if (score <= 1) return { score: 1, label: 'Fraca', color: '#EF4444' }
-  if (score <= 2) return { score: 2, label: 'Razoável', color: '#F5C842' }
-  if (score <= 3) return { score: 3, label: 'Boa', color: '#FF4D00' }
-  return { score: 4, label: 'Forte', color: '#00FF88' }
+  if (score <= 1) return { score: 1, label: 'Fraca', color: '#EF4444' };
+  if (score <= 2) return { score: 2, label: 'Razoável', color: '#F5C842' };
+  if (score <= 3) return { score: 3, label: 'Boa', color: '#FF4D00' };
+  return { score: 4, label: 'Forte', color: '#00FF88' };
 }
 
 export default function NovaSenhaPage() {
-  const router = useRouter()
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirm, setShowConfirm] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState(false)
+  const router = useRouter();
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
-  const strength = getPasswordStrength(password)
-  const passwordsMatch = confirmPassword.length === 0 || password === confirmPassword
+  const strength = getPasswordStrength(password);
+  const passwordsMatch = confirmPassword.length === 0 || password === confirmPassword;
 
   async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    setError(null)
+    e.preventDefault();
+    setError(null);
 
     if (password.length < 6) {
-      setError('A senha precisa ter no mínimo 6 caracteres.')
-      return
+      setError('A senha precisa ter no mínimo 6 caracteres.');
+      return;
     }
 
     if (password !== confirmPassword) {
-      setError('As senhas não coincidem.')
-      return
+      setError('As senhas não coincidem.');
+      return;
     }
 
-    setLoading(true)
+    setLoading(true);
 
-    const supabase = createClient()
-    const { error: updateError } = await supabase.auth.updateUser({ password })
+    const supabase = createClient();
+    const { error: updateError } = await supabase.auth.updateUser({ password });
 
-    setLoading(false)
+    setLoading(false);
 
     if (updateError) {
       if (updateError.message.includes('expired') || updateError.message.includes('invalid')) {
-        setError('Link expirado ou inválido. Solicite um novo link de recuperação.')
+        setError('Link expirado ou inválido. Solicite um novo link de recuperação.');
       } else {
-        setError('Não foi possível atualizar a senha. Tente novamente.')
+        setError('Não foi possível atualizar a senha. Tente novamente.');
       }
-      return
+      return;
     }
 
-    setSuccess(true)
+    setSuccess(true);
     setTimeout(() => {
-      router.push('/dashboard')
-      router.refresh()
-    }, 2000)
+      router.push('/dashboard');
+      router.refresh();
+    }, 2000);
   }
 
   if (success) {
     return (
-      <main className="min-h-screen flex items-center justify-center p-6">
+      <main className="flex min-h-screen items-center justify-center p-6">
         <div className="w-full max-w-md animate-slide-up">
           <div
-            className="p-8 text-center space-y-4 rounded-2xl relative overflow-hidden"
+            className="relative space-y-4 overflow-hidden rounded-2xl p-8 text-center"
             style={{
-              background: 'linear-gradient(135deg, rgba(0,255,136,0.07) 0%, rgba(13,24,41,0.99) 100%)',
+              background:
+                'linear-gradient(135deg, rgba(0,255,136,0.07) 0%, rgba(13,24,41,0.99) 100%)',
               border: '1px solid rgba(0,255,136,0.25)',
               boxShadow: '0 24px 60px rgba(0,0,0,0.5)',
             }}
           >
-            <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full pointer-events-none blur-xl" style={{ background: 'rgba(0,255,136,0.12)' }} />
-            <div className="w-20 h-20 rounded-full bg-brand-green/10 border border-brand-green/30 flex items-center justify-center mx-auto">
+            <div
+              className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full blur-xl"
+              style={{ background: 'rgba(0,255,136,0.12)' }}
+            />
+            <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full border border-brand-green/30 bg-brand-green/10">
               <CheckCircle2 size={36} className="text-brand-green" />
             </div>
             <h1 className="text-2xl font-bold">Senha atualizada!</h1>
             <p className="text-text-secondary">
               Sua nova senha foi salva com sucesso. Redirecionando para o dashboard…
             </p>
-            <div className="w-6 h-6 border-2 border-brand-orange border-t-transparent rounded-full animate-spin mx-auto" />
+            <div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-brand-orange border-t-transparent" />
           </div>
         </div>
       </main>
-    )
+    );
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden">
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden p-6">
       {/* Background glow */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-96 h-96 bg-brand-purple/5 blur-[100px] rounded-full pointer-events-none" />
+      <div className="pointer-events-none absolute left-1/2 top-1/3 h-96 w-96 -translate-x-1/2 rounded-full bg-brand-purple/5 blur-[100px]" />
 
-      <div className="w-full max-w-md relative z-10 animate-slide-up">
+      <div className="relative z-10 w-full max-w-md animate-slide-up">
         {/* Logo */}
-        <div className="text-center mb-8">
+        <div className="mb-8 text-center">
           <Link href="/">
-            <span className="heading-display text-3xl gradient-text">⚡ Ascendia</span>
+            <span className="heading-display gradient-text text-3xl">⚡ Ascendia</span>
           </Link>
         </div>
 
         <div
-          className="p-8 space-y-6 rounded-2xl relative overflow-hidden"
+          className="relative space-y-6 overflow-hidden rounded-2xl p-8"
           style={{
-            background: 'linear-gradient(135deg, rgba(124,58,237,0.08) 0%, rgba(13,24,41,0.99) 100%)',
+            background:
+              'linear-gradient(135deg, rgba(124,58,237,0.08) 0%, rgba(13,24,41,0.99) 100%)',
             border: '1px solid rgba(124,58,237,0.25)',
             boxShadow: '0 24px 60px rgba(0,0,0,0.5)',
           }}
         >
-          <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(124,58,237,0.12) 0%, transparent 70%)' }} />
+          <div
+            className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full"
+            style={{
+              background: 'radial-gradient(circle, rgba(124,58,237,0.12) 0%, transparent 70%)',
+            }}
+          />
           {/* Header */}
           <div className="flex items-start gap-4">
-            <div className="w-12 h-12 rounded-xl bg-brand-purple/10 flex items-center justify-center shrink-0">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-purple/10">
               <Lock size={22} className="text-brand-purple" />
             </div>
             <div>
               <h1 className="text-xl font-bold">Nova senha</h1>
-              <p className="text-text-secondary text-sm mt-0.5">
+              <p className="mt-0.5 text-sm text-text-secondary">
                 Crie uma senha segura para sua conta Ascendia.
               </p>
             </div>
@@ -136,7 +146,7 @@ export default function NovaSenhaPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* New password */}
             <div>
-              <label className="block text-sm font-medium text-text-secondary mb-2">
+              <label className="mb-2 block text-sm font-medium text-text-secondary">
                 Nova senha
               </label>
               <div className="relative">
@@ -154,7 +164,7 @@ export default function NovaSenhaPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-secondary transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted transition-colors hover:text-text-secondary"
                   tabIndex={-1}
                 >
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -183,7 +193,7 @@ export default function NovaSenhaPage() {
 
             {/* Confirm password */}
             <div>
-              <label className="block text-sm font-medium text-text-secondary mb-2">
+              <label className="mb-2 block text-sm font-medium text-text-secondary">
                 Confirmar nova senha
               </label>
               <div className="relative">
@@ -202,17 +212,17 @@ export default function NovaSenhaPage() {
                 <button
                   type="button"
                   onClick={() => setShowConfirm(!showConfirm)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-secondary transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted transition-colors hover:text-text-secondary"
                   tabIndex={-1}
                 >
                   {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
               {!passwordsMatch && (
-                <p className="text-xs text-brand-red mt-1">As senhas não coincidem</p>
+                <p className="mt-1 text-xs text-brand-red">As senhas não coincidem</p>
               )}
               {confirmPassword.length > 0 && passwordsMatch && (
-                <p className="text-xs text-brand-green mt-1 flex items-center gap-1">
+                <p className="mt-1 flex items-center gap-1 text-xs text-brand-green">
                   <CheckCircle2 size={10} /> Senhas coincidem
                 </p>
               )}
@@ -220,12 +230,12 @@ export default function NovaSenhaPage() {
 
             {/* Error */}
             {error && (
-              <div className="text-brand-red text-sm bg-brand-red/10 border border-brand-red/20 rounded-xl p-3">
+              <div className="rounded-xl border border-brand-red/20 bg-brand-red/10 p-3 text-sm text-brand-red">
                 <p>{error}</p>
                 {error.includes('expirado') && (
                   <Link
                     href="/recuperar-senha"
-                    className="mt-2 block text-brand-orange underline text-xs"
+                    className="mt-2 block text-xs text-brand-orange underline"
                   >
                     Solicitar novo link →
                   </Link>
@@ -236,11 +246,11 @@ export default function NovaSenhaPage() {
             <button
               type="submit"
               disabled={loading || (!passwordsMatch && confirmPassword.length > 0)}
-              className="btn-primary w-full disabled:opacity-60 flex items-center justify-center gap-2"
+              className="btn-primary flex w-full items-center justify-center gap-2 disabled:opacity-60"
             >
               {loading ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
                   Salvando…
                 </>
               ) : (
@@ -251,5 +261,5 @@ export default function NovaSenhaPage() {
         </div>
       </div>
     </main>
-  )
+  );
 }

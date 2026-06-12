@@ -1,11 +1,11 @@
-'use client'
+'use client';
 
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { cn } from '@/lib/utils'
-import { getLevelInfo, getXpProgressToNextLevel } from '@/lib/xp'
-import { CommandPalette } from '@/components/command-palette'
-import { useRealtimeCtx } from '@/hooks/use-realtime-context'
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { cn } from '@/lib/utils';
+import { getLevelInfo, getXpProgressToNextLevel } from '@/lib/xp';
+import { CommandPalette } from '@/components/command-palette';
+import { useRealtimeCtx } from '@/hooks/use-realtime-context';
 import {
   LayoutDashboard,
   CheckSquare,
@@ -28,8 +28,8 @@ import {
   Users,
   Layers,
   Bell,
-} from 'lucide-react'
-import { NotificationBell } from './notification-bell'
+} from 'lucide-react';
+import { NotificationBell } from './notification-bell';
 
 const NAV_SECTIONS = [
   {
@@ -62,68 +62,71 @@ const NAV_SECTIONS = [
   },
   {
     label: 'IA',
-    items: [
-      { href: '/coach', label: 'Coach IA', icon: Bot },
-    ],
+    items: [{ href: '/coach', label: 'Coach IA', icon: Bot }],
   },
   {
     label: 'Conta',
-    items: [
-      { href: '/notificacoes', label: 'Notificações', icon: Bell },
-    ],
+    items: [{ href: '/notificacoes', label: 'Notificações', icon: Bell }],
   },
-]
+];
 
 export function Sidebar({
   profile,
   unreadNotifications = 0,
 }: {
-  profile: { name: string; xp_total: number; level: number; streak_current: number }
-  unreadNotifications?: number
+  profile: { name: string; xp_total: number; level: number; streak_current: number };
+  unreadNotifications?: number;
 }) {
-  const pathname = usePathname()
-  const { profile: live, xpBump } = useRealtimeCtx()
+  const pathname = usePathname();
+  const { profile: live, xpBump } = useRealtimeCtx();
 
-  const levelInfo  = getLevelInfo(live.level)
-  const progress   = getXpProgressToNextLevel(live.xp_total)
+  const levelInfo = getLevelInfo(live.level);
+  const progress = getXpProgressToNextLevel(live.xp_total);
   const levelColors: Record<number, string> = {
-    1: '#8899BB', 2: '#7C3AED', 3: '#3B82F6', 4: '#00FF88',
-    5: '#FF4D00', 6: '#EC4899', 7: '#F5C842', 8: '#F5C842',
-  }
-  const levelColor = levelColors[live.level] ?? '#F5C842'
-  const nearMiss   = progress.percentage >= 80 && progress.needed > 0
+    1: '#8899BB',
+    2: '#7C3AED',
+    3: '#3B82F6',
+    4: '#00FF88',
+    5: '#FF4D00',
+    6: '#EC4899',
+    7: '#F5C842',
+    8: '#F5C842',
+  };
+  const levelColor = levelColors[live.level] ?? '#F5C842';
+  const nearMiss = progress.percentage >= 80 && progress.needed > 0;
 
   const initials = profile.name
     .split(' ')
     .slice(0, 2)
     .map((w) => w[0]?.toUpperCase() ?? '')
-    .join('')
+    .join('');
 
   return (
-    <aside className="hidden md:flex w-64 bg-bg-card border-r border-border flex-col h-screen sticky top-0 overflow-hidden">
+    <aside className="sticky top-0 hidden h-screen w-64 flex-col overflow-hidden border-r border-border bg-bg-card md:flex">
       {/* Logo */}
-      <div className="p-5 border-b border-border flex items-center justify-between">
+      <div className="flex items-center justify-between border-b border-border p-5">
         <Link href="/dashboard" className="block">
-          <span className="heading-display text-2xl gradient-text">⚡ Ascendia</span>
+          <span className="heading-display gradient-text text-2xl">⚡ Ascendia</span>
         </Link>
         <NotificationBell initialUnread={unreadNotifications} />
       </div>
 
       {/* Profile card */}
-      <div className="p-4 border-b border-border relative overflow-hidden">
+      <div className="relative overflow-hidden border-b border-border p-4">
         {/* Subtle glow */}
-        <div className="absolute -top-4 -right-4 w-24 h-24 bg-brand-orange/8 blur-2xl rounded-full pointer-events-none" />
+        <div className="bg-brand-orange/8 pointer-events-none absolute -right-4 -top-4 h-24 w-24 rounded-full blur-2xl" />
 
-        <div className="flex items-center gap-3 mb-3">
+        <div className="mb-3 flex items-center gap-3">
           {/* Avatar */}
-          <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shrink-0"
+          <div
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold"
             style={{ background: 'linear-gradient(135deg, #FF4D00, #7C3AED)', color: 'white' }}
           >
             {initials || '?'}
           </div>
-          <div className="flex-1 min-w-0">
-            <div className="font-semibold text-sm truncate">{profile.name}</div>
-            <div className="flex items-center gap-1.5 mt-0.5">
+          <div className="min-w-0 flex-1">
+            <div className="truncate text-sm font-semibold">{profile.name}</div>
+            <div className="mt-0.5 flex items-center gap-1.5">
               <span className="text-[11px] font-bold" style={{ color: levelColor }}>
                 {levelInfo.emoji} {levelInfo.title}
               </span>
@@ -133,24 +136,24 @@ export function Sidebar({
         </div>
 
         {/* XP progress */}
-        <div className="space-y-1.5 relative">
+        <div className="relative space-y-1.5">
           {xpBump && (
             <div
               key={xpBump.timestamp}
-              className="absolute -top-1 right-0 text-[11px] font-black animate-xp-bump pointer-events-none"
+              className="pointer-events-none absolute -top-1 right-0 animate-xp-bump text-[11px] font-black"
               style={{ color: '#F5C842', zIndex: 10 }}
             >
               +{xpBump.amount} XP ⚡
             </div>
           )}
-          <div className="flex justify-between items-center">
-            <span className="text-[11px] text-text-muted flex items-center gap-1">
+          <div className="flex items-center justify-between">
+            <span className="flex items-center gap-1 text-[11px] text-text-muted">
               <Zap size={10} className="text-brand-gold" />
               {live.xp_total.toLocaleString('pt-BR')} XP
             </span>
             {progress.needed > 0 && (
               <span
-                className={`text-[10px] ${nearMiss ? 'font-bold animate-pulse' : 'text-text-muted'}`}
+                className={`text-[10px] ${nearMiss ? 'animate-pulse font-bold' : 'text-text-muted'}`}
                 style={{ color: nearMiss ? '#F5C842' : undefined }}
               >
                 {nearMiss
@@ -162,7 +165,7 @@ export function Sidebar({
               <span className="text-[10px] text-brand-gold">Máximo! 🏆</span>
             )}
           </div>
-          <div className="h-1.5 bg-bg rounded-full overflow-hidden">
+          <div className="h-1.5 overflow-hidden rounded-full bg-bg">
             <div
               className="h-full rounded-full transition-all duration-700"
               style={{
@@ -186,42 +189,41 @@ export function Sidebar({
       </div>
 
       {/* Search */}
-      <div className="px-3 py-2.5 border-b border-border">
+      <div className="border-b border-border px-3 py-2.5">
         <CommandPalette />
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-3 overflow-y-auto space-y-4">
+      <nav className="flex-1 space-y-4 overflow-y-auto p-3">
         {NAV_SECTIONS.map((section) => (
           <div key={section.label}>
-            <div className="text-[10px] text-text-muted uppercase tracking-widest px-3 mb-1">
+            <div className="mb-1 px-3 text-[10px] uppercase tracking-widest text-text-muted">
               {section.label}
             </div>
             <div className="space-y-0.5">
               {section.items.map((item) => {
-                const Icon = item.icon
-                const active =
-                  pathname === item.href || pathname.startsWith(`${item.href}/`)
+                const Icon = item.icon;
+                const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
                     className={cn(
-                      'flex items-center gap-3 px-3 py-2 rounded-lg transition-all text-sm',
+                      'flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all',
                       active
-                        ? 'bg-gradient-brand text-white font-semibold shadow-sm shadow-brand-orange/20'
+                        ? 'bg-gradient-brand font-semibold text-white shadow-sm shadow-brand-orange/20'
                         : 'text-text-secondary hover:bg-bg-elevated hover:text-white'
                     )}
                   >
                     <Icon size={16} className={active ? 'text-white' : ''} />
                     {item.label}
                     {item.href === '/coach' && (
-                      <span className="ml-auto text-[10px] font-bold bg-brand-purple/30 text-brand-purple px-1.5 py-0.5 rounded-full">
+                      <span className="ml-auto rounded-full bg-brand-purple/30 px-1.5 py-0.5 text-[10px] font-bold text-brand-purple">
                         IA
                       </span>
                     )}
                   </Link>
-                )
+                );
               })}
             </div>
           </div>
@@ -229,10 +231,10 @@ export function Sidebar({
       </nav>
 
       {/* Footer */}
-      <div className="p-3 border-t border-border space-y-0.5">
+      <div className="space-y-0.5 border-t border-border p-3">
         <Link
           href="/perfil"
-          className="flex items-center gap-3 px-3 py-2 rounded-lg text-text-secondary hover:bg-bg-elevated hover:text-white transition-all text-sm"
+          className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-text-secondary transition-all hover:bg-bg-elevated hover:text-white"
         >
           <User size={16} />
           Meu Perfil
@@ -240,7 +242,7 @@ export function Sidebar({
         <form action="/api/auth/logout" method="POST">
           <button
             type="submit"
-            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-text-secondary hover:bg-brand-red/10 hover:text-brand-red transition-all text-sm"
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-text-secondary transition-all hover:bg-brand-red/10 hover:text-brand-red"
           >
             <LogOut size={16} />
             Sair
@@ -248,5 +250,5 @@ export function Sidebar({
         </form>
       </div>
     </aside>
-  )
+  );
 }

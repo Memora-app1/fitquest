@@ -1,54 +1,72 @@
-'use client'
+'use client';
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react';
 import {
-  Lightbulb, Flame, Zap, AlertTriangle, Trophy, Target,
-  TrendingUp, Star, Clock, CheckCircle2, Sparkles,
-} from 'lucide-react'
+  Lightbulb,
+  Flame,
+  Zap,
+  AlertTriangle,
+  Trophy,
+  Target,
+  TrendingUp,
+  Star,
+  Clock,
+  CheckCircle2,
+  Sparkles,
+} from 'lucide-react';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
 interface InsightData {
-  habitsTotal: number
-  habitsCompleted: number
-  streakCurrent: number
-  streakLongest: number
-  xpTotal: number
-  xpToNextLevel: number
-  level: number
-  criticalTasks: number
-  totalTasks: number
-  xpToday: number
-  upcomingBills: number
-  perfectDays: number
+  habitsTotal: number;
+  habitsCompleted: number;
+  streakCurrent: number;
+  streakLongest: number;
+  xpTotal: number;
+  xpToNextLevel: number;
+  level: number;
+  criticalTasks: number;
+  totalTasks: number;
+  xpToday: number;
+  upcomingBills: number;
+  perfectDays: number;
 }
 
 interface Insight {
-  id: string
-  icon: typeof Lightbulb
-  title: string
-  message: string
-  type: 'warning' | 'success' | 'info' | 'challenge'
-  rgb: string
-  emoji: string
-  cta?: string
-  ctaHref?: string
-  priority: number
+  id: string;
+  icon: typeof Lightbulb;
+  title: string;
+  message: string;
+  type: 'warning' | 'success' | 'info' | 'challenge';
+  rgb: string;
+  emoji: string;
+  cta?: string;
+  ctaHref?: string;
+  priority: number;
 }
 
 // ─── Insight computation ─────────────────────────────────────────────────────
 
 function computeInsights(data: InsightData): Insight[] {
-  const insights: Insight[] = []
+  const insights: Insight[] = [];
 
   const {
-    habitsTotal, habitsCompleted, streakCurrent, streakLongest,
-    xpTotal, xpToNextLevel, level, criticalTasks, totalTasks,
-    xpToday, upcomingBills, perfectDays,
-  } = data
+    habitsTotal,
+    habitsCompleted,
+    streakCurrent,
+    streakLongest,
+    xpTotal,
+    xpToNextLevel,
+    level,
+    criticalTasks,
+    totalTasks,
+    xpToday,
+    upcomingBills,
+    perfectDays,
+  } = data;
 
-  const habitsRemaining = habitsTotal - habitsCompleted
-  const isPerfectDay = habitsTotal > 0 && habitsCompleted === habitsTotal
+  const habitsRemaining = habitsTotal - habitsCompleted;
+  const isPerfectDay = habitsTotal > 0 && habitsCompleted === habitsTotal;
 
   // ── Perigo de quebrar streak ──────────────────────────────────────────────
   if (streakCurrent >= 3 && habitsCompleted === 0 && habitsTotal > 0) {
@@ -63,7 +81,7 @@ function computeInsights(data: InsightData): Insight[] {
       cta: 'Registrar hábito',
       ctaHref: '/habitos',
       priority: 10,
-    })
+    });
   }
 
   // ── Dia perfeito quase lá ──────────────────────────────────────────────────
@@ -79,7 +97,7 @@ function computeInsights(data: InsightData): Insight[] {
       cta: 'Ver hábitos',
       ctaHref: '/habitos',
       priority: 9,
-    })
+    });
   }
 
   // ── Dia perfeito conseguido ──────────────────────────────────────────────
@@ -93,7 +111,7 @@ function computeInsights(data: InsightData): Insight[] {
       rgb: '0,255,136',
       emoji: '✅',
       priority: 8,
-    })
+    });
   }
 
   // ── Nível prestes a subir ─────────────────────────────────────────────────
@@ -107,7 +125,7 @@ function computeInsights(data: InsightData): Insight[] {
       rgb: '124,58,237',
       emoji: '⚡',
       priority: 7,
-    })
+    });
   }
 
   // ── Novo recorde de streak ────────────────────────────────────────────────
@@ -121,7 +139,7 @@ function computeInsights(data: InsightData): Insight[] {
       rgb: '245,200,66',
       emoji: '🏆',
       priority: 6,
-    })
+    });
   }
 
   // ── Tarefas críticas ──────────────────────────────────────────────────────
@@ -130,14 +148,15 @@ function computeInsights(data: InsightData): Insight[] {
       id: 'critical_tasks',
       icon: AlertTriangle,
       title: `${criticalTasks} tarefas críticas acumuladas`,
-      message: 'Tarefas urgentes + importantes afetam seu Life Score. Resolva ao menos 1 hoje para manter seu Score alto.',
+      message:
+        'Tarefas urgentes + importantes afetam seu Life Score. Resolva ao menos 1 hoje para manter seu Score alto.',
       type: 'warning',
       rgb: '239,68,68',
       emoji: '⚠️',
       cta: 'Ver tarefas',
       ctaHref: '/tarefas',
       priority: 5,
-    })
+    });
   }
 
   // ── XP hoje está bem ─────────────────────────────────────────────────────
@@ -146,12 +165,13 @@ function computeInsights(data: InsightData): Insight[] {
       id: 'xp_good_day',
       icon: TrendingUp,
       title: `+${xpToday} XP hoje — bom ritmo!`,
-      message: 'Você está tendo um bom dia de evolução. Continue registrando atividades para maximizar o XP.',
+      message:
+        'Você está tendo um bom dia de evolução. Continue registrando atividades para maximizar o XP.',
       type: 'info',
       rgb: '0,255,136',
       emoji: '📈',
       priority: 4,
-    })
+    });
   }
 
   // ── XP hoje está ótimo ────────────────────────────────────────────────────
@@ -160,12 +180,13 @@ function computeInsights(data: InsightData): Insight[] {
       id: 'xp_great_day',
       icon: Zap,
       title: `+${xpToday} XP hoje — dia épico!`,
-      message: 'Você está arrasando! Este vai ser um dos seus melhores dias de XP. Só mais um pouquinho para bater a meta de 500 XP.',
+      message:
+        'Você está arrasando! Este vai ser um dos seus melhores dias de XP. Só mais um pouquinho para bater a meta de 500 XP.',
       type: 'success',
       rgb: '245,200,66',
       emoji: '🔥',
       priority: 5,
-    })
+    });
   }
 
   // ── Contas a vencer ───────────────────────────────────────────────────────
@@ -174,14 +195,15 @@ function computeInsights(data: InsightData): Insight[] {
       id: 'upcoming_bills',
       icon: Clock,
       title: `${upcomingBills} conta${upcomingBills > 1 ? 's' : ''} vencendo em breve`,
-      message: 'Não deixe atrasar — contas pagas no prazo concedem XP Finanças e mantêm sua saúde financeira.',
+      message:
+        'Não deixe atrasar — contas pagas no prazo concedem XP Finanças e mantêm sua saúde financeira.',
       type: 'warning',
       rgb: '255,77,0',
       emoji: '💳',
       cta: 'Ver finanças',
       ctaHref: '/financas',
       priority: 4,
-    })
+    });
   }
 
   // ── Nenhum hábito hoje (mas sem streak em risco) ──────────────────────────
@@ -197,7 +219,7 @@ function computeInsights(data: InsightData): Insight[] {
       cta: 'Registrar hábito',
       ctaHref: '/habitos',
       priority: 3,
-    })
+    });
   }
 
   // ── Sem hábitos cadastrados ───────────────────────────────────────────────
@@ -206,21 +228,22 @@ function computeInsights(data: InsightData): Insight[] {
       id: 'no_habits',
       icon: Sparkles,
       title: 'Configure seus hábitos',
-      message: 'Hábitos são a base do sistema. Crie pelo menos 3 hoje para começar a acumular XP e streak diário.',
+      message:
+        'Hábitos são a base do sistema. Crie pelo menos 3 hoje para começar a acumular XP e streak diário.',
       type: 'info',
       rgb: '124,58,237',
       emoji: '✨',
       cta: 'Criar hábito',
       ctaHref: '/habitos',
       priority: 2,
-    })
+    });
   }
 
   // ── Marcos de XP ─────────────────────────────────────────────────────────
-  const xpMilestones = [1000, 5000, 10000, 25000, 50000]
+  const xpMilestones = [1000, 5000, 10000, 25000, 50000];
   for (const milestone of xpMilestones) {
     if (xpTotal >= milestone * 0.95 && xpTotal < milestone) {
-      const remaining = milestone - xpTotal
+      const remaining = milestone - xpTotal;
       insights.push({
         id: `xp_milestone_${milestone}`,
         icon: Star,
@@ -230,8 +253,8 @@ function computeInsights(data: InsightData): Insight[] {
         rgb: '245,200,66',
         emoji: '🌟',
         priority: 6,
-      })
-      break
+      });
+      break;
     }
   }
 
@@ -246,13 +269,11 @@ function computeInsights(data: InsightData): Insight[] {
       rgb: '0,255,136',
       emoji: '👑',
       priority: 5,
-    })
+    });
   }
 
   // Ordenar por prioridade e pegar os 3 principais
-  return insights
-    .sort((a, b) => b.priority - a.priority)
-    .slice(0, 3)
+  return insights.sort((a, b) => b.priority - a.priority).slice(0, 3);
 }
 
 // ─── Skeleton ────────────────────────────────────────────────────────────────
@@ -260,42 +281,42 @@ function computeInsights(data: InsightData): Insight[] {
 function InsightSkeleton() {
   return (
     <div
-      className="rounded-2xl p-4 animate-pulse"
+      className="animate-pulse rounded-2xl p-4"
       style={{ background: 'rgba(21,34,56,0.5)', border: '1px solid rgba(255,255,255,0.04)' }}
     >
       <div className="flex items-start gap-3">
-        <div className="w-8 h-8 rounded-xl bg-white/[0.06] shrink-0" />
+        <div className="h-8 w-8 shrink-0 rounded-xl bg-white/[0.06]" />
         <div className="flex-1 space-y-2">
-          <div className="h-3.5 w-2/3 bg-white/[0.06] rounded-full" />
-          <div className="h-3 w-full bg-white/[0.04] rounded-full" />
-          <div className="h-3 w-4/5 bg-white/[0.04] rounded-full" />
+          <div className="h-3.5 w-2/3 rounded-full bg-white/[0.06]" />
+          <div className="h-3 w-full rounded-full bg-white/[0.04]" />
+          <div className="h-3 w-4/5 rounded-full bg-white/[0.04]" />
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 // ─── InsightCard ─────────────────────────────────────────────────────────────
 
 function InsightCard({ insight, index }: { insight: Insight; index: number }) {
-  const [visible, setVisible] = useState(false)
-  const Icon = insight.icon
+  const [visible, setVisible] = useState(false);
+  const Icon = insight.icon;
 
   useEffect(() => {
-    const t = setTimeout(() => setVisible(true), 80 + index * 120)
-    return () => clearTimeout(t)
-  }, [index])
+    const t = setTimeout(() => setVisible(true), 80 + index * 120);
+    return () => clearTimeout(t);
+  }, [index]);
 
   const typeStyles = {
     warning: { bg: 'rgba(255,77,0,0.06)', border: `rgba(${insight.rgb},0.22)` },
     success: { bg: `rgba(${insight.rgb},0.06)`, border: `rgba(${insight.rgb},0.22)` },
-    info:    { bg: `rgba(${insight.rgb},0.05)`, border: `rgba(${insight.rgb},0.15)` },
+    info: { bg: `rgba(${insight.rgb},0.05)`, border: `rgba(${insight.rgb},0.15)` },
     challenge: { bg: `rgba(${insight.rgb},0.07)`, border: `rgba(${insight.rgb},0.25)` },
-  }[insight.type]
+  }[insight.type];
 
   return (
     <div
-      className="rounded-2xl p-4 relative overflow-hidden transition-all duration-300 hover:scale-[1.01]"
+      className="relative overflow-hidden rounded-2xl p-4 transition-all duration-300 hover:scale-[1.01]"
       style={{
         background: `linear-gradient(135deg, ${typeStyles.bg} 0%, rgba(13,24,41,0.97) 100%)`,
         border: `1px solid ${typeStyles.border}`,
@@ -306,14 +327,16 @@ function InsightCard({ insight, index }: { insight: Insight; index: number }) {
     >
       {/* Corner glow */}
       <div
-        className="absolute -top-4 -right-4 w-20 h-20 rounded-full pointer-events-none"
-        style={{ background: `radial-gradient(circle, rgba(${insight.rgb},0.12) 0%, transparent 70%)` }}
+        className="pointer-events-none absolute -right-4 -top-4 h-20 w-20 rounded-full"
+        style={{
+          background: `radial-gradient(circle, rgba(${insight.rgb},0.12) 0%, transparent 70%)`,
+        }}
       />
 
       <div className="relative z-10 flex items-start gap-3">
         {/* Icon badge */}
         <div
-          className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5"
+          className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl"
           style={{
             background: `rgba(${insight.rgb},0.15)`,
             border: `1px solid rgba(${insight.rgb},0.25)`,
@@ -323,13 +346,13 @@ function InsightCard({ insight, index }: { insight: Insight; index: number }) {
         </div>
 
         {/* Content */}
-        <div className="flex-1 min-w-0">
-          <div className="font-semibold text-sm mb-0.5">{insight.title}</div>
-          <p className="text-xs text-text-secondary leading-relaxed">{insight.message}</p>
+        <div className="min-w-0 flex-1">
+          <div className="mb-0.5 text-sm font-semibold">{insight.title}</div>
+          <p className="text-xs leading-relaxed text-text-secondary">{insight.message}</p>
           {insight.cta && insight.ctaHref && (
             <a
               href={insight.ctaHref}
-              className="inline-flex items-center gap-1 text-xs font-semibold mt-2 transition-opacity hover:opacity-80"
+              className="mt-2 inline-flex items-center gap-1 text-xs font-semibold transition-opacity hover:opacity-80"
               style={{ color: `rgb(${insight.rgb})` }}
             >
               {insight.cta} →
@@ -338,32 +361,29 @@ function InsightCard({ insight, index }: { insight: Insight; index: number }) {
         </div>
 
         {/* Emoji badge */}
-        <div
-          className="text-lg shrink-0"
-          style={{ lineHeight: 1 }}
-        >
+        <div className="shrink-0 text-lg" style={{ lineHeight: 1 }}>
           {insight.emoji}
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 interface InsightsWidgetProps {
-  habitsTotal: number
-  habitsCompleted: number
-  streakCurrent: number
-  streakLongest: number
-  xpTotal: number
-  xpToNextLevel: number
-  level: number
-  criticalTasks: number
-  totalTasks: number
-  xpToday: number
-  upcomingBills: number
-  perfectDays: number
+  habitsTotal: number;
+  habitsCompleted: number;
+  streakCurrent: number;
+  streakLongest: number;
+  xpTotal: number;
+  xpToNextLevel: number;
+  level: number;
+  criticalTasks: number;
+  totalTasks: number;
+  xpToday: number;
+  upcomingBills: number;
+  perfectDays: number;
 }
 
 export function InsightsWidget({
@@ -380,11 +400,11 @@ export function InsightsWidget({
   upcomingBills,
   perfectDays,
 }: InsightsWidgetProps) {
-  const [mounted, setMounted] = useState(false)
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    setMounted(true);
+  }, []);
 
   const insights = computeInsights({
     habitsTotal,
@@ -399,45 +419,50 @@ export function InsightsWidget({
     xpToday,
     upcomingBills,
     perfectDays,
-  })
+  });
 
-  if (insights.length === 0) return null
+  if (insights.length === 0) return null;
 
   return (
     <div
-      className="rounded-2xl p-5 relative overflow-hidden"
+      className="relative overflow-hidden rounded-2xl p-5"
       style={{
-        background: 'linear-gradient(135deg, rgba(124,58,237,0.06) 0%, rgba(13,24,41,0.98) 60%, rgba(255,77,0,0.04) 100%)',
+        background:
+          'linear-gradient(135deg, rgba(124,58,237,0.06) 0%, rgba(13,24,41,0.98) 60%, rgba(255,77,0,0.04) 100%)',
         border: '1px solid rgba(124,58,237,0.15)',
         boxShadow: '0 20px 50px rgba(0,0,0,0.3)',
       }}
     >
       {/* Ambient glow top-right */}
       <div
-        className="absolute -top-8 -right-8 w-40 h-40 rounded-full pointer-events-none"
+        className="pointer-events-none absolute -right-8 -top-8 h-40 w-40 rounded-full"
         style={{ background: 'radial-gradient(circle, rgba(124,58,237,0.1) 0%, transparent 70%)' }}
       />
       {/* Ambient glow bottom-left */}
       <div
-        className="absolute -bottom-6 -left-6 w-28 h-28 rounded-full pointer-events-none"
+        className="pointer-events-none absolute -bottom-6 -left-6 h-28 w-28 rounded-full"
         style={{ background: 'radial-gradient(circle, rgba(255,77,0,0.06) 0%, transparent 70%)' }}
       />
 
       <div className="relative z-10">
         {/* Header */}
-        <div className="flex items-center gap-2 mb-4">
+        <div className="mb-4 flex items-center gap-2">
           <div
-            className="w-7 h-7 rounded-lg flex items-center justify-center"
+            className="flex h-7 w-7 items-center justify-center rounded-lg"
             style={{ background: 'rgba(124,58,237,0.2)', border: '1px solid rgba(124,58,237,0.3)' }}
           >
             <Lightbulb size={13} style={{ color: '#9F5AF7' }} />
           </div>
-          <h2 className="font-bold text-sm text-text-secondary uppercase tracking-widest">
+          <h2 className="text-sm font-bold uppercase tracking-widest text-text-secondary">
             Insights de hoje
           </h2>
           <span
-            className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full"
-            style={{ background: 'rgba(124,58,237,0.15)', color: '#9F5AF7', border: '1px solid rgba(124,58,237,0.25)' }}
+            className="ml-auto rounded-full px-2 py-0.5 text-[10px] font-bold"
+            style={{
+              background: 'rgba(124,58,237,0.15)',
+              color: '#9F5AF7',
+              border: '1px solid rgba(124,58,237,0.25)',
+            }}
           >
             {insights.length} insight{insights.length > 1 ? 's' : ''}
           </span>
@@ -453,5 +478,5 @@ export function InsightsWidget({
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -1,25 +1,25 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
-import { z } from 'zod'
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@/lib/supabase/server';
+import { z } from 'zod';
 
 // ── GET — fetch events + tasks for a given month ──────────────────────────────
 export async function GET(req: NextRequest) {
-  const supabase = await createClient()
+  const supabase = await createClient();
   const {
     data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+  } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
 
-  const { searchParams } = new URL(req.url)
-  const year = parseInt(searchParams.get('year') ?? String(new Date().getFullYear()))
-  const month = parseInt(searchParams.get('month') ?? String(new Date().getMonth() + 1))
+  const { searchParams } = new URL(req.url);
+  const year = parseInt(searchParams.get('year') ?? String(new Date().getFullYear()));
+  const month = parseInt(searchParams.get('month') ?? String(new Date().getMonth() + 1));
 
   if (isNaN(year) || isNaN(month) || month < 1 || month > 12) {
-    return NextResponse.json({ error: 'invalid_params' }, { status: 400 })
+    return NextResponse.json({ error: 'invalid_params' }, { status: 400 });
   }
 
-  const start = new Date(year, month - 1, 1).toISOString()
-  const end = new Date(year, month, 0, 23, 59, 59).toISOString()
+  const start = new Date(year, month - 1, 1).toISOString();
+  const end = new Date(year, month, 0, 23, 59, 59).toISOString();
 
   const [eventsRes, tasksRes] = await Promise.all([
     supabase
@@ -38,12 +38,12 @@ export async function GET(req: NextRequest) {
       .lte('due_date', end)
       .neq('status', 'archived')
       .order('due_date'),
-  ])
+  ]);
 
   return NextResponse.json({
     events: eventsRes.data ?? [],
     tasks: tasksRes.data ?? [],
-  })
+  });
 }
 
 // ── POST — create a new calendar event ────────────────────────────────────────
@@ -55,28 +55,31 @@ const createEventSchema = z.object({
   description: z.string().max(1000).nullable().optional(),
   location: z.string().max(300).nullable().optional(),
   all_day: z.boolean().optional().default(false),
-})
+});
 
 export async function POST(req: NextRequest) {
-  const supabase = await createClient()
+  const supabase = await createClient();
   const {
     data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+  } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
 
-  let body: unknown
+  let body: unknown;
   try {
-    body = await req.json()
+    body = await req.json();
   } catch {
-    return NextResponse.json({ error: 'invalid_json' }, { status: 400 })
+    return NextResponse.json({ error: 'invalid_json' }, { status: 400 });
   }
 
-  const parsed = createEventSchema.safeParse(body)
+  const parsed = createEventSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: 'validation_error', details: parsed.error.flatten() }, { status: 422 })
+    return NextResponse.json(
+      { error: 'validation_error', details: parsed.error.flatten() },
+      { status: 422 }
+    );
   }
 
-  const { title, start_at, end_at, color, description, location, all_day } = parsed.data
+  const { title, start_at, end_at, color, description, location, all_day } = parsed.data;
 
   const { data, error } = await supabase
     .from('calendar_events')
@@ -92,27 +95,27 @@ export async function POST(req: NextRequest) {
       source: 'manual',
     })
     .select('id, title, start_at, end_at, source, color, description, location')
-    .single()
+    .single();
 
   if (error) {
-    console.error('[calendario POST]', error)
-    return NextResponse.json({ error: 'db_error' }, { status: 500 })
+    console.error('[calendario POST]', error);
+    return NextResponse.json({ error: 'db_error' }, { status: 500 });
   }
 
-  return NextResponse.json({ event: data }, { status: 201 })
+  return NextResponse.json({ event: data }, { status: 201 });
 }
 
 // ── DELETE — remove a calendar event ──────────────────────────────────────────
 export async function DELETE(req: NextRequest) {
-  const supabase = await createClient()
+  const supabase = await createClient();
   const {
     data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+  } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
 
-  const { searchParams } = new URL(req.url)
-  const id = searchParams.get('id')
-  if (!id) return NextResponse.json({ error: 'missing_id' }, { status: 400 })
+  const { searchParams } = new URL(req.url);
+  const id = searchParams.get('id');
+  if (!id) return NextResponse.json({ error: 'missing_id' }, { status: 400 });
 
   // Verify ownership before deleting
   const { data: existing } = await supabase
@@ -120,24 +123,24 @@ export async function DELETE(req: NextRequest) {
     .select('id, source')
     .eq('id', id)
     .eq('user_id', user.id)
-    .single()
+    .single();
 
   if (!existing) {
-    return NextResponse.json({ error: 'not_found' }, { status: 404 })
+    return NextResponse.json({ error: 'not_found' }, { status: 404 });
   }
 
   const { error } = await supabase
     .from('calendar_events')
     .delete()
     .eq('id', id)
-    .eq('user_id', user.id)
+    .eq('user_id', user.id);
 
   if (error) {
-    console.error('[calendario DELETE]', error)
-    return NextResponse.json({ error: 'db_error' }, { status: 500 })
+    console.error('[calendario DELETE]', error);
+    return NextResponse.json({ error: 'db_error' }, { status: 500 });
   }
 
-  return NextResponse.json({ success: true })
+  return NextResponse.json({ success: true });
 }
 
 // ── PATCH — update a calendar event ───────────────────────────────────────────
@@ -149,28 +152,31 @@ const updateEventSchema = z.object({
   color: z.string().max(20).nullable().optional(),
   description: z.string().max(1000).nullable().optional(),
   location: z.string().max(300).nullable().optional(),
-})
+});
 
 export async function PATCH(req: NextRequest) {
-  const supabase = await createClient()
+  const supabase = await createClient();
   const {
     data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+  } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
 
-  let body: unknown
+  let body: unknown;
   try {
-    body = await req.json()
+    body = await req.json();
   } catch {
-    return NextResponse.json({ error: 'invalid_json' }, { status: 400 })
+    return NextResponse.json({ error: 'invalid_json' }, { status: 400 });
   }
 
-  const parsed = updateEventSchema.safeParse(body)
+  const parsed = updateEventSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: 'validation_error', details: parsed.error.flatten() }, { status: 422 })
+    return NextResponse.json(
+      { error: 'validation_error', details: parsed.error.flatten() },
+      { status: 422 }
+    );
   }
 
-  const { id, ...updates } = parsed.data
+  const { id, ...updates } = parsed.data;
 
   const { data, error } = await supabase
     .from('calendar_events')
@@ -178,12 +184,12 @@ export async function PATCH(req: NextRequest) {
     .eq('id', id)
     .eq('user_id', user.id)
     .select('id, title, start_at, end_at, source, color, description, location')
-    .single()
+    .single();
 
   if (error) {
-    console.error('[calendario PATCH]', error)
-    return NextResponse.json({ error: 'db_error' }, { status: 500 })
+    console.error('[calendario PATCH]', error);
+    return NextResponse.json({ error: 'db_error' }, { status: 500 });
   }
 
-  return NextResponse.json({ event: data })
+  return NextResponse.json({ event: data });
 }

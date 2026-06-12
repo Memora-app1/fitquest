@@ -1,22 +1,22 @@
-﻿import type { Metadata, Viewport } from 'next'
-import { DM_Sans, Bebas_Neue } from 'next/font/google'
-import { Analytics } from '@vercel/analytics/next'
-import { SpeedInsights } from '@vercel/speed-insights/next'
-import { ServiceWorkerInit } from '@/components/service-worker-init'
-import './globals.css'
+﻿import type { Metadata, Viewport } from 'next';
+import { DM_Sans, Bebas_Neue } from 'next/font/google';
+import { Analytics } from '@vercel/analytics/next';
+import { SpeedInsights } from '@vercel/speed-insights/next';
+import { ServiceWorkerInit } from '@/components/service-worker-init';
+import './globals.css';
 
 const dmSans = DM_Sans({
   subsets: ['latin'],
   variable: '--font-dm-sans',
   display: 'swap',
-})
+});
 
 const bebas = Bebas_Neue({
   weight: '400',
   subsets: ['latin'],
   variable: '--font-bebas',
   display: 'swap',
-})
+});
 
 export const metadata: Metadata = {
   title: {
@@ -25,7 +25,16 @@ export const metadata: Metadata = {
   },
   description:
     'Life OS gamificado: fitness, produtividade, finanças e coach IA. Cada ação vira XP. Cada dia vira evolução.',
-  keywords: ['fitness', 'hábitos', 'produtividade', 'finanças', 'gamificação', 'XP', 'life os', 'streak'],
+  keywords: [
+    'fitness',
+    'hábitos',
+    'produtividade',
+    'finanças',
+    'gamificação',
+    'XP',
+    'life os',
+    'streak',
+  ],
   authors: [{ name: 'Ascendia' }],
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? 'https://ascendia-app1.vercel.app'),
   openGraph: {
@@ -57,7 +66,7 @@ export const metadata: Metadata = {
     statusBarStyle: 'black-translucent',
     title: 'Ascendia',
   },
-}
+};
 
 export const viewport: Viewport = {
   themeColor: '#050914',
@@ -66,11 +75,11 @@ export const viewport: Viewport = {
   // Permite zoom de acessibilidade (userScalable: false quebra WCAG)
   // iOS respeita isso via CSS touch-action em vez do meta tag
   viewportFit: 'cover',
-}
+};
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
-  const supabaseHost = supabaseUrl ? new URL(supabaseUrl).hostname : ''
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
+  const supabaseHost = supabaseUrl ? new URL(supabaseUrl).hostname : '';
 
   return (
     <html lang="pt-BR" className={`${dmSans.variable} ${bebas.variable}`}>
@@ -90,5 +99,5 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <SpeedInsights />
       </body>
     </html>
-  )
+  );
 }

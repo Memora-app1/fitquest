@@ -1,61 +1,61 @@
-import { createClient } from '@/lib/supabase/server'
-import { TrendingUp, TrendingDown, CalendarDays, Zap } from 'lucide-react'
+import { createClient } from '@/lib/supabase/server';
+import { TrendingUp, TrendingDown, CalendarDays, Zap } from 'lucide-react';
 
 interface TxRow {
-  amount: number
-  type: string
-  transaction_date: string
-  is_paid: boolean
-  description: string
+  amount: number;
+  type: string;
+  transaction_date: string;
+  is_paid: boolean;
+  description: string;
 }
 
 interface DayForecast {
-  date: string
-  label: string
-  dayNum: number
-  isPast: boolean
-  isToday: boolean
-  isFuture: boolean
-  income: number
-  expense: number
-  net: number
-  runningBalance: number
-  hasTx: boolean
+  date: string;
+  label: string;
+  dayNum: number;
+  isPast: boolean;
+  isToday: boolean;
+  isFuture: boolean;
+  income: number;
+  expense: number;
+  net: number;
+  runningBalance: number;
+  hasTx: boolean;
 }
 
 interface WeekSummary {
-  label: string
-  income: number
-  expense: number
-  net: number
-  txCount: number
+  label: string;
+  income: number;
+  expense: number;
+  net: number;
+  txCount: number;
 }
 
 function formatBRL(v: number): string {
-  const abs = Math.abs(v)
-  if (abs >= 1000000) return `${v < 0 ? '-' : ''}R$${(abs / 1000000).toFixed(1)}M`
-  if (abs >= 1000) return `${v < 0 ? '-' : ''}R$${(abs / 1000).toFixed(1)}k`
-  return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+  const abs = Math.abs(v);
+  if (abs >= 1000000) return `${v < 0 ? '-' : ''}R$${(abs / 1000000).toFixed(1)}M`;
+  if (abs >= 1000) return `${v < 0 ? '-' : ''}R$${(abs / 1000).toFixed(1)}k`;
+  return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
 
 function toISO(d: Date): string {
-  return d.toISOString().split('T')[0]!
+  return d.toISOString().split('T')[0]!;
 }
 
 export async function CashFlowForecast({ userId }: { userId: string }) {
-  const supabase = await createClient()
+  const supabase = await createClient();
 
-  const now = new Date()
-  const todayStr = toISO(now)
+  const now = new Date();
+  const todayStr = toISO(now);
 
   // Current month window
-  const year  = now.getFullYear()
-  const month = now.getMonth()
-  const firstDay = toISO(new Date(year, month, 1))
-  const lastDay  = toISO(new Date(year, month + 1, 0))
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const firstDay = toISO(new Date(year, month, 1));
+  const lastDay = toISO(new Date(year, month + 1, 0));
 
   // Also fetch next 30 days of scheduled (unpaid) transactions for forecast
-  const thirtyDaysOut = toISO(new Date(now.getTime() + 30 * 86400000))
+  const thirtyDaysOut = toISO(new Date(now.getTime() + 30 * 86400000));
 
   const [paidRes, scheduledRes] = await Promise.all([
     // Already paid this month (actuals)
@@ -74,70 +74,82 @@ export async function CashFlowForecast({ userId }: { userId: string }) {
       .gte('transaction_date', todayStr)
       .lte('transaction_date', thirtyDaysOut)
       .eq('is_paid', false),
-  ])
+  ]);
 
-  const paidTxns = (paidRes.data ?? []) as TxRow[]
-  const scheduledTxns = (scheduledRes.data ?? []) as TxRow[]
+  const paidTxns = (paidRes.data ?? []) as TxRow[];
+  const scheduledTxns = (scheduledRes.data ?? []) as TxRow[];
 
-  if (paidTxns.length === 0 && scheduledTxns.length === 0) return null
+  if (paidTxns.length === 0 && scheduledTxns.length === 0) return null;
 
   // Build day-level maps
-  const paidByDay = new Map<string, { income: number; expense: number; count: number }>()
+  const paidByDay = new Map<string, { income: number; expense: number; count: number }>();
   for (const t of paidTxns) {
-    const d = t.transaction_date
-    if (!paidByDay.has(d)) paidByDay.set(d, { income: 0, expense: 0, count: 0 })
-    const entry = paidByDay.get(d)!
-    if (t.type === 'income') entry.income += Number(t.amount)
-    else entry.expense += Number(t.amount)
-    entry.count++
+    const d = t.transaction_date;
+    if (!paidByDay.has(d)) paidByDay.set(d, { income: 0, expense: 0, count: 0 });
+    const entry = paidByDay.get(d)!;
+    if (t.type === 'income') entry.income += Number(t.amount);
+    else entry.expense += Number(t.amount);
+    entry.count++;
   }
 
-  const scheduledByDay = new Map<string, { income: number; expense: number; count: number }>()
+  const scheduledByDay = new Map<string, { income: number; expense: number; count: number }>();
   for (const t of scheduledTxns) {
-    const d = t.transaction_date
-    if (!scheduledByDay.has(d)) scheduledByDay.set(d, { income: 0, expense: 0, count: 0 })
-    const entry = scheduledByDay.get(d)!
-    if (t.type === 'income') entry.income += Number(t.amount)
-    else entry.expense += Number(t.amount)
-    entry.count++
+    const d = t.transaction_date;
+    if (!scheduledByDay.has(d)) scheduledByDay.set(d, { income: 0, expense: 0, count: 0 });
+    const entry = scheduledByDay.get(d)!;
+    if (t.type === 'income') entry.income += Number(t.amount);
+    else entry.expense += Number(t.amount);
+    entry.count++;
   }
 
   // Actuals so far this month
-  const actualIncome  = paidTxns.filter(t => t.type === 'income').reduce((s, t) => s + Number(t.amount), 0)
-  const actualExpense = paidTxns.filter(t => t.type === 'expense').reduce((s, t) => s + Number(t.amount), 0)
-  const actualNet     = actualIncome - actualExpense
+  const actualIncome = paidTxns
+    .filter((t) => t.type === 'income')
+    .reduce((s, t) => s + Number(t.amount), 0);
+  const actualExpense = paidTxns
+    .filter((t) => t.type === 'expense')
+    .reduce((s, t) => s + Number(t.amount), 0);
+  const actualNet = actualIncome - actualExpense;
 
   // Scheduled obligations
-  const scheduledIncome  = scheduledTxns.filter(t => t.type === 'income').reduce((s, t) => s + Number(t.amount), 0)
-  const scheduledExpense = scheduledTxns.filter(t => t.type === 'expense').reduce((s, t) => s + Number(t.amount), 0)
+  const scheduledIncome = scheduledTxns
+    .filter((t) => t.type === 'income')
+    .reduce((s, t) => s + Number(t.amount), 0);
+  const scheduledExpense = scheduledTxns
+    .filter((t) => t.type === 'expense')
+    .reduce((s, t) => s + Number(t.amount), 0);
 
   // Projected month-end net
-  const projectedNet = actualNet + (scheduledIncome - scheduledExpense)
+  const projectedNet = actualNet + (scheduledIncome - scheduledExpense);
 
   // Build 35-day forecast (today + 34 days ahead, capped at end of current month + next week)
-  const daysInMonth = new Date(year, month + 1, 0).getDate()
-  const days: DayForecast[] = []
-  let runningBalance = actualNet
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const days: DayForecast[] = [];
+  let runningBalance = actualNet;
 
-  for (let offset = -(now.getDate() - 1); offset <= Math.min(34, daysInMonth - now.getDate() + 7); offset++) {
-    const d = new Date(year, month, now.getDate() + offset)
-    const dateStr = toISO(d)
+  for (
+    let offset = -(now.getDate() - 1);
+    offset <= Math.min(34, daysInMonth - now.getDate() + 7);
+    offset++
+  ) {
+    const d = new Date(year, month, now.getDate() + offset);
+    const dateStr = toISO(d);
     if (d.getFullYear() !== year || d.getMonth() !== month) {
-      if (offset <= 0) continue
+      if (offset <= 0) continue;
     }
 
-    const isPast   = dateStr < todayStr
-    const isToday  = dateStr === todayStr
-    const isFuture = dateStr > todayStr
+    const isPast = dateStr < todayStr;
+    const isToday = dateStr === todayStr;
+    const isFuture = dateStr > todayStr;
 
-    const paid      = paidByDay.get(dateStr)
-    const scheduled = scheduledByDay.get(dateStr)
+    const paid = paidByDay.get(dateStr);
+    const scheduled = scheduledByDay.get(dateStr);
 
-    const income  = (paid?.income ?? 0) + (isFuture ? (scheduled?.income ?? 0) : 0)
-    const expense = (paid?.expense ?? 0) + (isFuture ? (scheduled?.expense ?? 0) : 0)
-    const net     = income - expense
+    const income = (paid?.income ?? 0) + (isFuture ? (scheduled?.income ?? 0) : 0);
+    const expense = (paid?.expense ?? 0) + (isFuture ? (scheduled?.expense ?? 0) : 0);
+    const net = income - expense;
 
-    if (!isPast) runningBalance += net
+    if (!isPast) runningBalance += net;
     else if (isPast && paid) {
       // already counted in actualNet, don't double-add
     }
@@ -154,35 +166,41 @@ export async function CashFlowForecast({ userId }: { userId: string }) {
       net,
       runningBalance: isPast ? 0 : runningBalance,
       hasTx: income > 0 || expense > 0,
-    })
+    });
   }
 
   // Recalculate running balance properly
-  let balance = actualNet
-  const futureAndToday = days.filter(d => !d.isPast)
+  let balance = actualNet;
+  const futureAndToday = days.filter((d) => !d.isPast);
   for (const day of futureAndToday) {
-    balance += day.net
-    day.runningBalance = balance
+    balance += day.net;
+    day.runningBalance = balance;
   }
 
   // Weekly summaries for remaining weeks
-  const weeks: WeekSummary[] = []
+  const weeks: WeekSummary[] = [];
   for (let w = 0; w < 4; w++) {
-    const weekStart = new Date(now.getTime() + w * 7 * 86400000)
-    const weekEnd   = new Date(now.getTime() + (w + 1) * 7 * 86400000)
-    const startStr  = toISO(weekStart)
-    const endStr    = toISO(weekEnd)
+    const weekStart = new Date(now.getTime() + w * 7 * 86400000);
+    const weekEnd = new Date(now.getTime() + (w + 1) * 7 * 86400000);
+    const startStr = toISO(weekStart);
+    const endStr = toISO(weekEnd);
 
-    const weekPaid = paidTxns.filter(t => t.transaction_date >= startStr && t.transaction_date < endStr)
-    const weekSched = scheduledTxns.filter(t => t.transaction_date >= startStr && t.transaction_date < endStr)
-    const allWeekTx = [...weekPaid, ...weekSched]
+    const weekPaid = paidTxns.filter(
+      (t) => t.transaction_date >= startStr && t.transaction_date < endStr
+    );
+    const weekSched = scheduledTxns.filter(
+      (t) => t.transaction_date >= startStr && t.transaction_date < endStr
+    );
+    const allWeekTx = [...weekPaid, ...weekSched];
 
-    const wIncome  = allWeekTx.filter(t => t.type === 'income').reduce((s, t) => s + Number(t.amount), 0)
-    const wExpense = allWeekTx.filter(t => t.type === 'expense').reduce((s, t) => s + Number(t.amount), 0)
+    const wIncome = allWeekTx
+      .filter((t) => t.type === 'income')
+      .reduce((s, t) => s + Number(t.amount), 0);
+    const wExpense = allWeekTx
+      .filter((t) => t.type === 'expense')
+      .reduce((s, t) => s + Number(t.amount), 0);
 
-    const label = w === 0 ? 'Esta semana'
-      : w === 1 ? 'Próx. semana'
-      : `+${w * 7}–${(w + 1) * 7}d`
+    const label = w === 0 ? 'Esta semana' : w === 1 ? 'Próx. semana' : `+${w * 7}–${(w + 1) * 7}d`;
 
     weeks.push({
       label,
@@ -190,49 +208,52 @@ export async function CashFlowForecast({ userId }: { userId: string }) {
       expense: wExpense,
       net: wIncome - wExpense,
       txCount: allWeekTx.length,
-    })
+    });
   }
 
-  const maxWeekAbs = Math.max(...weeks.map(w => Math.max(w.income, w.expense)), 1)
+  const maxWeekAbs = Math.max(...weeks.map((w) => Math.max(w.income, w.expense)), 1);
 
   // Upcoming obligations (scheduled expenses, next 14 days)
   const upcomingObligs = scheduledTxns
-    .filter(t => t.type === 'expense')
+    .filter((t) => t.type === 'expense')
     .sort((a, b) => a.transaction_date.localeCompare(b.transaction_date))
-    .slice(0, 5)
+    .slice(0, 5);
 
   // Days with highest expense burden ahead
   const highExpenseDays = days
-    .filter(d => d.isFuture && d.expense > 0)
+    .filter((d) => d.isFuture && d.expense > 0)
     .sort((a, b) => b.expense - a.expense)
-    .slice(0, 3)
+    .slice(0, 3);
 
   // Current month progress
-  const dayOfMonth   = now.getDate()
-  const monthProgress = Math.round((dayOfMonth / daysInMonth) * 100)
+  const dayOfMonth = now.getDate();
+  const monthProgress = Math.round((dayOfMonth / daysInMonth) * 100);
 
   return (
     <div
-      className="rounded-2xl p-5 md:p-6 relative overflow-hidden"
+      className="relative overflow-hidden rounded-2xl p-5 md:p-6"
       style={{
-        background: 'linear-gradient(135deg, rgba(124,58,237,0.06) 0%, rgba(13,24,41,0.98) 60%, rgba(0,255,136,0.04) 100%)',
+        background:
+          'linear-gradient(135deg, rgba(124,58,237,0.06) 0%, rgba(13,24,41,0.98) 60%, rgba(0,255,136,0.04) 100%)',
         border: '1px solid rgba(124,58,237,0.14)',
       }}
     >
       <div
-        className="absolute -top-8 -right-8 w-40 h-40 rounded-full pointer-events-none blur-3xl"
+        className="pointer-events-none absolute -right-8 -top-8 h-40 w-40 rounded-full blur-3xl"
         style={{ background: 'rgba(124,58,237,0.06)' }}
       />
 
       <div className="relative z-10 space-y-5">
-
         {/* ── Header ──────────────────────────────────────────────────── */}
-        <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 mb-1">
+            <div className="mb-1 flex items-center gap-2">
               <div
-                className="w-6 h-6 rounded-lg flex items-center justify-center"
-                style={{ background: 'rgba(124,58,237,0.12)', border: '1px solid rgba(124,58,237,0.22)' }}
+                className="flex h-6 w-6 items-center justify-center rounded-lg"
+                style={{
+                  background: 'rgba(124,58,237,0.12)',
+                  border: '1px solid rgba(124,58,237,0.22)',
+                }}
               >
                 <CalendarDays size={12} style={{ color: '#7C3AED' }} />
               </div>
@@ -241,7 +262,7 @@ export async function CashFlowForecast({ userId }: { userId: string }) {
               </span>
             </div>
             <h2 className="text-xl font-black leading-tight">Projeção do Mês</h2>
-            <p className="text-sm text-text-muted mt-0.5">
+            <p className="mt-0.5 text-sm text-text-muted">
               {monthProgress}% do mês concluído · {scheduledTxns.length} obrigações agendadas
             </p>
           </div>
@@ -252,14 +273,17 @@ export async function CashFlowForecast({ userId }: { userId: string }) {
               className="text-3xl font-black"
               style={{ color: projectedNet >= 0 ? '#00FF88' : '#EF4444' }}
             >
-              {projectedNet >= 0 ? '+' : ''}{formatBRL(projectedNet)}
+              {projectedNet >= 0 ? '+' : ''}
+              {formatBRL(projectedNet)}
             </div>
-            <div className="text-[10px] text-text-muted uppercase tracking-wider">saldo projetado</div>
+            <div className="text-[10px] uppercase tracking-wider text-text-muted">
+              saldo projetado
+            </div>
           </div>
         </div>
 
         {/* ── Stats strip ─────────────────────────────────────────────── */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+        <div className="grid grid-cols-2 gap-2.5 md:grid-cols-4">
           {[
             {
               label: 'Pago até hoje',
@@ -285,7 +309,7 @@ export async function CashFlowForecast({ userId }: { userId: string }) {
               color: '#7C3AED',
               rgb: '124,58,237',
             },
-          ].map(s => (
+          ].map((s) => (
             <div
               key={s.label}
               className="rounded-xl p-3"
@@ -294,35 +318,42 @@ export async function CashFlowForecast({ userId }: { userId: string }) {
                 border: `1px solid rgba(${s.rgb},0.14)`,
               }}
             >
-              <div className="text-[9px] text-text-muted uppercase tracking-wider mb-1">{s.label}</div>
-              <div className="font-black text-sm leading-none" style={{ color: s.color }}>{s.value}</div>
+              <div className="mb-1 text-[9px] uppercase tracking-wider text-text-muted">
+                {s.label}
+              </div>
+              <div className="text-sm font-black leading-none" style={{ color: s.color }}>
+                {s.value}
+              </div>
             </div>
           ))}
         </div>
 
         {/* ── Weekly bar chart ─────────────────────────────────────────── */}
         <div className="space-y-2">
-          <div className="text-[10px] text-text-muted uppercase tracking-wider">Receita vs Despesa por Semana</div>
-          <div className="flex items-end gap-3 h-24">
+          <div className="text-[10px] uppercase tracking-wider text-text-muted">
+            Receita vs Despesa por Semana
+          </div>
+          <div className="flex h-24 items-end gap-3">
             {weeks.map((w, i) => {
-              const incomeH  = Math.round((w.income / maxWeekAbs) * 64)
-              const expenseH = Math.round((w.expense / maxWeekAbs) * 64)
-              const isCurrentWeek = i === 0
+              const incomeH = Math.round((w.income / maxWeekAbs) * 64);
+              const expenseH = Math.round((w.expense / maxWeekAbs) * 64);
+              const isCurrentWeek = i === 0;
 
               return (
-                <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                <div key={i} className="flex flex-1 flex-col items-center gap-1">
                   {/* Net label */}
                   {(w.income > 0 || w.expense > 0) && (
                     <span
                       className="text-[8px] font-bold"
                       style={{ color: w.net >= 0 ? '#00FF88' : '#EF4444' }}
                     >
-                      {w.net >= 0 ? '+' : ''}{formatBRL(w.net)}
+                      {w.net >= 0 ? '+' : ''}
+                      {formatBRL(w.net)}
                     </span>
                   )}
 
                   {/* Side-by-side bars */}
-                  <div className="w-full flex gap-0.5 items-end" style={{ height: '64px' }}>
+                  <div className="flex w-full items-end gap-0.5" style={{ height: '64px' }}>
                     <div
                       className="flex-1 rounded-t-sm"
                       style={{
@@ -340,24 +371,24 @@ export async function CashFlowForecast({ userId }: { userId: string }) {
                   </div>
 
                   <span
-                    className="text-[9px] text-center leading-tight"
+                    className="text-center text-[9px] leading-tight"
                     style={{ color: isCurrentWeek ? '#7C3AED' : '#5A6B8A' }}
                   >
                     {w.label}
                   </span>
                 </div>
-              )
+              );
             })}
           </div>
 
           {/* Legend */}
           <div className="flex items-center gap-4 text-[9px] text-text-muted">
             <div className="flex items-center gap-1">
-              <div className="w-2 h-2 rounded-sm" style={{ background: 'rgba(0,255,136,0.6)' }} />
+              <div className="h-2 w-2 rounded-sm" style={{ background: 'rgba(0,255,136,0.6)' }} />
               <span>Receita</span>
             </div>
             <div className="flex items-center gap-1">
-              <div className="w-2 h-2 rounded-sm" style={{ background: 'rgba(255,77,0,0.5)' }} />
+              <div className="h-2 w-2 rounded-sm" style={{ background: 'rgba(255,77,0,0.5)' }} />
               <span>Despesa</span>
             </div>
           </div>
@@ -366,26 +397,28 @@ export async function CashFlowForecast({ userId }: { userId: string }) {
         {/* ── Upcoming obligations ─────────────────────────────────────── */}
         {upcomingObligs.length > 0 && (
           <div className="space-y-2">
-            <div className="text-[10px] text-text-muted uppercase tracking-wider">Próximas Obrigações</div>
+            <div className="text-[10px] uppercase tracking-wider text-text-muted">
+              Próximas Obrigações
+            </div>
             <div className="space-y-1.5">
               {upcomingObligs.map((t, i) => {
-                const daysAway = Math.ceil((new Date(t.transaction_date).getTime() - now.getTime()) / 86400000)
-                const isUrgent = daysAway <= 3
-                const isToday  = daysAway === 0
+                const daysAway = Math.ceil(
+                  (new Date(t.transaction_date).getTime() - now.getTime()) / 86400000
+                );
+                const isUrgent = daysAway <= 3;
+                const isToday = daysAway === 0;
 
                 return (
                   <div
                     key={i}
                     className="flex items-center gap-2.5 rounded-xl px-3 py-2"
                     style={{
-                      background: isUrgent
-                        ? 'rgba(239,68,68,0.06)'
-                        : 'rgba(255,255,255,0.025)',
+                      background: isUrgent ? 'rgba(239,68,68,0.06)' : 'rgba(255,255,255,0.025)',
                       border: `1px solid ${isUrgent ? 'rgba(239,68,68,0.15)' : 'rgba(255,255,255,0.05)'}`,
                     }}
                   >
                     <div
-                      className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold shrink-0"
+                      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-xs font-bold"
                       style={{
                         background: isUrgent ? 'rgba(239,68,68,0.15)' : 'rgba(255,255,255,0.05)',
                         color: isUrgent ? '#EF4444' : '#8899BB',
@@ -393,10 +426,10 @@ export async function CashFlowForecast({ userId }: { userId: string }) {
                     >
                       {isToday ? '!' : daysAway}
                     </div>
-                    <span className="text-sm flex-1 truncate">{t.description}</span>
-                    <div className="flex items-center gap-2 shrink-0">
+                    <span className="flex-1 truncate text-sm">{t.description}</span>
+                    <div className="flex shrink-0 items-center gap-2">
                       <span
-                        className="text-[9px] font-bold px-1.5 py-0.5 rounded-full"
+                        className="rounded-full px-1.5 py-0.5 text-[9px] font-bold"
                         style={{
                           background: isUrgent ? 'rgba(239,68,68,0.12)' : 'rgba(255,255,255,0.04)',
                           color: isUrgent ? '#EF4444' : '#8899BB',
@@ -409,7 +442,7 @@ export async function CashFlowForecast({ userId }: { userId: string }) {
                       </span>
                     </div>
                   </div>
-                )
+                );
               })}
             </div>
           </div>
@@ -418,19 +451,25 @@ export async function CashFlowForecast({ userId }: { userId: string }) {
         {/* ── High expense days ahead ──────────────────────────────────── */}
         {highExpenseDays.length > 0 && (
           <div className="space-y-1.5">
-            <div className="text-[10px] text-text-muted uppercase tracking-wider">Dias de Alta Despesa Previstos</div>
-            <div className="flex gap-2 flex-wrap">
+            <div className="text-[10px] uppercase tracking-wider text-text-muted">
+              Dias de Alta Despesa Previstos
+            </div>
+            <div className="flex flex-wrap gap-2">
               {highExpenseDays.map((d, i) => (
                 <div
                   key={i}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl"
+                  className="flex items-center gap-1.5 rounded-xl px-3 py-1.5"
                   style={{
                     background: 'rgba(255,77,0,0.07)',
                     border: '1px solid rgba(255,77,0,0.15)',
                   }}
                 >
                   <span className="text-[9px] text-text-muted">
-                    {new Date(d.date + 'T12:00:00').toLocaleDateString('pt-BR', { weekday: 'short', day: 'numeric', month: 'short' })}
+                    {new Date(d.date + 'T12:00:00').toLocaleDateString('pt-BR', {
+                      weekday: 'short',
+                      day: 'numeric',
+                      month: 'short',
+                    })}
                   </span>
                   <span className="text-[10px] font-bold" style={{ color: '#FF4D00' }}>
                     {formatBRL(d.expense)}
@@ -443,13 +482,14 @@ export async function CashFlowForecast({ userId }: { userId: string }) {
 
         {/* ── Insight footer ───────────────────────────────────────────── */}
         <div
-          className="rounded-xl px-4 py-3 flex items-center gap-3"
+          className="flex items-center gap-3 rounded-xl px-4 py-3"
           style={{
             background: projectedNet >= 0 ? 'rgba(0,255,136,0.04)' : 'rgba(239,68,68,0.05)',
-            border: projectedNet >= 0 ? '1px solid rgba(0,255,136,0.1)' : '1px solid rgba(239,68,68,0.1)',
+            border:
+              projectedNet >= 0 ? '1px solid rgba(0,255,136,0.1)' : '1px solid rgba(239,68,68,0.1)',
           }}
         >
-          <span className="text-lg shrink-0">
+          <span className="shrink-0 text-lg">
             {projectedNet > actualNet * 0.2 ? '📈' : projectedNet >= 0 ? '✅' : '⚠️'}
           </span>
           <div>
@@ -458,7 +498,7 @@ export async function CashFlowForecast({ userId }: { userId: string }) {
                 ? `Você vai fechar o mês no positivo com ${formatBRL(projectedNet)}`
                 : `Atenção: projeção de déficit de ${formatBRL(Math.abs(projectedNet))}`}
             </p>
-            <p className="text-[11px] text-text-muted mt-0.5">
+            <p className="mt-0.5 text-[11px] text-text-muted">
               {scheduledTxns.length > 0
                 ? `${scheduledTxns.length} transação${scheduledTxns.length !== 1 ? 'ões' : ''} agendada${scheduledTxns.length !== 1 ? 's' : ''} (${formatBRL(scheduledExpense)} em despesas).`
                 : 'Nenhuma obrigação pendente agendada para os próximos dias.'}
@@ -466,8 +506,7 @@ export async function CashFlowForecast({ userId }: { userId: string }) {
             </p>
           </div>
         </div>
-
       </div>
     </div>
-  )
+  );
 }

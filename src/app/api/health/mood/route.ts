@@ -1,48 +1,56 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { z } from 'zod'
-import { createClient } from '@/lib/supabase/server'
-import { grantXP, tryUnlockAchievement } from '@/lib/xp-server'
-import { todayString } from '@/lib/utils'
+import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+import { createClient } from '@/lib/supabase/server';
+import { grantXP, tryUnlockAchievement } from '@/lib/xp-server';
+import { todayString } from '@/lib/utils';
 
-const MOOD_XP = 10
+const MOOD_XP = 10;
 
 const upsertSchema = z.object({
-  mood:   z.number().int().min(1).max(5),
+  mood: z.number().int().min(1).max(5),
   energy: z.number().int().min(1).max(5),
   stress: z.number().int().min(1).max(5),
-  note:   z.string().max(300).optional(),
-})
+  note: z.string().max(300).optional(),
+});
 
 export async function GET(req: NextRequest) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
 
-  const days = Number(req.nextUrl.searchParams.get('days') ?? '7')
-  const since = new Date(Date.now() - days * 86400000).toISOString().split('T')[0]!
+  const daysRaw = Number(req.nextUrl.searchParams.get('days') ?? '7');
+  const days = Number.isFinite(daysRaw) && daysRaw > 0 ? Math.min(daysRaw, 365) : 7;
+  const since = new Date(Date.now() - days * 86400000).toISOString().split('T')[0]!;
 
   const { data, error } = await supabase
     .from('mood_logs')
     .select('id, date, mood, energy, stress, note, xp_earned')
     .eq('user_id', user.id)
     .gte('date', since)
-    .order('date', { ascending: false })
+    .order('date', { ascending: false });
 
-  if (error) return NextResponse.json({ error: 'internal_error' }, { status: 500 })
-  return NextResponse.json({ logs: data ?? [] })
+  if (error) return NextResponse.json({ error: 'internal_error' }, { status: 500 });
+  return NextResponse.json({ logs: data ?? [] });
 }
 
 export async function POST(req: NextRequest) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
 
-  const parsed = upsertSchema.safeParse(await req.json())
+  const parsed = upsertSchema.safeParse(await req.json());
   if (!parsed.success) {
-    return NextResponse.json({ error: 'invalid_input', issues: parsed.error.issues }, { status: 400 })
+    return NextResponse.json(
+      { error: 'invalid_input', issues: parsed.error.issues },
+      { status: 400 }
+    );
   }
 
-  const today = todayString()
+  const today = todayString();
 
   // Verifica se já existe registro hoje (para saber se é first-time e concede XP)
   const { data: existing } = await supabase
@@ -50,9 +58,9 @@ export async function POST(req: NextRequest) {
     .select('id, xp_earned')
     .eq('user_id', user.id)
     .eq('date', today)
-    .maybeSingle()
+    .maybeSingle();
 
-  const isFirstToday = !existing
+  const isFirstToday = !existing;
 
   const { data, error } = await supabase
     .from('mood_logs')
@@ -66,24 +74,24 @@ export async function POST(req: NextRequest) {
       { onConflict: 'user_id,date' }
     )
     .select('id, date, mood, energy, stress, note, xp_earned')
-    .single()
+    .single();
 
-  if (error) return NextResponse.json({ error: 'internal_error' }, { status: 500 })
+  if (error) return NextResponse.json({ error: 'internal_error' }, { status: 500 });
 
-  let xpEarned = 0
-  let leveledUp = false
-  let newLevel = 0
-  const achievementsUnlocked: string[] = []
+  let xpEarned = 0;
+  let leveledUp = false;
+  let newLevel = 0;
+  const achievementsUnlocked: string[] = [];
 
   if (isFirstToday) {
-    const xpResult = await grantXP(user.id, MOOD_XP, 'Check-in de saúde diário', 'health', data.id)
-    xpEarned = xpResult.xpEarned
-    leveledUp = xpResult.leveledUp
-    newLevel = xpResult.newLevel
+    const xpResult = await grantXP(user.id, MOOD_XP, 'Check-in de saúde diário', 'health', data.id);
+    xpEarned = xpResult.xpEarned;
+    leveledUp = xpResult.leveledUp;
+    newLevel = xpResult.newLevel;
     if (await tryUnlockAchievement(user.id, 'first_mood_checkin')) {
-      achievementsUnlocked.push('first_mood_checkin')
+      achievementsUnlocked.push('first_mood_checkin');
     }
   }
 
-  return NextResponse.json({ log: data, xpEarned, leveledUp, newLevel, achievementsUnlocked })
+  return NextResponse.json({ log: data, xpEarned, leveledUp, newLevel, achievementsUnlocked });
 }

@@ -1,107 +1,107 @@
-import Link from 'next/link'
-import { Dumbbell, CheckSquare, Wallet, Target, Bot, Heart } from 'lucide-react'
+import Link from 'next/link';
+import { Dumbbell, CheckSquare, Wallet, Target, Bot, Heart } from 'lucide-react';
 
 const ACTIONS = [
   {
-    href:        '/treinos/novo',
-    label:       'Treino',
-    sub:         '+300 XP',
-    icon:        Dumbbell,
-    color:       '#FF4D00',
-    glow:        'rgba(255,77,0,0.18)',
-    bg:          'rgba(255,77,0,0.08)',
-    border:      'rgba(255,77,0,0.2)',
+    href: '/treinos/novo',
+    label: 'Treino',
+    sub: '+300 XP',
+    icon: Dumbbell,
+    color: '#FF4D00',
+    glow: 'rgba(255,77,0,0.18)',
+    bg: 'rgba(255,77,0,0.08)',
+    border: 'rgba(255,77,0,0.2)',
     hoverBorder: 'rgba(255,77,0,0.5)',
   },
   {
-    href:        '/tarefas',
-    label:       'Tarefa',
-    sub:         '+30–50 XP',
-    icon:        CheckSquare,
-    color:       '#7C3AED',
-    glow:        'rgba(124,58,237,0.18)',
-    bg:          'rgba(124,58,237,0.08)',
-    border:      'rgba(124,58,237,0.2)',
+    href: '/tarefas',
+    label: 'Tarefa',
+    sub: '+30–50 XP',
+    icon: CheckSquare,
+    color: '#7C3AED',
+    glow: 'rgba(124,58,237,0.18)',
+    bg: 'rgba(124,58,237,0.08)',
+    border: 'rgba(124,58,237,0.2)',
     hoverBorder: 'rgba(124,58,237,0.5)',
   },
   {
-    href:        '/financas/transacoes?new=1',
-    label:       'Transação',
-    sub:         '+25 XP',
-    icon:        Wallet,
-    color:       '#00FF88',
-    glow:        'rgba(0,255,136,0.18)',
-    bg:          'rgba(0,255,136,0.08)',
-    border:      'rgba(0,255,136,0.2)',
+    href: '/financas/transacoes?new=1',
+    label: 'Transação',
+    sub: '+25 XP',
+    icon: Wallet,
+    color: '#00FF88',
+    glow: 'rgba(0,255,136,0.18)',
+    bg: 'rgba(0,255,136,0.08)',
+    border: 'rgba(0,255,136,0.2)',
     hoverBorder: 'rgba(0,255,136,0.5)',
   },
   {
-    href:        '/habitos?new=1',
-    label:       'Hábito',
-    sub:         '+50 XP',
-    icon:        Target,
-    color:       '#F5C842',
-    glow:        'rgba(245,200,66,0.18)',
-    bg:          'rgba(245,200,66,0.08)',
-    border:      'rgba(245,200,66,0.2)',
+    href: '/habitos?new=1',
+    label: 'Hábito',
+    sub: '+50 XP',
+    icon: Target,
+    color: '#F5C842',
+    glow: 'rgba(245,200,66,0.18)',
+    bg: 'rgba(245,200,66,0.08)',
+    border: 'rgba(245,200,66,0.2)',
     hoverBorder: 'rgba(245,200,66,0.5)',
   },
   {
-    href:        '/saude',
-    label:       'Saúde',
-    sub:         '+50 XP',
-    icon:        Heart,
-    color:       '#00D9FF',
-    glow:        'rgba(0,217,255,0.18)',
-    bg:          'rgba(0,217,255,0.08)',
-    border:      'rgba(0,217,255,0.2)',
+    href: '/saude',
+    label: 'Saúde',
+    sub: '+50 XP',
+    icon: Heart,
+    color: '#00D9FF',
+    glow: 'rgba(0,217,255,0.18)',
+    bg: 'rgba(0,217,255,0.08)',
+    border: 'rgba(0,217,255,0.2)',
     hoverBorder: 'rgba(0,217,255,0.5)',
   },
   {
-    href:        '/coach',
-    label:       'Coach IA',
-    sub:         'Pergunte algo',
-    icon:        Bot,
-    color:       '#3B82F6',
-    glow:        'rgba(59,130,246,0.18)',
-    bg:          'rgba(59,130,246,0.08)',
-    border:      'rgba(59,130,246,0.2)',
+    href: '/coach',
+    label: 'Coach IA',
+    sub: 'Pergunte algo',
+    icon: Bot,
+    color: '#3B82F6',
+    glow: 'rgba(59,130,246,0.18)',
+    bg: 'rgba(59,130,246,0.08)',
+    border: 'rgba(59,130,246,0.2)',
     hoverBorder: 'rgba(59,130,246,0.5)',
   },
-]
+];
 
 export function QuickActions() {
   return (
     <div>
-      <h2 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Ação rápida</h2>
-      <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+      <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-text-muted">
+        Ação rápida
+      </h2>
+      <div className="grid grid-cols-3 gap-2 md:grid-cols-6">
         {ACTIONS.map((action) => {
-          const Icon = action.icon
+          const Icon = action.icon;
           return (
             <Link
               key={action.href}
               href={action.href}
-              className="group rounded-2xl p-4 flex flex-col items-center gap-2.5 text-center relative overflow-hidden
-                         transition-all duration-200 hover:scale-[1.03]
-                         active:scale-[0.94] active:brightness-110"
+              className="group relative flex flex-col items-center gap-2.5 overflow-hidden rounded-2xl p-4 text-center transition-all duration-200 hover:scale-[1.03] active:scale-[0.94] active:brightness-110"
               style={{
-                background:  `linear-gradient(135deg, ${action.bg} 0%, rgba(13,24,41,0.98) 100%)`,
-                border:      `1px solid ${action.border}`,
+                background: `linear-gradient(135deg, ${action.bg} 0%, rgba(13,24,41,0.98) 100%)`,
+                border: `1px solid ${action.border}`,
                 WebkitTapHighlightColor: 'transparent',
               }}
             >
               {/* Corner glow — desktop hover */}
               <div
-                className="absolute -top-4 -right-4 w-12 h-12 rounded-full pointer-events-none blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                className="pointer-events-none absolute -right-4 -top-4 h-12 w-12 rounded-full opacity-0 blur-xl transition-opacity duration-200 group-hover:opacity-100"
                 style={{ backgroundColor: action.color }}
               />
 
               {/* Ícone */}
               <div
-                className="relative z-10 w-12 h-12 rounded-xl flex items-center justify-center"
+                className="relative z-10 flex h-12 w-12 items-center justify-center rounded-xl"
                 style={{
                   background: `${action.color}15`,
-                  border:     `1px solid ${action.color}30`,
+                  border: `1px solid ${action.color}30`,
                 }}
               >
                 <Icon size={22} style={{ color: action.color }} />
@@ -109,18 +109,18 @@ export function QuickActions() {
 
               {/* Label + sub */}
               <div className="relative z-10">
-                <div className="font-semibold text-sm leading-tight">{action.label}</div>
+                <div className="text-sm font-semibold leading-tight">{action.label}</div>
                 <div
-                  className="text-[10px] mt-0.5 font-medium"
+                  className="mt-0.5 text-[10px] font-medium"
                   style={{ color: `${action.color}CC` }}
                 >
                   {action.sub}
                 </div>
               </div>
             </Link>
-          )
+          );
         })}
       </div>
     </div>
-  )
+  );
 }

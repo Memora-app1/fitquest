@@ -1,24 +1,24 @@
-﻿import { Resend } from 'resend'
+﻿import { Resend } from 'resend';
 
-let _resend: Resend | null = null
+let _resend: Resend | null = null;
 
 function getResend(): Resend {
-  if (_resend) return _resend
-  const key = process.env.RESEND_API_KEY
-  if (!key) throw new Error('RESEND_API_KEY não configurada')
-  _resend = new Resend(key)
-  return _resend
+  if (_resend) return _resend;
+  const key = process.env.RESEND_API_KEY;
+  if (!key) throw new Error('RESEND_API_KEY não configurada');
+  _resend = new Resend(key);
+  return _resend;
 }
 
-const FROM = 'Ascendia <noreply@ascendia.app>'
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://ascendia-app1.vercel.app'
+const FROM = 'Ascendia <noreply@ascendia.app>';
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://ascendia-app1.vercel.app';
 
 export async function sendTrialEndingEmail(to: string, name: string, daysLeft: number) {
-  const urgency = daysLeft <= 1 ? '🚨' : '⏰'
+  const urgency = daysLeft <= 1 ? '🚨' : '⏰';
   const subject =
     daysLeft <= 1
       ? `${urgency} Seu trial Ascendia termina HOJE`
-      : `${urgency} Seu trial Ascendia termina em ${daysLeft} dias`
+      : `${urgency} Seu trial Ascendia termina em ${daysLeft} dias`;
 
   await getResend().emails.send({
     from: FROM,
@@ -66,27 +66,23 @@ export async function sendTrialEndingEmail(to: string, name: string, daysLeft: n
   </div>
 </body>
 </html>`,
-  })
+  });
 }
 
 export interface WeeklyDigestStats {
-  streakCurrent: number
-  streakLongest: number
-  xpThisWeek: number
-  xpTotal: number
-  level: number
-  habitsCompletedThisWeek: number
-  habitsTarget: number
-  tasksCompletedThisWeek: number
-  perfectDays: number
-  topSources: Array<{ label: string; emoji: string; xp: number }>
+  streakCurrent: number;
+  streakLongest: number;
+  xpThisWeek: number;
+  xpTotal: number;
+  level: number;
+  habitsCompletedThisWeek: number;
+  habitsTarget: number;
+  tasksCompletedThisWeek: number;
+  perfectDays: number;
+  topSources: Array<{ label: string; emoji: string; xp: number }>;
 }
 
-export async function sendWeeklyDigest(
-  to: string,
-  name: string,
-  stats: WeeklyDigestStats
-) {
+export async function sendWeeklyDigest(to: string, name: string, stats: WeeklyDigestStats) {
   const {
     streakCurrent,
     xpThisWeek,
@@ -97,20 +93,20 @@ export async function sendWeeklyDigest(
     tasksCompletedThisWeek,
     perfectDays,
     topSources,
-  } = stats
+  } = stats;
 
   const habitRate =
-    habitsTarget > 0 ? Math.round((habitsCompletedThisWeek / habitsTarget) * 100) : 0
+    habitsTarget > 0 ? Math.round((habitsCompletedThisWeek / habitsTarget) * 100) : 0;
 
   const streakEmoji =
-    streakCurrent >= 30 ? '🔥' : streakCurrent >= 7 ? '⚡' : streakCurrent > 0 ? '✨' : '💤'
+    streakCurrent >= 30 ? '🔥' : streakCurrent >= 7 ? '⚡' : streakCurrent > 0 ? '✨' : '💤';
 
   const performanceLine =
     habitRate >= 80
       ? 'Semana incrível — você está entre os mais consistentes. 🏆'
       : habitRate >= 50
-      ? 'Boa semana! Você está na metade do caminho. Continue. 💪'
-      : 'Essa semana foi mais difícil, mas você ainda está aqui. Isso conta. 🌱'
+        ? 'Boa semana! Você está na metade do caminho. Continue. 💪'
+        : 'Essa semana foi mais difícil, mas você ainda está aqui. Isso conta. 🌱';
 
   const topSourcesHtml = topSources
     .slice(0, 3)
@@ -121,14 +117,14 @@ export async function sendWeeklyDigest(
       <span style="font-size:14px;font-weight:700;color:#F5C842">+${s.xp.toLocaleString('pt-BR')} XP</span>
     </div>`
     )
-    .join('')
+    .join('');
 
   const subject =
     streakCurrent >= 7
       ? `🔥 ${streakCurrent} dias de streak — resumo da sua semana`
       : xpThisWeek > 0
-      ? `⚡ Você ganhou ${xpThisWeek.toLocaleString('pt-BR')} XP essa semana`
-      : `📊 Seu resumo semanal Ascendia`
+        ? `⚡ Você ganhou ${xpThisWeek.toLocaleString('pt-BR')} XP essa semana`
+        : `📊 Seu resumo semanal Ascendia`;
 
   await getResend().emails.send({
     from: FROM,
@@ -186,15 +182,21 @@ export async function sendWeeklyDigest(
       </div>
     </div>
 
-    ${topSources.length > 0 ? `
+    ${
+      topSources.length > 0
+        ? `
     <!-- XP breakdown -->
     <div style="margin-bottom:24px">
       <h3 style="font-size:13px;font-weight:700;color:#8899BB;text-transform:uppercase;letter-spacing:2px;margin:0 0 12px">Fontes de XP esta semana</h3>
       ${topSourcesHtml}
-    </div>` : ''}
+    </div>`
+        : ''
+    }
 
     <!-- Progress bar for habits -->
-    ${habitsTarget > 0 ? `
+    ${
+      habitsTarget > 0
+        ? `
     <div style="background:#0D1829;border:1px solid rgba(0,255,136,0.15);border-radius:14px;padding:20px;margin-bottom:24px">
       <div style="display:flex;justify-content:space-between;margin-bottom:10px">
         <span style="font-size:13px;color:#8899BB">Consistência de hábitos</span>
@@ -204,7 +206,9 @@ export async function sendWeeklyDigest(
         <div style="height:100%;width:${Math.min(habitRate, 100)}%;background:linear-gradient(90deg,#00FF88,#00D9FF);border-radius:99px"></div>
       </div>
       <p style="font-size:12px;color:#5A6B85;margin:8px 0 0">${habitsCompletedThisWeek} de ${habitsTarget} completados</p>
-    </div>` : ''}
+    </div>`
+        : ''
+    }
 
     <!-- CTA -->
     <a href="${APP_URL}/dashboard" style="display:block;text-align:center;background:linear-gradient(135deg,#FF4D00,#7C3AED);color:#fff;font-weight:700;font-size:16px;padding:16px 32px;border-radius:12px;text-decoration:none;margin-bottom:32px">
@@ -219,7 +223,7 @@ export async function sendWeeklyDigest(
   </div>
 </body>
 </html>`,
-  })
+  });
 }
 
 export async function sendWelcomeEmail(to: string, name: string) {
@@ -250,12 +254,16 @@ export async function sendWelcomeEmail(to: string, name: string) {
         ['✅', 'Criar sua primeira tarefa', '/tarefas'],
         ['💰', 'Registrar uma transação', '/financas'],
         ['🤖', 'Conversar com o Coach IA', '/coach'],
-      ].map(([icon, text, path]) => `
+      ]
+        .map(
+          ([icon, text, path]) => `
       <a href="${APP_URL}${path}" style="display:flex;align-items:center;gap:12px;background:#0D1829;border:1px solid rgba(255,77,0,0.2);border-radius:12px;padding:16px;text-decoration:none;color:#fff;margin-bottom:12px">
         <span style="font-size:24px">${icon}</span>
         <span style="font-weight:600">${text}</span>
         <span style="margin-left:auto;color:#FF4D00">→</span>
-      </a>`).join('')}
+      </a>`
+        )
+        .join('')}
     </div>
 
     <a href="${APP_URL}/dashboard" style="display:block;text-align:center;background:linear-gradient(135deg,#FF4D00,#7C3AED);color:#fff;font-weight:700;font-size:16px;padding:16px 32px;border-radius:12px;text-decoration:none">
@@ -264,5 +272,5 @@ export async function sendWelcomeEmail(to: string, name: string) {
   </div>
 </body>
 </html>`,
-  })
+  });
 }

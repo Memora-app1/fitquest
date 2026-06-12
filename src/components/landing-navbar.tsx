@@ -1,22 +1,22 @@
-'use client'
+'use client';
 
-import { useEffect, useState } from 'react'
-import Link from 'next/link'
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
 
 export function LandingNavbar() {
-  const [visible, setVisible] = useState(false)
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     function onScroll() {
-      setVisible(window.scrollY > 80)
+      setVisible(window.scrollY > 80);
     }
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   return (
     <nav
-      className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
+      className="fixed left-0 right-0 top-0 z-50 transition-all duration-300"
       style={{
         background: 'rgba(5,9,20,0.90)',
         backdropFilter: visible ? 'blur(20px)' : 'none',
@@ -27,21 +27,21 @@ export function LandingNavbar() {
         transform: visible ? 'translateY(0)' : 'translateY(-100%)',
       }}
     >
-      <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
-        <Link href="/" className="heading-display text-xl gradient-text select-none">
+      <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-6">
+        <Link href="/" className="heading-display gradient-text select-none text-xl">
           ⚡ Ascendia
         </Link>
 
         <div className="flex items-center gap-3">
           <Link
             href="/login"
-            className="text-sm text-text-secondary hover:text-white transition-colors"
+            className="text-sm text-text-secondary transition-colors hover:text-white"
           >
             Entrar
           </Link>
           <Link
             href="/signup"
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold text-white transition-all hover:scale-105 active:scale-95"
+            className="flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-bold text-white transition-all hover:scale-105 active:scale-95"
             style={{
               background: 'linear-gradient(135deg, #FF4D00, #7C3AED)',
               boxShadow: '0 4px 16px rgba(255,77,0,0.25)',
@@ -52,5 +52,5 @@ export function LandingNavbar() {
         </div>
       </div>
     </nav>
-  )
+  );
 }

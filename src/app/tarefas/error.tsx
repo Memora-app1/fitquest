@@ -1,37 +1,38 @@
-'use client'
+'use client';
 
-import { useEffect } from 'react'
-import Link from 'next/link'
-import { RefreshCw, Home, CheckSquare, AlertCircle, ChevronRight } from 'lucide-react'
+import { useEffect } from 'react';
+import Link from 'next/link';
+import { RefreshCw, Home, CheckSquare, AlertCircle, ChevronRight } from 'lucide-react';
 
 export default function TarefasError({
   error,
   reset,
 }: {
-  error: Error & { digest?: string }
-  reset: () => void
+  error: Error & { digest?: string };
+  reset: () => void;
 }) {
   useEffect(() => {
-    console.error('[TarefasError]', error)
-  }, [error])
+    console.error('[TarefasError]', error);
+  }, [error]);
 
   return (
-    <div className="min-h-[60vh] flex items-center justify-center p-6">
+    <div className="flex min-h-[60vh] items-center justify-center p-6">
       <div
-        className="w-full max-w-lg p-8 rounded-2xl relative overflow-hidden"
+        className="relative w-full max-w-lg overflow-hidden rounded-2xl p-8"
         style={{
-          background: 'linear-gradient(135deg, rgba(124,58,237,0.09) 0%, rgba(13,24,41,0.99) 60%, rgba(239,68,68,0.04) 100%)',
+          background:
+            'linear-gradient(135deg, rgba(124,58,237,0.09) 0%, rgba(13,24,41,0.99) 60%, rgba(239,68,68,0.04) 100%)',
           border: '1px solid rgba(124,58,237,0.25)',
           boxShadow: '0 24px 60px rgba(0,0,0,0.5), 0 0 40px rgba(124,58,237,0.05)',
         }}
       >
         {/* Ambient glows */}
         <div
-          className="absolute -top-6 -right-6 w-32 h-32 rounded-full pointer-events-none blur-2xl"
+          className="pointer-events-none absolute -right-6 -top-6 h-32 w-32 rounded-full blur-2xl"
           style={{ background: 'rgba(124,58,237,0.18)' }}
         />
         <div
-          className="absolute -bottom-4 -left-4 w-24 h-24 rounded-full pointer-events-none blur-xl"
+          className="pointer-events-none absolute -bottom-4 -left-4 h-24 w-24 rounded-full blur-xl"
           style={{ background: 'rgba(239,68,68,0.08)' }}
         />
 
@@ -39,7 +40,7 @@ export default function TarefasError({
           {/* Icon row */}
           <div className="flex items-center gap-4">
             <div
-              className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0"
+              className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl"
               style={{
                 background: 'rgba(124,58,237,0.14)',
                 border: '1px solid rgba(124,58,237,0.3)',
@@ -49,8 +50,12 @@ export default function TarefasError({
             </div>
             <div>
               <div
-                className="text-xs font-bold uppercase tracking-widest mb-1 px-2 py-0.5 rounded-full inline-block"
-                style={{ background: 'rgba(124,58,237,0.14)', color: '#7C3AED', border: '1px solid rgba(124,58,237,0.25)' }}
+                className="mb-1 inline-block rounded-full px-2 py-0.5 text-xs font-bold uppercase tracking-widest"
+                style={{
+                  background: 'rgba(124,58,237,0.14)',
+                  color: '#7C3AED',
+                  border: '1px solid rgba(124,58,237,0.25)',
+                }}
               >
                 Seção: Tarefas
               </div>
@@ -60,17 +65,20 @@ export default function TarefasError({
 
           {/* Description */}
           <div
-            className="rounded-xl p-4 flex items-start gap-3"
-            style={{ background: 'rgba(124,58,237,0.07)', border: '1px solid rgba(124,58,237,0.15)' }}
+            className="flex items-start gap-3 rounded-xl p-4"
+            style={{
+              background: 'rgba(124,58,237,0.07)',
+              border: '1px solid rgba(124,58,237,0.15)',
+            }}
           >
-            <AlertCircle size={16} className="text-brand-purple mt-0.5 shrink-0" />
+            <AlertCircle size={16} className="mt-0.5 shrink-0 text-brand-purple" />
             <div>
               <p className="text-sm text-text-secondary">
                 Não foi possível carregar seu Kanban ou suas tarefas. Nenhuma tarefa foi perdida —
                 tente recarregar a seção.
               </p>
               {error.digest && (
-                <p className="text-xs text-text-muted font-mono mt-2 select-all">
+                <p className="mt-2 select-all font-mono text-xs text-text-muted">
                   Código: {error.digest}
                 </p>
               )}
@@ -79,14 +87,16 @@ export default function TarefasError({
 
           {/* Quick recovery tips */}
           <div className="space-y-2">
-            <p className="text-xs font-semibold text-text-muted uppercase tracking-wider">Alternativas:</p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+              Alternativas:
+            </p>
             {[
               'Recarregar o Kanban de tarefas',
               'Acessar a Matriz Eisenhower diretamente',
               'Verificar sua conexão e tentar novamente',
             ].map((tip, i) => (
               <div key={i} className="flex items-center gap-2 text-xs text-text-secondary">
-                <ChevronRight size={12} className="text-brand-purple shrink-0" />
+                <ChevronRight size={12} className="shrink-0 text-brand-purple" />
                 {tip}
               </div>
             ))}
@@ -96,7 +106,7 @@ export default function TarefasError({
           <div className="grid grid-cols-2 gap-3 pt-1">
             <button
               onClick={reset}
-              className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-bold text-sm transition-all hover:opacity-90 active:scale-[0.98]"
+              className="flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-all hover:opacity-90 active:scale-[0.98]"
               style={{
                 background: 'linear-gradient(135deg, #5B21B6, #7C3AED)',
                 color: '#fff',
@@ -108,7 +118,7 @@ export default function TarefasError({
             </button>
             <Link
               href="/tarefas/eisenhower"
-              className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold text-sm transition-all hover:opacity-80"
+              className="flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-all hover:opacity-80"
               style={{
                 background: 'rgba(124,58,237,0.1)',
                 color: '#9F5AF7',
@@ -119,7 +129,7 @@ export default function TarefasError({
             </Link>
             <Link
               href="/dashboard"
-              className="col-span-2 flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold text-sm text-text-secondary transition-all hover:text-white hover:bg-white/5"
+              className="col-span-2 flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-text-secondary transition-all hover:bg-white/5 hover:text-white"
               style={{ border: '1px solid rgba(255,255,255,0.08)' }}
             >
               <Home size={13} />
@@ -129,5 +139,5 @@ export default function TarefasError({
         </div>
       </div>
     </div>
-  )
+  );
 }

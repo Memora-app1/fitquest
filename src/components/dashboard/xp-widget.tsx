@@ -1,32 +1,33 @@
-import Link from 'next/link'
-import { getLevelInfo, getXpProgressToNextLevel } from '@/lib/xp'
-import { Trophy, ChevronRight, Zap } from 'lucide-react'
+import Link from 'next/link';
+import { getLevelInfo, getXpProgressToNextLevel } from '@/lib/xp';
+import { Trophy, ChevronRight, Zap } from 'lucide-react';
 
 export function XpWidget({ xpTotal, level }: { xpTotal: number; level: number }) {
-  const info = getLevelInfo(level)
-  const { current, needed, percentage } = getXpProgressToNextLevel(xpTotal)
+  const info = getLevelInfo(level);
+  const { current, needed, percentage } = getXpProgressToNextLevel(xpTotal);
 
-  const isMaxLevel = needed === 0
+  const isMaxLevel = needed === 0;
 
   return (
     <div
-      className="rounded-2xl p-6 relative overflow-hidden"
+      className="relative overflow-hidden rounded-2xl p-6"
       style={{
-        background: 'linear-gradient(135deg, rgba(245,200,66,0.1) 0%, rgba(13,24,41,0.98) 60%, rgba(255,77,0,0.05) 100%)',
+        background:
+          'linear-gradient(135deg, rgba(245,200,66,0.1) 0%, rgba(13,24,41,0.98) 60%, rgba(255,77,0,0.05) 100%)',
         border: '1px solid rgba(245,200,66,0.25)',
         boxShadow: '0 4px 24px rgba(245,200,66,0.06)',
       }}
     >
       {/* Corner glow */}
       <div
-        className="absolute -top-6 -right-6 w-32 h-32 rounded-full pointer-events-none blur-2xl"
+        className="pointer-events-none absolute -right-6 -top-6 h-32 w-32 rounded-full blur-2xl"
         style={{ background: 'rgba(245,200,66,0.18)' }}
       />
 
       <div className="relative z-10">
-        <div className="flex items-start justify-between mb-5">
+        <div className="mb-5 flex items-start justify-between">
           <div>
-            <div className="flex items-center gap-1.5 text-text-muted text-xs uppercase tracking-wider mb-1.5">
+            <div className="mb-1.5 flex items-center gap-1.5 text-xs uppercase tracking-wider text-text-muted">
               <Trophy size={11} className="text-brand-gold" />
               Level {level} de 8
             </div>
@@ -39,26 +40,33 @@ export function XpWidget({ xpTotal, level }: { xpTotal: number; level: number })
           </div>
           <div className="text-right">
             <div
-              className="heading-display text-3xl text-brand-gold leading-tight flex items-center gap-1.5 justify-end"
+              className="heading-display flex items-center justify-end gap-1.5 text-3xl leading-tight text-brand-gold"
               style={{ viewTransitionName: 'xp-total-counter' }}
             >
               <Zap size={20} fill="currentColor" className="text-brand-gold" />
               {xpTotal.toLocaleString('pt-BR')}
             </div>
-            <div className="text-xs text-text-muted uppercase tracking-wider">XP Total</div>
+            <div className="text-xs uppercase tracking-wider text-text-muted">XP Total</div>
           </div>
         </div>
 
         {isMaxLevel ? (
           <div
-            className="text-center py-3 rounded-xl font-bold text-sm"
-            style={{ background: 'rgba(245,200,66,0.1)', border: '1px solid rgba(245,200,66,0.2)', color: '#F5C842' }}
+            className="rounded-xl py-3 text-center text-sm font-bold"
+            style={{
+              background: 'rgba(245,200,66,0.1)',
+              border: '1px solid rgba(245,200,66,0.2)',
+              color: '#F5C842',
+            }}
           >
             🏆 Nível máximo alcançado!
           </div>
         ) : (
           <>
-            <div className="h-3 rounded-full overflow-hidden mb-2" style={{ background: 'rgba(255,255,255,0.06)' }}>
+            <div
+              className="mb-2 h-3 overflow-hidden rounded-full"
+              style={{ background: 'rgba(255,255,255,0.06)' }}
+            >
               <div
                 className="h-full rounded-full transition-all duration-700"
                 style={{
@@ -70,7 +78,7 @@ export function XpWidget({ xpTotal, level }: { xpTotal: number; level: number })
             </div>
             <div className="flex justify-between text-xs text-text-muted">
               <span>{current.toLocaleString('pt-BR')} XP neste nível</span>
-              <span className="text-brand-gold font-medium">
+              <span className="font-medium text-brand-gold">
                 {(needed - current).toLocaleString('pt-BR')} XP → lv {level + 1}
               </span>
             </div>
@@ -79,11 +87,11 @@ export function XpWidget({ xpTotal, level }: { xpTotal: number; level: number })
 
         <Link
           href="/score"
-          className="mt-4 flex items-center justify-center gap-1.5 text-xs text-text-muted hover:text-brand-gold transition-colors"
+          className="mt-4 flex items-center justify-center gap-1.5 text-xs text-text-muted transition-colors hover:text-brand-gold"
         >
           Ver conquistas e histórico <ChevronRight size={12} />
         </Link>
       </div>
     </div>
-  )
+  );
 }

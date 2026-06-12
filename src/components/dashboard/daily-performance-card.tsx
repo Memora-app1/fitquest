@@ -1,21 +1,21 @@
-import { createClient } from '@/lib/supabase/server'
-import { todayString } from '@/lib/utils'
-import { Zap, Droplets, Moon, Flame, Target, ArrowRight } from 'lucide-react'
-import Link from 'next/link'
-import { WATER_GOAL_ML } from '@/lib/constants'
+import { createClient } from '@/lib/supabase/server';
+import { todayString } from '@/lib/utils';
+import { Zap, Droplets, Moon, Flame, Target, ArrowRight } from 'lucide-react';
+import Link from 'next/link';
+import { WATER_GOAL_ML } from '@/lib/constants';
 
-type PerfState = 'great' | 'good' | 'alert'
+type PerfState = 'great' | 'good' | 'alert';
 
 interface PerfConfig {
-  label: string
-  emoji: string
-  color: string
-  rgb: string
-  bg: string
-  border: string
-  glow: string
-  phrase: string
-  sub: string
+  label: string;
+  emoji: string;
+  color: string;
+  rgb: string;
+  bg: string;
+  border: string;
+  glow: string;
+  phrase: string;
+  sub: string;
 }
 
 const PERF_CONFIG: Record<PerfState, PerfConfig> = {
@@ -52,12 +52,12 @@ const PERF_CONFIG: Record<PerfState, PerfConfig> = {
     phrase: 'Hoje é o dia de virar o jogo.',
     sub: 'Pequenas ações agora = grande progresso amanhã.',
   },
-}
+};
 
 export async function DailyPerformanceCard({ userId }: { userId: string }) {
-  const supabase = await createClient()
-  const today = todayString()
-  const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0]!
+  const supabase = await createClient();
+  const today = todayString();
+  const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0]!;
 
   const [habitsRes, habitLogsRes, waterRes, sleepRes, xpTodayRes, profileRes] = await Promise.all([
     supabase
@@ -65,16 +65,8 @@ export async function DailyPerformanceCard({ userId }: { userId: string }) {
       .select('id', { count: 'exact', head: true })
       .eq('user_id', userId)
       .eq('is_active', true),
-    supabase
-      .from('habit_logs')
-      .select('habit_id')
-      .eq('user_id', userId)
-      .eq('logged_date', today),
-    supabase
-      .from('water_logs')
-      .select('amount_ml')
-      .eq('user_id', userId)
-      .eq('date', today),
+    supabase.from('habit_logs').select('habit_id').eq('user_id', userId).eq('logged_date', today),
+    supabase.from('water_logs').select('amount_ml').eq('user_id', userId).eq('date', today),
     supabase
       .from('sleep_logs')
       .select('duration_hours, quality')
@@ -87,42 +79,35 @@ export async function DailyPerformanceCard({ userId }: { userId: string }) {
       .select('amount')
       .eq('user_id', userId)
       .gte('created_at', `${today}T00:00:00`),
-    supabase
-      .from('profiles')
-      .select('streak_current, level')
-      .eq('id', userId)
-      .single(),
-  ])
+    supabase.from('profiles').select('streak_current, level').eq('id', userId).single(),
+  ]);
 
-  const totalHabits = habitsRes.count ?? 0
-  const doneHabits = (habitLogsRes.data ?? []).length
-  const habitScore = totalHabits > 0 ? (doneHabits / totalHabits) : 0
+  const totalHabits = habitsRes.count ?? 0;
+  const doneHabits = (habitLogsRes.data ?? []).length;
+  const habitScore = totalHabits > 0 ? doneHabits / totalHabits : 0;
 
-  const waterTotal = (waterRes.data ?? []).reduce((s, r) => s + (r.amount_ml as number), 0)
-  const waterScore = Math.min(1, waterTotal / WATER_GOAL_ML)
+  const waterTotal = (waterRes.data ?? []).reduce((s, r) => s + (r.amount_ml as number), 0);
+  const waterScore = Math.min(1, waterTotal / WATER_GOAL_ML);
 
-  const sleepHours = (sleepRes.data?.duration_hours as number | null) ?? null
-  const sleepScore = sleepHours !== null ? Math.min(1, sleepHours / 8) : 0.5
-  const sleepLogged = sleepHours !== null
+  const sleepHours = (sleepRes.data?.duration_hours as number | null) ?? null;
+  const sleepScore = sleepHours !== null ? Math.min(1, sleepHours / 8) : 0.5;
+  const sleepLogged = sleepHours !== null;
 
-  const xpToday = (xpTodayRes.data ?? []).reduce((s, r) => s + (r.amount as number), 0)
+  const xpToday = (xpTodayRes.data ?? []).reduce((s, r) => s + (r.amount as number), 0);
 
-  const profile = profileRes.data
-  const streak = profile?.streak_current ?? 0
+  const profile = profileRes.data;
+  const streak = profile?.streak_current ?? 0;
 
   // Weighted performance score 0-100
   const score = Math.round(
-    habitScore * 40 +
-    waterScore * 25 +
-    sleepScore * 25 +
-    Math.min(1, xpToday / 200) * 10
-  )
+    habitScore * 40 + waterScore * 25 + sleepScore * 25 + Math.min(1, xpToday / 200) * 10
+  );
 
-  const state: PerfState = score >= 70 ? 'great' : score >= 40 ? 'good' : 'alert'
-  const cfg = PERF_CONFIG[state]
+  const state: PerfState = score >= 70 ? 'great' : score >= 40 ? 'good' : 'alert';
+  const cfg = PERF_CONFIG[state];
 
   // Don't show if user has zero activity at all (brand new user, no habits yet)
-  if (totalHabits === 0 && xpToday === 0) return null
+  if (totalHabits === 0 && xpToday === 0) return null;
 
   // Build pillar array for the visual meters
   const pillars = [
@@ -148,19 +133,25 @@ export async function DailyPerformanceCard({ userId }: { userId: string }) {
       value: sleepLogged ? Math.round(sleepScore * 100) : 0,
       display: sleepLogged
         ? (() => {
-            const h = Math.floor(sleepHours!)
-            const m = Math.round((sleepHours! - h) * 60)
-            return m === 0 ? `${h}h` : `${h}h${m}m`
+            const h = Math.floor(sleepHours!);
+            const m = Math.round((sleepHours! - h) * 60);
+            return m === 0 ? `${h}h` : `${h}h${m}m`;
           })()
         : 'Não reg.',
-      color: sleepLogged ? (sleepScore >= 0.875 ? '#00FF88' : sleepScore >= 0.625 ? '#7C3AED' : '#F5C842') : '#5A6B85',
+      color: sleepLogged
+        ? sleepScore >= 0.875
+          ? '#00FF88'
+          : sleepScore >= 0.625
+            ? '#7C3AED'
+            : '#F5C842'
+        : '#5A6B85',
       href: '/saude',
     },
-  ]
+  ];
 
   return (
     <div
-      className="rounded-2xl p-5 md:p-6 relative overflow-hidden animate-fade-in"
+      className="relative animate-fade-in overflow-hidden rounded-2xl p-5 md:p-6"
       style={{
         background: cfg.bg,
         border: `1px solid ${cfg.border}`,
@@ -169,19 +160,19 @@ export async function DailyPerformanceCard({ userId }: { userId: string }) {
     >
       {/* Ambient glow circles */}
       <div
-        className="absolute -top-10 -right-10 w-48 h-48 rounded-full pointer-events-none blur-3xl"
+        className="pointer-events-none absolute -right-10 -top-10 h-48 w-48 rounded-full blur-3xl"
         style={{ background: `rgba(${cfg.rgb},0.08)` }}
       />
       <div
-        className="absolute -bottom-8 -left-8 w-32 h-32 rounded-full pointer-events-none blur-2xl"
+        className="pointer-events-none absolute -bottom-8 -left-8 h-32 w-32 rounded-full blur-2xl"
         style={{ background: `rgba(${cfg.rgb},0.05)` }}
       />
 
       <div className="relative z-10">
         {/* ── Header row ──────────────────────────────────────────────── */}
-        <div className="flex items-start justify-between gap-4 mb-5">
+        <div className="mb-5 flex items-start justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 mb-1">
+            <div className="mb-1 flex items-center gap-2">
               <span className="text-xs font-bold uppercase tracking-widest text-text-muted">
                 Performance do Dia
               </span>
@@ -189,17 +180,14 @@ export async function DailyPerformanceCard({ userId }: { userId: string }) {
             <div className="flex items-center gap-3">
               {/* State badge */}
               <div
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl animate-bounce-in"
+                className="flex animate-bounce-in items-center gap-1.5 rounded-xl px-3 py-1.5"
                 style={{
                   background: `rgba(${cfg.rgb},0.15)`,
                   border: `1px solid rgba(${cfg.rgb},0.35)`,
                 }}
               >
                 <span className="text-base">{cfg.emoji}</span>
-                <span
-                  className="heading-display text-lg leading-none"
-                  style={{ color: cfg.color }}
-                >
+                <span className="heading-display text-lg leading-none" style={{ color: cfg.color }}>
                   {cfg.label}
                 </span>
               </div>
@@ -207,7 +195,7 @@ export async function DailyPerformanceCard({ userId }: { userId: string }) {
               {/* Streak badge */}
               {streak > 0 && (
                 <div
-                  className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl"
+                  className="flex items-center gap-1 rounded-xl px-2.5 py-1.5"
                   style={{
                     background: streak >= 7 ? 'rgba(255,77,0,0.15)' : 'rgba(255,255,255,0.06)',
                     border: `1px solid ${streak >= 7 ? 'rgba(255,77,0,0.35)' : 'rgba(255,255,255,0.08)'}`,
@@ -235,9 +223,18 @@ export async function DailyPerformanceCard({ userId }: { userId: string }) {
           {/* Score ring */}
           <div className="relative shrink-0">
             <svg width="72" height="72" className="animate-bounce-in">
-              <circle cx="36" cy="36" r="30" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="5" />
               <circle
-                cx="36" cy="36" r="30"
+                cx="36"
+                cy="36"
+                r="30"
+                fill="none"
+                stroke="rgba(255,255,255,0.05)"
+                strokeWidth="5"
+              />
+              <circle
+                cx="36"
+                cy="36"
+                r="30"
                 fill="none"
                 stroke={cfg.color}
                 strokeWidth="5"
@@ -245,28 +242,31 @@ export async function DailyPerformanceCard({ userId }: { userId: string }) {
                 strokeDasharray={`${2 * Math.PI * 30}`}
                 strokeDashoffset={`${2 * Math.PI * 30 * (1 - score / 100)}`}
                 transform="rotate(-90 36 36)"
-                style={{ filter: `drop-shadow(0 0 6px ${cfg.color}60)`, transition: 'stroke-dashoffset 1s ease-out' }}
+                style={{
+                  filter: `drop-shadow(0 0 6px ${cfg.color}60)`,
+                  transition: 'stroke-dashoffset 1s ease-out',
+                }}
               />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
               <span className="heading-display text-xl leading-none" style={{ color: cfg.color }}>
                 {score}
               </span>
-              <span className="text-[9px] text-text-muted uppercase tracking-wider">score</span>
+              <span className="text-[9px] uppercase tracking-wider text-text-muted">score</span>
             </div>
           </div>
         </div>
 
         {/* ── Motivational phrase ─────────────────────────────────────── */}
-        <p className="text-sm font-semibold mb-1" style={{ color: cfg.color }}>
+        <p className="mb-1 text-sm font-semibold" style={{ color: cfg.color }}>
           {cfg.phrase}
         </p>
-        <p className="text-xs text-text-muted mb-5">{cfg.sub}</p>
+        <p className="mb-5 text-xs text-text-muted">{cfg.sub}</p>
 
         {/* ── Pillars ─────────────────────────────────────────────────── */}
-        <div className="grid grid-cols-3 gap-3 mb-4">
+        <div className="mb-4 grid grid-cols-3 gap-3">
           {pillars.map((p) => {
-            const Icon = p.icon
+            const Icon = p.icon;
             return (
               <Link key={p.label} href={p.href} className="group">
                 <div
@@ -276,15 +276,20 @@ export async function DailyPerformanceCard({ userId }: { userId: string }) {
                     border: '1px solid rgba(255,255,255,0.06)',
                   }}
                 >
-                  <div className="flex items-center gap-1.5 mb-2">
+                  <div className="mb-2 flex items-center gap-1.5">
                     <Icon size={11} style={{ color: p.color }} />
-                    <span className="text-[9px] text-text-muted uppercase tracking-wider">{p.label}</span>
+                    <span className="text-[9px] uppercase tracking-wider text-text-muted">
+                      {p.label}
+                    </span>
                   </div>
-                  <div className="font-black text-sm leading-none mb-2" style={{ color: p.color }}>
+                  <div className="mb-2 text-sm font-black leading-none" style={{ color: p.color }}>
                     {p.display}
                   </div>
                   {/* Mini progress bar */}
-                  <div className="h-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                  <div
+                    className="h-1 overflow-hidden rounded-full"
+                    style={{ background: 'rgba(255,255,255,0.06)' }}
+                  >
                     <div
                       className="h-full rounded-full transition-all duration-1000"
                       style={{ width: `${p.value}%`, backgroundColor: p.color }}
@@ -292,14 +297,14 @@ export async function DailyPerformanceCard({ userId }: { userId: string }) {
                   </div>
                 </div>
               </Link>
-            )
+            );
           })}
         </div>
 
         {/* ── XP today + CTA ──────────────────────────────────────────── */}
         <div className="flex items-center justify-between">
           {xpToday > 0 ? (
-            <div className="flex items-center gap-1.5 animate-counter">
+            <div className="flex animate-counter items-center gap-1.5">
               <Zap size={13} className="text-brand-gold" fill="currentColor" />
               <span className="text-sm font-black text-brand-gold">
                 +{xpToday.toLocaleString('pt-BR')} XP hoje
@@ -319,5 +324,5 @@ export async function DailyPerformanceCard({ userId }: { userId: string }) {
         </div>
       </div>
     </div>
-  )
+  );
 }

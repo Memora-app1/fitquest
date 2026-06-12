@@ -1,45 +1,45 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { Plus, X, Trash2, PlusCircle, Trophy, TrendingUp, Calendar } from 'lucide-react'
-import { formatBRL, calcPercentage } from '@/lib/utils'
-import { cn } from '@/lib/utils'
-import { useXpToast, XpToastContainer } from '@/components/xp-toast'
-import { useScrollLock } from '@/hooks/use-scroll-lock'
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Plus, X, Trash2, PlusCircle, Trophy, TrendingUp, Calendar } from 'lucide-react';
+import { formatBRL, calcPercentage } from '@/lib/utils';
+import { cn } from '@/lib/utils';
+import { useXpToast, XpToastContainer } from '@/components/xp-toast';
+import { useScrollLock } from '@/hooks/use-scroll-lock';
 
 interface FinanceGoal {
-  id: string
-  title: string
-  icon: string
-  color: string
-  target_amount: number
-  current_amount: number
-  deadline: string | null
-  monthly_target: number | null
-  status: string
+  id: string;
+  title: string;
+  icon: string;
+  color: string;
+  target_amount: number;
+  current_amount: number;
+  deadline: string | null;
+  monthly_target: number | null;
+  status: string;
 }
 
-const ICONS = ['🎯', '✈️', '🏠', '🚗', '💍', '📱', '🏋️', '💰', '🎓', '🛟', '🌴', '🎮']
-const COLORS = ['#00FF88', '#FF4D00', '#7C3AED', '#F5C842', '#3B82F6', '#EC4899']
+const ICONS = ['🎯', '✈️', '🏠', '🚗', '💍', '📱', '🏋️', '💰', '🎓', '🛟', '🌴', '🎮'];
+const COLORS = ['#00FF88', '#FF4D00', '#7C3AED', '#F5C842', '#3B82F6', '#EC4899'];
 
 export function FinanceGoalsList({ initialGoals }: { initialGoals: FinanceGoal[] }) {
-  const router = useRouter()
-  const [goals, setGoals] = useState<FinanceGoal[]>(initialGoals)
-  const [showCreate, setShowCreate] = useState(false)
-  const [showContribute, setShowContribute] = useState<FinanceGoal | null>(null)
-  const { toasts, showXp } = useXpToast()
+  const router = useRouter();
+  const [goals, setGoals] = useState<FinanceGoal[]>(initialGoals);
+  const [showCreate, setShowCreate] = useState(false);
+  const [showContribute, setShowContribute] = useState<FinanceGoal | null>(null);
+  const { toasts, showXp } = useXpToast();
 
   async function handleDelete(id: string) {
-    if (!confirm('Remover esta meta?')) return
-    const res = await fetch(`/api/finance-goals?id=${id}`, { method: 'DELETE' })
+    if (!confirm('Remover esta meta?')) return;
+    const res = await fetch(`/api/finance-goals?id=${id}`, { method: 'DELETE' });
     if (res.ok) {
-      setGoals((prev) => prev.filter((g) => g.id !== id))
+      setGoals((prev) => prev.filter((g) => g.id !== id));
     }
   }
 
-  const activeGoals = goals.filter((g) => g.status === 'active')
-  const completedGoals = goals.filter((g) => g.status === 'completed')
+  const activeGoals = goals.filter((g) => g.status === 'active');
+  const completedGoals = goals.filter((g) => g.status === 'completed');
 
   return (
     <>
@@ -52,19 +52,22 @@ export function FinanceGoalsList({ initialGoals }: { initialGoals: FinanceGoal[]
 
       {goals.length === 0 ? (
         <div
-          className="rounded-2xl p-12 text-center relative overflow-hidden"
+          className="relative overflow-hidden rounded-2xl p-12 text-center"
           style={{
-            background: 'linear-gradient(135deg, rgba(245,200,66,0.05) 0%, rgba(13,24,41,0.98) 100%)',
+            background:
+              'linear-gradient(135deg, rgba(245,200,66,0.05) 0%, rgba(13,24,41,0.98) 100%)',
             border: '1px solid rgba(245,200,66,0.15)',
           }}
         >
           <div
-            className="absolute -top-8 -right-8 w-32 h-32 rounded-full pointer-events-none"
-            style={{ background: 'radial-gradient(circle, rgba(245,200,66,0.1) 0%, transparent 70%)' }}
+            className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full"
+            style={{
+              background: 'radial-gradient(circle, rgba(245,200,66,0.1) 0%, transparent 70%)',
+            }}
           />
-          <div className="text-5xl mb-4 relative z-10">🎯</div>
-          <h3 className="text-xl font-bold mb-2 relative z-10">Nenhuma meta criada</h3>
-          <p className="text-text-secondary mb-6 max-w-xs mx-auto relative z-10">
+          <div className="relative z-10 mb-4 text-5xl">🎯</div>
+          <h3 className="relative z-10 mb-2 text-xl font-bold">Nenhuma meta criada</h3>
+          <p className="relative z-10 mx-auto mb-6 max-w-xs text-text-secondary">
             Defina objetivos: viagem, reserva de emergência, comprar algo grande...
           </p>
           <button onClick={() => setShowCreate(true)} className="btn-primary relative z-10">
@@ -88,17 +91,13 @@ export function FinanceGoalsList({ initialGoals }: { initialGoals: FinanceGoal[]
 
           {completedGoals.length > 0 && (
             <section>
-              <div className="flex items-center gap-2 mb-3">
+              <div className="mb-3 flex items-center gap-2">
                 <Trophy size={16} className="text-brand-green" />
                 <h2 className="text-lg font-bold text-brand-green">Metas Concluídas</h2>
               </div>
               <div className="space-y-3 opacity-70">
                 {completedGoals.map((g) => (
-                  <GoalCard
-                    key={g.id}
-                    goal={g}
-                    onDelete={() => handleDelete(g.id)}
-                  />
+                  <GoalCard key={g.id} goal={g} onDelete={() => handleDelete(g.id)} />
                 ))}
               </div>
             </section>
@@ -110,8 +109,8 @@ export function FinanceGoalsList({ initialGoals }: { initialGoals: FinanceGoal[]
         <CreateGoalModal
           onClose={() => setShowCreate(false)}
           onCreate={(newGoal) => {
-            setGoals((prev) => [newGoal, ...prev])
-            setShowCreate(false)
+            setGoals((prev) => [newGoal, ...prev]);
+            setShowCreate(false);
           }}
         />
       )}
@@ -121,24 +120,26 @@ export function FinanceGoalsList({ initialGoals }: { initialGoals: FinanceGoal[]
           goal={showContribute}
           onClose={() => setShowContribute(null)}
           onUpdate={(updated, xpEarned, leveledUp, newLevel, achievementsUnlocked) => {
-            setGoals((prev) => prev.map((g) => (g.id === updated.id ? updated : g)))
-            setShowContribute(null)
+            setGoals((prev) => prev.map((g) => (g.id === updated.id ? updated : g)));
+            setShowContribute(null);
             if (xpEarned) {
-              showXp(xpEarned, { leveledUp: leveledUp ? newLevel : undefined })
+              showXp(xpEarned, { leveledUp: leveledUp ? newLevel : undefined });
               if (leveledUp && newLevel) {
-                window.dispatchEvent(new CustomEvent('ascendia:levelup', { detail: { level: newLevel } }))
+                window.dispatchEvent(
+                  new CustomEvent('ascendia:levelup', { detail: { level: newLevel } })
+                );
               }
-              for (const slug of (achievementsUnlocked ?? [])) {
-                window.dispatchEvent(new CustomEvent('ascendia:achievement', { detail: { slug } }))
+              for (const slug of achievementsUnlocked ?? []) {
+                window.dispatchEvent(new CustomEvent('ascendia:achievement', { detail: { slug } }));
               }
             }
-            router.refresh()
+            router.refresh();
           }}
         />
       )}
       <XpToastContainer toasts={toasts} />
     </>
-  )
+  );
 }
 
 function GoalCard({
@@ -146,29 +147,29 @@ function GoalCard({
   onContribute,
   onDelete,
 }: {
-  goal: FinanceGoal
-  onContribute?: () => void
-  onDelete: () => void
+  goal: FinanceGoal;
+  onContribute?: () => void;
+  onDelete: () => void;
 }) {
-  const pct = calcPercentage(Number(goal.current_amount), Number(goal.target_amount))
-  const isCompleted = goal.status === 'completed' || pct >= 100
-  const accentColor = isCompleted ? '#00FF88' : pct >= 75 ? '#F5C842' : goal.color
+  const pct = calcPercentage(Number(goal.current_amount), Number(goal.target_amount));
+  const isCompleted = goal.status === 'completed' || pct >= 100;
+  const accentColor = isCompleted ? '#00FF88' : pct >= 75 ? '#F5C842' : goal.color;
 
   // Months remaining until deadline
-  let monthsLeft: number | null = null
+  let monthsLeft: number | null = null;
   if (goal.deadline) {
-    const deadlineDate = new Date(goal.deadline + 'T00:00:00')
-    const now = new Date()
-    const diffMs = deadlineDate.getTime() - now.getTime()
-    monthsLeft = Math.ceil(diffMs / (1000 * 60 * 60 * 24 * 30))
+    const deadlineDate = new Date(goal.deadline + 'T00:00:00');
+    const now = new Date();
+    const diffMs = deadlineDate.getTime() - now.getTime();
+    monthsLeft = Math.ceil(diffMs / (1000 * 60 * 60 * 24 * 30));
   }
 
-  const remaining = Math.max(0, Number(goal.target_amount) - Number(goal.current_amount))
-  const monthlyNeeded = monthsLeft && monthsLeft > 0 ? remaining / monthsLeft : null
+  const remaining = Math.max(0, Number(goal.target_amount) - Number(goal.current_amount));
+  const monthlyNeeded = monthsLeft && monthsLeft > 0 ? remaining / monthsLeft : null;
 
   return (
     <div
-      className="rounded-2xl p-5 relative overflow-hidden transition-all duration-200 hover:scale-[1.01]"
+      className="relative overflow-hidden rounded-2xl p-5 transition-all duration-200 hover:scale-[1.01]"
       style={{
         background: `linear-gradient(135deg, ${accentColor}0D 0%, rgba(13,24,41,0.98) 60%, rgba(13,24,41,0.98) 100%)`,
         border: `1px solid ${accentColor}30`,
@@ -177,15 +178,15 @@ function GoalCard({
     >
       {/* Corner glow */}
       <div
-        className="absolute -top-6 -right-6 w-24 h-24 rounded-full pointer-events-none blur-xl"
+        className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full blur-xl"
         style={{ backgroundColor: accentColor, opacity: 0.08 }}
       />
 
       <div className="relative z-10">
         {/* Header */}
-        <div className="flex items-start gap-3 mb-4">
+        <div className="mb-4 flex items-start gap-3">
           <div
-            className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shrink-0"
+            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-2xl"
             style={{
               background: `${accentColor}15`,
               border: `1px solid ${accentColor}30`,
@@ -193,27 +194,35 @@ function GoalCard({
           >
             {goal.icon}
           </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="font-bold truncate">{goal.title}</h3>
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <h3 className="truncate font-bold">{goal.title}</h3>
               {isCompleted && (
                 <span
-                  className="text-xs px-2 py-0.5 rounded-full font-bold flex items-center gap-1"
-                  style={{ background: '#00FF8820', border: '1px solid #00FF8840', color: '#00FF88' }}
+                  className="flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-bold"
+                  style={{
+                    background: '#00FF8820',
+                    border: '1px solid #00FF8840',
+                    color: '#00FF88',
+                  }}
                 >
                   <Trophy size={10} /> Concluída!
                 </span>
               )}
               {!isCompleted && pct >= 75 && (
                 <span
-                  className="text-xs px-2 py-0.5 rounded-full font-bold"
-                  style={{ background: '#F5C84220', border: '1px solid #F5C84240', color: '#F5C842' }}
+                  className="rounded-full px-2 py-0.5 text-xs font-bold"
+                  style={{
+                    background: '#F5C84220',
+                    border: '1px solid #F5C84240',
+                    color: '#F5C842',
+                  }}
                 >
                   Quase lá!
                 </span>
               )}
             </div>
-            <div className="flex items-center gap-3 mt-0.5 text-xs text-text-muted flex-wrap">
+            <div className="mt-0.5 flex flex-wrap items-center gap-3 text-xs text-text-muted">
               {goal.deadline && (
                 <span className="flex items-center gap-1">
                   <Calendar size={10} />
@@ -234,11 +243,11 @@ function GoalCard({
               )}
             </div>
           </div>
-          <div className="flex items-center gap-1 shrink-0">
+          <div className="flex shrink-0 items-center gap-1">
             {onContribute && goal.status === 'active' && (
               <button
                 onClick={onContribute}
-                className="p-2 rounded-lg transition-colors"
+                className="rounded-lg p-2 transition-colors"
                 style={{ color: accentColor }}
                 title="Adicionar valor"
               >
@@ -247,7 +256,7 @@ function GoalCard({
             )}
             <button
               onClick={onDelete}
-              className="p-2 rounded-lg text-text-muted hover:text-brand-red hover:bg-brand-red/10 transition-colors"
+              className="rounded-lg p-2 text-text-muted transition-colors hover:bg-brand-red/10 hover:text-brand-red"
               title="Remover meta"
             >
               <Trash2 size={16} />
@@ -264,7 +273,10 @@ function GoalCard({
             <span className="text-text-secondary">de {formatBRL(Number(goal.target_amount))}</span>
           </div>
 
-          <div className="h-2.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+          <div
+            className="h-2.5 overflow-hidden rounded-full"
+            style={{ background: 'rgba(255,255,255,0.06)' }}
+          >
             <div
               className="h-full rounded-full transition-all duration-700"
               style={{
@@ -272,22 +284,21 @@ function GoalCard({
                 background: isCompleted
                   ? 'linear-gradient(90deg, #00FF88, #00CC6A)'
                   : pct >= 75
-                  ? 'linear-gradient(90deg, #F5C842, #FF9500)'
-                  : `linear-gradient(90deg, ${goal.color}, ${goal.color}CC)`,
+                    ? 'linear-gradient(90deg, #F5C842, #FF9500)'
+                    : `linear-gradient(90deg, ${goal.color}, ${goal.color}CC)`,
               }}
             />
           </div>
 
-          <div className="flex justify-between items-center text-xs">
+          <div className="flex items-center justify-between text-xs">
             <span className="font-bold" style={{ color: accentColor }}>
-              {pct}%
-              {pct >= 100 && ' 🎉'}
+              {pct}%{pct >= 100 && ' 🎉'}
             </span>
             {!isCompleted && remaining > 0 && (
               <span className="text-text-muted">
                 falta {formatBRL(remaining)}
                 {monthlyNeeded && monthlyNeeded > 0 && (
-                  <span className="text-text-muted ml-1">
+                  <span className="ml-1 text-text-muted">
                     · {formatBRL(monthlyNeeded)}/mês necessário
                   </span>
                 )}
@@ -297,38 +308,38 @@ function GoalCard({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 function CreateGoalModal({
   onClose,
   onCreate,
 }: {
-  onClose: () => void
-  onCreate: (goal: FinanceGoal) => void
+  onClose: () => void;
+  onCreate: (goal: FinanceGoal) => void;
 }) {
-  useScrollLock(true)
-  const [title, setTitle] = useState('')
-  const [icon, setIcon] = useState('🎯')
-  const [color, setColor] = useState('#00FF88')
-  const [targetAmount, setTargetAmount] = useState('')
-  const [currentAmount, setCurrentAmount] = useState('')
-  const [deadline, setDeadline] = useState('')
-  const [monthlyTarget, setMonthlyTarget] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  useScrollLock(true);
+  const [title, setTitle] = useState('');
+  const [icon, setIcon] = useState('🎯');
+  const [color, setColor] = useState('#00FF88');
+  const [targetAmount, setTargetAmount] = useState('');
+  const [currentAmount, setCurrentAmount] = useState('');
+  const [deadline, setDeadline] = useState('');
+  const [monthlyTarget, setMonthlyTarget] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function submit(e: React.FormEvent) {
-    e.preventDefault()
-    setError(null)
+    e.preventDefault();
+    setError(null);
 
-    const target = parseFloat(targetAmount)
+    const target = parseFloat(targetAmount);
     if (!target || target <= 0) {
-      setError('Informe um valor alvo válido.')
-      return
+      setError('Informe um valor alvo válido.');
+      return;
     }
 
-    setLoading(true)
+    setLoading(true);
     const res = await fetch('/api/finance-goals', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -341,23 +352,23 @@ function CreateGoalModal({
         deadline: deadline || null,
         monthly_target: parseFloat(monthlyTarget) || null,
       }),
-    })
+    });
 
-    const data = await res.json() as { goal?: FinanceGoal; error?: string }
-    setLoading(false)
+    const data = (await res.json()) as { goal?: FinanceGoal; error?: string };
+    setLoading(false);
 
     if (!res.ok || !data.goal) {
-      setError('Erro ao criar meta. Tente novamente.')
-      return
+      setError('Erro ao criar meta. Tente novamente.');
+      return;
     }
 
-    onCreate(data.goal)
+    onCreate(data.goal);
   }
 
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-end md:items-center justify-center p-4 overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-end justify-center overflow-y-auto bg-black/70 p-4 backdrop-blur-sm md:items-center">
       <div
-        className="w-full max-w-md p-6 space-y-4 my-8 animate-slide-up rounded-2xl relative overflow-hidden"
+        className="relative my-8 w-full max-w-md animate-slide-up space-y-4 overflow-hidden rounded-2xl p-6"
         style={{
           background: 'rgba(13,24,41,0.98)',
           border: '1px solid rgba(245,200,66,0.2)',
@@ -365,20 +376,23 @@ function CreateGoalModal({
         }}
       >
         <div
-          className="absolute -top-8 -right-8 w-32 h-32 rounded-full pointer-events-none blur-xl"
+          className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full blur-xl"
           style={{ background: 'rgba(245,200,66,0.08)' }}
         />
         <div className="relative z-10">
-          <div className="flex justify-between items-center mb-2">
+          <div className="mb-2 flex items-center justify-between">
             <h2 className="text-xl font-bold">Nova meta financeira</h2>
-            <button onClick={onClose} className="text-text-muted hover:text-white p-1 rounded-lg hover:bg-white/5 transition-colors">
+            <button
+              onClick={onClose}
+              className="rounded-lg p-1 text-text-muted transition-colors hover:bg-white/5 hover:text-white"
+            >
               <X size={20} />
             </button>
           </div>
 
           <form onSubmit={submit} className="space-y-4">
             <div>
-              <label className="text-sm text-text-secondary block mb-2">Título</label>
+              <label className="mb-2 block text-sm text-text-secondary">Título</label>
               <input
                 required
                 value={title}
@@ -389,7 +403,7 @@ function CreateGoalModal({
             </div>
 
             <div>
-              <label className="text-sm text-text-secondary block mb-2">Ícone</label>
+              <label className="mb-2 block text-sm text-text-secondary">Ícone</label>
               <div className="flex flex-wrap gap-2">
                 {ICONS.map((i) => (
                   <button
@@ -397,7 +411,7 @@ function CreateGoalModal({
                     type="button"
                     onClick={() => setIcon(i)}
                     className={cn(
-                      'w-10 h-10 rounded-lg text-xl flex items-center justify-center transition-all',
+                      'flex h-10 w-10 items-center justify-center rounded-lg text-xl transition-all',
                       icon === i ? 'bg-brand-orange/30 ring-2 ring-brand-orange' : 'bg-bg-elevated'
                     )}
                   >
@@ -408,18 +422,19 @@ function CreateGoalModal({
             </div>
 
             <div>
-              <label className="text-sm text-text-secondary block mb-2">Cor</label>
+              <label className="mb-2 block text-sm text-text-secondary">Cor</label>
               <div className="flex gap-2">
                 {COLORS.map((c) => (
                   <button
                     key={c}
                     type="button"
                     onClick={() => setColor(c)}
-                    className="w-10 h-10 rounded-xl transition-all"
+                    className="h-10 w-10 rounded-xl transition-all"
                     style={{
                       backgroundColor: c,
                       transform: color === c ? 'scale(1.15)' : 'scale(1)',
-                      boxShadow: color === c ? `0 0 0 3px rgba(255,255,255,0.9), 0 0 12px ${c}60` : 'none',
+                      boxShadow:
+                        color === c ? `0 0 0 3px rgba(255,255,255,0.9), 0 0 12px ${c}60` : 'none',
                     }}
                   />
                 ))}
@@ -428,7 +443,7 @@ function CreateGoalModal({
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-sm text-text-secondary block mb-2">Valor alvo (R$) *</label>
+                <label className="mb-2 block text-sm text-text-secondary">Valor alvo (R$) *</label>
                 <input
                   required
                   type="number"
@@ -441,7 +456,7 @@ function CreateGoalModal({
                 />
               </div>
               <div>
-                <label className="text-sm text-text-secondary block mb-2">Já tenho (R$)</label>
+                <label className="mb-2 block text-sm text-text-secondary">Já tenho (R$)</label>
                 <input
                   type="number"
                   step="0.01"
@@ -456,7 +471,7 @@ function CreateGoalModal({
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-sm text-text-secondary block mb-2">Prazo</label>
+                <label className="mb-2 block text-sm text-text-secondary">Prazo</label>
                 <input
                   type="date"
                   value={deadline}
@@ -465,7 +480,7 @@ function CreateGoalModal({
                 />
               </div>
               <div>
-                <label className="text-sm text-text-secondary block mb-2">Meta mensal (R$)</label>
+                <label className="mb-2 block text-sm text-text-secondary">Meta mensal (R$)</label>
                 <input
                   type="number"
                   step="0.01"
@@ -479,7 +494,7 @@ function CreateGoalModal({
             </div>
 
             {error && (
-              <div className="text-brand-red text-sm bg-brand-red/10 border border-brand-red/20 rounded-xl p-3">
+              <div className="rounded-xl border border-brand-red/20 bg-brand-red/10 p-3 text-sm text-brand-red">
                 {error}
               </div>
             )}
@@ -491,7 +506,7 @@ function CreateGoalModal({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 function ContributeModal({
@@ -499,40 +514,53 @@ function ContributeModal({
   onClose,
   onUpdate,
 }: {
-  goal: FinanceGoal
-  onClose: () => void
-  onUpdate: (updated: FinanceGoal, xpEarned?: number, leveledUp?: boolean, newLevel?: number, achievementsUnlocked?: string[]) => void
+  goal: FinanceGoal;
+  onClose: () => void;
+  onUpdate: (
+    updated: FinanceGoal,
+    xpEarned?: number,
+    leveledUp?: boolean,
+    newLevel?: number,
+    achievementsUnlocked?: string[]
+  ) => void;
 }) {
-  useScrollLock(true)
-  const [amount, setAmount] = useState('')
-  const [loading, setLoading] = useState(false)
+  useScrollLock(true);
+  const [amount, setAmount] = useState('');
+  const [loading, setLoading] = useState(false);
 
   async function submit(e: React.FormEvent) {
-    e.preventDefault()
-    const add = parseFloat(amount)
-    if (!add || add <= 0) return
+    e.preventDefault();
+    const add = parseFloat(amount);
+    if (!add || add <= 0) return;
 
-    setLoading(true)
-    const newAmount = Number(goal.current_amount) + add
+    setLoading(true);
+    const newAmount = Number(goal.current_amount) + add;
 
     const res = await fetch('/api/finance-goals', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: goal.id, current_amount: newAmount }),
-    })
+    });
 
-    const data = await res.json() as { goal?: FinanceGoal; xpEarned?: number; leveledUp?: boolean; newLevel?: number; achievementsUnlocked?: string[] }
-    setLoading(false)
-    if (res.ok && data.goal) onUpdate(data.goal, data.xpEarned, data.leveledUp, data.newLevel, data.achievementsUnlocked)
+    const data = (await res.json()) as {
+      goal?: FinanceGoal;
+      xpEarned?: number;
+      leveledUp?: boolean;
+      newLevel?: number;
+      achievementsUnlocked?: string[];
+    };
+    setLoading(false);
+    if (res.ok && data.goal)
+      onUpdate(data.goal, data.xpEarned, data.leveledUp, data.newLevel, data.achievementsUnlocked);
   }
 
-  const remaining = Math.max(0, Number(goal.target_amount) - Number(goal.current_amount))
-  const pct = calcPercentage(Number(goal.current_amount), Number(goal.target_amount))
+  const remaining = Math.max(0, Number(goal.target_amount) - Number(goal.current_amount));
+  const pct = calcPercentage(Number(goal.current_amount), Number(goal.target_amount));
 
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
       <div
-        className="w-full max-w-sm p-6 space-y-4 animate-slide-up rounded-2xl relative overflow-hidden"
+        className="relative w-full max-w-sm animate-slide-up space-y-4 overflow-hidden rounded-2xl p-6"
         style={{
           background: 'rgba(13,24,41,0.98)',
           border: `1px solid ${goal.color}40`,
@@ -540,30 +568,38 @@ function ContributeModal({
         }}
       >
         <div
-          className="absolute -top-6 -right-6 w-24 h-24 rounded-full pointer-events-none blur-xl"
+          className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full blur-xl"
           style={{ backgroundColor: goal.color, opacity: 0.12 }}
         />
         <div className="relative z-10">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold flex items-center gap-2">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="flex items-center gap-2 text-xl font-bold">
               <span>{goal.icon}</span>
               <span>{goal.title}</span>
             </h2>
-            <button onClick={onClose} className="text-text-muted hover:text-white p-1 rounded-lg hover:bg-white/5 transition-colors">
+            <button
+              onClick={onClose}
+              className="rounded-lg p-1 text-text-muted transition-colors hover:bg-white/5 hover:text-white"
+            >
               <X size={20} />
             </button>
           </div>
 
           <div
-            className="rounded-xl p-4 mb-4 text-center"
+            className="mb-4 rounded-xl p-4 text-center"
             style={{
               background: `${goal.color}10`,
               border: `1px solid ${goal.color}25`,
             }}
           >
-            <div className="text-xs text-text-muted mb-1">Falta atingir</div>
-            <div className="heading-display text-3xl" style={{ color: goal.color }}>{formatBRL(remaining)}</div>
-            <div className="mt-2 h-2 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+            <div className="mb-1 text-xs text-text-muted">Falta atingir</div>
+            <div className="heading-display text-3xl" style={{ color: goal.color }}>
+              {formatBRL(remaining)}
+            </div>
+            <div
+              className="mt-2 h-2 overflow-hidden rounded-full"
+              style={{ background: 'rgba(255,255,255,0.06)' }}
+            >
               <div
                 className="h-full rounded-full transition-all"
                 style={{
@@ -572,12 +608,14 @@ function ContributeModal({
                 }}
               />
             </div>
-            <div className="text-xs text-text-muted mt-1.5">{pct}% guardado</div>
+            <div className="mt-1.5 text-xs text-text-muted">{pct}% guardado</div>
           </div>
 
           <form onSubmit={submit} className="space-y-3">
             <div>
-              <label className="text-sm text-text-secondary block mb-2">Quanto você guardou agora? (R$)</label>
+              <label className="mb-2 block text-sm text-text-secondary">
+                Quanto você guardou agora? (R$)
+              </label>
               <input
                 required
                 autoFocus
@@ -587,7 +625,7 @@ function ContributeModal({
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="0,00"
-                className="input w-full text-xl heading-display text-center"
+                className="input heading-display w-full text-center text-xl"
               />
             </div>
             <button type="submit" disabled={loading || !amount} className="btn-primary w-full">
@@ -597,5 +635,5 @@ function ContributeModal({
         </div>
       </div>
     </div>
-  )
+  );
 }

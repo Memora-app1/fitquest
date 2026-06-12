@@ -1,10 +1,11 @@
-﻿import type { MetadataRoute } from 'next'
+﻿import type { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'Ascendia — Life OS Gamificado',
     short_name: 'Ascendia',
-    description: 'Fitness, produtividade, finanças e coach IA em um só app. Tudo gamificado com XP.',
+    description:
+      'Fitness, produtividade, finanças e coach IA em um só app. Tudo gamificado com XP.',
     start_url: '/dashboard',
     scope: '/',
     display: 'standalone',
@@ -46,5 +47,5 @@ export default function manifest(): MetadataRoute.Manifest {
     lang: 'pt-BR',
     dir: 'ltr',
     prefer_related_applications: false,
-  }
+  };
 }

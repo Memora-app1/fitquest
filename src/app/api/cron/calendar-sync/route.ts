@@ -1,16 +1,16 @@
-import { isCronAuthorized, cronUnauthorized } from '@/lib/cron-auth'
+import { isCronAuthorized, cronUnauthorized } from '@/lib/cron-auth';
 /**
  * Cron a cada 2h — sincroniza eventos do Google Calendar
  *
  * 📌 TODO: implementar quando configurar OAuth do Google
  */
 
-import { NextResponse } from 'next/server'
+import { NextResponse } from 'next/server';
 
-export const maxDuration = 60
+export const maxDuration = 60;
 
 export async function GET() {
-  if (!await isCronAuthorized()) return cronUnauthorized()
+  if (!(await isCronAuthorized())) return cronUnauthorized();
   // Placeholder — implementar após setup do Google OAuth
-  return NextResponse.json({ ok: true, note: 'calendar-sync not implemented yet' })
+  return NextResponse.json({ ok: true, note: 'calendar-sync not implemented yet' });
 }

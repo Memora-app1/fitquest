@@ -1,55 +1,55 @@
-import { createClient } from '@/lib/supabase/server'
-import { BarChart2, Flame, Star, Calendar } from 'lucide-react'
+import { createClient } from '@/lib/supabase/server';
+import { BarChart2, Flame, Star, Calendar } from 'lucide-react';
 
 interface HabitRow {
-  id: string
-  name: string
-  icon: string | null
-  color: string | null
-  xp_per_completion: number
+  id: string;
+  name: string;
+  icon: string | null;
+  color: string | null;
+  xp_per_completion: number;
 }
 
 interface LogRow {
-  habit_id: string
-  logged_date: string
+  habit_id: string;
+  logged_date: string;
 }
 
 interface HabitStat {
-  id: string
-  name: string
-  icon: string
-  color: string
-  rgb: string
-  completions30d: number
-  rate30d: number      // %
-  currentStreak: number
-  bestStreak: number
-  favDow: number       // 0=Sun..6=Sat
-  xpEarned: number
-  barPct: number
+  id: string;
+  name: string;
+  icon: string;
+  color: string;
+  rgb: string;
+  completions30d: number;
+  rate30d: number; // %
+  currentStreak: number;
+  bestStreak: number;
+  favDow: number; // 0=Sun..6=Sat
+  xpEarned: number;
+  barPct: number;
 }
 
-const DOW_SHORT = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S']
+const DOW_SHORT = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
 
 function hexToRgb(hex: string | null): string {
-  if (!hex) return '255,77,0'
-  const clean = hex.replace('#', '')
-  if (clean.length !== 6) return '255,77,0'
-  const r = parseInt(clean.slice(0, 2), 16)
-  const g = parseInt(clean.slice(2, 4), 16)
-  const b = parseInt(clean.slice(4, 6), 16)
-  return `${r},${g},${b}`
+  if (!hex) return '255,77,0';
+  const clean = hex.replace('#', '');
+  if (clean.length !== 6) return '255,77,0';
+  const r = parseInt(clean.slice(0, 2), 16);
+  const g = parseInt(clean.slice(2, 4), 16);
+  const b = parseInt(clean.slice(4, 6), 16);
+  return `${r},${g},${b}`;
 }
 
 function toISO(d: Date): string {
-  return d.toISOString().split('T')[0]!
+  return d.toISOString().split('T')[0]!;
 }
 
 export async function HabitStatsBreakdown({ userId }: { userId: string }) {
-  const supabase = await createClient()
+  const supabase = await createClient();
 
-  const thirtyDaysAgo = toISO(new Date(Date.now() - 30 * 86400000))
-  const today = toISO(new Date())
+  const thirtyDaysAgo = toISO(new Date(Date.now() - 30 * 86400000));
+  const today = toISO(new Date());
 
   const [habitsRes, logsRes] = await Promise.all([
     supabase
@@ -64,124 +64,129 @@ export async function HabitStatsBreakdown({ userId }: { userId: string }) {
       .eq('user_id', userId)
       .gte('logged_date', thirtyDaysAgo)
       .order('logged_date', { ascending: false }),
-  ])
+  ]);
 
-  const habits = (habitsRes.data ?? []) as HabitRow[]
-  const logs   = (logsRes.data ?? []) as LogRow[]
+  const habits = (habitsRes.data ?? []) as HabitRow[];
+  const logs = (logsRes.data ?? []) as LogRow[];
 
-  if (habits.length === 0 || logs.length === 0) return null
+  if (habits.length === 0 || logs.length === 0) return null;
 
   // Build per-habit → Set of logged dates (last 30 days)
-  const logsByHabit = new Map<string, Set<string>>()
+  const logsByHabit = new Map<string, Set<string>>();
   for (const log of logs) {
-    if (!logsByHabit.has(log.habit_id)) logsByHabit.set(log.habit_id, new Set())
-    logsByHabit.get(log.habit_id)!.add(log.logged_date)
+    if (!logsByHabit.has(log.habit_id)) logsByHabit.set(log.habit_id, new Set());
+    logsByHabit.get(log.habit_id)!.add(log.logged_date);
   }
 
-  const stats: HabitStat[] = habits.map(h => {
-    const datesSet = logsByHabit.get(h.id) ?? new Set<string>()
-    const completions30d = datesSet.size
+  const stats: HabitStat[] = habits.map((h) => {
+    const datesSet = logsByHabit.get(h.id) ?? new Set<string>();
+    const completions30d = datesSet.size;
 
     // Rate: completions in last 30 days / 30 days
-    const rate30d = Math.round((completions30d / 30) * 100)
+    const rate30d = Math.round((completions30d / 30) * 100);
 
     // Current streak (back from today)
-    let currentStreak = 0
-    const cursor = new Date()
+    let currentStreak = 0;
+    const cursor = new Date();
     while (datesSet.has(toISO(cursor))) {
-      currentStreak++
-      cursor.setDate(cursor.getDate() - 1)
+      currentStreak++;
+      cursor.setDate(cursor.getDate() - 1);
     }
 
     // Best streak (sliding window in last 30 days)
-    let bestStreak = 0
-    let runStreak  = 0
+    let bestStreak = 0;
+    let runStreak = 0;
     for (let offset = 0; offset < 30; offset++) {
-      const d = new Date(Date.now() - offset * 86400000)
+      const d = new Date(Date.now() - offset * 86400000);
       if (datesSet.has(toISO(d))) {
-        runStreak++
-        if (runStreak > bestStreak) bestStreak = runStreak
+        runStreak++;
+        if (runStreak > bestStreak) bestStreak = runStreak;
       } else {
-        runStreak = 0
+        runStreak = 0;
       }
     }
-    if (currentStreak > bestStreak) bestStreak = currentStreak
+    if (currentStreak > bestStreak) bestStreak = currentStreak;
 
     // Favorite day-of-week (0=Sun..6=Sat)
-    const dowCount = [0, 0, 0, 0, 0, 0, 0]
+    const dowCount = [0, 0, 0, 0, 0, 0, 0];
     for (const dateStr of datesSet) {
-      const dow = new Date(dateStr + 'T12:00:00').getDay()
-      dowCount[dow] = (dowCount[dow] ?? 0) + 1
+      const dow = new Date(dateStr + 'T12:00:00').getDay();
+      dowCount[dow] = (dowCount[dow] ?? 0) + 1;
     }
-    const favDow = dowCount.indexOf(Math.max(...dowCount))
+    const favDow = dowCount.indexOf(Math.max(...dowCount));
 
-    const xpEarned = completions30d * (h.xp_per_completion ?? 0)
+    const xpEarned = completions30d * (h.xp_per_completion ?? 0);
 
     return {
-      id:           h.id,
-      name:         h.name,
-      icon:         h.icon ?? '⚡',
-      color:        h.color ?? '#FF4D00',
-      rgb:          hexToRgb(h.color),
+      id: h.id,
+      name: h.name,
+      icon: h.icon ?? '⚡',
+      color: h.color ?? '#FF4D00',
+      rgb: hexToRgb(h.color),
       completions30d,
       rate30d,
       currentStreak,
       bestStreak,
       favDow,
       xpEarned,
-      barPct:       0, // set below
-    }
-  })
+      barPct: 0, // set below
+    };
+  });
 
-  if (stats.every(s => s.completions30d === 0)) return null
+  if (stats.every((s) => s.completions30d === 0)) return null;
 
   // Sort by rate30d desc
-  stats.sort((a, b) => b.rate30d - a.rate30d)
+  stats.sort((a, b) => b.rate30d - a.rate30d);
 
-  const maxRate = stats[0]?.rate30d ?? 1
-  for (const s of stats) s.barPct = Math.round((s.rate30d / Math.max(maxRate, 1)) * 100)
+  const maxRate = stats[0]?.rate30d ?? 1;
+  for (const s of stats) s.barPct = Math.round((s.rate30d / Math.max(maxRate, 1)) * 100);
 
-  const avgRate        = Math.round(stats.reduce((sum, s) => sum + s.rate30d, 0) / stats.length)
-  const totalXp        = stats.reduce((sum, s) => sum + s.xpEarned, 0)
-  const perfectHabits  = stats.filter(s => s.rate30d === 100).length
-  const bestHabit      = stats[0]!
-  const highStreakCount = stats.filter(s => s.currentStreak >= 7).length
+  const avgRate = Math.round(stats.reduce((sum, s) => sum + s.rate30d, 0) / stats.length);
+  const totalXp = stats.reduce((sum, s) => sum + s.xpEarned, 0);
+  const perfectHabits = stats.filter((s) => s.rate30d === 100).length;
+  const bestHabit = stats[0]!;
+  const highStreakCount = stats.filter((s) => s.currentStreak >= 7).length;
 
   // Build 30-day day-by-day completion grid (how many habits logged per day)
-  const dayTotals = new Map<string, number>()
+  const dayTotals = new Map<string, number>();
   for (let offset = 0; offset < 30; offset++) {
-    const d = toISO(new Date(Date.now() - offset * 86400000))
-    dayTotals.set(d, 0)
+    const d = toISO(new Date(Date.now() - offset * 86400000));
+    dayTotals.set(d, 0);
   }
   for (const log of logs) {
     if (dayTotals.has(log.logged_date)) {
-      dayTotals.set(log.logged_date, (dayTotals.get(log.logged_date) ?? 0) + 1)
+      dayTotals.set(log.logged_date, (dayTotals.get(log.logged_date) ?? 0) + 1);
     }
   }
-  const perfectDays30 = Array.from(dayTotals.values()).filter(count => count === habits.length).length
+  const perfectDays30 = Array.from(dayTotals.values()).filter(
+    (count) => count === habits.length
+  ).length;
 
   return (
     <div
-      className="rounded-2xl p-5 md:p-6 relative overflow-hidden"
+      className="relative overflow-hidden rounded-2xl p-5 md:p-6"
       style={{
-        background: 'linear-gradient(135deg, rgba(0,255,136,0.05) 0%, rgba(13,24,41,0.98) 60%, rgba(124,58,237,0.03) 100%)',
+        background:
+          'linear-gradient(135deg, rgba(0,255,136,0.05) 0%, rgba(13,24,41,0.98) 60%, rgba(124,58,237,0.03) 100%)',
         border: '1px solid rgba(0,255,136,0.12)',
       }}
     >
       <div
-        className="absolute -top-8 -right-8 w-40 h-40 rounded-full pointer-events-none blur-3xl"
+        className="pointer-events-none absolute -right-8 -top-8 h-40 w-40 rounded-full blur-3xl"
         style={{ background: 'rgba(0,255,136,0.05)' }}
       />
 
       <div className="relative z-10 space-y-5">
-
         {/* ── Header ──────────────────────────────────────────────────── */}
-        <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 mb-1">
+            <div className="mb-1 flex items-center gap-2">
               <div
-                className="w-6 h-6 rounded-lg flex items-center justify-center"
-                style={{ background: 'rgba(0,255,136,0.12)', border: '1px solid rgba(0,255,136,0.22)' }}
+                className="flex h-6 w-6 items-center justify-center rounded-lg"
+                style={{
+                  background: 'rgba(0,255,136,0.12)',
+                  border: '1px solid rgba(0,255,136,0.22)',
+                }}
               >
                 <BarChart2 size={12} style={{ color: '#00FF88' }} />
               </div>
@@ -190,8 +195,9 @@ export async function HabitStatsBreakdown({ userId }: { userId: string }) {
               </span>
             </div>
             <h2 className="text-xl font-black leading-tight">Análise Individual</h2>
-            <p className="text-sm text-text-muted mt-0.5">
-              {habits.length} hábito{habits.length !== 1 ? 's' : ''} · {perfectDays30} dia{perfectDays30 !== 1 ? 's' : ''} perfeito{perfectDays30 !== 1 ? 's' : ''}
+            <p className="mt-0.5 text-sm text-text-muted">
+              {habits.length} hábito{habits.length !== 1 ? 's' : ''} · {perfectDays30} dia
+              {perfectDays30 !== 1 ? 's' : ''} perfeito{perfectDays30 !== 1 ? 's' : ''}
             </p>
           </div>
           <div className="text-right">
@@ -201,7 +207,7 @@ export async function HabitStatsBreakdown({ userId }: { userId: string }) {
             >
               {avgRate}%
             </div>
-            <div className="text-[10px] text-text-muted uppercase tracking-wider">média geral</div>
+            <div className="text-[10px] uppercase tracking-wider text-text-muted">média geral</div>
           </div>
         </div>
 
@@ -229,7 +235,7 @@ export async function HabitStatsBreakdown({ userId }: { userId: string }) {
               color: '#FF4D00',
               rgb: '255,77,0',
             },
-          ].map(s => (
+          ].map((s) => (
             <div
               key={s.label}
               className="rounded-xl p-3 text-center"
@@ -238,9 +244,13 @@ export async function HabitStatsBreakdown({ userId }: { userId: string }) {
                 border: `1px solid rgba(${s.rgb},0.15)`,
               }}
             >
-              <div className="text-[10px] text-text-muted uppercase tracking-wider mb-1 leading-tight">{s.label}</div>
-              <div className="font-black text-base leading-none" style={{ color: s.color }}>{s.value}</div>
-              <div className="text-[9px] text-text-muted mt-0.5">{s.sub}</div>
+              <div className="mb-1 text-[10px] uppercase leading-tight tracking-wider text-text-muted">
+                {s.label}
+              </div>
+              <div className="text-base font-black leading-none" style={{ color: s.color }}>
+                {s.value}
+              </div>
+              <div className="mt-0.5 text-[9px] text-text-muted">{s.sub}</div>
             </div>
           ))}
         </div>
@@ -253,7 +263,7 @@ export async function HabitStatsBreakdown({ userId }: { userId: string }) {
                 {/* Icon + rank */}
                 <div className="relative shrink-0">
                   <div
-                    className="w-9 h-9 rounded-xl flex items-center justify-center text-base"
+                    className="flex h-9 w-9 items-center justify-center rounded-xl text-base"
                     style={{
                       background: `rgba(${s.rgb},0.12)`,
                       border: `1px solid rgba(${s.rgb},0.2)`,
@@ -263,7 +273,7 @@ export async function HabitStatsBreakdown({ userId }: { userId: string }) {
                   </div>
                   {i === 0 && (
                     <span
-                      className="absolute -top-1 -right-1 text-[9px] font-bold px-1 rounded-full leading-none"
+                      className="absolute -right-1 -top-1 rounded-full px-1 text-[9px] font-bold leading-none"
                       style={{ background: '#F5C842', color: '#050914' }}
                     >
                       #1
@@ -272,14 +282,14 @@ export async function HabitStatsBreakdown({ userId }: { userId: string }) {
                 </div>
 
                 {/* Main content */}
-                <div className="flex-1 min-w-0">
+                <div className="min-w-0 flex-1">
                   {/* Name row */}
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm font-semibold truncate">{s.name}</span>
-                    <div className="flex items-center gap-2 shrink-0">
+                  <div className="mb-1 flex items-center justify-between">
+                    <span className="truncate text-sm font-semibold">{s.name}</span>
+                    <div className="flex shrink-0 items-center gap-2">
                       {s.currentStreak >= 3 && (
                         <span
-                          className="text-[9px] font-bold flex items-center gap-0.5"
+                          className="flex items-center gap-0.5 text-[9px] font-bold"
                           style={{ color: '#FF4D00' }}
                         >
                           <Flame size={9} fill="currentColor" />
@@ -288,7 +298,10 @@ export async function HabitStatsBreakdown({ userId }: { userId: string }) {
                       )}
                       <span
                         className="text-xs font-black"
-                        style={{ color: s.rate30d >= 70 ? '#00FF88' : s.rate30d >= 40 ? '#F5C842' : '#EF4444' }}
+                        style={{
+                          color:
+                            s.rate30d >= 70 ? '#00FF88' : s.rate30d >= 40 ? '#F5C842' : '#EF4444',
+                        }}
                       >
                         {s.rate30d}%
                       </span>
@@ -296,24 +309,28 @@ export async function HabitStatsBreakdown({ userId }: { userId: string }) {
                   </div>
 
                   {/* Progress bar */}
-                  <div className="h-1.5 rounded-full overflow-hidden mb-1.5" style={{ background: 'rgba(255,255,255,0.05)' }}>
+                  <div
+                    className="mb-1.5 h-1.5 overflow-hidden rounded-full"
+                    style={{ background: 'rgba(255,255,255,0.05)' }}
+                  >
                     <div
                       className="h-full rounded-full"
                       style={{
                         width: `${s.rate30d}%`,
-                        background: s.rate30d === 100
-                          ? 'linear-gradient(90deg, #00FF88, #00CC6A)'
-                          : s.rate30d >= 70
-                          ? `rgba(${s.rgb},0.85)`
-                          : s.rate30d >= 40
-                          ? `rgba(${s.rgb},0.65)`
-                          : `rgba(${s.rgb},0.4)`,
+                        background:
+                          s.rate30d === 100
+                            ? 'linear-gradient(90deg, #00FF88, #00CC6A)'
+                            : s.rate30d >= 70
+                              ? `rgba(${s.rgb},0.85)`
+                              : s.rate30d >= 40
+                                ? `rgba(${s.rgb},0.65)`
+                                : `rgba(${s.rgb},0.4)`,
                       }}
                     />
                   </div>
 
                   {/* Sub-row: completions + streak + xp + fav day */}
-                  <div className="flex items-center gap-3 text-[9px] text-text-muted flex-wrap">
+                  <div className="flex flex-wrap items-center gap-3 text-[9px] text-text-muted">
                     <span>{s.completions30d} registros</span>
                     {s.bestStreak > 0 && (
                       <span className="flex items-center gap-0.5">
@@ -321,9 +338,7 @@ export async function HabitStatsBreakdown({ userId }: { userId: string }) {
                         melhor: {s.bestStreak}d
                       </span>
                     )}
-                    {s.xpEarned > 0 && (
-                      <span style={{ color: '#F5C842' }}>+{s.xpEarned} XP</span>
-                    )}
+                    {s.xpEarned > 0 && <span style={{ color: '#F5C842' }}>+{s.xpEarned} XP</span>}
                     <span className="ml-auto flex items-center gap-0.5">
                       <Calendar size={8} />
                       {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'][s.favDow]}
@@ -331,33 +346,34 @@ export async function HabitStatsBreakdown({ userId }: { userId: string }) {
                   </div>
 
                   {/* DOW mini dots */}
-                  <div className="flex gap-0.5 mt-1.5">
+                  <div className="mt-1.5 flex gap-0.5">
                     {DOW_SHORT.map((label, dow) => {
-                      const datesSet = logsByHabit.get(s.id) ?? new Set<string>()
+                      const datesSet = logsByHabit.get(s.id) ?? new Set<string>();
                       // Check how many times this DOW was logged in last 30 days
-                      let logged = 0
-                      let total  = 0
+                      let logged = 0;
+                      let total = 0;
                       for (let offset = 0; offset < 30; offset++) {
-                        const d = new Date(Date.now() - offset * 86400000)
+                        const d = new Date(Date.now() - offset * 86400000);
                         if (d.getDay() === dow) {
-                          total++
-                          if (datesSet.has(toISO(d))) logged++
+                          total++;
+                          if (datesSet.has(toISO(d))) logged++;
                         }
                       }
-                      const pct = total > 0 ? logged / total : 0
+                      const pct = total > 0 ? logged / total : 0;
                       return (
                         <div
                           key={dow}
-                          title={`${['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'][dow]}: ${logged}/${total}`}
-                          className="flex-1 h-5 rounded-sm flex items-center justify-center"
+                          title={`${['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'][dow]}: ${logged}/${total}`}
+                          className="flex h-5 flex-1 items-center justify-center rounded-sm"
                           style={{
-                            background: pct === 1
-                              ? `rgba(${s.rgb},0.8)`
-                              : pct >= 0.5
-                              ? `rgba(${s.rgb},0.4)`
-                              : pct > 0
-                              ? `rgba(${s.rgb},0.15)`
-                              : 'rgba(255,255,255,0.04)',
+                            background:
+                              pct === 1
+                                ? `rgba(${s.rgb},0.8)`
+                                : pct >= 0.5
+                                  ? `rgba(${s.rgb},0.4)`
+                                  : pct > 0
+                                    ? `rgba(${s.rgb},0.15)`
+                                    : 'rgba(255,255,255,0.04)',
                           }}
                         >
                           <span
@@ -367,7 +383,7 @@ export async function HabitStatsBreakdown({ userId }: { userId: string }) {
                             {label}
                           </span>
                         </div>
-                      )
+                      );
                     })}
                   </div>
                 </div>
@@ -382,10 +398,10 @@ export async function HabitStatsBreakdown({ userId }: { userId: string }) {
 
         {/* ── Insight footer ───────────────────────────────────────────── */}
         <div
-          className="rounded-xl px-4 py-3 flex items-center gap-3"
+          className="flex items-center gap-3 rounded-xl px-4 py-3"
           style={{ background: 'rgba(0,255,136,0.04)', border: '1px solid rgba(0,255,136,0.1)' }}
         >
-          <span className="text-lg shrink-0">
+          <span className="shrink-0 text-lg">
             {avgRate >= 80 ? '🔥' : avgRate >= 60 ? '💪' : avgRate >= 40 ? '⚡' : '🌱'}
           </span>
           <div>
@@ -397,7 +413,7 @@ export async function HabitStatsBreakdown({ userId }: { userId: string }) {
               com {bestHabit.rate30d}% de taxa em 30 dias.
             </p>
             {bestHabit.currentStreak > 0 && (
-              <p className="text-[11px] text-text-muted mt-0.5">
+              <p className="mt-0.5 text-[11px] text-text-muted">
                 Streak atual:{' '}
                 <span className="font-bold" style={{ color: '#FF4D00' }}>
                   {bestHabit.currentStreak} dia{bestHabit.currentStreak !== 1 ? 's' : ''}
@@ -407,9 +423,7 @@ export async function HabitStatsBreakdown({ userId }: { userId: string }) {
             )}
           </div>
         </div>
-
       </div>
     </div>
-  )
+  );
 }
-

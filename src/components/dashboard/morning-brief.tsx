@@ -1,16 +1,20 @@
-import { createClient } from '@/lib/supabase/server'
-import { todayString } from '@/lib/utils'
-import Link from 'next/link'
-import { CheckCircle2, AlertTriangle, Flame, Target, Wallet, ArrowRight } from 'lucide-react'
+import { createClient } from '@/lib/supabase/server';
+import { todayString } from '@/lib/utils';
+import Link from 'next/link';
+import { CheckCircle2, AlertTriangle, Flame, Target, Wallet, ArrowRight } from 'lucide-react';
 
 function formatBRL(v: number): string {
-  return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })
+  return v.toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+    maximumFractionDigits: 0,
+  });
 }
 
 export async function MorningBrief({ userId }: { userId: string }) {
-  const supabase = await createClient()
-  const today = todayString()
-  const threeDaysOut = new Date(Date.now() + 3 * 86400000).toISOString().split('T')[0]!
+  const supabase = await createClient();
+  const today = todayString();
+  const threeDaysOut = new Date(Date.now() + 3 * 86400000).toISOString().split('T')[0]!;
 
   const [habitsRes, habitLogsRes, tasksRes, billsRes, profileRes] = await Promise.all([
     supabase
@@ -18,11 +22,7 @@ export async function MorningBrief({ userId }: { userId: string }) {
       .select('id, name, icon, color')
       .eq('user_id', userId)
       .eq('is_active', true),
-    supabase
-      .from('habit_logs')
-      .select('habit_id')
-      .eq('user_id', userId)
-      .eq('logged_date', today),
+    supabase.from('habit_logs').select('habit_id').eq('user_id', userId).eq('logged_date', today),
     supabase
       .from('tasks')
       .select('id, title, urgent, important, due_date')
@@ -41,68 +41,73 @@ export async function MorningBrief({ userId }: { userId: string }) {
       .lte('transaction_date', threeDaysOut)
       .order('transaction_date')
       .limit(3),
-    supabase
-      .from('profiles')
-      .select('streak_current, xp_total, level')
-      .eq('id', userId)
-      .single(),
-  ])
+    supabase.from('profiles').select('streak_current, xp_total, level').eq('id', userId).single(),
+  ]);
 
-  const habits = habitsRes.data ?? []
-  const loggedSet = new Set((habitLogsRes.data ?? []).map(l => l.habit_id))
-  const pendingHabits = habits.filter(h => !loggedSet.has(h.id))
-  const overdueTaskCount = (tasksRes.data ?? []).length
-  const urgentBills = billsRes.data ?? []
-  const streak = profileRes.data?.streak_current ?? 0
-  const level = profileRes.data?.level ?? 1
+  const habits = habitsRes.data ?? [];
+  const loggedSet = new Set((habitLogsRes.data ?? []).map((l) => l.habit_id));
+  const pendingHabits = habits.filter((h) => !loggedSet.has(h.id));
+  const overdueTaskCount = (tasksRes.data ?? []).length;
+  const urgentBills = billsRes.data ?? [];
+  const streak = profileRes.data?.streak_current ?? 0;
+  const level = profileRes.data?.level ?? 1;
 
-  const totalHabits = habits.length
-  const doneHabits = totalHabits - pendingHabits.length
-  const habitsComplete = totalHabits > 0 && doneHabits === totalHabits
+  const totalHabits = habits.length;
+  const doneHabits = totalHabits - pendingHabits.length;
+  const habitsComplete = totalHabits > 0 && doneHabits === totalHabits;
 
   // Nothing to show = great day already in progress
-  if (totalHabits === 0 && overdueTaskCount === 0 && urgentBills.length === 0) return null
+  if (totalHabits === 0 && overdueTaskCount === 0 && urgentBills.length === 0) return null;
 
-  const billsTotal = urgentBills.reduce((s, b) => s + Number(b.amount), 0)
+  const billsTotal = urgentBills.reduce((s, b) => s + Number(b.amount), 0);
 
   // Compute priority score for alert color
   const alertLevel =
-    overdueTaskCount >= 3 || urgentBills.some(b => b.transaction_date <= today)
+    overdueTaskCount >= 3 || urgentBills.some((b) => b.transaction_date <= today)
       ? 'danger'
       : overdueTaskCount > 0 || urgentBills.length > 0
-      ? 'warning'
-      : habitsComplete
-      ? 'success'
-      : 'info'
+        ? 'warning'
+        : habitsComplete
+          ? 'success'
+          : 'info';
 
   const borderColor =
-    alertLevel === 'danger'  ? 'rgba(239,68,68,0.35)'
-    : alertLevel === 'warning' ? 'rgba(245,200,66,0.3)'
-    : alertLevel === 'success' ? 'rgba(0,255,136,0.3)'
-    : 'rgba(124,58,237,0.25)'
+    alertLevel === 'danger'
+      ? 'rgba(239,68,68,0.35)'
+      : alertLevel === 'warning'
+        ? 'rgba(245,200,66,0.3)'
+        : alertLevel === 'success'
+          ? 'rgba(0,255,136,0.3)'
+          : 'rgba(124,58,237,0.25)';
 
   const bgColor =
-    alertLevel === 'danger'  ? 'rgba(239,68,68,0.05)'
-    : alertLevel === 'warning' ? 'rgba(245,200,66,0.05)'
-    : alertLevel === 'success' ? 'rgba(0,255,136,0.05)'
-    : 'rgba(124,58,237,0.05)'
+    alertLevel === 'danger'
+      ? 'rgba(239,68,68,0.05)'
+      : alertLevel === 'warning'
+        ? 'rgba(245,200,66,0.05)'
+        : alertLevel === 'success'
+          ? 'rgba(0,255,136,0.05)'
+          : 'rgba(124,58,237,0.05)';
 
   const titleEmoji =
-    alertLevel === 'success' ? '⭐'
-    : alertLevel === 'danger' ? '🚨'
-    : alertLevel === 'warning' ? '⚡'
-    : '📋'
+    alertLevel === 'success'
+      ? '⭐'
+      : alertLevel === 'danger'
+        ? '🚨'
+        : alertLevel === 'warning'
+          ? '⚡'
+          : '📋';
 
   return (
     <div
-      className="rounded-2xl p-5 relative overflow-hidden"
+      className="relative overflow-hidden rounded-2xl p-5"
       style={{
         background: `linear-gradient(135deg, ${bgColor} 0%, rgba(13,24,41,0.98) 100%)`,
         border: `1px solid ${borderColor}`,
       }}
     >
       <div
-        className="absolute -top-6 -right-6 w-24 h-24 rounded-full pointer-events-none blur-3xl"
+        className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full blur-3xl"
         style={{ background: borderColor }}
       />
 
@@ -114,7 +119,7 @@ export async function MorningBrief({ userId }: { userId: string }) {
               <span className="text-lg">{titleEmoji}</span>
               <span className="text-sm font-black">Prioridades de hoje</span>
             </div>
-            <div className="text-[10px] text-text-muted mt-0.5 flex items-center gap-2">
+            <div className="mt-0.5 flex items-center gap-2 text-[10px] text-text-muted">
               {streak > 0 && (
                 <span className="flex items-center gap-0.5 text-brand-orange">
                   <Flame size={9} fill="currentColor" />
@@ -126,8 +131,12 @@ export async function MorningBrief({ userId }: { userId: string }) {
           </div>
           {habitsComplete && (
             <div
-              className="flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-xl"
-              style={{ background: 'rgba(0,255,136,0.12)', border: '1px solid rgba(0,255,136,0.3)', color: '#00FF88' }}
+              className="flex items-center gap-1 rounded-xl px-3 py-1.5 text-xs font-bold"
+              style={{
+                background: 'rgba(0,255,136,0.12)',
+                border: '1px solid rgba(0,255,136,0.3)',
+                color: '#00FF88',
+              }}
             >
               <CheckCircle2 size={12} />
               Hábitos OK
@@ -138,21 +147,26 @@ export async function MorningBrief({ userId }: { userId: string }) {
         {/* Habits section */}
         {totalHabits > 0 && (
           <div>
-            <div className="flex items-center justify-between mb-2">
+            <div className="mb-2 flex items-center justify-between">
               <div className="flex items-center gap-1.5 text-xs font-semibold">
                 <Target size={12} className="text-brand-orange" />
-                <span>Hábitos — {doneHabits}/{totalHabits}</span>
+                <span>
+                  Hábitos — {doneHabits}/{totalHabits}
+                </span>
               </div>
               <Link
                 href="/habitos"
-                className="text-[10px] text-text-muted hover:text-brand-orange transition-colors flex items-center gap-0.5"
+                className="flex items-center gap-0.5 text-[10px] text-text-muted transition-colors hover:text-brand-orange"
               >
                 Ver <ArrowRight size={9} />
               </Link>
             </div>
 
             {/* Progress bar */}
-            <div className="h-1.5 rounded-full overflow-hidden mb-2" style={{ background: 'rgba(255,255,255,0.06)' }}>
+            <div
+              className="mb-2 h-1.5 overflow-hidden rounded-full"
+              style={{ background: 'rgba(255,255,255,0.06)' }}
+            >
               <div
                 className="h-full rounded-full transition-all"
                 style={{
@@ -167,11 +181,11 @@ export async function MorningBrief({ userId }: { userId: string }) {
             {/* Pending habit chips (up to 4) */}
             {pendingHabits.length > 0 && (
               <div className="flex flex-wrap gap-1.5">
-                {pendingHabits.slice(0, 4).map(h => (
+                {pendingHabits.slice(0, 4).map((h) => (
                   <Link
                     key={h.id}
                     href="/habitos"
-                    className="flex items-center gap-1 text-[10px] px-2 py-1 rounded-lg transition-all hover:opacity-80"
+                    className="flex items-center gap-1 rounded-lg px-2 py-1 text-[10px] transition-all hover:opacity-80"
                     style={{
                       background: `${h.color}14`,
                       border: `1px solid ${h.color}30`,
@@ -179,11 +193,11 @@ export async function MorningBrief({ userId }: { userId: string }) {
                     }}
                   >
                     <span>{h.icon}</span>
-                    <span className="font-semibold truncate max-w-[80px]">{h.name}</span>
+                    <span className="max-w-[80px] truncate font-semibold">{h.name}</span>
                   </Link>
                 ))}
                 {pendingHabits.length > 4 && (
-                  <span className="text-[10px] text-text-muted self-center">
+                  <span className="self-center text-[10px] text-text-muted">
                     +{pendingHabits.length - 4}
                   </span>
                 )}
@@ -195,35 +209,42 @@ export async function MorningBrief({ userId }: { userId: string }) {
         {/* Overdue tasks */}
         {overdueTaskCount > 0 && (
           <div>
-            <div className="flex items-center justify-between mb-2">
+            <div className="mb-2 flex items-center justify-between">
               <div className="flex items-center gap-1.5 text-xs font-semibold text-brand-red">
                 <AlertTriangle size={12} />
-                <span>{overdueTaskCount} tarefa{overdueTaskCount > 1 ? 's' : ''} vencida{overdueTaskCount > 1 ? 's' : ''}</span>
+                <span>
+                  {overdueTaskCount} tarefa{overdueTaskCount > 1 ? 's' : ''} vencida
+                  {overdueTaskCount > 1 ? 's' : ''}
+                </span>
               </div>
               <Link
                 href="/tarefas"
-                className="text-[10px] text-text-muted hover:text-brand-red transition-colors flex items-center gap-0.5"
+                className="flex items-center gap-0.5 text-[10px] text-text-muted transition-colors hover:text-brand-red"
               >
                 Ver <ArrowRight size={9} />
               </Link>
             </div>
             <div className="space-y-1.5">
-              {(tasksRes.data ?? []).map(t => (
+              {(tasksRes.data ?? []).map((t) => (
                 <div
                   key={t.id}
                   className="flex items-center gap-2 rounded-lg px-2.5 py-2"
                   style={{
-                    background: t.urgent && t.important ? 'rgba(239,68,68,0.08)' : 'rgba(245,200,66,0.06)',
-                    border: t.urgent && t.important ? '1px solid rgba(239,68,68,0.2)' : '1px solid rgba(245,200,66,0.15)',
+                    background:
+                      t.urgent && t.important ? 'rgba(239,68,68,0.08)' : 'rgba(245,200,66,0.06)',
+                    border:
+                      t.urgent && t.important
+                        ? '1px solid rgba(239,68,68,0.2)'
+                        : '1px solid rgba(245,200,66,0.15)',
                   }}
                 >
                   <div
-                    className="w-1.5 h-1.5 rounded-full shrink-0"
+                    className="h-1.5 w-1.5 shrink-0 rounded-full"
                     style={{ background: t.urgent && t.important ? '#EF4444' : '#F5C842' }}
                   />
-                  <span className="text-xs truncate flex-1">{t.title}</span>
+                  <span className="flex-1 truncate text-xs">{t.title}</span>
                   {t.urgent && t.important && (
-                    <span className="text-[9px] text-brand-red font-bold shrink-0">URGENTE</span>
+                    <span className="shrink-0 text-[9px] font-bold text-brand-red">URGENTE</span>
                   )}
                 </div>
               ))}
@@ -234,34 +255,40 @@ export async function MorningBrief({ userId }: { userId: string }) {
         {/* Upcoming bills */}
         {urgentBills.length > 0 && (
           <div>
-            <div className="flex items-center justify-between mb-2">
+            <div className="mb-2 flex items-center justify-between">
               <div className="flex items-center gap-1.5 text-xs font-semibold text-brand-gold">
                 <Wallet size={12} />
-                <span>{urgentBills.length} conta{urgentBills.length > 1 ? 's' : ''} próxima{urgentBills.length > 1 ? 's' : ''} · {formatBRL(billsTotal)}</span>
+                <span>
+                  {urgentBills.length} conta{urgentBills.length > 1 ? 's' : ''} próxima
+                  {urgentBills.length > 1 ? 's' : ''} · {formatBRL(billsTotal)}
+                </span>
               </div>
               <Link
                 href="/financas/transacoes"
-                className="text-[10px] text-text-muted hover:text-brand-gold transition-colors flex items-center gap-0.5"
+                className="flex items-center gap-0.5 text-[10px] text-text-muted transition-colors hover:text-brand-gold"
               >
                 Ver <ArrowRight size={9} />
               </Link>
             </div>
             <div className="space-y-1">
-              {urgentBills.map(b => {
+              {urgentBills.map((b) => {
                 const daysUntil = Math.ceil(
                   (new Date(b.transaction_date).getTime() - Date.now()) / 86400000
-                )
+                );
                 return (
                   <div
                     key={b.id}
                     className="flex items-center justify-between rounded-lg px-2.5 py-1.5"
                     style={{
                       background: daysUntil <= 0 ? 'rgba(239,68,68,0.07)' : 'rgba(245,200,66,0.06)',
-                      border: daysUntil <= 0 ? '1px solid rgba(239,68,68,0.15)' : '1px solid rgba(245,200,66,0.14)',
+                      border:
+                        daysUntil <= 0
+                          ? '1px solid rgba(239,68,68,0.15)'
+                          : '1px solid rgba(245,200,66,0.14)',
                     }}
                   >
-                    <span className="text-xs truncate flex-1">{b.description}</span>
-                    <div className="flex items-center gap-2 shrink-0 ml-2">
+                    <span className="flex-1 truncate text-xs">{b.description}</span>
+                    <div className="ml-2 flex shrink-0 items-center gap-2">
                       <span className="text-[10px] text-text-muted">
                         {daysUntil <= 0 ? 'Hoje' : `${daysUntil}d`}
                       </span>
@@ -270,12 +297,12 @@ export async function MorningBrief({ userId }: { userId: string }) {
                       </span>
                     </div>
                   </div>
-                )
+                );
               })}
             </div>
           </div>
         )}
       </div>
     </div>
-  )
+  );
 }

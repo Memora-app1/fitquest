@@ -2,11 +2,11 @@
  * Cliente Supabase para uso em Server Components, Server Actions e Route Handlers
  * Usa cookies do request
  */
-import { createServerClient, type CookieOptions } from '@supabase/ssr'
-import { cookies } from 'next/headers'
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { cookies } from 'next/headers';
 
 export async function createClient() {
-  const cookieStore = await cookies()
+  const cookieStore = await cookies();
 
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -14,13 +14,13 @@ export async function createClient() {
     {
       cookies: {
         getAll() {
-          return cookieStore.getAll()
+          return cookieStore.getAll();
         },
         setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
           try {
             cookiesToSet.forEach(({ name, value, options }) => {
-              cookieStore.set(name, value, options)
-            })
+              cookieStore.set(name, value, options);
+            });
           } catch {
             // Server Component não pode setar cookies — silenciar
             // Middleware é o responsável por renovar a sessão
@@ -28,7 +28,7 @@ export async function createClient() {
         },
       },
     }
-  )
+  );
 }
 
 /**
@@ -39,7 +39,7 @@ export async function createClient() {
  *
  * 🚨 NUNCA importe este cliente em Client Components
  */
-import { createClient as createAdminClient } from '@supabase/supabase-js'
+import { createClient as createAdminClient } from '@supabase/supabase-js';
 
 export function createServiceClient() {
   return createAdminClient(
@@ -51,15 +51,18 @@ export function createServiceClient() {
         persistSession: false,
       },
     }
-  )
+  );
 }
 
 /**
  * Helper: obtém usuário autenticado, retorna null se não logado
  */
 export async function getAuthenticatedUser() {
-  const supabase = await createClient()
-  const { data: { user }, error } = await supabase.auth.getUser()
-  if (error || !user) return null
-  return user
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+  if (error || !user) return null;
+  return user;
 }

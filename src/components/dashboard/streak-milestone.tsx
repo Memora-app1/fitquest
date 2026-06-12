@@ -4,40 +4,103 @@
  * Faz confete e mostra o ícone do marco conquistado.
  */
 
-import { createClient } from '@/lib/supabase/server'
-import { Flame, Star, Crown, Zap } from 'lucide-react'
+import { createClient } from '@/lib/supabase/server';
+import { Flame, Star, Crown, Zap } from 'lucide-react';
 
 const MILESTONES = [
-  { days: 3,   emoji: '🔥', title: '3 Dias de Fogo!',     sub: 'Você está aquecendo!',          color: '#FF4D00', rgb: '255,77,0' },
-  { days: 7,   emoji: '⚡', title: 'Uma Semana Completa!', sub: 'Consistência é poder.',          color: '#F5C842', rgb: '245,200,66' },
-  { days: 14,  emoji: '💪', title: '14 Dias Invicto!',     sub: 'Dois semanas de dedicação.',     color: '#00FF88', rgb: '0,255,136' },
-  { days: 21,  emoji: '🌟', title: '21 Dias! Novo Hábito', sub: 'Ciência diz que virou hábito.',  color: '#00D9FF', rgb: '0,217,255' },
-  { days: 30,  emoji: '🏆', title: '30 Dias! Um Mês!',     sub: 'Você é imparável.',              color: '#F5C842', rgb: '245,200,66' },
-  { days: 60,  emoji: '👑', title: '60 Dias de Lenda!',    sub: 'Dois meses de excelência.',      color: '#7C3AED', rgb: '124,58,237' },
-  { days: 90,  emoji: '🌙', title: '90 Dias de Mestre!',   sub: 'Três meses. Você é diferente.',  color: '#00D9FF', rgb: '0,217,255' },
-  { days: 180, emoji: '💎', title: '6 Meses de Elite!',    sub: 'Você é um dos 1%.',              color: '#00FF88', rgb: '0,255,136' },
-  { days: 365, emoji: '🌌', title: '1 Ano de Lenda!',      sub: 'Você mudou de vida. Parabéns.',  color: '#F5C842', rgb: '245,200,66' },
-]
+  {
+    days: 3,
+    emoji: '🔥',
+    title: '3 Dias de Fogo!',
+    sub: 'Você está aquecendo!',
+    color: '#FF4D00',
+    rgb: '255,77,0',
+  },
+  {
+    days: 7,
+    emoji: '⚡',
+    title: 'Uma Semana Completa!',
+    sub: 'Consistência é poder.',
+    color: '#F5C842',
+    rgb: '245,200,66',
+  },
+  {
+    days: 14,
+    emoji: '💪',
+    title: '14 Dias Invicto!',
+    sub: 'Dois semanas de dedicação.',
+    color: '#00FF88',
+    rgb: '0,255,136',
+  },
+  {
+    days: 21,
+    emoji: '🌟',
+    title: '21 Dias! Novo Hábito',
+    sub: 'Ciência diz que virou hábito.',
+    color: '#00D9FF',
+    rgb: '0,217,255',
+  },
+  {
+    days: 30,
+    emoji: '🏆',
+    title: '30 Dias! Um Mês!',
+    sub: 'Você é imparável.',
+    color: '#F5C842',
+    rgb: '245,200,66',
+  },
+  {
+    days: 60,
+    emoji: '👑',
+    title: '60 Dias de Lenda!',
+    sub: 'Dois meses de excelência.',
+    color: '#7C3AED',
+    rgb: '124,58,237',
+  },
+  {
+    days: 90,
+    emoji: '🌙',
+    title: '90 Dias de Mestre!',
+    sub: 'Três meses. Você é diferente.',
+    color: '#00D9FF',
+    rgb: '0,217,255',
+  },
+  {
+    days: 180,
+    emoji: '💎',
+    title: '6 Meses de Elite!',
+    sub: 'Você é um dos 1%.',
+    color: '#00FF88',
+    rgb: '0,255,136',
+  },
+  {
+    days: 365,
+    emoji: '🌌',
+    title: '1 Ano de Lenda!',
+    sub: 'Você mudou de vida. Parabéns.',
+    color: '#F5C842',
+    rgb: '245,200,66',
+  },
+];
 
 export async function StreakMilestone({ userId }: { userId: string }) {
-  const supabase = await createClient()
+  const supabase = await createClient();
 
   const { data: profile } = await supabase
     .from('profiles')
     .select('streak_current, name')
     .eq('id', userId)
-    .single()
+    .single();
 
-  if (!profile || profile.streak_current === 0) return null
+  if (!profile || profile.streak_current === 0) return null;
 
-  const milestone = MILESTONES.find(m => m.days === profile.streak_current)
-  if (!milestone) return null
+  const milestone = MILESTONES.find((m) => m.days === profile.streak_current);
+  if (!milestone) return null;
 
-  const firstName = (profile.name ?? '').split(' ')[0] ?? 'você'
+  const firstName = (profile.name ?? '').split(' ')[0] ?? 'você';
 
   return (
     <div
-      className="rounded-2xl p-5 md:p-6 relative overflow-hidden animate-level-up"
+      className="relative animate-level-up overflow-hidden rounded-2xl p-5 md:p-6"
       style={{
         background: `linear-gradient(135deg, rgba(${milestone.rgb},0.12) 0%, rgba(13,24,41,0.98) 55%, rgba(${milestone.rgb},0.06) 100%)`,
         border: `2px solid rgba(${milestone.rgb},0.4)`,
@@ -46,20 +109,22 @@ export async function StreakMilestone({ userId }: { userId: string }) {
     >
       {/* Animated glow rings */}
       <div
-        className="absolute -top-12 -right-12 w-56 h-56 rounded-full pointer-events-none blur-3xl animate-spin-slow"
-        style={{ background: `conic-gradient(from 0deg, rgba(${milestone.rgb},0.12), transparent, rgba(${milestone.rgb},0.08), transparent)` }}
+        className="pointer-events-none absolute -right-12 -top-12 h-56 w-56 animate-spin-slow rounded-full blur-3xl"
+        style={{
+          background: `conic-gradient(from 0deg, rgba(${milestone.rgb},0.12), transparent, rgba(${milestone.rgb},0.08), transparent)`,
+        }}
       />
       <div
-        className="absolute -bottom-10 -left-10 w-40 h-40 rounded-full pointer-events-none blur-2xl"
+        className="pointer-events-none absolute -bottom-10 -left-10 h-40 w-40 rounded-full blur-2xl"
         style={{ background: `rgba(${milestone.rgb},0.06)` }}
       />
 
       {/* Confetti pieces (purely decorative) */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
         {['🎊', '✨', '⭐', '🌟', '💫'].map((c, i) => (
           <span
             key={i}
-            className="absolute text-lg confetti-piece"
+            className="confetti-piece absolute text-lg"
             style={{
               left: `${10 + i * 20}%`,
               top: '-5%',
@@ -77,7 +142,7 @@ export async function StreakMilestone({ userId }: { userId: string }) {
           <div className="flex-1">
             {/* Badge */}
             <div
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest mb-3"
+              className="mb-3 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-widest"
               style={{
                 background: `rgba(${milestone.rgb},0.15)`,
                 border: `1px solid rgba(${milestone.rgb},0.3)`,
@@ -88,16 +153,17 @@ export async function StreakMilestone({ userId }: { userId: string }) {
               Marco de Streak
             </div>
 
-            <h2 className="text-2xl font-black mb-1">{milestone.title}</h2>
-            <p className="text-sm text-text-secondary mb-1">{milestone.sub}</p>
+            <h2 className="mb-1 text-2xl font-black">{milestone.title}</h2>
+            <p className="mb-1 text-sm text-text-secondary">{milestone.sub}</p>
             <p className="text-xs text-text-muted">
-              Parabéns, <span className="text-white font-semibold">{firstName}</span>! Continue assim.
+              Parabéns, <span className="font-semibold text-white">{firstName}</span>! Continue
+              assim.
             </p>
           </div>
 
           {/* Big milestone emoji */}
           <div
-            className="w-20 h-20 rounded-2xl flex items-center justify-center text-4xl shrink-0 animate-bounce-in"
+            className="flex h-20 w-20 shrink-0 animate-bounce-in items-center justify-center rounded-2xl text-4xl"
             style={{
               background: `rgba(${milestone.rgb},0.12)`,
               border: `2px solid rgba(${milestone.rgb},0.3)`,
@@ -125,9 +191,7 @@ export async function StreakMilestone({ userId }: { userId: string }) {
               <span className="text-sm text-text-secondary">dias consecutivos</span>
             </div>
             <div className="text-[10px] text-text-muted">
-              Próximo marco: {
-                MILESTONES.find(m => m.days > milestone.days)?.days ?? '∞'
-              } dias
+              Próximo marco: {MILESTONES.find((m) => m.days > milestone.days)?.days ?? '∞'} dias
             </div>
           </div>
 
@@ -135,7 +199,7 @@ export async function StreakMilestone({ userId }: { userId: string }) {
             {[Star, Zap, Crown].slice(0, Math.ceil(milestone.days / 100) + 1).map((Icon, i) => (
               <div
                 key={i}
-                className="w-6 h-6 rounded-lg flex items-center justify-center"
+                className="flex h-6 w-6 items-center justify-center rounded-lg"
                 style={{
                   background: `rgba(${milestone.rgb},0.15)`,
                   border: `1px solid rgba(${milestone.rgb},0.25)`,
@@ -148,5 +212,5 @@ export async function StreakMilestone({ userId }: { userId: string }) {
         </div>
       </div>
     </div>
-  )
+  );
 }

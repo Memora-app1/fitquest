@@ -1,4 +1,4 @@
-﻿'use client'
+﻿'use client';
 
 /**
  * LevelUpCelebration — Overlay cinematográfico de tela cheia ao subir de nível.
@@ -10,27 +10,33 @@
  * Auto-dismiss após 6 segundos.
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react'
-import { X, Zap, Star, TrendingUp } from 'lucide-react'
-import { getLevelInfo, LEVELS } from '@/lib/xp'
-import { useScrollLock } from '@/hooks/use-scroll-lock'
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { X, Zap, Star, TrendingUp } from 'lucide-react';
+import { getLevelInfo, LEVELS } from '@/lib/xp';
+import { useScrollLock } from '@/hooks/use-scroll-lock';
 
 // ─── Confetti config ─────────────────────────────────────────────────────────
 const CONFETTI_COLORS = [
-  '#FF4D00', '#F5C842', '#7C3AED', '#00FF88',
-  '#00D9FF', '#EC4899', '#FFFFFF', '#FFB347',
-]
-const CONFETTI_COUNT = 60
+  '#FF4D00',
+  '#F5C842',
+  '#7C3AED',
+  '#00FF88',
+  '#00D9FF',
+  '#EC4899',
+  '#FFFFFF',
+  '#FFB347',
+];
+const CONFETTI_COUNT = 60;
 
 interface ConfettiPiece {
-  id: number
-  left: number
-  color: string
-  delay: number
-  duration: number
-  size: number
-  rotation: number
-  shape: 'square' | 'circle' | 'rect'
+  id: number;
+  left: number;
+  color: string;
+  delay: number;
+  duration: number;
+  size: number;
+  rotation: number;
+  shape: 'square' | 'circle' | 'rect';
 }
 
 function generateConfetti(): ConfettiPiece[] {
@@ -43,61 +49,65 @@ function generateConfetti(): ConfettiPiece[] {
     size: 5 + Math.random() * 9,
     rotation: Math.random() * 360,
     shape: (['square', 'circle', 'rect'] as const)[Math.floor(Math.random() * 3)]!,
-  }))
+  }));
 }
 
 // ─── Animated counter hook ────────────────────────────────────────────────────
 function useCountUp(target: number, duration = 1200): number {
-  const [value, setValue] = useState(0)
-  const rafRef = useRef<number | null>(null)
-  const startRef = useRef<number | null>(null)
+  const [value, setValue] = useState(0);
+  const rafRef = useRef<number | null>(null);
+  const startRef = useRef<number | null>(null);
 
   useEffect(() => {
-    startRef.current = null
-    setValue(0)
+    startRef.current = null;
+    setValue(0);
 
     function tick(ts: number) {
-      if (!startRef.current) startRef.current = ts
-      const elapsed = ts - startRef.current
-      const progress = Math.min(elapsed / duration, 1)
-      const eased = 1 - Math.pow(1 - progress, 3)
-      setValue(Math.round(eased * target))
-      if (progress < 1) rafRef.current = requestAnimationFrame(tick)
+      if (!startRef.current) startRef.current = ts;
+      const elapsed = ts - startRef.current;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setValue(Math.round(eased * target));
+      if (progress < 1) rafRef.current = requestAnimationFrame(tick);
     }
 
-    rafRef.current = requestAnimationFrame(tick)
-    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current) }
-  }, [target, duration])
+    rafRef.current = requestAnimationFrame(tick);
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, [target, duration]);
 
-  return value
+  return value;
 }
 
 // ─── Countdown progress bar ───────────────────────────────────────────────────
 function DismissCountdown({ duration, onDismiss }: { duration: number; onDismiss: () => void }) {
-  const [width, setWidth] = useState(100)
-  const rafRef = useRef<number | null>(null)
-  const startRef = useRef<number | null>(null)
+  const [width, setWidth] = useState(100);
+  const rafRef = useRef<number | null>(null);
+  const startRef = useRef<number | null>(null);
 
   useEffect(() => {
-    startRef.current = null
+    startRef.current = null;
     function tick(ts: number) {
-      if (!startRef.current) startRef.current = ts
-      const elapsed = ts - startRef.current
-      const remaining = Math.max(0, 1 - elapsed / duration)
-      setWidth(remaining * 100)
+      if (!startRef.current) startRef.current = ts;
+      const elapsed = ts - startRef.current;
+      const remaining = Math.max(0, 1 - elapsed / duration);
+      setWidth(remaining * 100);
       if (remaining > 0) {
-        rafRef.current = requestAnimationFrame(tick)
+        rafRef.current = requestAnimationFrame(tick);
       } else {
-        onDismiss()
+        onDismiss();
       }
     }
-    rafRef.current = requestAnimationFrame(tick)
-    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current) }
-  }, [duration, onDismiss])
+    rafRef.current = requestAnimationFrame(tick);
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, [duration, onDismiss]);
 
   return (
     <div
-      className="absolute bottom-0 left-0 right-0 h-1 rounded-b-3xl overflow-hidden"
+      className="absolute bottom-0 left-0 right-0 h-1 overflow-hidden rounded-b-3xl"
       style={{ background: 'rgba(255,255,255,0.08)' }}
     >
       <div
@@ -109,15 +119,15 @@ function DismissCountdown({ duration, onDismiss }: { duration: number; onDismiss
         }}
       />
     </div>
-  )
+  );
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
 interface LevelUpData {
-  level: number
-  title: string
-  emoji: string
-  minXp: number
+  level: number;
+  title: string;
+  emoji: string;
+  minXp: number;
 }
 
 const LEVEL_MESSAGES: Record<number, string> = {
@@ -128,101 +138,119 @@ const LEVEL_MESSAGES: Record<number, string> = {
   6: 'Você está no grupo dos 5% mais consistentes.',
   7: 'Lendário. Literalmente.',
   8: '👑 Ascendia Master. Não existe nível acima disso.',
-}
+};
 
 export function LevelUpCelebration() {
-  const [celebration, setCelebration] = useState<LevelUpData | null>(null)
-  const [confetti] = useState<ConfettiPiece[]>(generateConfetti)
-  const [dismissing, setDismissing] = useState(false)
-  const [visible, setVisible] = useState(false)
-  useScrollLock(visible)
+  const [celebration, setCelebration] = useState<LevelUpData | null>(null);
+  const [confetti] = useState<ConfettiPiece[]>(generateConfetti);
+  const [dismissing, setDismissing] = useState(false);
+  const [visible, setVisible] = useState(false);
+  useScrollLock(visible);
 
   const dismiss = useCallback(() => {
-    setDismissing(true)
+    setDismissing(true);
     setTimeout(() => {
-      setCelebration(null)
-      setDismissing(false)
-      setVisible(false)
-    }, 450)
-  }, [])
+      setCelebration(null);
+      setDismissing(false);
+      setVisible(false);
+    }, 450);
+  }, []);
 
   useEffect(() => {
     function handleLevelUp(e: Event) {
-      const ce = e as CustomEvent<{ level: number }>
-      const info = getLevelInfo(ce.detail.level)
+      const ce = e as CustomEvent<{ level: number }>;
+      const info = getLevelInfo(ce.detail.level);
       setCelebration({
         level: ce.detail.level,
         title: info.title,
         emoji: info.emoji,
         minXp: info.minXp,
-      })
-      setDismissing(false)
-      setTimeout(() => setVisible(true), 10)
+      });
+      setDismissing(false);
+      setTimeout(() => setVisible(true), 10);
 
       // Haptic pattern escalonado por nível: quanto maior o nível, mais épico
       if (navigator.vibrate) {
-        const level = ce.detail.level
+        const level = ce.detail.level;
         if (level >= 8) {
           // Ascendia Master — padrão rei: longo, pausas curtas, crescente
-          navigator.vibrate([100, 40, 200, 40, 300, 40, 200, 40, 400])
+          navigator.vibrate([100, 40, 200, 40, 300, 40, 200, 40, 400]);
         } else if (level >= 6) {
           // Elite / Lendário — padrão triplo crescente
-          navigator.vibrate([80, 30, 130, 30, 200, 30, 130, 30, 250])
+          navigator.vibrate([80, 30, 130, 30, 200, 30, 130, 30, 250]);
         } else if (level >= 4) {
           // Atleta / Guerreiro — padrão duplo forte
-          navigator.vibrate([60, 25, 100, 25, 160, 25, 100])
+          navigator.vibrate([60, 25, 100, 25, 160, 25, 100]);
         } else {
           // Iniciante / Dedicado / Consistente — padrão suave
-          navigator.vibrate([40, 20, 70, 20, 110])
+          navigator.vibrate([40, 20, 70, 20, 110]);
         }
       }
 
       // Som de level-up gerado via Web Audio API (sem arquivo externo)
       try {
-        const ctx = new (window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext!)()
-        const notes = [523, 659, 784, 1047] // C5 E5 G5 C6
+        const ctx = new (
+          window.AudioContext ||
+          (window as typeof window & { webkitAudioContext?: typeof AudioContext })
+            .webkitAudioContext!
+        )();
+        const notes = [523, 659, 784, 1047]; // C5 E5 G5 C6
         notes.forEach((freq, i) => {
-          const osc  = ctx.createOscillator()
-          const gain = ctx.createGain()
-          osc.connect(gain)
-          gain.connect(ctx.destination)
-          osc.frequency.value = freq
-          osc.type = 'sine'
-          gain.gain.setValueAtTime(0.18, ctx.currentTime + i * 0.12)
-          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.12 + 0.25)
-          osc.start(ctx.currentTime + i * 0.12)
-          osc.stop(ctx.currentTime + i * 0.12 + 0.25)
-        })
-      } catch { /* silencioso se Web Audio não suportado */ }
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.frequency.value = freq;
+          osc.type = 'sine';
+          gain.gain.setValueAtTime(0.18, ctx.currentTime + i * 0.12);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.12 + 0.25);
+          osc.start(ctx.currentTime + i * 0.12);
+          osc.stop(ctx.currentTime + i * 0.12 + 0.25);
+        });
+      } catch {
+        /* silencioso se Web Audio não suportado */
+      }
     }
-    window.addEventListener('ascendia:levelup', handleLevelUp)
-    return () => window.removeEventListener('ascendia:levelup', handleLevelUp)
-  }, [])
+    window.addEventListener('ascendia:levelup', handleLevelUp);
+    return () => window.removeEventListener('ascendia:levelup', handleLevelUp);
+  }, []);
 
-  const displayLevel = useCountUp(celebration?.level ?? 0, 1000)
+  const displayLevel = useCountUp(celebration?.level ?? 0, 1000);
 
-  if (!celebration) return null
+  if (!celebration) return null;
 
-  const message = LEVEL_MESSAGES[celebration.level] ?? 'Você subiu de nível. Continue evoluindo!'
+  const message = LEVEL_MESSAGES[celebration.level] ?? 'Você subiu de nível. Continue evoluindo!';
 
   // Accent colors per level tier
   const levelColor =
-    celebration.level >= 8 ? '#F5C842' :
-    celebration.level >= 7 ? '#F5C842' :
-    celebration.level >= 6 ? '#EC4899' :
-    celebration.level >= 5 ? '#FF4D00' :
-    celebration.level >= 4 ? '#00FF88' :
-    celebration.level >= 3 ? '#3B82F6' :
-    '#7C3AED'
+    celebration.level >= 8
+      ? '#F5C842'
+      : celebration.level >= 7
+        ? '#F5C842'
+        : celebration.level >= 6
+          ? '#EC4899'
+          : celebration.level >= 5
+            ? '#FF4D00'
+            : celebration.level >= 4
+              ? '#00FF88'
+              : celebration.level >= 3
+                ? '#3B82F6'
+                : '#7C3AED';
 
   const levelRgb =
-    celebration.level >= 8 ? '245,200,66' :
-    celebration.level >= 7 ? '245,200,66' :
-    celebration.level >= 6 ? '236,72,153' :
-    celebration.level >= 5 ? '255,77,0' :
-    celebration.level >= 4 ? '0,255,136' :
-    celebration.level >= 3 ? '59,130,246' :
-    '124,58,237'
+    celebration.level >= 8
+      ? '245,200,66'
+      : celebration.level >= 7
+        ? '245,200,66'
+        : celebration.level >= 6
+          ? '236,72,153'
+          : celebration.level >= 5
+            ? '255,77,0'
+            : celebration.level >= 4
+              ? '0,255,136'
+              : celebration.level >= 3
+                ? '59,130,246'
+                : '124,58,237';
 
   return (
     <div
@@ -237,28 +265,30 @@ export function LevelUpCelebration() {
       onClick={dismiss}
     >
       {/* ── Confetti rain ── */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
         {confetti.map((p) => (
           <div
             key={p.id}
             className="confetti-deep"
-            style={{
-              left: `${p.left}%`,
-              width: p.shape === 'rect' ? `${p.size * 0.5}px` : `${p.size}px`,
-              height: `${p.size}px`,
-              backgroundColor: p.color,
-              borderRadius: p.shape === 'circle' ? '50%' : p.shape === 'rect' ? '1px' : '2px',
-              transform: `rotate(${p.rotation}deg)`,
-              '--duration': `${p.duration}s`,
-              '--delay': `${p.delay}s`,
-            } as React.CSSProperties}
+            style={
+              {
+                left: `${p.left}%`,
+                width: p.shape === 'rect' ? `${p.size * 0.5}px` : `${p.size}px`,
+                height: `${p.size}px`,
+                backgroundColor: p.color,
+                borderRadius: p.shape === 'circle' ? '50%' : p.shape === 'rect' ? '1px' : '2px',
+                transform: `rotate(${p.rotation}deg)`,
+                '--duration': `${p.duration}s`,
+                '--delay': `${p.delay}s`,
+              } as React.CSSProperties
+            }
           />
         ))}
       </div>
 
       {/* ── Ambient glow rings ── */}
       <div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full pointer-events-none"
+        className="pointer-events-none absolute left-1/2 top-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full"
         style={{
           background: `radial-gradient(circle, rgba(${levelRgb},0.10) 0%, transparent 65%)`,
           animation: 'pulseGlow 3s ease-in-out infinite',
@@ -267,12 +297,13 @@ export function LevelUpCelebration() {
 
       {/* ── Main card ── */}
       <div
-        className="relative rounded-3xl p-8 md:p-10 text-center max-w-sm w-full overflow-hidden"
+        className="relative w-full max-w-sm overflow-hidden rounded-3xl p-8 text-center md:p-10"
         style={{
           background: `linear-gradient(145deg, rgba(${levelRgb},0.15) 0%, rgba(13,24,41,0.99) 45%, rgba(255,77,0,0.08) 100%)`,
           border: `1px solid rgba(${levelRgb},0.50)`,
           boxShadow: `0 0 80px rgba(${levelRgb},0.25), 0 0 160px rgba(${levelRgb},0.08), inset 0 1px 0 rgba(255,255,255,0.06)`,
-          transform: visible && !dismissing ? 'scale(1) translateY(0)' : 'scale(0.7) translateY(40px)',
+          transform:
+            visible && !dismissing ? 'scale(1) translateY(0)' : 'scale(0.7) translateY(40px)',
           transition: 'transform 0.6s cubic-bezier(0.34,1.56,0.64,1)',
         }}
         onClick={(e) => e.stopPropagation()}
@@ -283,7 +314,7 @@ export function LevelUpCelebration() {
         {/* Close button */}
         <button
           onClick={dismiss}
-          className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center transition-all hover:bg-white/10"
+          className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full transition-all hover:bg-white/10"
           style={{ color: '#8899BB' }}
         >
           <X size={15} />
@@ -292,7 +323,7 @@ export function LevelUpCelebration() {
         <div className="relative z-10 space-y-4">
           {/* Badge */}
           <div
-            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest"
+            className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-widest"
             style={{
               background: `rgba(${levelRgb},0.15)`,
               border: `1px solid rgba(${levelRgb},0.35)`,
@@ -305,7 +336,7 @@ export function LevelUpCelebration() {
 
           {/* Big emoji */}
           <div
-            className="text-7xl leading-none block"
+            className="block text-7xl leading-none"
             style={{ animation: 'bounceIn 0.7s cubic-bezier(0.34,1.56,0.64,1) 0.2s both' }}
           >
             {celebration.emoji}
@@ -314,7 +345,7 @@ export function LevelUpCelebration() {
           {/* LEVEL N — animated count-up */}
           <div>
             <div
-              className="heading-display text-7xl md:text-8xl leading-none"
+              className="heading-display text-7xl leading-none md:text-8xl"
               style={{
                 color: levelColor,
                 textShadow: `0 0 40px rgba(${levelRgb},0.6), 0 0 80px rgba(${levelRgb},0.3)`,
@@ -322,17 +353,15 @@ export function LevelUpCelebration() {
             >
               LEVEL {displayLevel}
             </div>
-            <div className="text-2xl font-black text-white mt-1">{celebration.title}</div>
+            <div className="mt-1 text-2xl font-black text-white">{celebration.title}</div>
           </div>
 
           {/* Message */}
-          <p className="text-text-secondary text-sm max-w-xs mx-auto leading-relaxed">
-            {message}
-          </p>
+          <p className="mx-auto max-w-xs text-sm leading-relaxed text-text-secondary">{message}</p>
 
           {/* XP milestone */}
           <div
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl"
+            className="inline-flex items-center gap-2 rounded-xl px-4 py-2"
             style={{
               background: 'rgba(245,200,66,0.08)',
               border: '1px solid rgba(245,200,66,0.2)',
@@ -352,7 +381,7 @@ export function LevelUpCelebration() {
               </div>
               <div className="text-[10px] text-text-muted">níveis restantes</div>
             </div>
-            <div className="w-px h-6 bg-white/10" />
+            <div className="h-6 w-px bg-white/10" />
             <div>
               <div className="text-xs font-black" style={{ color: levelColor }}>
                 {celebration.level}/8
@@ -364,7 +393,7 @@ export function LevelUpCelebration() {
           {/* CTA button */}
           <button
             onClick={dismiss}
-            className="w-full py-3.5 rounded-2xl font-black text-sm transition-all flex items-center justify-center gap-2"
+            className="flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 text-sm font-black transition-all"
             style={{
               background: `linear-gradient(135deg, rgba(${levelRgb},0.85), rgba(${levelRgb},0.60))`,
               border: `1px solid rgba(${levelRgb},0.4)`,
@@ -378,5 +407,5 @@ export function LevelUpCelebration() {
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -1,6 +1,6 @@
-'use client'
+'use client';
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react';
 import {
   BarChart,
   Bar,
@@ -10,80 +10,83 @@ import {
   ResponsiveContainer,
   Cell,
   ReferenceLine,
-} from 'recharts'
+} from 'recharts';
 
 export interface WeekData {
-  week: string
-  volume: number
-  workouts: number
-  isCurrent: boolean
-  weekStart: string
+  week: string;
+  volume: number;
+  workouts: number;
+  isCurrent: boolean;
+  weekStart: string;
 }
 
 function formatVolume(v: number): string {
-  if (v >= 1000) return `${(v / 1000).toFixed(1)}t`
-  return `${Math.round(v)}kg`
+  if (v >= 1000) return `${(v / 1000).toFixed(1)}t`;
+  return `${Math.round(v)}kg`;
 }
 
 interface TooltipProps {
-  active?: boolean
-  payload?: Array<{ value: number }>
-  label?: string
+  active?: boolean;
+  payload?: Array<{ value: number }>;
+  label?: string;
 }
 
 function ChartTooltip({ active, payload, label }: TooltipProps) {
-  if (!active || !payload?.length) return null
-  const volume = payload[0]?.value ?? 0
+  if (!active || !payload?.length) return null;
+  const volume = payload[0]?.value ?? 0;
   return (
     <div
-      className="rounded-xl px-3.5 py-3 text-sm pointer-events-none min-w-[140px]"
+      className="pointer-events-none min-w-[140px] rounded-xl px-3.5 py-3 text-sm"
       style={{
         background: 'rgba(13,24,41,0.98)',
         border: '1px solid rgba(255,77,0,0.3)',
         boxShadow: '0 12px 32px rgba(0,0,0,0.5)',
       }}
     >
-      <div className="font-bold text-[10px] uppercase tracking-widest text-text-muted mb-2">{label}</div>
-      <div className="font-black text-base" style={{ color: '#FF4D00' }}>
+      <div className="mb-2 text-[10px] font-bold uppercase tracking-widest text-text-muted">
+        {label}
+      </div>
+      <div className="text-base font-black" style={{ color: '#FF4D00' }}>
         {formatVolume(volume)}
       </div>
-      <div className="text-[10px] text-text-muted mt-0.5">volume total</div>
+      <div className="mt-0.5 text-[10px] text-text-muted">volume total</div>
     </div>
-  )
+  );
 }
 
 export function VolumeChart({ data }: { data: WeekData[] }) {
-  const [animated, setAnimated] = useState(false)
-  const containerRef = useRef<HTMLDivElement>(null)
+  const [animated, setAnimated] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const el = containerRef.current
-    if (!el) return
+    const el = containerRef.current;
+    if (!el) return;
     const obs = new IntersectionObserver(
       ([entry]) => {
         if (entry?.isIntersecting) {
-          setTimeout(() => setAnimated(true), 80)
-          obs.disconnect()
+          setTimeout(() => setAnimated(true), 80);
+          obs.disconnect();
         }
       },
-      { threshold: 0.2 },
-    )
-    obs.observe(el)
-    return () => obs.disconnect()
-  }, [])
+      { threshold: 0.2 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
 
-  if (!data.length) return null
+  if (!data.length) return null;
 
-  const maxVolume = Math.max(...data.map(d => d.volume), 1)
-  const avgVolume = data.filter(d => d.volume > 0).reduce((s, d) => s + d.volume, 0) / Math.max(1, data.filter(d => d.volume > 0).length)
-  const totalWorkouts = data.reduce((s, d) => s + d.workouts, 0)
-  const currentWeek = data.find(d => d.isCurrent)
-  const bestWeek = [...data].sort((a, b) => b.volume - a.volume)[0]
-  const activeWeeks = data.filter(d => d.volume > 0).length
+  const maxVolume = Math.max(...data.map((d) => d.volume), 1);
+  const avgVolume =
+    data.filter((d) => d.volume > 0).reduce((s, d) => s + d.volume, 0) /
+    Math.max(1, data.filter((d) => d.volume > 0).length);
+  const totalWorkouts = data.reduce((s, d) => s + d.workouts, 0);
+  const currentWeek = data.find((d) => d.isCurrent);
+  const bestWeek = [...data].sort((a, b) => b.volume - a.volume)[0];
+  const activeWeeks = data.filter((d) => d.volume > 0).length;
 
   return (
     <div ref={containerRef} className="space-y-5">
-
       {/* ── Summary strip ──────────────────────────────────────────────── */}
       <div className="grid grid-cols-3 gap-2.5">
         {(
@@ -116,8 +119,12 @@ export function VolumeChart({ data }: { data: WeekData[] }) {
               border: `1px solid rgba(${s.rgb},0.16)`,
             }}
           >
-            <div className="text-[10px] text-text-muted uppercase tracking-wider mb-1.5 leading-none">{s.label}</div>
-            <div className="font-black text-sm leading-none" style={{ color: s.color }}>{s.value}</div>
+            <div className="mb-1.5 text-[10px] uppercase leading-none tracking-wider text-text-muted">
+              {s.label}
+            </div>
+            <div className="text-sm font-black leading-none" style={{ color: s.color }}>
+              {s.value}
+            </div>
           </div>
         ))}
       </div>
@@ -156,9 +163,9 @@ export function VolumeChart({ data }: { data: WeekData[] }) {
             axisLine={false}
             tickLine={false}
             tick={(props: { x: number; y: number; payload: { value: string } }) => {
-              const item = data.find(d => d.week === props.payload.value)
-              const isCurrent = item?.isCurrent ?? false
-              const isBest = item?.volume === maxVolume && maxVolume > 0 && !isCurrent
+              const item = data.find((d) => d.week === props.payload.value);
+              const isCurrent = item?.isCurrent ?? false;
+              const isBest = item?.volume === maxVolume && maxVolume > 0 && !isCurrent;
               return (
                 <g transform={`translate(${props.x},${props.y})`}>
                   {isCurrent && (
@@ -175,7 +182,7 @@ export function VolumeChart({ data }: { data: WeekData[] }) {
                     {props.payload.value}
                   </text>
                 </g>
-              )
+              );
             }}
           />
 
@@ -203,7 +210,9 @@ export function VolumeChart({ data }: { data: WeekData[] }) {
 
           <Tooltip
             content={<ChartTooltip />}
-            cursor={{ fill: 'rgba(255,255,255,0.025)', radius: 5 } as { fill: string; radius: number }}
+            cursor={
+              { fill: 'rgba(255,255,255,0.025)', radius: 5 } as { fill: string; radius: number }
+            }
           />
 
           <Bar
@@ -215,17 +224,17 @@ export function VolumeChart({ data }: { data: WeekData[] }) {
             animationBegin={0}
           >
             {data.map((entry, i) => {
-              const isBest = entry.volume === maxVolume && maxVolume > 0 && !entry.isCurrent
-              let fill = entry.volume > 0 ? 'url(#volGradNormal)' : 'rgba(255,255,255,0.03)'
-              if (entry.isCurrent) fill = 'url(#volGradCurrent)'
-              else if (isBest) fill = 'url(#volGradBest)'
+              const isBest = entry.volume === maxVolume && maxVolume > 0 && !entry.isCurrent;
+              let fill = entry.volume > 0 ? 'url(#volGradNormal)' : 'rgba(255,255,255,0.03)';
+              if (entry.isCurrent) fill = 'url(#volGradCurrent)';
+              else if (isBest) fill = 'url(#volGradBest)';
               return (
                 <Cell
                   key={`vol-${i}`}
                   fill={fill}
                   filter={entry.isCurrent ? 'url(#volGlow)' : undefined}
                 />
-              )
+              );
             })}
           </Bar>
         </BarChart>
@@ -235,7 +244,7 @@ export function VolumeChart({ data }: { data: WeekData[] }) {
       <div className="grid gap-1" style={{ gridTemplateColumns: `repeat(${data.length}, 1fr)` }}>
         {data.map((w, i) => (
           <div key={i} className="flex flex-col items-center gap-1">
-            <div className="flex gap-0.5 justify-center">
+            <div className="flex justify-center gap-0.5">
               {[...Array(Math.min(w.workouts, 5))].map((_, j) => (
                 <div
                   key={j}
@@ -243,25 +252,32 @@ export function VolumeChart({ data }: { data: WeekData[] }) {
                   style={{
                     width: 5,
                     height: 5,
-                    backgroundColor: w.isCurrent ? '#FF4D00' : w.volume === maxVolume && maxVolume > 0 ? '#F5C842' : 'rgba(255,77,0,0.5)',
+                    backgroundColor: w.isCurrent
+                      ? '#FF4D00'
+                      : w.volume === maxVolume && maxVolume > 0
+                        ? '#F5C842'
+                        : 'rgba(255,77,0,0.5)',
                   }}
                 />
               ))}
               {w.workouts === 0 && (
-                <div className="rounded-full" style={{ width: 5, height: 5, backgroundColor: 'rgba(255,255,255,0.08)' }} />
+                <div
+                  className="rounded-full"
+                  style={{ width: 5, height: 5, backgroundColor: 'rgba(255,255,255,0.08)' }}
+                />
               )}
             </div>
-            <div className="text-[9px] text-text-muted leading-none">
+            <div className="text-[9px] leading-none text-text-muted">
               {w.workouts > 0 ? `${w.workouts}×` : ''}
             </div>
           </div>
         ))}
       </div>
-      <div className="text-[10px] text-text-muted text-center -mt-2">sessões por semana</div>
+      <div className="-mt-2 text-center text-[10px] text-text-muted">sessões por semana</div>
 
       {/* ── Footer ──────────────────────────────────────────────────────── */}
       <div
-        className="rounded-xl p-3.5 flex items-center justify-between gap-4"
+        className="flex items-center justify-between gap-4 rounded-xl p-3.5"
         style={{
           background: 'rgba(255,255,255,0.03)',
           border: '1px solid rgba(255,255,255,0.06)',
@@ -269,16 +285,16 @@ export function VolumeChart({ data }: { data: WeekData[] }) {
       >
         <div className="flex items-center gap-4 text-[11px]">
           <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded-sm" style={{ background: '#FF4D00' }} />
+            <div className="h-3 w-3 rounded-sm" style={{ background: '#FF4D00' }} />
             <span className="text-text-muted">Semana atual</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded-sm" style={{ background: '#F5C842' }} />
+            <div className="h-3 w-3 rounded-sm" style={{ background: '#F5C842' }} />
             <span className="text-text-muted">Melhor semana</span>
           </div>
         </div>
         {bestWeek && bestWeek.volume > 0 && (
-          <div className="text-[11px] text-text-muted text-right shrink-0">
+          <div className="shrink-0 text-right text-[11px] text-text-muted">
             Recorde:{' '}
             <span className="font-bold" style={{ color: '#F5C842' }}>
               {bestWeek.week} — {formatVolume(bestWeek.volume)}
@@ -290,13 +306,13 @@ export function VolumeChart({ data }: { data: WeekData[] }) {
       {/* ── Consistency insight ─────────────────────────────────────────── */}
       {totalWorkouts > 0 && (
         <div
-          className="rounded-xl p-3.5 flex items-center gap-3"
+          className="flex items-center gap-3 rounded-xl p-3.5"
           style={{
             background: 'rgba(255,77,0,0.04)',
             border: '1px solid rgba(255,77,0,0.1)',
           }}
         >
-          <span className="text-lg shrink-0">
+          <span className="shrink-0 text-lg">
             {activeWeeks >= 7 ? '🔥' : activeWeeks >= 5 ? '💪' : activeWeeks >= 3 ? '⚡' : '🌱'}
           </span>
           <div>
@@ -304,13 +320,13 @@ export function VolumeChart({ data }: { data: WeekData[] }) {
               {activeWeeks >= 7
                 ? 'Consistência elite — treino na maioria das semanas!'
                 : activeWeeks >= 5
-                ? `${activeWeeks}/8 semanas ativas — ótima consistência.`
-                : activeWeeks >= 3
-                ? `${activeWeeks}/8 semanas ativas — a consistência é chave.`
-                : `${activeWeeks}/8 semanas ativas — cada treino conta!`}
+                  ? `${activeWeeks}/8 semanas ativas — ótima consistência.`
+                  : activeWeeks >= 3
+                    ? `${activeWeeks}/8 semanas ativas — a consistência é chave.`
+                    : `${activeWeeks}/8 semanas ativas — cada treino conta!`}
             </p>
             {currentWeek && avgVolume > 0 && currentWeek.volume > 0 && (
-              <p className="text-[11px] text-text-muted mt-0.5">
+              <p className="mt-0.5 text-[11px] text-text-muted">
                 Esta semana:{' '}
                 <span
                   style={{
@@ -319,13 +335,13 @@ export function VolumeChart({ data }: { data: WeekData[] }) {
                   }}
                 >
                   {currentWeek.volume >= avgVolume ? '⬆ acima' : '⬇ abaixo'} da média
-                </span>
-                {' '}({formatVolume(Math.abs(currentWeek.volume - Math.round(avgVolume)))} de diferença)
+                </span>{' '}
+                ({formatVolume(Math.abs(currentWeek.volume - Math.round(avgVolume)))} de diferença)
               </p>
             )}
           </div>
         </div>
       )}
     </div>
-  )
+  );
 }

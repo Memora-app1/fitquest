@@ -1,66 +1,68 @@
-﻿import type { Metadata } from 'next'
-import { Suspense } from 'react'
-import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
-import { AppShell } from '@/components/layout/app-shell'
-import { GoalsList } from '@/components/metas/goals-list'
-import { GoalsOverview } from '@/components/metas/goals-overview'
-import { Target, CheckCircle2, TrendingUp } from 'lucide-react'
+﻿import type { Metadata } from 'next';
+import { Suspense } from 'react';
+import { createClient } from '@/lib/supabase/server';
+import { redirect } from 'next/navigation';
+import { AppShell } from '@/components/layout/app-shell';
+import { GoalsList } from '@/components/metas/goals-list';
+import { GoalsOverview } from '@/components/metas/goals-overview';
+import { Target, CheckCircle2, TrendingUp } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Metas',
   description: 'Defina e acompanhe suas metas pessoais no Ascendia.',
-}
+};
 
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-dynamic';
 
 export default async function MetasPage() {
-  const supabase = await createClient()
+  const supabase = await createClient();
   const {
     data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+  } = await supabase.auth.getUser();
+  if (!user) redirect('/login');
 
   const { data: goals } = await supabase
     .from('goals')
     .select(
-      'id, title, description, icon, category, target_value, current_value, unit, deadline, status, completed_at, created_at',
+      'id, title, description, icon, category, target_value, current_value, unit, deadline, status, completed_at, created_at'
     )
     .eq('user_id', user.id)
-    .order('created_at', { ascending: false })
+    .order('created_at', { ascending: false });
 
-  const activeCount = (goals ?? []).filter((g) => g.status === 'active').length
-  const completedCount = (goals ?? []).filter((g) => g.status === 'completed').length
-  const validGoals = (goals ?? []).filter((g) => g.status !== 'cancelled')
+  const activeCount = (goals ?? []).filter((g) => g.status === 'active').length;
+  const completedCount = (goals ?? []).filter((g) => g.status === 'completed').length;
+  const validGoals = (goals ?? []).filter((g) => g.status !== 'cancelled');
   const avgProgress =
     validGoals.length > 0
       ? Math.round(
           validGoals.reduce(
             (sum, g) => sum + Math.min(100, (g.current_value / g.target_value) * 100),
-            0,
-          ) / validGoals.length,
+            0
+          ) / validGoals.length
         )
-      : 0
+      : 0;
 
   return (
     <AppShell>
-      <div className="p-4 md:p-8 max-w-5xl mx-auto space-y-6">
-
+      <div className="mx-auto max-w-5xl space-y-6 p-4 md:p-8">
         {/* ── Hero Header ─────────────────────────────────────────────── */}
         <div
-          className="rounded-2xl p-6 relative overflow-hidden"
+          className="relative overflow-hidden rounded-2xl p-6"
           style={{
-            background: 'linear-gradient(135deg, rgba(0,255,136,0.07) 0%, rgba(13,24,41,0.98) 60%, rgba(245,200,66,0.05) 100%)',
+            background:
+              'linear-gradient(135deg, rgba(0,255,136,0.07) 0%, rgba(13,24,41,0.98) 60%, rgba(245,200,66,0.05) 100%)',
             border: '1px solid rgba(0,255,136,0.18)',
           }}
         >
           <div
-            className="absolute -top-8 -right-8 w-40 h-40 rounded-full pointer-events-none"
-            style={{ background: 'radial-gradient(circle, rgba(0,255,136,0.1) 0%, transparent 70%)' }}
+            className="pointer-events-none absolute -right-8 -top-8 h-40 w-40 rounded-full"
+            style={{
+              background: 'radial-gradient(circle, rgba(0,255,136,0.1) 0%, transparent 70%)',
+            }}
           />
           <div className="relative z-10">
             <h1 className="heading-display text-4xl md:text-5xl">Metas</h1>
-            <p className="text-text-secondary mt-1">
+            <p className="mt-1 text-text-secondary">
               {activeCount > 0
                 ? `${activeCount} meta${activeCount > 1 ? 's' : ''} ativa${activeCount > 1 ? 's' : ''} · ${completedCount} concluída${completedCount !== 1 ? 's' : ''}`
                 : 'Defina onde quer chegar e acompanhe seu progresso.'}
@@ -73,20 +75,21 @@ export default async function MetasPage() {
           <div className="grid grid-cols-3 gap-3">
             {/* Active */}
             <div
-              className="rounded-2xl p-4 relative overflow-hidden text-center"
+              className="relative overflow-hidden rounded-2xl p-4 text-center"
               style={{
-                background: 'linear-gradient(135deg, rgba(255,77,0,0.08) 0%, rgba(13,24,41,0.98) 100%)',
+                background:
+                  'linear-gradient(135deg, rgba(255,77,0,0.08) 0%, rgba(13,24,41,0.98) 100%)',
                 border: '1px solid rgba(255,77,0,0.2)',
               }}
             >
               <div
-                className="absolute -top-4 -right-4 w-14 h-14 rounded-full pointer-events-none blur-xl"
+                className="pointer-events-none absolute -right-4 -top-4 h-14 w-14 rounded-full blur-xl"
                 style={{ background: 'rgba(255,77,0,0.2)' }}
               />
               <div className="relative z-10">
-                <div className="flex items-center justify-center gap-1.5 mb-1.5">
+                <div className="mb-1.5 flex items-center justify-center gap-1.5">
                   <Target size={13} className="text-brand-orange" />
-                  <span className="text-xs text-text-muted uppercase tracking-wider">Ativas</span>
+                  <span className="text-xs uppercase tracking-wider text-text-muted">Ativas</span>
                 </div>
                 <div className="heading-display text-3xl text-brand-orange">{activeCount}</div>
               </div>
@@ -94,20 +97,23 @@ export default async function MetasPage() {
 
             {/* Completed */}
             <div
-              className="rounded-2xl p-4 relative overflow-hidden text-center"
+              className="relative overflow-hidden rounded-2xl p-4 text-center"
               style={{
-                background: 'linear-gradient(135deg, rgba(0,255,136,0.08) 0%, rgba(13,24,41,0.98) 100%)',
+                background:
+                  'linear-gradient(135deg, rgba(0,255,136,0.08) 0%, rgba(13,24,41,0.98) 100%)',
                 border: '1px solid rgba(0,255,136,0.2)',
               }}
             >
               <div
-                className="absolute -top-4 -right-4 w-14 h-14 rounded-full pointer-events-none blur-xl"
+                className="pointer-events-none absolute -right-4 -top-4 h-14 w-14 rounded-full blur-xl"
                 style={{ background: 'rgba(0,255,136,0.2)' }}
               />
               <div className="relative z-10">
-                <div className="flex items-center justify-center gap-1.5 mb-1.5">
+                <div className="mb-1.5 flex items-center justify-center gap-1.5">
                   <CheckCircle2 size={13} className="text-brand-green" />
-                  <span className="text-xs text-text-muted uppercase tracking-wider">Concluídas</span>
+                  <span className="text-xs uppercase tracking-wider text-text-muted">
+                    Concluídas
+                  </span>
                 </div>
                 <div className="heading-display text-3xl text-brand-green">{completedCount}</div>
               </div>
@@ -115,7 +121,7 @@ export default async function MetasPage() {
 
             {/* Average progress */}
             <div
-              className="rounded-2xl p-4 relative overflow-hidden text-center"
+              className="relative overflow-hidden rounded-2xl p-4 text-center"
               style={{
                 background:
                   avgProgress >= 75
@@ -125,13 +131,15 @@ export default async function MetasPage() {
               }}
             >
               <div
-                className="absolute -top-4 -right-4 w-14 h-14 rounded-full pointer-events-none blur-xl"
+                className="pointer-events-none absolute -right-4 -top-4 h-14 w-14 rounded-full blur-xl"
                 style={{ background: 'rgba(245,200,66,0.2)' }}
               />
               <div className="relative z-10">
-                <div className="flex items-center justify-center gap-1.5 mb-1.5">
+                <div className="mb-1.5 flex items-center justify-center gap-1.5">
                   <TrendingUp size={13} className="text-brand-gold" />
-                  <span className="text-xs text-text-muted uppercase tracking-wider">Progresso</span>
+                  <span className="text-xs uppercase tracking-wider text-text-muted">
+                    Progresso
+                  </span>
                 </div>
                 <div className="heading-display text-3xl text-brand-gold">{avgProgress}%</div>
               </div>
@@ -140,12 +148,12 @@ export default async function MetasPage() {
         )}
 
         {/* ── Goals analytics overview ─────────────────────────────────── */}
-        <Suspense fallback={<div className="h-48 rounded-2xl shimmer" />}>
+        <Suspense fallback={<div className="shimmer h-48 rounded-2xl" />}>
           <GoalsOverview userId={user.id} />
         </Suspense>
 
         <GoalsList initialGoals={goals ?? []} />
       </div>
     </AppShell>
-  )
+  );
 }

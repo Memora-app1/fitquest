@@ -1,24 +1,26 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
-import { getStripe, getStripePrices, type StripePlan } from '@/lib/stripe'
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@/lib/supabase/server';
+import { getStripe, getStripePrices, type StripePlan } from '@/lib/stripe';
+
+export const runtime = 'nodejs';
 
 export async function POST(req: NextRequest) {
-  const supabase = await createClient()
+  const supabase = await createClient();
   const {
     data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return NextResponse.redirect(new URL('/login', req.url))
+  } = await supabase.auth.getUser();
+  if (!user) return NextResponse.redirect(new URL('/login', req.url));
 
-  const formData = await req.formData()
-  const plan = String(formData.get('plan') ?? '') as StripePlan
+  const formData = await req.formData();
+  const plan = String(formData.get('plan') ?? '') as StripePlan;
 
   if (!['monthly', 'annual', 'lifetime'].includes(plan)) {
-    return NextResponse.json({ error: 'invalid_plan' }, { status: 400 })
+    return NextResponse.json({ error: 'invalid_plan' }, { status: 400 });
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
-  const isLifetime = plan === 'lifetime'
-  const prices = getStripePrices()
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
+  const isLifetime = plan === 'lifetime';
+  const prices = getStripePrices();
 
   try {
     const session = await getStripe().checkout.sessions.create({
@@ -37,11 +39,11 @@ export async function POST(req: NextRequest) {
               trial_period_days: plan === 'annual' ? 7 : undefined,
             },
           }),
-    })
+    });
 
-    return NextResponse.redirect(session.url ?? `${appUrl}/planos`, 303)
+    return NextResponse.redirect(session.url ?? `${appUrl}/planos`, 303);
   } catch (err) {
-    console.error('checkout error', err)
-    return NextResponse.redirect(new URL('/planos?error=checkout', req.url))
+    console.error('checkout error', err);
+    return NextResponse.redirect(new URL('/planos?error=checkout', req.url));
   }
 }

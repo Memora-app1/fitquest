@@ -1,48 +1,51 @@
-'use client'
+'use client';
 
-import { useEffect } from 'react'
-import Link from 'next/link'
-import { RefreshCw, Home, Bot, AlertCircle, Wifi, ChevronRight } from 'lucide-react'
+import { useEffect } from 'react';
+import Link from 'next/link';
+import { RefreshCw, Home, Bot, AlertCircle, Wifi, ChevronRight } from 'lucide-react';
 
 export default function CoachError({
   error,
   reset,
 }: {
-  error: Error & { digest?: string }
-  reset: () => void
+  error: Error & { digest?: string };
+  reset: () => void;
 }) {
   useEffect(() => {
-    console.error('[CoachError]', error)
-  }, [error])
+    console.error('[CoachError]', error);
+  }, [error]);
 
-  const isApiError = error.message.toLowerCase().includes('api') ||
+  const isApiError =
+    error.message.toLowerCase().includes('api') ||
     error.message.toLowerCase().includes('anthropic') ||
-    error.message.toLowerCase().includes('timeout')
+    error.message.toLowerCase().includes('timeout');
 
   return (
-    <div className="min-h-[60vh] flex items-center justify-center p-6">
+    <div className="flex min-h-[60vh] items-center justify-center p-6">
       <div
-        className="w-full max-w-lg p-8 rounded-2xl relative overflow-hidden"
+        className="relative w-full max-w-lg overflow-hidden rounded-2xl p-8"
         style={{
-          background: 'linear-gradient(135deg, rgba(124,58,237,0.1) 0%, rgba(13,24,41,0.99) 60%, rgba(236,72,153,0.04) 100%)',
+          background:
+            'linear-gradient(135deg, rgba(124,58,237,0.1) 0%, rgba(13,24,41,0.99) 60%, rgba(236,72,153,0.04) 100%)',
           border: '1px solid rgba(124,58,237,0.28)',
           boxShadow: '0 24px 60px rgba(0,0,0,0.5), 0 0 60px rgba(124,58,237,0.06)',
         }}
       >
         {/* Ambient glows */}
         <div
-          className="absolute -top-6 -right-6 w-36 h-36 rounded-full pointer-events-none blur-2xl"
+          className="pointer-events-none absolute -right-6 -top-6 h-36 w-36 rounded-full blur-2xl"
           style={{ background: 'rgba(124,58,237,0.2)' }}
         />
         <div
-          className="absolute -bottom-4 -left-4 w-28 h-28 rounded-full pointer-events-none blur-xl"
+          className="pointer-events-none absolute -bottom-4 -left-4 h-28 w-28 rounded-full blur-xl"
           style={{ background: 'rgba(236,72,153,0.08)' }}
         />
         {/* Scanline effect */}
         <div
-          className="absolute inset-0 pointer-events-none opacity-[0.03]"
+          className="pointer-events-none absolute inset-0 opacity-[0.03]"
           style={{
-            backgroundImage: 'repeating-linear-gradient(0deg, rgba(255,255,255,0.5) 0px, rgba(255,255,255,0.5) 1px, transparent 1px, transparent 4px)',
+            backgroundImage:
+              'repeating-linear-gradient(0deg, rgba(255,255,255,0.5) 0px, rgba(255,255,255,0.5) 1px, transparent 1px, transparent 4px)',
           }}
         />
 
@@ -50,7 +53,7 @@ export default function CoachError({
           {/* Icon row */}
           <div className="flex items-center gap-4">
             <div
-              className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 relative"
+              className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl"
               style={{
                 background: 'rgba(124,58,237,0.15)',
                 border: '1px solid rgba(124,58,237,0.35)',
@@ -59,16 +62,23 @@ export default function CoachError({
               <Bot size={28} className="text-brand-purple" />
               {/* Offline indicator */}
               <div
-                className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full flex items-center justify-center"
-                style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.4)' }}
+                className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full"
+                style={{
+                  background: 'rgba(239,68,68,0.15)',
+                  border: '1px solid rgba(239,68,68,0.4)',
+                }}
               >
-                <div className="w-2 h-2 rounded-full bg-red-500" />
+                <div className="h-2 w-2 rounded-full bg-red-500" />
               </div>
             </div>
             <div>
               <div
-                className="text-xs font-bold uppercase tracking-widest mb-1 px-2 py-0.5 rounded-full inline-block"
-                style={{ background: 'rgba(124,58,237,0.14)', color: '#9F5AF7', border: '1px solid rgba(124,58,237,0.25)' }}
+                className="mb-1 inline-block rounded-full px-2 py-0.5 text-xs font-bold uppercase tracking-widest"
+                style={{
+                  background: 'rgba(124,58,237,0.14)',
+                  color: '#9F5AF7',
+                  border: '1px solid rgba(124,58,237,0.25)',
+                }}
               >
                 Coach IA — Offline
               </div>
@@ -78,10 +88,13 @@ export default function CoachError({
 
           {/* Description — context-aware */}
           <div
-            className="rounded-xl p-4 flex items-start gap-3"
-            style={{ background: 'rgba(124,58,237,0.07)', border: '1px solid rgba(124,58,237,0.15)' }}
+            className="flex items-start gap-3 rounded-xl p-4"
+            style={{
+              background: 'rgba(124,58,237,0.07)',
+              border: '1px solid rgba(124,58,237,0.15)',
+            }}
           >
-            <AlertCircle size={16} className="text-brand-purple mt-0.5 shrink-0" />
+            <AlertCircle size={16} className="mt-0.5 shrink-0 text-brand-purple" />
             <div>
               <p className="text-sm text-text-secondary">
                 {isApiError
@@ -89,7 +102,7 @@ export default function CoachError({
                   : 'Não foi possível conectar ao Coach IA. Verifique sua internet e tente recarregar a seção.'}
               </p>
               {error.digest && (
-                <p className="text-xs text-text-muted font-mono mt-2 select-all">
+                <p className="mt-2 select-all font-mono text-xs text-text-muted">
                   Código: {error.digest}
                 </p>
               )}
@@ -98,7 +111,7 @@ export default function CoachError({
 
           {/* Troubleshooting */}
           <div className="space-y-2">
-            <p className="text-xs font-semibold text-text-muted uppercase tracking-wider">
+            <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">
               {isApiError ? 'Sobre o erro da IA:' : 'O que tentar:'}
             </p>
             {(isApiError
@@ -114,7 +127,7 @@ export default function CoachError({
                 ]
             ).map((tip, i) => (
               <div key={i} className="flex items-start gap-2 text-xs text-text-secondary">
-                <ChevronRight size={12} className="text-brand-purple shrink-0 mt-0.5" />
+                <ChevronRight size={12} className="mt-0.5 shrink-0 text-brand-purple" />
                 {tip}
               </div>
             ))}
@@ -122,20 +135,24 @@ export default function CoachError({
 
           {/* Network status hint */}
           <div
-            className="rounded-xl p-3 flex items-center gap-3"
-            style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
+            className="flex items-center gap-3 rounded-xl p-3"
+            style={{
+              background: 'rgba(255,255,255,0.03)',
+              border: '1px solid rgba(255,255,255,0.06)',
+            }}
           >
-            <Wifi size={13} className="text-text-muted shrink-0" />
+            <Wifi size={13} className="shrink-0 text-text-muted" />
             <p className="text-xs text-text-muted">
-              Seu histórico de conversa com o Coach está salvo e será carregado quando a conexão for restaurada.
+              Seu histórico de conversa com o Coach está salvo e será carregado quando a conexão for
+              restaurada.
             </p>
           </div>
 
           {/* Actions */}
-          <div className="flex flex-col sm:flex-row gap-3 pt-2">
+          <div className="flex flex-col gap-3 pt-2 sm:flex-row">
             <button
               onClick={reset}
-              className="flex-1 flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-bold text-sm transition-all hover:opacity-90 active:scale-[0.98]"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-bold transition-all hover:opacity-90 active:scale-[0.98]"
               style={{
                 background: 'linear-gradient(135deg, #5B21B6, #7C3AED)',
                 color: '#fff',
@@ -147,7 +164,7 @@ export default function CoachError({
             </button>
             <Link
               href="/dashboard"
-              className="flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-semibold text-sm text-text-secondary transition-all hover:text-white hover:bg-white/5"
+              className="flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-text-secondary transition-all hover:bg-white/5 hover:text-white"
               style={{ border: '1px solid rgba(255,255,255,0.08)' }}
             >
               <Home size={14} />
@@ -157,5 +174,5 @@ export default function CoachError({
         </div>
       </div>
     </div>
-  )
+  );
 }

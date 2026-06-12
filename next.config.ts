@@ -10,10 +10,6 @@ const nextConfig: NextConfig = {
   // Marcá-lo como externo impede o bundler de tentar processá-lo para o browser.
   serverExternalPackages: ['web-push'],
 
-  // Habilita "use cache" directive — substitui unstable_cache com API estável
-  // em Next.js 16.2. Cache key gerado automaticamente a partir dos argumentos.
-  cacheComponents: true,
-
   experimental: {
     // Habilita a View Transitions API nativa do browser entre rotas.
     // Permite CSS ::view-transition-* e <ViewTransition name=""> para shared element animations.

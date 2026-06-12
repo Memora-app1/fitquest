@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 /**
  * NotificationBell — sino com badge de não-lidas.
@@ -6,30 +6,30 @@
  * Busca contagem inicial via prop (passada do AppShell server-side).
  */
 
-import { useState, useCallback } from 'react'
-import { Bell } from 'lucide-react'
-import { NotificationDrawer } from './notification-drawer'
+import { useState, useCallback } from 'react';
+import { Bell } from 'lucide-react';
+import { NotificationDrawer } from './notification-drawer';
 
 export function NotificationBell({ initialUnread }: { initialUnread: number }) {
-  const [open, setOpen] = useState(false)
-  const [unread, setUnread] = useState(initialUnread)
+  const [open, setOpen] = useState(false);
+  const [unread, setUnread] = useState(initialUnread);
 
   const handleRead = useCallback(() => {
-    setUnread(0)
-  }, [])
+    setUnread(0);
+  }, []);
 
   return (
     <>
       <button
         onClick={() => setOpen(true)}
-        className="relative w-8 h-8 rounded-full flex items-center justify-center text-text-muted hover:text-white transition-colors"
+        className="relative flex h-8 w-8 items-center justify-center rounded-full text-text-muted transition-colors hover:text-white"
         style={{ background: 'rgba(255,255,255,0.04)' }}
         aria-label="Notificações"
       >
         <Bell size={16} />
         {unread > 0 && (
           <span
-            className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 rounded-full flex items-center justify-center text-[9px] font-black px-1"
+            className="absolute -right-0.5 -top-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full px-1 text-[9px] font-black"
             style={{
               background: '#FF4D00',
               color: '#fff',
@@ -48,5 +48,5 @@ export function NotificationBell({ initialUnread }: { initialUnread: number }) {
         onRead={handleRead}
       />
     </>
-  )
+  );
 }
