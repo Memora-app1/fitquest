@@ -133,6 +133,22 @@ export default async function HabitosPage({
     }));
   const atRiskIds = new Set(atRiskHabits.map((h) => h.id));
 
+  // ── Adaptive difficulty: hábitos "dominados" (90%+ em 21+ dias) ───
+  const DAYS_FOR_MASTERY = 21;
+  const masteryThresholdDate = new Date(Date.now() - DAYS_FOR_MASTERY * 86400000)
+    .toISOString()
+    .split('T')[0]!;
+  const masteredHabits = habits
+    .filter((h) => {
+      const logsInPeriod = monthLogs.filter(
+        (l) => l.habit_id === h.id && l.logged_date >= masteryThresholdDate
+      ).length;
+      const rate = logsInPeriod / DAYS_FOR_MASTERY;
+      const isMaxXp = (h.xp_per_completion as number) >= 100; // já no nível difícil
+      return rate >= 0.9 && !isMaxXp;
+    })
+    .map((h) => ({ id: h.id, name: h.name as string, icon: h.icon as string }));
+
   // Today's accent color based on completion
   const todayAccent =
     todayCompletionRate === 100 ? '#00FF88' : todayCompletionRate >= 50 ? '#F5C842' : '#FF4D00';
@@ -418,6 +434,46 @@ export default async function HabitosPage({
             </div>
             <p className="mt-3 text-xs text-text-muted">
               Complete esses hábitos hoje para manter a consistência e não perder o progresso.
+            </p>
+          </div>
+        )}
+
+        {/* ── Mastered habits — suggest upgrading difficulty ──────────── */}
+        {masteredHabits.length > 0 && (
+          <div
+            className="rounded-2xl p-4"
+            style={{
+              background: 'linear-gradient(135deg, rgba(0,255,136,0.06) 0%, rgba(13,24,41,0.98) 100%)',
+              border: '1px solid rgba(0,255,136,0.2)',
+            }}
+          >
+            <div className="mb-2 flex items-center gap-2">
+              <span className="text-base">🏅</span>
+              <span className="text-sm font-bold text-brand-green">
+                {masteredHabits.length === 1
+                  ? '1 hábito dominado — hora de subir o nível!'
+                  : `${masteredHabits.length} hábitos dominados — hora de subir o nível!`}
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {masteredHabits.map((h) => (
+                <div
+                  key={h.id}
+                  className="flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold"
+                  style={{
+                    background: 'rgba(0,255,136,0.08)',
+                    border: '1px solid rgba(0,255,136,0.2)',
+                    color: '#00FF88',
+                  }}
+                >
+                  <span>{h.icon}</span>
+                  <span>{h.name}</span>
+                  <span className="text-text-muted">· 90%+</span>
+                </div>
+              ))}
+            </div>
+            <p className="mt-3 text-xs text-text-muted">
+              Você está dominando esses hábitos. Edite-os para aumentar a dificuldade e ganhar mais XP.
             </p>
           </div>
         )}
