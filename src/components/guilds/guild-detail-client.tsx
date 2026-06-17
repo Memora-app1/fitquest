@@ -60,6 +60,8 @@ interface Props {
     isMember: boolean;
     isOwner: boolean;
   };
+  /** Feed de atividade da guild (Server Component) renderizado no fim do fluxo. */
+  feed?: React.ReactNode;
 }
 
 const DEFAULT_ROLE: { label: string; color: string; icon: React.ElementType } = {
@@ -80,7 +82,7 @@ const POSITION_STYLES: Record<number, { bg: string; color: string; shadow: strin
   3: { bg: 'rgba(205,127,50,0.12)', color: '#CD7F32', shadow: '' },
 };
 
-export function GuildDetailClient({ data }: Props) {
+export function GuildDetailClient({ data, feed }: Props) {
   const { guild, members, myRole, isMember, isOwner } = data;
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -369,6 +371,9 @@ export function GuildDetailClient({ data }: Props) {
           )}
         </div>
       </div>
+
+      {/* Feed de atividade (apenas membros) */}
+      {feed}
     </div>
   );
 }

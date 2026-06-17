@@ -3,6 +3,7 @@ import { notFound, redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { AppShell } from '@/components/layout/app-shell';
 import { GuildDetailClient } from '@/components/guilds/guild-detail-client';
+import { GuildActivityFeed } from '@/components/guilds/guild-activity-feed';
 
 export const dynamic = 'force-dynamic';
 
@@ -158,7 +159,14 @@ export default async function GuildDetailPage({ params }: { params: Promise<{ id
 
   return (
     <AppShell>
-      <GuildDetailClient data={guildData} />
+      <GuildDetailClient
+        data={guildData}
+        feed={
+          guildData.isMember ? (
+            <GuildActivityFeed members={guildData.members} currentUserId={user.id} />
+          ) : null
+        }
+      />
     </AppShell>
   );
 }
