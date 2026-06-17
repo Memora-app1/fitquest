@@ -344,7 +344,7 @@ export function TransactionsView({
                 <p className="mb-4 text-text-secondary">
                   Registre suas movimentações pra ganhar XP
                 </p>
-                <button onClick={() => setShowNew(true)} className="btn-primary">
+                <button type="button" onClick={() => setShowNew(true)} className="btn-primary">
                   Adicionar primeira transação
                 </button>
               </>
@@ -544,7 +544,7 @@ function NoAccountModal({ onClose }: { onClose: () => void }) {
             Você precisa ter pelo menos 1 conta cadastrada antes de registrar transações.
           </p>
           <div className="flex gap-2">
-            <button onClick={onClose} className="btn-ghost flex-1">
+            <button type="button" onClick={onClose} className="btn-ghost flex-1">
               Voltar
             </button>
             <a href="/financas/contas" className="btn-primary flex-1">
@@ -643,7 +643,7 @@ function NewTransactionModal({
         />
         <div className="relative z-10 flex items-center justify-between">
           <h2 className="text-xl font-bold">Nova transação</h2>
-          <button onClick={onClose} className="text-text-muted hover:text-white">
+          <button type="button" onClick={onClose} className="text-text-muted hover:text-white">
             <X size={20} />
           </button>
         </div>

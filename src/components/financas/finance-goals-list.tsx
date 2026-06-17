@@ -44,7 +44,7 @@ export function FinanceGoalsList({ initialGoals }: { initialGoals: FinanceGoal[]
   return (
     <>
       <div className="flex justify-end">
-        <button onClick={() => setShowCreate(true)} className="btn-primary flex items-center gap-2">
+        <button type="button" onClick={() => setShowCreate(true)} className="btn-primary flex items-center gap-2">
           <Plus size={16} />
           Nova meta
         </button>
@@ -70,7 +70,7 @@ export function FinanceGoalsList({ initialGoals }: { initialGoals: FinanceGoal[]
           <p className="relative z-10 mx-auto mb-6 max-w-xs text-text-secondary">
             Defina objetivos: viagem, reserva de emergência, comprar algo grande...
           </p>
-          <button onClick={() => setShowCreate(true)} className="btn-primary relative z-10">
+          <button type="button" onClick={() => setShowCreate(true)} className="btn-primary relative z-10">
             + Criar primeira meta
           </button>
         </div>

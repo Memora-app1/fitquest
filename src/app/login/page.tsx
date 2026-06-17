@@ -73,8 +73,10 @@ function LoginContent() {
     callbackError === 'confirmation_failed'
       ? 'Link de confirmação expirado ou inválido. Solicite um novo abaixo.'
       : callbackError === 'missing_code'
-        ? 'Link inválido. Tente entrar com seu email e senha.'
-        : null
+        ? 'Login com Google falhou. O URL do app precisa ser autorizado no painel do Supabase (Auth → URL Configuration). Use email e senha por enquanto.'
+        : callbackError === 'oauth_error'
+          ? 'Erro ao autenticar com Google. Tente novamente ou use email e senha.'
+          : null
   );
   const [emailNotConfirmed, setEmailNotConfirmed] = useState(false);
 

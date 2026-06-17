@@ -161,7 +161,7 @@ export function GoalsList({ initialGoals }: { initialGoals: Goal[] }) {
             </button>
           ))}
         </div>
-        <button onClick={() => setShowCreate(true)} className="btn-primary">
+        <button type="button" onClick={() => setShowCreate(true)} className="btn-primary">
           <Plus size={18} className="mr-1 inline" /> Nova meta
         </button>
       </div>
@@ -190,7 +190,7 @@ export function GoalsList({ initialGoals }: { initialGoals: Goal[] }) {
                 : 'Nada aqui ainda'}
             </p>
             {filter === 'active' && (
-              <button onClick={() => setShowCreate(true)} className="btn-primary">
+              <button type="button" onClick={() => setShowCreate(true)} className="btn-primary">
                 Criar primeira meta
               </button>
             )}
@@ -485,7 +485,7 @@ function CreateGoalModal({
         />
         <div className="relative z-10 flex items-center justify-between">
           <h2 className="text-xl font-bold">Nova meta</h2>
-          <button onClick={onClose} className="text-text-muted hover:text-white">
+          <button type="button" onClick={onClose} className="text-text-muted hover:text-white">
             <X size={20} />
           </button>
         </div>
@@ -667,7 +667,7 @@ function UpdateProgressModal({
         />
         <div className="relative z-10 flex items-center justify-between">
           <h2 className="text-lg font-bold">Atualizar progresso</h2>
-          <button onClick={onClose} className="text-text-muted hover:text-white">
+          <button type="button" onClick={onClose} className="text-text-muted hover:text-white">
             <X size={20} />
           </button>
         </div>

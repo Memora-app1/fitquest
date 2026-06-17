@@ -38,5 +38,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${origin}/login?error=confirmation_failed`);
   }
 
+  // Limpa o cache de subscription para forçar releitura do banco na primeira request
+  response.cookies.delete('asc-sub-v1');
+
   return response;
 }

@@ -786,7 +786,7 @@ export function CalendarClient({
               <Plus size={14} />
               Evento
             </button>
-            <button onClick={goToToday} className="btn-ghost px-4 py-2 text-sm">
+            <button type="button" onClick={goToToday} className="btn-ghost px-4 py-2 text-sm">
               Hoje
             </button>
           </div>

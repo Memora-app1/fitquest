@@ -318,7 +318,7 @@ export function HabitPacksModal({
             <Sparkles size={16} className="text-brand-purple" />
             <span className="font-bold">Pacotes de Hábitos</span>
           </div>
-          <button onClick={onClose} className="text-text-muted transition-colors hover:text-white">
+          <button type="button" onClick={onClose} className="text-text-muted transition-colors hover:text-white">
             <X size={20} />
           </button>
         </div>

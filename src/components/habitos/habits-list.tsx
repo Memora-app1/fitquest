@@ -205,7 +205,7 @@ export function HabitsList({
               >
                 <Sparkles size={16} className="text-brand-purple" /> Usar um pacote
               </button>
-              <button onClick={() => setShowCreate(true)} className="btn-primary">
+              <button type="button" onClick={() => setShowCreate(true)} className="btn-primary">
                 <Plus size={18} className="mr-1 inline" /> Criar do zero
               </button>
             </div>
@@ -310,7 +310,7 @@ export function HabitsList({
           <Sparkles size={16} className="text-brand-purple" />
           Pacotes
         </button>
-        <button onClick={() => setShowCreate(true)} className="btn-primary flex items-center gap-2">
+        <button type="button" onClick={() => setShowCreate(true)} className="btn-primary flex items-center gap-2">
           <Plus size={18} /> Novo hábito
         </button>
       </div>

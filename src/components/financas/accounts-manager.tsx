@@ -191,7 +191,7 @@ export function AccountsManager({ initialAccounts }: { initialAccounts: Account[
       )}
 
       <div className="flex justify-end">
-        <button onClick={() => setShowNew(true)} className="btn-primary flex items-center gap-2">
+        <button type="button" onClick={() => setShowNew(true)} className="btn-primary flex items-center gap-2">
           <Plus size={16} /> Nova conta
         </button>
       </div>
@@ -225,7 +225,7 @@ export function AccountsManager({ initialAccounts }: { initialAccounts: Account[
             <p className="mx-auto mb-5 max-w-xs text-text-secondary">
               Cadastre seus bancos e cartões para controlar seu dinheiro em um só lugar
             </p>
-            <button onClick={() => setShowNew(true)} className="btn-primary">
+            <button type="button" onClick={() => setShowNew(true)} className="btn-primary">
               <Plus size={16} className="mr-1.5 inline" /> Cadastrar primeira conta
             </button>
           </div>

@@ -680,7 +680,7 @@ function NewTaskModal({
               {quadrant.emoji} {quadrant.title} — {quadrant.subtitle}
             </div>
           </div>
-          <button onClick={onClose} className="text-text-muted transition-colors hover:text-white">
+          <button type="button" onClick={onClose} className="text-text-muted transition-colors hover:text-white">
             <X size={20} />
           </button>
         </div>

@@ -112,8 +112,13 @@ function hasValidAccess(profile: SubCacheData): boolean {
   if (profile.status === 'lifetime') return true;
   if (profile.status === 'active') return true;
 
-  if (profile.status === 'trial' && profile.trial_end && new Date(profile.trial_end) > now)
-    return true;
+  // trial: o cron /api/cron/subscriptions é quem muda para 'expired' ao fim do período.
+  // Enquanto o cron não rodar (ou não estiver configurado), o status fica em 'trial'
+  // e o acesso é liberado — nunca bloqueamos por trial_end expirado sem confirmação do cron.
+  if (profile.status === 'trial') return true;
+
+  // Bloqueio explícito: só quando o cron definiu 'expired'
+  if (profile.status === 'expired') return false;
 
   if (
     profile.status === 'cancelled' &&
@@ -122,11 +127,14 @@ function hasValidAccess(profile: SubCacheData): boolean {
   )
     return true;
 
-  // Grace period: conta criada há menos de 7 dias
+  // Sem status (coluna não migrada) ou status desconhecido: grace period de 30 dias
   if (profile.created_at) {
     const ageDays = (now.getTime() - new Date(profile.created_at).getTime()) / 86400000;
-    if (ageDays < 7) return true;
+    if (ageDays < 30) return true;
   }
+
+  // Status nulo/desconhecido sem created_at: libera (fail-open em dev)
+  if (!profile.status) return true;
 
   return false;
 }
