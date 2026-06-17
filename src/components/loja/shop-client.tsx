@@ -15,9 +15,10 @@ interface ShopItem {
 }
 
 interface Props {
-  xp:            number
-  streakFreezes: number
-  items:         ShopItem[]
+  xp:             number
+  streakFreezes:  number
+  items:          ShopItem[]
+  boostExpiresAt: string | null
 }
 
 const ICON_MAP: Record<string, React.ElementType> = {
@@ -40,7 +41,7 @@ const CATEGORY_LABELS: Record<string, string> = {
   boost:      'Boost',
 }
 
-export function ShopClient({ xp, streakFreezes, items }: Props) {
+export function ShopClient({ xp, streakFreezes, items, boostExpiresAt }: Props) {
   const router   = useRouter()
   const [pending, startTransition] = useTransition()
   const [buying,  setBuying]       = useState<string | null>(null)
@@ -109,13 +110,24 @@ export function ShopClient({ xp, streakFreezes, items }: Props) {
               <Shield size={14} />
               {streakFreezes} freeze{streakFreezes !== 1 ? 's' : ''}
             </div>
-            <div
-              className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-bold"
-              style={{ background: 'rgba(255,77,0,0.10)', border: '1px solid rgba(255,77,0,0.25)', color: '#FF4D00' }}
-            >
-              <Flame size={14} />
-              Streak protegido
-            </div>
+            {boostExpiresAt && (
+              <div
+                className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-bold"
+                style={{ background: 'rgba(255,77,0,0.15)', border: '1px solid rgba(255,77,0,0.4)', color: '#FF4D00' }}
+              >
+                <Zap size={14} fill="currentColor" />
+                ⚡ 2x XP ativo!
+              </div>
+            )}
+            {!boostExpiresAt && (
+              <div
+                className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-bold"
+                style={{ background: 'rgba(255,77,0,0.10)', border: '1px solid rgba(255,77,0,0.25)', color: '#FF4D00' }}
+              >
+                <Flame size={14} />
+                Streak protegido
+              </div>
+            )}
           </div>
         </div>
       </div>

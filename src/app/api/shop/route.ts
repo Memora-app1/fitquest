@@ -144,20 +144,27 @@ export async function POST(req: NextRequest) {
       await createDailyLoot(user.id, tomorrow, 'login_streak');
     }
   } else if (item === 'xp_boost_2x') {
-    // Salva boost com expiração de 1 hora
+    // Registra boost em daily_loot (reward_meta = ISO expiry string, opened_at = null enquanto ativo)
     const expiresAt = new Date(Date.now() + 3600000).toISOString();
+    await serviceSupabase.from('daily_loot').insert({
+      user_id: user.id,
+      date: todayString(),
+      rarity: 'epic',
+      reward_type: 'multiplier',
+      reward_value: 2,
+      reward_meta: expiresAt,
+      source: 'shop_xp_boost_2x',
+      opened_at: null,
+    });
     await serviceSupabase.from('notifications').insert({
       user_id: user.id,
       type: 'xp_milestone',
       title: '⚡ XP 2x ativado por 1 hora!',
-      body: 'Todo XP ganho nas próximas 1 hora é dobrado.',
+      body: 'Todo XP ganho nas próximas 1 hora é dobrado automaticamente.',
       action_url: '/dashboard',
       scheduled_for: new Date().toISOString(),
       sent_at: new Date().toISOString(),
     });
-    // Nota: o boost 2x é registrado mas a aplicação dele requer verificação de expires_at
-    // nas rotas que concedem XP (implementação futura via xp_multiplier no profile)
-    void expiresAt;
   } else if (item === 'streak_recovery') {
     // Restore streak ao máximo histórico (limitado a 30 dias)
     const longest = (profile.streak_longest as number) ?? 0;

@@ -202,4 +202,5 @@ export interface GrantXpResult {
   previousLevel: number;
   achievementsUnlocked: string[];
   newPrestige?: number;
+  boostActive?: boolean;
 }

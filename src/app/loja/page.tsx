@@ -65,6 +65,21 @@ export default async function LojaPage() {
   const xp            = (profile?.xp_total as number) ?? 0
   const streakFreezes = (profile?.streak_freezes as number) ?? 0
 
+  // Verifica boost 2x ativo
+  const now = new Date().toISOString()
+  const { data: activeBoost } = await supabase
+    .from('daily_loot')
+    .select('reward_meta')
+    .eq('user_id', user.id)
+    .eq('reward_type', 'multiplier')
+    .is('opened_at', null)
+    .gt('reward_meta', now)
+    .order('reward_meta', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  const boostExpiresAt = activeBoost ? (activeBoost.reward_meta as string) : null
+
   return (
     <AppShell>
       {/* Page header */}
@@ -90,6 +105,7 @@ export default async function LojaPage() {
         xp={xp}
         streakFreezes={streakFreezes}
         items={SHOP_ITEMS}
+        boostExpiresAt={boostExpiresAt}
       />
     </AppShell>
   )

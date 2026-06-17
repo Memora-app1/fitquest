@@ -29,11 +29,28 @@ export async function grantXP(
 ): Promise<GrantXpResult> {
   const supabase = createServiceClient();
 
+  // Verifica se há boost 2x ativo (reward_meta armazena ISO expiry, opened_at null = ativo)
+  const now = new Date().toISOString();
+  const { data: boostRow } = await supabase
+    .from('daily_loot')
+    .select('id, reward_value')
+    .eq('user_id', userId)
+    .eq('reward_type', 'multiplier')
+    .is('opened_at', null)
+    .gt('reward_meta', now)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const multiplier = boostRow ? (boostRow.reward_value as number) : 1;
+  const finalAmount = multiplier > 1 ? Math.round(amount * multiplier) : amount;
+  const finalReason = multiplier > 1 ? `${reason} ⚡ (2x boost)` : reason;
+
   // 1 round trip atômico: incrementa xp, atualiza level, insere ledger
   const { data, error } = await supabase.rpc('grant_xp_atomic', {
     p_user_id: userId,
-    p_amount: amount,
-    p_reason: reason,
+    p_amount: finalAmount,
+    p_reason: finalReason,
     p_source_type: sourceType,
     p_source_id: sourceId ?? null,
   });
@@ -55,14 +72,14 @@ export async function grantXP(
       .single();
 
     const xpBefore = (profile?.xp_total as number) ?? 0;
-    const xpAfter = xpBefore + amount;
+    const xpAfter = xpBefore + finalAmount;
     const lvlOld = (profile?.level as number) ?? 1;
     const lvlNew = calculateLevel(xpAfter);
 
     await supabase.from('xp_transactions').insert({
       user_id: userId,
-      amount,
-      reason,
+      amount: finalAmount,
+      reason: finalReason,
       source_type: sourceType,
       source_id: sourceId ?? null,
       xp_total_after: xpAfter,
@@ -98,10 +115,10 @@ export async function grantXP(
   const { xp_total_after, xp_before, level_new, level_old, leveled_up } = result;
 
   // 2. Atualiza league_xp_this_week + xp_all_time + season_xp (fire-and-forget)
-  if (amount > 0) {
+  if (finalAmount > 0) {
     void supabase.rpc('increment_weekly_stats', {
       p_user_id: userId,
-      p_xp: amount,
+      p_xp: finalAmount,
     });
   }
 
@@ -185,13 +202,14 @@ export async function grantXP(
   }
 
   return {
-    xpEarned: amount,
+    xpEarned: finalAmount,
     xpTotalAfter: xp_total_after,
     newLevel: level_new,
     leveledUp: leveled_up,
     previousLevel: level_old,
     achievementsUnlocked,
     newPrestige: newPrestige > oldPrestige ? newPrestige : undefined,
+    boostActive: multiplier > 1,
   };
 }
 
