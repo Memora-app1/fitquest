@@ -17,6 +17,7 @@ import {
   Medal,
   ArrowLeft,
   ThumbsUp,
+  Share2,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -92,6 +93,7 @@ export function GuildDetailClient({ data, feed }: Props) {
   const [success, setSuccess] = useState('');
   const [cheeringId, setCheeringId] = useState<string | null>(null);
   const [cheeredIds, setCheeredIds] = useState<Set<string>>(new Set());
+  const [sharingGuild, setSharingGuild] = useState(false);
 
   function copyInvite() {
     navigator.clipboard.writeText(guild.invite_code).then(() => {
@@ -126,6 +128,52 @@ export function GuildDetailClient({ data, feed }: Props) {
       }
       router.push('/guilds');
     });
+  }
+
+  async function handleShareGuild() {
+    if (sharingGuild) return;
+    const ogUrl = `/api/og/guild?gid=${guild.id}`;
+    const joinUrl = `${window.location.origin}/guilds/${guild.invite_code}`;
+    const shareText = [
+      `${guild.avatar_emoji} Entra na minha guild [${guild.tag}] ${guild.name} no Ascendia!`,
+      ``,
+      `Subimos de nível em equipe — fitness, produtividade e finanças gamificados.`,
+      `👉 ${joinUrl}`,
+    ].join('\n');
+
+    setError('');
+    setSuccess('');
+    setSharingGuild(true);
+
+    if (navigator.share) {
+      try {
+        const imageRes = await fetch(`${window.location.origin}${ogUrl}`);
+        if (imageRes.ok) {
+          const blob = await imageRes.blob();
+          const file = new File([blob], 'ascendia-guild.png', { type: 'image/png' });
+          if (navigator.canShare?.({ files: [file] })) {
+            await navigator.share({ title: `Guild ${guild.name}`, text: shareText, files: [file] });
+            setSharingGuild(false);
+            return;
+          }
+        }
+        await navigator.share({ title: `Guild ${guild.name}`, text: shareText, url: joinUrl });
+      } catch {
+        /* cancelado/falhou — silencioso */
+      }
+      setSharingGuild(false);
+      return;
+    }
+
+    // Desktop: abre imagem + copia convite
+    window.open(ogUrl, '_blank');
+    try {
+      await navigator.clipboard.writeText(shareText);
+      setSuccess('Convite copiado! 📋');
+    } catch {
+      /* clipboard indisponível */
+    }
+    setSharingGuild(false);
   }
 
   function handleCheer(targetUserId: string) {
@@ -229,14 +277,30 @@ export function GuildDetailClient({ data, feed }: Props) {
 
         {/* Invite code + actions */}
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/5 pt-2">
-          <button
-            onClick={copyInvite}
-            className="flex items-center gap-2 text-xs text-text-muted transition-colors hover:text-white"
-          >
-            {copied ? <Check size={13} className="text-brand-green" /> : <Copy size={13} />}
-            Código:{' '}
-            <span className="font-black tracking-widest text-white">{guild.invite_code}</span>
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={copyInvite}
+              className="flex items-center gap-2 text-xs text-text-muted transition-colors hover:text-white"
+            >
+              {copied ? <Check size={13} className="text-brand-green" /> : <Copy size={13} />}
+              Código:{' '}
+              <span className="font-black tracking-widest text-white">{guild.invite_code}</span>
+            </button>
+            <button
+              onClick={handleShareGuild}
+              disabled={sharingGuild}
+              aria-label="Compartilhar guild"
+              title="Compartilhar guild para convidar membros"
+              className="flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-bold transition-all hover:scale-105 active:scale-95 disabled:opacity-60"
+              style={{
+                background: 'rgba(124,58,237,0.12)',
+                border: '1px solid rgba(124,58,237,0.3)',
+                color: '#9F5AF7',
+              }}
+            >
+              <Share2 size={12} /> Convidar
+            </button>
+          </div>
 
           {isMember ? (
             !isOwner && (
