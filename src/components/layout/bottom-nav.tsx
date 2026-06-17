@@ -18,6 +18,7 @@ import {
   Flag,
   Target,
   Bell,
+  Store,
   MoreHorizontal,
   X,
 } from 'lucide-react';
@@ -49,6 +50,7 @@ const MORE_ITEMS: Array<{ href: string; label: string; icon: React.ElementType; 
   { href: '/metas', label: 'Metas', icon: Flag, color: '#F5C842' },
   { href: '/calendario', label: 'Calendário', icon: Calendar, color: '#7C3AED' },
   { href: '/notificacoes', label: 'Notificações', icon: Bell, color: '#FF4D00' },
+  { href: '/loja',         label: 'Loja XP',       icon: Store, color: '#F5C842' },
 ];
 
 function haptic(pattern: number | number[] = 8) {

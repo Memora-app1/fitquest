@@ -28,6 +28,7 @@ import {
   Users,
   Layers,
   Bell,
+  Store,
 } from 'lucide-react';
 import { NotificationBell } from './notification-bell';
 
@@ -41,6 +42,7 @@ const NAV_SECTIONS = [
       { href: '/ranking', label: 'Ranking', icon: Medal },
       { href: '/guilds', label: 'Guilds', icon: Users },
       { href: '/seasons', label: 'Temporada', icon: Layers },
+      { href: '/loja', label: 'Loja XP', icon: Store },
     ],
   },
   {
