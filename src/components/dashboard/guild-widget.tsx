@@ -79,7 +79,8 @@ export async function GuildWidget({ userId }: Props) {
     const { data: profiles } = await supabase
       .from('profiles')
       .select('id, name')
-      .in('id', memberIds);
+      .in('id', memberIds)
+      .limit(10);
     for (const p of profiles ?? []) {
       memberNames[p.id as string] = (p.name as string).split(' ')[0] ?? '';
     }

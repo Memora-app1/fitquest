@@ -31,7 +31,8 @@ export async function CosmeticsLoader({
       cosmetics!inner(slug, name, type, rarity, preview)
     `
     )
-    .eq('user_id', userId);
+    .eq('user_id', userId)
+    .limit(100);
 
   if (!data || data.length === 0) return null;
 

@@ -48,19 +48,22 @@ export async function GET() {
       .select('id, name')
       .eq('subscription_status', 'trial')
       .gte('subscription_started_at', d1Start.toISOString())
-      .lte('subscription_started_at', d1End.toISOString()),
+      .lte('subscription_started_at', d1End.toISOString())
+      .limit(1000),
     supabase
       .from('profiles')
       .select('id, name')
       .eq('subscription_status', 'trial')
       .gte('trial_end', d5Start.toISOString())
-      .lte('trial_end', d5End.toISOString()),
+      .lte('trial_end', d5End.toISOString())
+      .limit(1000),
     supabase
       .from('profiles')
       .select('id, name')
       .eq('subscription_status', 'trial')
       .gte('trial_end', d6Start.toISOString())
-      .lte('trial_end', d6End.toISOString()),
+      .lte('trial_end', d6End.toISOString())
+      .limit(1000),
   ]);
 
   const allUsers = [

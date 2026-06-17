@@ -118,7 +118,8 @@ export async function GET() {
     const { data: allSubs } = await supabase
       .from('push_subscriptions')
       .select('id, user_id, endpoint, keys_p256dh, keys_auth')
-      .in('user_id', recordUserIds);
+      .in('user_id', recordUserIds)
+      .limit(50000);
 
     const subsByUser = new Map<string, typeof allSubs>();
     for (const sub of allSubs ?? []) {

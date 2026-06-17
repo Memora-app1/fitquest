@@ -49,7 +49,8 @@ export async function FinanceTrends({ userId }: { userId: string }) {
     .eq('user_id', userId)
     .eq('is_paid', true)
     .gte('transaction_date', oldest.firstDay)
-    .lte('transaction_date', newest.lastDay);
+    .lte('transaction_date', newest.lastDay)
+    .limit(3000);
 
   const tx = rawTx ?? [];
 

@@ -42,7 +42,8 @@ export default async function EngajamentoPage() {
         .from('metrics_daily')
         .select('date, habits_logged, workouts_done, tasks_completed, xp_granted')
         .gte('date', last30date)
-        .order('date', { ascending: true }),
+        .order('date', { ascending: true })
+        .limit(30),
       // Top 10 hábitos
       db
         .from('habit_logs')

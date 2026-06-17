@@ -41,7 +41,8 @@ export async function WorkoutPrsWidget({ userId }: { userId: string }) {
     .eq('is_warmup', false)
     .gt('weight_kg', 0)
     .gte('created_at', eightWeeksAgo)
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .limit(2000);
 
   const rows = (raw ?? []) as unknown as SetRow[];
   if (rows.length === 0) return null;

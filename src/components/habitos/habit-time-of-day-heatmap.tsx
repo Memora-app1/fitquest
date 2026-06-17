@@ -10,7 +10,8 @@ export async function HabitTimeOfDayHeatmap({ userId }: { userId: string }) {
     .from('habit_logs')
     .select('created_at, habit_id')
     .eq('user_id', userId)
-    .gte('created_at', thirtyDaysAgo);
+    .gte('created_at', thirtyDaysAgo)
+    .limit(2000);
 
   if (!logs || logs.length < 3) return null;
 

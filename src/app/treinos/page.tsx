@@ -44,7 +44,8 @@ export default async function TreinosPage() {
     supabase
       .from('workouts')
       .select('id, xp_earned, total_volume_kg, is_personal_record_session, started_at')
-      .eq('user_id', user.id),
+      .eq('user_id', user.id)
+      .limit(2000),
     supabase
       .from('workout_sets')
       .select('exercise_id, weight_kg, exercises(name)')

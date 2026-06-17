@@ -50,38 +50,43 @@ export async function WeeklyReport({ userId }: { userId: string }) {
     financialLastWeekRes,
   ] = await Promise.all([
     supabase.from('profiles').select('name, level, xp_total').eq('id', userId).single(),
-    supabase.from('habits').select('id').eq('user_id', userId).eq('is_active', true),
+    supabase.from('habits').select('id').eq('user_id', userId).eq('is_active', true).limit(100),
     supabase
       .from('habit_logs')
       .select('habit_id, logged_date')
       .eq('user_id', userId)
       .gte('logged_date', start)
-      .lte('logged_date', end),
+      .lte('logged_date', end)
+      .limit(500),
     supabase
       .from('workouts')
       .select('id, started_at')
       .eq('user_id', userId)
       .gte('started_at', startDateTime)
-      .lte('started_at', endDateTime),
+      .lte('started_at', endDateTime)
+      .limit(50),
     supabase
       .from('xp_transactions')
       .select('amount')
       .eq('user_id', userId)
       .gte('created_at', startDateTime)
-      .lte('created_at', endDateTime),
+      .lte('created_at', endDateTime)
+      .limit(500),
     supabase
       .from('tasks')
       .select('id, completed_at')
       .eq('user_id', userId)
       .eq('status', 'done')
       .gte('completed_at', startDateTime)
-      .lte('completed_at', endDateTime),
+      .lte('completed_at', endDateTime)
+      .limit(200),
     supabase
       .from('transactions')
       .select('amount, type')
       .eq('user_id', userId)
       .gte('transaction_date', start)
-      .lte('transaction_date', end),
+      .lte('transaction_date', end)
+      .limit(500),
   ]);
 
   const profile = profileRes.data;

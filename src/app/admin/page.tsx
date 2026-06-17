@@ -46,7 +46,7 @@ async function getOverviewStats() {
       .select('id', { count: 'exact', head: true })
       .eq('subscription_status', 'expired'),
     db.from('habit_logs').select('id', { count: 'exact', head: true }).eq('logged_date', today),
-    db.from('xp_transactions').select('amount').gte('created_at', today),
+    db.from('xp_transactions').select('amount').gte('created_at', today).limit(100000),
     db.from('user_reports').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
     db
       .from('profiles')

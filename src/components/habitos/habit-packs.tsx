@@ -249,11 +249,13 @@ export function HabitPacksModal({
   const [selectedPack, setSelectedPack] = useState<Pack | null>(null);
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
+  const [installError, setInstallError] = useState<string | null>(null);
   useScrollLock(true);
 
   async function handleInstall() {
     if (!selectedPack || loading) return;
     setLoading(true);
+    setInstallError(null);
 
     const supabase = createClient();
     const {
@@ -279,7 +281,13 @@ export function HabitPacksModal({
       display_order: 100 + i,
     }));
 
-    await supabase.from('habits').insert(rows);
+    const { error } = await supabase.from('habits').insert(rows);
+    if (error) {
+      console.error('[habit-packs] insert failed:', error.message);
+      setInstallError('Erro ao instalar pacote. Tente novamente.');
+      setLoading(false);
+      return;
+    }
 
     setDone(true);
     setTimeout(() => {
@@ -387,6 +395,9 @@ export function HabitPacksModal({
 
         {/* Footer */}
         <div className="relative z-10 border-t border-border p-5">
+          {installError && (
+            <p className="mb-2 text-center text-sm font-medium text-brand-red">{installError}</p>
+          )}
           {done ? (
             <div className="flex items-center justify-center gap-2 py-3 font-bold text-brand-green">
               <Check size={18} />

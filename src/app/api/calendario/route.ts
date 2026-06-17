@@ -28,7 +28,8 @@ export async function GET(req: NextRequest) {
       .eq('user_id', user.id)
       .gte('start_at', start)
       .lte('start_at', end)
-      .order('start_at'),
+      .order('start_at')
+      .limit(500),
     supabase
       .from('tasks')
       .select('id, title, due_date, urgent, important, status')
@@ -37,7 +38,8 @@ export async function GET(req: NextRequest) {
       .gte('due_date', start)
       .lte('due_date', end)
       .neq('status', 'archived')
-      .order('due_date'),
+      .order('due_date')
+      .limit(500),
   ]);
 
   return NextResponse.json({

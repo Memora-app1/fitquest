@@ -63,7 +63,8 @@ export async function FinanceMonthCalendar({ userId }: { userId: string }) {
     .select('amount, type, transaction_date')
     .eq('user_id', userId)
     .gte('transaction_date', firstDay)
-    .lte('transaction_date', lastDay);
+    .lte('transaction_date', lastDay)
+    .limit(1000);
 
   const rows = (raw ?? []) as TxRow[];
   if (rows.length === 0) return null;

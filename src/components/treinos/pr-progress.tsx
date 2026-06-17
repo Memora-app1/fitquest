@@ -52,7 +52,8 @@ export async function PrProgress({ userId }: { userId: string }) {
     .eq('user_id', userId)
     .gt('weight_kg', 0)
     .gte('created_at', ninetyDaysAgo)
-    .order('created_at', { ascending: true });
+    .order('created_at', { ascending: true })
+    .limit(2000);
 
   if (!raw || raw.length === 0) return null;
 

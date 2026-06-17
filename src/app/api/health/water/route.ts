@@ -24,7 +24,8 @@ export async function POST(req: NextRequest) {
     .from('water_logs')
     .select('amount_ml')
     .eq('user_id', user.id)
-    .eq('date', today);
+    .eq('date', today)
+    .limit(100);
 
   const totalBefore = (beforeLogs ?? []).reduce((s, l) => s + (l.amount_ml ?? 0), 0);
 
@@ -63,7 +64,8 @@ export async function POST(req: NextRequest) {
       .from('water_logs')
       .select('date, amount_ml')
       .eq('user_id', user.id)
-      .gte('date', sinceStr);
+      .gte('date', sinceStr)
+      .limit(200);
     const waterByDay: Record<string, number> = {};
     for (const l of weekLogs ?? []) {
       const d = l.date as string;

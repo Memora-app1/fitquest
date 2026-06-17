@@ -21,11 +21,13 @@ async function getAnalyticsData() {
         'date, dau, new_users, total_users, habits_logged, xp_granted, active_users, trial_users'
       )
       .gte('date', last30days[0])
-      .order('date', { ascending: true }),
+      .order('date', { ascending: true })
+      .limit(30),
     db
       .from('profiles')
       .select('subscription_status')
-      .in('subscription_status', ['trial', 'active', 'lifetime', 'expired', 'cancelled']),
+      .in('subscription_status', ['trial', 'active', 'lifetime', 'expired', 'cancelled'])
+      .limit(100000),
     db
       .from('habit_logs')
       .select('habit_id, habits(name, icon)')

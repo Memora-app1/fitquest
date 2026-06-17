@@ -57,16 +57,18 @@ export async function WeeklyChallenges({ userId }: WeeklyChallengesProps) {
       .select('habit_id, logged_date')
       .eq('user_id', userId)
       .gte('logged_date', weekStart)
-      .lte('logged_date', weekEnd),
+      .lte('logged_date', weekEnd)
+      .limit(500),
 
-    supabase.from('habits').select('id').eq('user_id', userId).eq('is_active', true),
+    supabase.from('habits').select('id').eq('user_id', userId).eq('is_active', true).limit(50),
 
     supabase
       .from('workouts')
       .select('id')
       .eq('user_id', userId)
       .gte('created_at', weekStart + 'T00:00:00')
-      .lte('created_at', weekEnd + 'T23:59:59'),
+      .lte('created_at', weekEnd + 'T23:59:59')
+      .limit(50),
 
     supabase
       .from('tasks')
@@ -74,23 +76,26 @@ export async function WeeklyChallenges({ userId }: WeeklyChallengesProps) {
       .eq('user_id', userId)
       .eq('status', 'done')
       .gte('updated_at', weekStart + 'T00:00:00')
-      .lte('updated_at', weekEnd + 'T23:59:59'),
+      .lte('updated_at', weekEnd + 'T23:59:59')
+      .limit(200),
 
-    supabase.from('tasks').select('id').eq('user_id', userId).neq('status', 'archived'),
+    supabase.from('tasks').select('id').eq('user_id', userId).neq('status', 'archived').limit(2000),
 
     supabase
       .from('xp_transactions')
       .select('amount')
       .eq('user_id', userId)
       .gte('created_at', weekStart + 'T00:00:00')
-      .lte('created_at', weekEnd + 'T23:59:59'),
+      .lte('created_at', weekEnd + 'T23:59:59')
+      .limit(500),
 
     supabase
       .from('transactions')
       .select('id')
       .eq('user_id', userId)
       .gte('transaction_date', weekStart)
-      .lte('transaction_date', weekEnd),
+      .lte('transaction_date', weekEnd)
+      .limit(200),
 
     supabase.from('profiles').select('streak_current, level').eq('id', userId).single(),
 
@@ -99,7 +104,8 @@ export async function WeeklyChallenges({ userId }: WeeklyChallengesProps) {
       .select('date, amount_ml')
       .eq('user_id', userId)
       .gte('date', weekStart)
-      .lte('date', weekEnd),
+      .lte('date', weekEnd)
+      .limit(100),
   ]);
 
   // ── Compute current values ─────────────────────────────────────────────────

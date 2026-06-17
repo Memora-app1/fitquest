@@ -78,7 +78,8 @@ export async function DailyPerformanceCard({ userId }: { userId: string }) {
       .from('xp_transactions')
       .select('amount')
       .eq('user_id', userId)
-      .gte('created_at', `${today}T00:00:00`),
+      .gte('created_at', `${today}T00:00:00`)
+      .limit(200),
     supabase.from('profiles').select('streak_current, level').eq('id', userId).single(),
   ]);
 

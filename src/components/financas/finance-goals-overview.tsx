@@ -65,13 +65,15 @@ export async function FinanceGoalsOverview({ userId }: { userId: string }) {
       )
       .eq('user_id', userId)
       .not('status', 'eq', 'cancelled')
-      .order('created_at', { ascending: false }),
+      .order('created_at', { ascending: false })
+      .limit(100),
     supabase
       .from('transactions')
       .select('amount, type, transaction_date')
       .eq('user_id', userId)
       .gte('transaction_date', threeMonthsAgoStr)
-      .eq('is_paid', true),
+      .eq('is_paid', true)
+      .limit(5000),
   ]);
 
   const goals = (goalsRes.data ?? []) as FinanceGoalRow[];

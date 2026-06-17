@@ -60,7 +60,8 @@ export async function TaskDueDateHeatmap({ userId }: { userId: string }) {
     .not('due_date', 'is', null)
     .gte('due_date', thirtyDaysBackStr)
     .lte('due_date', eightWeeksAheadStr)
-    .order('due_date');
+    .order('due_date')
+    .limit(500);
 
   const tasks = (raw ?? []) as TaskRow[];
   if (tasks.length === 0) return null;

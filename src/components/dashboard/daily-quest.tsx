@@ -30,7 +30,7 @@ export async function DailyQuest({ userId }: { userId: string }) {
   const todayStart = `${today}T00:00:00`;
 
   const [habitsRes, habitLogsRes, waterRes, sleepRes, tasksRes, workoutRes] = await Promise.all([
-    supabase.from('habits').select('id, name').eq('user_id', userId).eq('is_active', true),
+    supabase.from('habits').select('id, name').eq('user_id', userId).eq('is_active', true).limit(50),
     supabase.from('habit_logs').select('habit_id').eq('user_id', userId).eq('logged_date', today),
     supabase.from('water_logs').select('amount_ml').eq('user_id', userId).eq('date', today),
     supabase

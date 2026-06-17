@@ -88,14 +88,16 @@ export default async function FinancasPage() {
         .from('finance_accounts')
         .select('id, name, type, icon, color, current_balance')
         .eq('user_id', user.id)
-        .eq('is_active', true),
+        .eq('is_active', true)
+        .limit(50),
       supabase
         .from('transactions')
         .select('amount, type')
         .eq('user_id', user.id)
         .gte('transaction_date', firstDay)
         .lte('transaction_date', lastDay)
-        .eq('is_paid', true),
+        .eq('is_paid', true)
+        .limit(5000),
       supabase
         .from('transactions')
         .select('id, description, amount, type, transaction_date, is_paid, category_id')
@@ -117,11 +119,13 @@ export default async function FinancasPage() {
         .eq('type', 'expense')
         .eq('is_paid', true)
         .gte('transaction_date', firstDay)
-        .lte('transaction_date', lastDay),
+        .lte('transaction_date', lastDay)
+        .limit(5000),
       supabase
         .from('finance_categories')
         .select('id, name, icon, color')
-        .or(`user_id.eq.${user.id},is_global.eq.true`),
+        .or(`user_id.eq.${user.id},is_global.eq.true`)
+        .limit(500),
       supabase
         .from('transactions')
         .select('amount, type')
@@ -132,7 +136,8 @@ export default async function FinancasPage() {
           'transaction_date',
           `${month === 1 ? year - 1 : year}-${String(month === 1 ? 12 : month - 1).padStart(2, '0')}-01`
         )
-        .lt('transaction_date', firstDay),
+        .lt('transaction_date', firstDay)
+        .limit(5000),
     ]);
 
   const accounts = accountsRes.data ?? [];

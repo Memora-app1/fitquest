@@ -59,7 +59,8 @@ export async function TaskDueTimeline({ userId }: { userId: string }) {
     .not('due_date', 'is', null)
     .gte('due_date', sevenDaysAgo)
     .lte('due_date', thirtyDaysOut)
-    .order('due_date', { ascending: true });
+    .order('due_date', { ascending: true })
+    .limit(500);
 
   const tasks = (raw ?? []) as TaskRow[];
   if (tasks.length === 0) return null;

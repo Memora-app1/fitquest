@@ -99,7 +99,8 @@ export default async function GuildDetailPage({ params }: { params: Promise<{ id
       .from('guild_members')
       .select('user_id, role, joined_at, weekly_xp, last_week_xp')
       .eq('guild_id', guildId)
-      .order('weekly_xp', { ascending: false });
+      .order('weekly_xp', { ascending: false })
+      .limit(200);
 
     const memberIds = (members ?? []).map((m) => m.user_id as string);
     const profilesMap: Record<
@@ -117,7 +118,8 @@ export default async function GuildDetailPage({ params }: { params: Promise<{ id
       const { data: profiles } = await supabase
         .from('profiles')
         .select('id, name, level, prestige_level, streak_current, equipped_title')
-        .in('id', memberIds);
+        .in('id', memberIds)
+        .limit(200);
       for (const p of profiles ?? []) {
         profilesMap[p.id as string] = {
           name: p.name as string,

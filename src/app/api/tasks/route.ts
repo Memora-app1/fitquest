@@ -50,6 +50,7 @@ export async function GET(req: NextRequest) {
     .order('created_at', { ascending: false });
 
   if (status) query = query.eq('status', status);
+  query = query.limit(500);
 
   const { data, error } = await query;
   if (error) return NextResponse.json({ error: 'internal_error' }, { status: 500 });

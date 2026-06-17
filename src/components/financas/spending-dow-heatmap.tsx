@@ -28,7 +28,8 @@ export async function SpendingDowHeatmap({ userId }: { userId: string }) {
     .eq('is_paid', true)
     .gte('transaction_date', threeMonthsAgo)
     .lte('transaction_date', now.toISOString().split('T')[0]!)
-    .order('transaction_date', { ascending: true });
+    .order('transaction_date', { ascending: true })
+    .limit(1500);
 
   const rows = (raw ?? []) as TxRow[];
   if (rows.length === 0) return null;

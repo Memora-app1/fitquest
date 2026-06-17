@@ -41,7 +41,8 @@ export async function HabitCompletionCalendar({ userId }: { userId: string }) {
       .select('habit_id, logged_date')
       .eq('user_id', userId)
       .gte('logged_date', firstDay)
-      .lte('logged_date', lastDay),
+      .lte('logged_date', lastDay)
+      .limit(2000),
   ]);
 
   const habits = (habitsRes.data ?? []) as HabitRow[];

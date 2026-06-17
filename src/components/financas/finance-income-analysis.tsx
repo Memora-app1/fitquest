@@ -44,11 +44,13 @@ export async function FinanceIncomeAnalysis({ userId }: { userId: string }) {
       .eq('is_paid', true)
       .gte('transaction_date', sixMonthsAgo)
       .lte('transaction_date', todayStr)
-      .order('transaction_date', { ascending: true }),
+      .order('transaction_date', { ascending: true })
+      .limit(2000),
     supabase
       .from('finance_categories')
       .select('id, name, icon, color')
-      .or(`user_id.eq.${userId},is_global.eq.true`),
+      .or(`user_id.eq.${userId},is_global.eq.true`)
+      .limit(500),
   ]);
 
   const rows = (txRes.data ?? []) as TxRow[];

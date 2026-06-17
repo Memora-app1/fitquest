@@ -27,7 +27,8 @@ export default async function MetasPage() {
       'id, title, description, icon, category, target_value, current_value, unit, deadline, status, completed_at, created_at'
     )
     .eq('user_id', user.id)
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .limit(100);
 
   const activeCount = (goals ?? []).filter((g) => g.status === 'active').length;
   const completedCount = (goals ?? []).filter((g) => g.status === 'completed').length;

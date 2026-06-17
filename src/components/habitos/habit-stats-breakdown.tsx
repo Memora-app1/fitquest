@@ -63,7 +63,8 @@ export async function HabitStatsBreakdown({ userId }: { userId: string }) {
       .select('habit_id, logged_date')
       .eq('user_id', userId)
       .gte('logged_date', thirtyDaysAgo)
-      .order('logged_date', { ascending: false }),
+      .order('logged_date', { ascending: false })
+      .limit(2000),
   ]);
 
   const habits = (habitsRes.data ?? []) as HabitRow[];

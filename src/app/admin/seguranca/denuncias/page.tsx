@@ -58,7 +58,7 @@ export default async function ReportsPage({
   ];
   const nameMap: Record<string, string> = {};
   if (allIds.length > 0) {
-    const { data: profiles } = await db.from('profiles').select('id, name').in('id', allIds);
+    const { data: profiles } = await db.from('profiles').select('id, name').in('id', allIds).limit(100);
     for (const p of profiles ?? []) nameMap[p.id] = p.name;
   }
 

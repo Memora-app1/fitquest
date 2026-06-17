@@ -58,7 +58,10 @@ const LEVEL_PREVIEW = [
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get('redirect') ?? '/dashboard';
+  // Validate redirect to prevent open redirect attacks — only allow same-origin paths
+  const rawRedirect = searchParams.get('redirect') ?? '';
+  const redirectTo =
+    rawRedirect.startsWith('/') && !rawRedirect.startsWith('//') ? rawRedirect : '/dashboard';
   const callbackError = searchParams.get('error');
 
   const [email, setEmail] = useState('');

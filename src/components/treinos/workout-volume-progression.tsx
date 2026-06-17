@@ -59,12 +59,14 @@ export async function WorkoutVolumeProgression({ userId }: { userId: string }) {
       .gt('weight_kg', 0)
       .gt('reps', 0)
       .gte('created_at', twelveWeeksAgo + 'T00:00:00')
-      .order('created_at', { ascending: true }),
+      .order('created_at', { ascending: true })
+      .limit(3000),
     supabase
       .from('workouts')
       .select('started_at, created_at')
       .eq('user_id', userId)
-      .gte('created_at', twelveWeeksAgo + 'T00:00:00'),
+      .gte('created_at', twelveWeeksAgo + 'T00:00:00')
+      .limit(200),
   ]);
 
   const rows = (setsRes.data ?? []) as unknown as SetRow[];

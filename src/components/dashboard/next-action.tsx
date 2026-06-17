@@ -14,7 +14,7 @@ export async function NextAction({ userId }: { userId: string }) {
   const today = todayString();
 
   const [habitsRes, habitLogsRes, workoutRes, sleepRes, profileRes] = await Promise.all([
-    supabase.from('habits').select('id, name').eq('user_id', userId).eq('is_active', true),
+    supabase.from('habits').select('id, name').eq('user_id', userId).eq('is_active', true).limit(50),
     supabase.from('habit_logs').select('habit_id').eq('user_id', userId).eq('logged_date', today),
     supabase
       .from('workouts')

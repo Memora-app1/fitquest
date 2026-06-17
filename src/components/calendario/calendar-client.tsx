@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useScrollLock } from '@/hooks/use-scroll-lock';
 import {
   ChevronLeft,
@@ -598,18 +598,21 @@ export function CalendarClient({
   const totalDays = lastDay.getDate();
   const prevMonthLastDay = new Date(year, month - 1, 0).getDate();
 
-  // Group by date
-  const byDate: Record<string, DayData> = {};
-  for (const ev of events) {
-    const d = ev.start_at.split('T')[0]!;
-    if (!byDate[d]) byDate[d] = { events: [], tasks: [] };
-    byDate[d]!.events.push(ev);
-  }
-  for (const task of tasks) {
-    const d = task.due_date.split('T')[0]!;
-    if (!byDate[d]) byDate[d] = { events: [], tasks: [] };
-    byDate[d]!.tasks.push(task);
-  }
+  // Group by date — memoized to avoid O(N) rebuild on every re-render
+  const byDate = useMemo(() => {
+    const map: Record<string, DayData> = {};
+    for (const ev of events) {
+      const d = ev.start_at.split('T')[0]!;
+      if (!map[d]) map[d] = { events: [], tasks: [] };
+      map[d]!.events.push(ev);
+    }
+    for (const task of tasks) {
+      const d = task.due_date.split('T')[0]!;
+      if (!map[d]) map[d] = { events: [], tasks: [] };
+      map[d]!.tasks.push(task);
+    }
+    return map;
+  }, [events, tasks]);
 
   // Build grid cells (always 42 cells = 6 rows × 7 cols)
   const cells: Array<{ day: number; currentMonth: boolean; dateStr: string }> = [];

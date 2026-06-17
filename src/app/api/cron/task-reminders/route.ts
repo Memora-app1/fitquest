@@ -31,7 +31,8 @@ export async function GET() {
     .gte('due_date', todayStart)
     .lte('due_date', todayEnd)
     .not('status', 'eq', 'done')
-    .not('status', 'eq', 'archived');
+    .not('status', 'eq', 'archived')
+    .limit(10000);
 
   if (!tasks || tasks.length === 0) {
     return NextResponse.json({ ok: true, sent: 0, date: today });
@@ -53,7 +54,8 @@ export async function GET() {
     .select('user_id')
     .eq('type', 'task_reminder')
     .gte('sent_at', `${today}T00:00:00`)
-    .in('user_id', userIds);
+    .in('user_id', userIds)
+    .limit(10000);
 
   const sentSet = new Set((alreadySent ?? []).map((n) => n.user_id as string));
 
@@ -65,7 +67,8 @@ export async function GET() {
   const { data: allSubs } = await supabase
     .from('push_subscriptions')
     .select('id, user_id, endpoint, keys_p256dh, keys_auth')
-    .in('user_id', toNotify);
+    .in('user_id', toNotify)
+    .limit(10000);
 
   const subsByUser = new Map<string, typeof allSubs>();
   for (const sub of allSubs ?? []) {

@@ -75,11 +75,13 @@ export async function GET() {
       .eq('status', 'active')
       .not('deadline', 'is', null)
       .gte('deadline', today)
-      .lte('deadline', in7Days),
+      .lte('deadline', in7Days)
+      .limit(10000),
     supabase
       .from('finance_goals')
       .select('id, user_id, title, icon, current_amount, target_amount, deadline')
-      .eq('status', 'active'),
+      .eq('status', 'active')
+      .limit(10000),
   ]);
 
   const goalsWithDeadline = (goalsRes.data ?? []) as GoalRow[];
@@ -109,11 +111,13 @@ export async function GET() {
       .from('notifications')
       .select('source_id')
       .in('source_id', allGoalIds)
-      .gte('created_at', sevenDaysAgo),
+      .gte('created_at', sevenDaysAgo)
+      .limit(50000),
     supabase
       .from('push_subscriptions')
       .select('id, user_id, endpoint, keys_p256dh, keys_auth')
-      .in('user_id', allUserIds),
+      .in('user_id', allUserIds)
+      .limit(50000),
   ]);
 
   const alreadySentIds = new Set((dedupRes.data ?? []).map((n) => n.source_id as string));

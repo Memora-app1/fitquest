@@ -17,7 +17,7 @@ export default async function SeasonPage() {
   const db = createServiceClient();
 
   const [seasonsRes, activeSeason] = await Promise.all([
-    db.from('seasons').select('*').order('start_date', { ascending: false }),
+    db.from('seasons').select('*').order('start_date', { ascending: false }).limit(100),
     db
       .from('seasons')
       .select('id, name, theme_emoji, tagline, start_date, end_date, tiers')

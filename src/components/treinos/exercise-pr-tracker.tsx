@@ -61,7 +61,8 @@ export async function ExercisePrTracker({ userId }: { userId: string }) {
     .gt('weight_kg', 0)
     .eq('is_warmup', false)
     .gte('created_at', twelveWeeksAgo + 'T00:00:00')
-    .order('created_at', { ascending: true });
+    .order('created_at', { ascending: true })
+    .limit(3000);
 
   const rows = (raw ?? []) as unknown as SetRow[];
   if (rows.length === 0) return null;

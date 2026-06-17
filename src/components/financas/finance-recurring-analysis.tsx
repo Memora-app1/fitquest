@@ -64,7 +64,8 @@ export async function FinanceRecurringAnalysis({ userId }: { userId: string }) {
     .select('id, description, amount, type, transaction_date, category_id, is_paid')
     .eq('user_id', userId)
     .gte('transaction_date', sixMonthsAgo)
-    .order('transaction_date', { ascending: true });
+    .order('transaction_date', { ascending: true })
+    .limit(3000);
 
   const txns = (raw ?? []) as TxRow[];
   if (txns.length < 4) return null;

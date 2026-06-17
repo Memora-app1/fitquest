@@ -11,13 +11,15 @@ export async function HabitStreakRecords({ userId }: { userId: string }) {
       .from('habits')
       .select('id, name, icon, color')
       .eq('user_id', userId)
-      .eq('is_active', true),
+      .eq('is_active', true)
+      .limit(50),
     supabase
       .from('habit_logs')
       .select('habit_id, logged_date')
       .eq('user_id', userId)
       .gte('logged_date', ninetyDaysAgo)
-      .order('logged_date', { ascending: true }),
+      .order('logged_date', { ascending: true })
+      .limit(5000),
   ]);
 
   const habits = habitsRes.data ?? [];

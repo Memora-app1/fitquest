@@ -105,7 +105,8 @@ export async function GET() {
   const { data: users } = await supabase
     .from('profiles')
     .select('id, name, streak_current')
-    .in('subscription_status', ['trial', 'active', 'lifetime']);
+    .in('subscription_status', ['trial', 'active', 'lifetime'])
+    .limit(100000);
 
   if (!users || users.length === 0) {
     return NextResponse.json({ ok: true, sent: 0 });
@@ -116,7 +117,8 @@ export async function GET() {
     .from('notifications')
     .select('user_id')
     .eq('type', 'daily_recap')
-    .gte('created_at', `${today}T00:00:00`);
+    .gte('created_at', `${today}T00:00:00`)
+    .limit(100000);
 
   const alreadySentSet = new Set((alreadySentList ?? []).map((n) => n.user_id as string));
   const pendingUsers = (users as UserRow[]).filter((u) => !alreadySentSet.has(u.id));
@@ -133,21 +135,25 @@ export async function GET() {
       .from('habit_logs')
       .select('user_id')
       .in('user_id', pendingIds)
-      .eq('logged_date', today),
+      .eq('logged_date', today)
+      .limit(500000),
     supabase
       .from('xp_transactions')
       .select('user_id, amount')
       .in('user_id', pendingIds)
-      .gte('created_at', `${today}T00:00:00`),
+      .gte('created_at', `${today}T00:00:00`)
+      .limit(1000000),
     supabase
       .from('workouts')
       .select('user_id')
       .in('user_id', pendingIds)
-      .gte('created_at', `${today}T00:00:00`),
+      .gte('created_at', `${today}T00:00:00`)
+      .limit(200000),
     supabase
       .from('push_subscriptions')
       .select('id, user_id, endpoint, keys_p256dh, keys_auth')
-      .in('user_id', pendingIds),
+      .in('user_id', pendingIds)
+      .limit(100000),
   ]);
 
   // ── Agrega em memória por usuário ────────────────────────────────────────────

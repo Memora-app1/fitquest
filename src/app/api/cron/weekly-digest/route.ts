@@ -40,7 +40,8 @@ export async function GET() {
   const { data: users } = await supabase
     .from('profiles')
     .select('id, name, xp_total, level, streak_current, streak_longest, perfect_days')
-    .in('subscription_status', ['trial', 'active', 'lifetime']);
+    .in('subscription_status', ['trial', 'active', 'lifetime'])
+    .limit(50000);
 
   if (!users || users.length === 0) {
     return NextResponse.json({ ok: true, sent: 0 });
@@ -71,7 +72,8 @@ export async function GET() {
       .from('xp_transactions')
       .select('user_id, amount, source_type')
       .in('user_id', userIds)
-      .gte('created_at', sevenDaysAgoISO),
+      .gte('created_at', sevenDaysAgoISO)
+      .limit(500000),
 
     // Hábitos completados esta semana — todos de uma vez
     supabase
@@ -79,10 +81,11 @@ export async function GET() {
       .select('user_id')
       .in('user_id', userIds)
       .gte('logged_date', sevenDaysAgoDate)
-      .lte('logged_date', today),
+      .lte('logged_date', today)
+      .limit(500000),
 
     // Hábitos ativos por usuário — todos de uma vez
-    supabase.from('habits').select('user_id').in('user_id', userIds).eq('is_active', true),
+    supabase.from('habits').select('user_id').in('user_id', userIds).eq('is_active', true).limit(200000),
 
     // Tarefas concluídas esta semana — todos de uma vez
     supabase
@@ -90,7 +93,8 @@ export async function GET() {
       .select('user_id')
       .in('user_id', userIds)
       .eq('status', 'done')
-      .gte('completed_at', sevenDaysAgoISO),
+      .gte('completed_at', sevenDaysAgoISO)
+      .limit(500000),
   ]);
 
   // ── 4. Agrupa dados em memória por user_id ────────────────────────────────────

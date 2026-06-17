@@ -41,14 +41,16 @@ export async function XpLevelJourney({
       .select('amount, source_type, created_at')
       .eq('user_id', userId)
       .gte('created_at', thirtyDaysAgo)
-      .order('created_at', { ascending: false }),
+      .order('created_at', { ascending: false })
+      .limit(1000),
     // Last 6 months for monthly chart
     supabase
       .from('xp_transactions')
       .select('amount, created_at')
       .eq('user_id', userId)
       .gte('created_at', sixMonthsAgo)
-      .order('created_at', { ascending: true }),
+      .order('created_at', { ascending: true })
+      .limit(5000),
   ]);
 
   const recent = (recentRes.data ?? []) as XpRow[];

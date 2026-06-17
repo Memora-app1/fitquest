@@ -32,7 +32,8 @@ export async function GET() {
     .from('task_lists')
     .select('id, name, color, icon, display_order, created_at')
     .eq('user_id', user.id)
-    .order('display_order');
+    .order('display_order')
+    .limit(50);
 
   if (error) return NextResponse.json({ error: 'internal_error' }, { status: 500 });
   return NextResponse.json({ lists: data ?? [] });

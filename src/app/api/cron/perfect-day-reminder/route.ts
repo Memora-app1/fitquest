@@ -32,7 +32,8 @@ export async function GET() {
   const { data: users } = await supabase
     .from('profiles')
     .select('id, name, streak_current, recovery_week_active')
-    .in('subscription_status', ['trial', 'active', 'lifetime']);
+    .in('subscription_status', ['trial', 'active', 'lifetime'])
+    .limit(100000);
 
   if (!users || users.length === 0) return NextResponse.json({ ok: true, sent: 0 });
 
@@ -45,17 +46,20 @@ export async function GET() {
       .select('user_id')
       .eq('type', 'perfect_day_reminder')
       .gte('created_at', `${today}T00:00:00`)
-      .in('user_id', userIds),
+      .in('user_id', userIds)
+      .limit(100000),
     supabase
       .from('habits')
       .select('user_id')
       .in('user_id', userIds)
-      .eq('is_active', true),
+      .eq('is_active', true)
+      .limit(200000),
     supabase
       .from('habit_logs')
       .select('user_id')
       .in('user_id', userIds)
-      .eq('logged_date', today),
+      .eq('logged_date', today)
+      .limit(500000),
   ]);
 
   const sentSet = new Set((alreadySentRes.data ?? []).map((n) => n.user_id as string));
@@ -92,7 +96,8 @@ export async function GET() {
   const { data: allSubs } = await supabase
     .from('push_subscriptions')
     .select('id, user_id, endpoint, keys_p256dh, keys_auth')
-    .in('user_id', candidateIds);
+    .in('user_id', candidateIds)
+    .limit(100000);
 
   const subsByUser = new Map<string, SubRow[]>();
   for (const sub of (allSubs ?? []) as SubRow[]) {

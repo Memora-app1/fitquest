@@ -99,10 +99,11 @@ export async function NextAchievementWidget({ userId }: { userId: string }) {
 
   const [unlockedRes, allRes, profileRes, workoutsRes, tasksRes, habitLogsRes, txRes, habitsRes] =
     await Promise.all([
-      supabase.from('user_achievements').select('achievement_id').eq('user_id', userId),
+      supabase.from('user_achievements').select('achievement_id').eq('user_id', userId).limit(200),
       supabase
         .from('achievements')
-        .select('id, slug, name, description, icon, xp_reward, rarity, category'),
+        .select('id, slug, name, description, icon, xp_reward, rarity, category')
+        .limit(200),
       supabase
         .from('profiles')
         .select('level, streak_current, streak_longest, perfect_days')

@@ -65,7 +65,8 @@ export async function CashFlowForecast({ userId }: { userId: string }) {
       .eq('user_id', userId)
       .gte('transaction_date', firstDay)
       .lte('transaction_date', lastDay)
-      .eq('is_paid', true),
+      .eq('is_paid', true)
+      .limit(500),
     // Unpaid/scheduled (future obligations)
     supabase
       .from('transactions')
@@ -73,7 +74,8 @@ export async function CashFlowForecast({ userId }: { userId: string }) {
       .eq('user_id', userId)
       .gte('transaction_date', todayStr)
       .lte('transaction_date', thirtyDaysOut)
-      .eq('is_paid', false),
+      .eq('is_paid', false)
+      .limit(200),
   ]);
 
   const paidTxns = (paidRes.data ?? []) as TxRow[];

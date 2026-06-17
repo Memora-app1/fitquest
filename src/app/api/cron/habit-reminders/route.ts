@@ -39,7 +39,8 @@ export async function GET() {
     .from('habits')
     .select('id, user_id, name, icon')
     .eq('is_active', true)
-    .eq('reminder_time', hourStr);
+    .eq('reminder_time', hourStr)
+    .limit(10000);
 
   if (!habits || habits.length === 0) {
     return NextResponse.json({ ok: true, sent: 0, hour: currentHour });
@@ -51,7 +52,8 @@ export async function GET() {
     .from('habit_logs')
     .select('habit_id')
     .in('habit_id', habitIds)
-    .eq('logged_date', today);
+    .eq('logged_date', today)
+    .limit(10000);
 
   const loggedSet = new Set((logsToday ?? []).map((l) => l.habit_id));
   const toRemind = habits.filter((h) => !loggedSet.has(h.id));
@@ -76,7 +78,8 @@ export async function GET() {
     .select('user_id')
     .eq('type', 'habit_reminder')
     .gte('created_at', `${today}T00:00:00`)
-    .in('user_id', allUserIds);
+    .in('user_id', allUserIds)
+    .limit(10000);
 
   const alreadySentSet = new Set((alreadySentRows ?? []).map((r) => r.user_id as string));
   const toNotify = allUserIds.filter((uid) => !alreadySentSet.has(uid));
@@ -89,7 +92,8 @@ export async function GET() {
   const { data: allSubs } = await supabase
     .from('push_subscriptions')
     .select('id, user_id, endpoint, keys_p256dh, keys_auth')
-    .in('user_id', toNotify);
+    .in('user_id', toNotify)
+    .limit(10000);
 
   const subsByUser = new Map<string, typeof allSubs>();
   for (const sub of allSubs ?? []) {

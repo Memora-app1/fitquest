@@ -37,7 +37,8 @@ export async function GET() {
     .select('id, name, type, icon, color, is_global, user_id')
     .or(`is_global.eq.true,user_id.eq.${user.id}`)
     .order('is_global', { ascending: false }) // global first
-    .order('name');
+    .order('name')
+    .limit(500);
 
   if (error) return NextResponse.json({ error: 'internal_error' }, { status: 500 });
   return NextResponse.json({ categories: data ?? [] });

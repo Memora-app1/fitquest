@@ -69,7 +69,8 @@ export default async function CoachPage({
     .from('ai_messages')
     .select('id, role, content, created_at')
     .eq('conversation_id', activeConversationId)
-    .order('created_at');
+    .order('created_at')
+    .limit(200);
 
   const apiConfigured = !!process.env.ANTHROPIC_API_KEY;
 

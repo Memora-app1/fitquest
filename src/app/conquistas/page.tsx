@@ -68,8 +68,13 @@ export default async function ConquistasPage() {
         'id, slug, name, description, icon, xp_reward, rarity, category, trigger_type, trigger_value'
       )
       .order('rarity', { ascending: true })
-      .order('name'),
-    supabase.from('user_achievements').select('achievement_id, unlocked_at').eq('user_id', user.id),
+      .order('name')
+      .limit(500),
+    supabase
+      .from('user_achievements')
+      .select('achievement_id, unlocked_at')
+      .eq('user_id', user.id)
+      .limit(200),
     supabase
       .from('profiles')
       .select('xp_total, level, streak_current, streak_longest, perfect_days')

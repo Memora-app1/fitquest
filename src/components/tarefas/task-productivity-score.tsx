@@ -48,7 +48,8 @@ export async function TaskProductivityScore({ userId }: { userId: string }) {
       .select('id, status, urgent, important, created_at, completed_at, xp_reward')
       .eq('user_id', userId)
       .gte('created_at', fourWeeksAgo + 'T00:00:00')
-      .order('created_at', { ascending: true }),
+      .order('created_at', { ascending: true })
+      .limit(500),
     // Tasks completed in last 28 days
     supabase
       .from('tasks')
@@ -56,7 +57,8 @@ export async function TaskProductivityScore({ userId }: { userId: string }) {
       .eq('user_id', userId)
       .eq('status', 'done')
       .gte('completed_at', fourWeeksAgo + 'T00:00:00')
-      .order('completed_at', { ascending: true }),
+      .order('completed_at', { ascending: true })
+      .limit(500),
   ]);
 
   const createdTasks = (createdRes.data ?? []) as TaskRow[];

@@ -87,13 +87,20 @@ export default async function DashboardPage({
       .select('id, name, icon, color, xp_per_completion')
       .eq('user_id', user.id)
       .eq('is_active', true)
-      .order('display_order'),
-    supabase.from('habit_logs').select('habit_id').eq('user_id', user.id).eq('logged_date', today),
+      .order('display_order')
+      .limit(50),
+    supabase
+      .from('habit_logs')
+      .select('habit_id')
+      .eq('user_id', user.id)
+      .eq('logged_date', today)
+      .limit(50),
     supabase
       .from('habit_logs')
       .select('habit_id, logged_date')
       .eq('user_id', user.id)
-      .gte('logged_date', sevenDaysAgo),
+      .gte('logged_date', sevenDaysAgo)
+      .limit(500),
     supabase
       .from('tasks')
       .select('id, title, urgent, important, due_date')
@@ -123,7 +130,8 @@ export default async function DashboardPage({
       .select('amount, created_at')
       .eq('user_id', user.id)
       .gte('created_at', sevenDaysAgo)
-      .order('created_at', { ascending: true }),
+      .order('created_at', { ascending: true })
+      .limit(500),
     // Loot box pendente — movido para o batch (evita round trip extra ao banco)
     supabase
       .from('daily_loot')

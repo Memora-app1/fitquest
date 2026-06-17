@@ -40,13 +40,13 @@ export default async function RetencaoPage() {
   ] = await Promise.all([
     db.from('profiles').select('id', { count: 'exact', head: true }),
     // DAU — logaram habit hoje
-    db.from('habit_logs').select('user_id').gte('logged_date', now.toISOString().split('T')[0]!),
+    db.from('habit_logs').select('user_id').gte('logged_date', now.toISOString().split('T')[0]!).limit(100000),
     // WAU — logaram habit nos últimos 7 dias
-    db.from('habit_logs').select('user_id').gte('logged_date', d7ago.split('T')[0]!),
+    db.from('habit_logs').select('user_id').gte('logged_date', d7ago.split('T')[0]!).limit(500000),
     // MAU — logaram habit nos últimos 30 dias
-    db.from('habit_logs').select('user_id').gte('logged_date', d30ago.split('T')[0]!),
+    db.from('habit_logs').select('user_id').gte('logged_date', d30ago.split('T')[0]!).limit(2000000),
     // Cohort D30: criados entre 30-60 dias atrás que ainda são ativos (hábito nos últimos 7d)
-    db.from('profiles').select('id').gte('created_at', d60ago).lte('created_at', d30ago),
+    db.from('profiles').select('id').gte('created_at', d60ago).lte('created_at', d30ago).limit(100000),
     db.from('habit_logs').select('user_id').gte('logged_date', d7ago.split('T')[0]!).limit(5000),
     // Streak distribution
     db

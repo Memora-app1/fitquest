@@ -58,7 +58,8 @@ export async function TaskListsBreakdown({ userId }: { userId: string }) {
       .from('tasks')
       .select('id, list_id, status, urgent, important, due_date, completed_at, xp_reward')
       .eq('user_id', userId)
-      .not('status', 'eq', 'archived'),
+      .not('status', 'eq', 'archived')
+      .limit(2000),
   ]);
 
   const lists = (listsRes.data ?? []) as ListRow[];

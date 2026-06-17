@@ -18,7 +18,8 @@ export default async function FeatureFlagsPage() {
   const { data: flags } = await db
     .from('feature_flags')
     .select('*')
-    .order('created_at', { ascending: true });
+    .order('created_at', { ascending: true })
+    .limit(200);
 
   return (
     <div className="mx-auto max-w-4xl space-y-5 p-6">

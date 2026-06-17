@@ -94,7 +94,8 @@ export async function MonthlyRecap({ userId }: MonthlyRecapProps) {
       .select('amount, created_at')
       .eq('user_id', userId)
       .gte('created_at', thisStart)
-      .lte('created_at', thisEnd),
+      .lte('created_at', thisEnd)
+      .limit(2000),
 
     // XP previous month
     supabase
@@ -102,7 +103,8 @@ export async function MonthlyRecap({ userId }: MonthlyRecapProps) {
       .select('amount')
       .eq('user_id', userId)
       .gte('created_at', prevStart)
-      .lte('created_at', prevEnd),
+      .lte('created_at', prevEnd)
+      .limit(2000),
 
     // Habit logs this month
     supabase
@@ -110,14 +112,16 @@ export async function MonthlyRecap({ userId }: MonthlyRecapProps) {
       .select('habit_id, logged_date')
       .eq('user_id', userId)
       .gte('logged_date', thisStart.split('T')[0]!)
-      .lte('logged_date', thisEnd.split('T')[0]!),
+      .lte('logged_date', thisEnd.split('T')[0]!)
+      .limit(2000),
 
     // Active habits (to compute rate)
     supabase
       .from('habits')
       .select('id, name, icon, color')
       .eq('user_id', userId)
-      .eq('is_active', true),
+      .eq('is_active', true)
+      .limit(50),
 
     // Workouts this month
     supabase
@@ -125,7 +129,8 @@ export async function MonthlyRecap({ userId }: MonthlyRecapProps) {
       .select('id, name, created_at')
       .eq('user_id', userId)
       .gte('created_at', thisStart)
-      .lte('created_at', thisEnd),
+      .lte('created_at', thisEnd)
+      .limit(200),
 
     // Workouts previous month
     supabase
@@ -133,7 +138,8 @@ export async function MonthlyRecap({ userId }: MonthlyRecapProps) {
       .select('id')
       .eq('user_id', userId)
       .gte('created_at', prevStart)
-      .lte('created_at', prevEnd),
+      .lte('created_at', prevEnd)
+      .limit(200),
 
     // Tasks done this month
     supabase
@@ -142,7 +148,8 @@ export async function MonthlyRecap({ userId }: MonthlyRecapProps) {
       .eq('user_id', userId)
       .eq('status', 'done')
       .gte('updated_at', thisStart)
-      .lte('updated_at', thisEnd),
+      .lte('updated_at', thisEnd)
+      .limit(500),
 
     // Tasks done previous month
     supabase
@@ -151,7 +158,8 @@ export async function MonthlyRecap({ userId }: MonthlyRecapProps) {
       .eq('user_id', userId)
       .eq('status', 'done')
       .gte('updated_at', prevStart)
-      .lte('updated_at', prevEnd),
+      .lte('updated_at', prevEnd)
+      .limit(500),
 
     // Transactions this month (expenses)
     supabase
@@ -159,7 +167,8 @@ export async function MonthlyRecap({ userId }: MonthlyRecapProps) {
       .select('amount, transaction_type')
       .eq('user_id', userId)
       .gte('transaction_date', thisStart.split('T')[0]!)
-      .lte('transaction_date', thisEnd.split('T')[0]!),
+      .lte('transaction_date', thisEnd.split('T')[0]!)
+      .limit(1000),
 
     // Transactions previous month
     supabase
@@ -167,7 +176,8 @@ export async function MonthlyRecap({ userId }: MonthlyRecapProps) {
       .select('amount, transaction_type')
       .eq('user_id', userId)
       .gte('transaction_date', prevStart.split('T')[0]!)
-      .lte('transaction_date', prevEnd.split('T')[0]!),
+      .lte('transaction_date', prevEnd.split('T')[0]!)
+      .limit(1000),
 
     // Achievements unlocked this month
     supabase

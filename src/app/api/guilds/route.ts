@@ -50,7 +50,8 @@ export async function GET(req: NextRequest) {
   const { data: memberCounts } = await supabase
     .from('guild_members')
     .select('guild_id')
-    .in('guild_id', guildIds);
+    .in('guild_id', guildIds)
+    .limit(5000);
 
   const countMap: Record<string, number> = {};
   for (const m of memberCounts ?? []) {

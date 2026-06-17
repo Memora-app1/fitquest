@@ -36,13 +36,15 @@ export async function TaskVelocity({ userId }: { userId: string }) {
       .eq('status', 'done')
       .not('completed_at', 'is', null)
       .gte('completed_at', eightWeeksAgoStr + 'T00:00:00')
-      .order('completed_at', { ascending: true }),
+      .order('completed_at', { ascending: true })
+      .limit(1000),
     supabase
       .from('xp_transactions')
       .select('amount, created_at')
       .eq('user_id', userId)
       .eq('source_type', 'task')
-      .gte('created_at', eightWeeksAgoStr + 'T00:00:00'),
+      .gte('created_at', eightWeeksAgoStr + 'T00:00:00')
+      .limit(500),
   ]);
 
   const completedTasks = tasksRes.data ?? [];

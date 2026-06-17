@@ -66,7 +66,8 @@ export async function SpendingByCategory({ userId }: { userId: string }) {
     .eq('user_id', userId)
     .gte('transaction_date', prevMonthStart)
     .lte('transaction_date', now.toISOString().split('T')[0]!)
-    .order('transaction_date', { ascending: false });
+    .order('transaction_date', { ascending: false })
+    .limit(2000);
 
   const rows = (raw ?? []) as unknown as TxRow[];
   if (rows.length === 0) return null;

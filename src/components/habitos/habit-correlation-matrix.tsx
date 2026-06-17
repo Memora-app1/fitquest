@@ -32,7 +32,8 @@ export async function HabitCorrelationMatrix({ userId }: { userId: string }) {
       .select('habit_id, logged_date')
       .eq('user_id', userId)
       .gte('logged_date', ninetyDaysAgo)
-      .lte('logged_date', todayStr),
+      .lte('logged_date', todayStr)
+      .limit(5000),
   ]);
 
   const habits = (habitsRes.data ?? []) as HabitRow[];

@@ -29,7 +29,8 @@ export async function GET(req: NextRequest) {
     .select('id, date, mood, energy, stress, note, xp_earned')
     .eq('user_id', user.id)
     .gte('date', since)
-    .order('date', { ascending: false });
+    .order('date', { ascending: false })
+    .limit(365);
 
   if (error) return NextResponse.json({ error: 'internal_error' }, { status: 500 });
   return NextResponse.json({ logs: data ?? [] });

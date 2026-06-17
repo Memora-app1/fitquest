@@ -6,8 +6,8 @@ export async function StreakLeaderboard({ userId }: { userId: string }) {
 
   const [profileRes, allStreaksRes] = await Promise.all([
     supabase.from('profiles').select('streak_current, name').eq('id', userId).single(),
-    // Conta distribuição de streaks para calcular percentil
-    supabase.from('profiles').select('streak_current').gt('streak_current', 0),
+    // Conta distribuição de streaks para calcular percentil (cap 5000 users)
+    supabase.from('profiles').select('streak_current').gt('streak_current', 0).limit(5000),
   ]);
 
   const userStreak = profileRes.data?.streak_current ?? 0;

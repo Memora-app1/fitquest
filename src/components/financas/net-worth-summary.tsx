@@ -39,7 +39,8 @@ export async function NetWorthSummary({ userId }: { userId: string }) {
     .select('id, name, type, icon, color, current_balance, credit_limit, is_active')
     .eq('user_id', userId)
     .eq('is_active', true)
-    .order('current_balance', { ascending: false });
+    .order('current_balance', { ascending: false })
+    .limit(20);
 
   const accounts = (raw ?? []) as AccountRow[];
 

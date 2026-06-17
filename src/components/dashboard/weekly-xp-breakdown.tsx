@@ -36,7 +36,8 @@ export async function WeeklyXpBreakdown({ userId }: { userId: string }) {
     .select('amount, source_type, created_at')
     .eq('user_id', userId)
     .gte('created_at', fourteenDaysAgo)
-    .order('created_at', { ascending: true });
+    .order('created_at', { ascending: true })
+    .limit(1000);
 
   const rows = (raw ?? []) as XpTxRow[];
   if (rows.length === 0) return null;

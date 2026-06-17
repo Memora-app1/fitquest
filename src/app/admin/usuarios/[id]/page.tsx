@@ -59,7 +59,8 @@ async function getUserDetail(userId: string) {
       .from('habits')
       .select('id, name, icon, xp_per_completion, is_active')
       .eq('user_id', userId)
-      .eq('is_active', true),
+      .eq('is_active', true)
+      .limit(50),
     db
       .from('workouts')
       .select('id, title, duration_minutes, xp_earned, started_at')
@@ -82,7 +83,8 @@ async function getUserDetail(userId: string) {
       .select('id, note, is_pinned, created_at, admin_id')
       .eq('user_id', userId)
       .order('is_pinned', { ascending: false })
-      .order('created_at', { ascending: false }),
+      .order('created_at', { ascending: false })
+      .limit(50),
     db
       .from('user_suspensions')
       .select('*')

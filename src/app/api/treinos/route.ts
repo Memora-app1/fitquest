@@ -40,7 +40,8 @@ export async function POST(req: NextRequest) {
   const { data: existingExercises } = await supabase
     .from('exercises')
     .select('id, name, user_id')
-    .or(`user_id.eq.${userId},is_global.eq.true`);
+    .or(`user_id.eq.${userId},is_global.eq.true`)
+    .limit(500);
 
   const exerciseMap = new Map<string, string>();
   // Global first, then user's (user's override global with same name)

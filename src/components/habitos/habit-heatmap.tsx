@@ -66,7 +66,8 @@ export async function HabitHeatmap({ userId, habits }: { userId: string; habits:
     .from('habit_logs')
     .select('habit_id, logged_date')
     .eq('user_id', userId)
-    .gte('logged_date', ninetyDaysAgoStr);
+    .gte('logged_date', ninetyDaysAgoStr)
+    .limit(5000);
 
   const allLogs = rawLogs ?? [];
 

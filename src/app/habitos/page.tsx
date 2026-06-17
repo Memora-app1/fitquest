@@ -47,28 +47,33 @@ export default async function HabitosPage({
         )
         .eq('user_id', user.id)
         .eq('is_active', true)
-        .order('display_order'),
+        .order('display_order')
+        .limit(50),
       supabase
         .from('habit_logs')
         .select('habit_id, logged_date')
         .eq('user_id', user.id)
-        .eq('logged_date', today),
+        .eq('logged_date', today)
+        .limit(50),
       supabase
         .from('habit_logs')
         .select('habit_id, logged_date')
         .eq('user_id', user.id)
-        .gte('logged_date', sevenDaysAgo),
+        .gte('logged_date', sevenDaysAgo)
+        .limit(500),
       supabase
         .from('habit_logs')
         .select('habit_id, logged_date')
         .eq('user_id', user.id)
-        .gte('logged_date', thirtyDaysAgo),
+        .gte('logged_date', thirtyDaysAgo)
+        .limit(2000),
       supabase
         .from('xp_transactions')
         .select('amount')
         .eq('user_id', user.id)
         .eq('source_type', 'habit')
-        .gte('created_at', new Date(Date.now() - 30 * 86400000).toISOString()),
+        .gte('created_at', new Date(Date.now() - 30 * 86400000).toISOString())
+        .limit(2000),
       supabase.from('profiles').select('streak_current, perfect_days').eq('id', user.id).single(),
     ]);
 

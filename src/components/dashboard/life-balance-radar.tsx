@@ -61,14 +61,16 @@ export async function LifeBalanceRadar({ userId }: { userId: string }) {
       .select('date, amount_ml')
       .eq('user_id', userId)
       .gte('date', sevenDaysAgo)
-      .lte('date', todayStr),
+      .lte('date', todayStr)
+      .limit(500),
     // Sleep logs last 7 days
     supabase
       .from('sleep_logs')
       .select('date, duration_hours')
       .eq('user_id', userId)
       .gte('date', sevenDaysAgo)
-      .lte('date', todayStr),
+      .lte('date', todayStr)
+      .limit(7),
   ]);
 
   const activeHabits = habitsRes.count ?? 0;

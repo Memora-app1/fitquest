@@ -41,12 +41,14 @@ export async function TaskListProgressRings({ userId }: { userId: string }) {
       .from('task_lists')
       .select('id, name, icon, color')
       .eq('user_id', userId)
-      .order('created_at'),
+      .order('created_at')
+      .limit(50),
     supabase
       .from('tasks')
       .select('id, list_id, status, due_date, completed_at, created_at, urgent, important')
       .eq('user_id', userId)
-      .not('status', 'eq', 'archived'),
+      .not('status', 'eq', 'archived')
+      .limit(2000),
   ]);
 
   const lists = (listsRes.data ?? []) as ListRow[];

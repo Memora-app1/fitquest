@@ -25,12 +25,14 @@ export async function XpSourceBreakdown({ userId }: { userId: string }) {
       .from('xp_transactions')
       .select('amount, source_type, created_at')
       .eq('user_id', userId)
-      .gte('created_at', thirtyDaysAgo),
+      .gte('created_at', thirtyDaysAgo)
+      .limit(1000),
     supabase
       .from('xp_transactions')
       .select('amount, source_type')
       .eq('user_id', userId)
-      .gte('created_at', ninetyDaysAgo),
+      .gte('created_at', ninetyDaysAgo)
+      .limit(3000),
   ]);
 
   const recentTx = recentRes.data ?? [];

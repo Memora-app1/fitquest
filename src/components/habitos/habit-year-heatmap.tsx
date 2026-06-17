@@ -47,7 +47,8 @@ export async function HabitYearHeatmap({ userId }: { userId: string }) {
       .select('habit_id, logged_date')
       .eq('user_id', userId)
       .gte('logged_date', yearAgoStr)
-      .lte('logged_date', todayStr),
+      .lte('logged_date', todayStr)
+      .limit(10000),
   ]);
 
   const habits = (habitsRes.data ?? []) as HabitRow[];

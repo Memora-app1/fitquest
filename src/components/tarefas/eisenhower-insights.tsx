@@ -59,20 +59,23 @@ export async function EisenhowerInsights({ userId }: { userId: string }) {
       .select('id, urgent, important, status, completed_at, created_at, xp_reward')
       .eq('user_id', userId)
       .not('status', 'eq', 'archived')
-      .not('status', 'eq', 'done'),
+      .not('status', 'eq', 'done')
+      .limit(2000),
     // Done tasks from last 30 days
     supabase
       .from('tasks')
       .select('id, urgent, important, status, completed_at, created_at, xp_reward')
       .eq('user_id', userId)
       .eq('status', 'done')
-      .gte('completed_at', thirtyDaysAgo + 'T00:00:00'),
-    // All done tasks (for totals)
+      .gte('completed_at', thirtyDaysAgo + 'T00:00:00')
+      .limit(500),
+    // All done tasks (for totals) — capped at 5000 for performance
     supabase
       .from('tasks')
       .select('id, urgent, important, status, completed_at, created_at, xp_reward')
       .eq('user_id', userId)
-      .eq('status', 'done'),
+      .eq('status', 'done')
+      .limit(5000),
   ]);
 
   const activeTasks = (activeRes.data ?? []) as TaskRow[];

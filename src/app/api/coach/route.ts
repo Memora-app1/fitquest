@@ -130,8 +130,8 @@ export async function POST(req: NextRequest) {
       )
       .eq('id', user.id)
       .single(),
-    supabase.from('habits').select('id, name').eq('user_id', user.id).eq('is_active', true),
-    supabase.from('habit_logs').select('habit_id').eq('user_id', user.id).eq('logged_date', today!),
+    supabase.from('habits').select('id, name').eq('user_id', user.id).eq('is_active', true).limit(50),
+    supabase.from('habit_logs').select('habit_id').eq('user_id', user.id).eq('logged_date', today!).limit(50),
     supabase
       .from('workouts')
       .select('title, started_at, total_sets, total_volume_kg, xp_earned')
@@ -158,7 +158,8 @@ export async function POST(req: NextRequest) {
       .from('goals')
       .select('title, current_value, target_value, unit, deadline')
       .eq('user_id', user.id)
-      .eq('status', 'active'),
+      .eq('status', 'active')
+      .limit(20),
     supabase
       .from('ai_messages')
       .select('role, content')
@@ -188,7 +189,8 @@ export async function POST(req: NextRequest) {
       .from('xp_transactions')
       .select('amount')
       .eq('user_id', user.id)
-      .gte('created_at', weekStart + 'T00:00:00'),
+      .gte('created_at', weekStart + 'T00:00:00')
+      .limit(500),
     supabase
       .from('finance_goals')
       .select('title, current_amount, target_amount, deadline')

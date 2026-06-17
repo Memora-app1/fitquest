@@ -24,11 +24,13 @@ export async function FinanceCategoryTrend({ userId }: { userId: string }) {
       .eq('user_id', userId)
       .eq('type', 'expense')
       .eq('is_paid', true)
-      .gte('transaction_date', fourMonthsAgoStr),
+      .gte('transaction_date', fourMonthsAgoStr)
+      .limit(2000),
     supabase
       .from('finance_categories')
       .select('id, name, icon, color')
-      .or(`user_id.eq.${userId},is_global.eq.true`),
+      .or(`user_id.eq.${userId},is_global.eq.true`)
+      .limit(500),
   ]);
 
   const transactions = txRes.data ?? [];

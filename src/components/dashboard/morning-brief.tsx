@@ -21,7 +21,8 @@ export async function MorningBrief({ userId }: { userId: string }) {
       .from('habits')
       .select('id, name, icon, color')
       .eq('user_id', userId)
-      .eq('is_active', true),
+      .eq('is_active', true)
+      .limit(50),
     supabase.from('habit_logs').select('habit_id').eq('user_id', userId).eq('logged_date', today),
     supabase
       .from('tasks')

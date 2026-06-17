@@ -37,13 +37,15 @@ export async function WorkoutDayOfWeekAnalysis({ userId }: { userId: string }) {
       .select('id, started_at, total_volume_kg')
       .eq('user_id', userId)
       .gte('started_at', ninetyDaysAgo)
-      .order('started_at', { ascending: false }),
+      .order('started_at', { ascending: false })
+      .limit(500),
     supabase
       .from('workout_sets')
       .select('workout_id, exercises(muscle_group)')
       .eq('user_id', userId)
       .gte('created_at', ninetyDaysAgo)
-      .eq('is_warmup', false),
+      .eq('is_warmup', false)
+      .limit(2000),
   ]);
 
   const workouts = workoutsRes.data ?? [];

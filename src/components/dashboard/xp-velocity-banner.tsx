@@ -29,13 +29,15 @@ export async function XpVelocityBanner({ userId }: Props) {
       .from('xp_transactions')
       .select('amount')
       .eq('user_id', userId)
-      .gte('created_at', startOfWeek.toISOString()),
+      .gte('created_at', startOfWeek.toISOString())
+      .limit(500),
     supabase
       .from('xp_transactions')
       .select('amount, created_at')
       .eq('user_id', userId)
       .gte('created_at', fourWeeksAgo.toISOString())
-      .lt('created_at', startOfWeek.toISOString()),
+      .lt('created_at', startOfWeek.toISOString())
+      .limit(2000),
   ]);
 
   const thisWeekXp = (thisWeekRes.data ?? []).reduce((s, r) => s + (r.amount ?? 0), 0);

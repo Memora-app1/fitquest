@@ -35,8 +35,9 @@ export async function XpToday({ userId }: { userId: string }) {
       .eq('user_id', userId)
       .gte('created_at', `${today}T00:00:00`)
       .lte('created_at', `${today}T23:59:59`)
-      .order('created_at', { ascending: false }),
-    supabase.from('habits').select('xp_per_completion').eq('user_id', userId).eq('is_active', true),
+      .order('created_at', { ascending: false })
+      .limit(200),
+    supabase.from('habits').select('xp_per_completion').eq('user_id', userId).eq('is_active', true).limit(50),
   ]);
 
   const transactions = txRes.data ?? [];

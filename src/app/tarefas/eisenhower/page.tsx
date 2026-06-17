@@ -28,7 +28,8 @@ export default async function EisenhowerPage() {
     .select('id, title, urgent, important, status, xp_reward, due_date')
     .eq('user_id', user.id)
     .not('status', 'eq', 'archived')
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .limit(2000);
 
   const activeTasks = (tasks ?? []).filter((t) => t.status !== 'done');
   const doneTasks = (tasks ?? []).filter((t) => t.status === 'done');

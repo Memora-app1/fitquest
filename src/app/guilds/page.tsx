@@ -41,7 +41,8 @@ export default async function GuildsPage() {
     const { data: members } = await supabase
       .from('guild_members')
       .select('guild_id')
-      .in('guild_id', guildIds);
+      .in('guild_id', guildIds)
+      .limit(5000);
     for (const m of members ?? []) {
       const id = m.guild_id as string;
       memberCountMap[id] = (memberCountMap[id] ?? 0) + 1;

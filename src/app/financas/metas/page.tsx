@@ -29,7 +29,8 @@ export default async function MetasFinanceirasPage() {
       'id, user_id, title, icon, color, target_amount, current_amount, deadline, monthly_target, status, completed_at, created_at'
     )
     .eq('user_id', user.id)
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .limit(100);
 
   const allGoals = goals ?? [];
   const activeGoals = allGoals.filter((g) => g.status === 'active');

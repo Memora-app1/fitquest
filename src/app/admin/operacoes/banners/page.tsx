@@ -19,7 +19,8 @@ export default async function BannersPage() {
     .from('app_banners')
     .select('*')
     .order('priority', { ascending: false })
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .limit(100);
 
   return (
     <div className="mx-auto max-w-5xl space-y-6 p-6">

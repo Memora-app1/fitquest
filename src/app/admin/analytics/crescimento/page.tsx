@@ -25,7 +25,8 @@ export default async function CrescimentoPage() {
       .from('metrics_daily')
       .select('date, new_users, total_users, trial_users, active_users')
       .gte('date', last90)
-      .order('date', { ascending: true }),
+      .order('date', { ascending: true })
+      .limit(90),
     db.from('profiles').select('id', { count: 'exact', head: true }),
     db.from('profiles').select('id', { count: 'exact', head: true }).gte('created_at', last7),
     db.from('profiles').select('id', { count: 'exact', head: true }).gte('created_at', last30),

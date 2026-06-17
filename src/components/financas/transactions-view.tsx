@@ -112,14 +112,20 @@ export function TransactionsView({
 
   const grouped = useMemo(() => groupByDate(filtered), [filtered]);
 
-  const totalIncome = localTxs
-    .filter((t) => t.type === 'income' && t.is_paid)
-    .reduce((s, t) => s + Number(t.amount), 0);
-  const totalExpense = localTxs
-    .filter((t) => t.type === 'expense' && t.is_paid)
-    .reduce((s, t) => s + Number(t.amount), 0);
-  const net = totalIncome - totalExpense;
-  const pendingCount = localTxs.filter((t) => !t.is_paid).length;
+  const { totalIncome, totalExpense, net, pendingCount } = useMemo(() => {
+    let income = 0;
+    let expense = 0;
+    let pending = 0;
+    for (const t of localTxs) {
+      if (t.is_paid) {
+        if (t.type === 'income') income += Number(t.amount);
+        else if (t.type === 'expense') expense += Number(t.amount);
+      } else {
+        pending++;
+      }
+    }
+    return { totalIncome: income, totalExpense: expense, net: income - expense, pendingCount: pending };
+  }, [localTxs]);
 
   async function deleteTransaction(id: string) {
     setDeletingId(id);
@@ -146,9 +152,13 @@ export function TransactionsView({
     router.refresh();
   }
 
-  const subscriptionTotal = localTxs
-    .filter((t) => t.is_recurring && t.type === 'expense')
-    .reduce((s, t) => s + Number(t.amount), 0);
+  const subscriptionTotal = useMemo(
+    () =>
+      localTxs
+        .filter((t) => t.is_recurring && t.type === 'expense')
+        .reduce((s, t) => s + Number(t.amount), 0),
+    [localTxs]
+  );
 
   const FILTER_TABS: { key: FilterType; label: string }[] = [
     { key: 'all', label: 'Tudo' },

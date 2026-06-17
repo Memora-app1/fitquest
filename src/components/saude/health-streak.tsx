@@ -52,8 +52,14 @@ export async function HealthStreak({ userId }: { userId: string }) {
       .from('water_logs')
       .select('date, amount_ml')
       .eq('user_id', userId)
-      .gte('date', since60),
-    supabase.from('sleep_logs').select('date').eq('user_id', userId).gte('date', since60),
+      .gte('date', since60)
+      .limit(500),
+    supabase
+      .from('sleep_logs')
+      .select('date')
+      .eq('user_id', userId)
+      .gte('date', since60)
+      .limit(60),
   ]);
 
   // Agrupa água por dia

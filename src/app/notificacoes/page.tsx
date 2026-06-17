@@ -30,7 +30,8 @@ export default async function NotificacoesPage() {
   const { data: subs } = await supabase
     .from('push_subscriptions')
     .select('id, endpoint, created_at')
-    .eq('user_id', user.id);
+    .eq('user_id', user.id)
+    .limit(50);
 
   return (
     <AppShell>

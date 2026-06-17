@@ -32,7 +32,8 @@ export async function WorkoutTrends({ userId }: { userId: string }) {
     .select('started_at, total_volume_kg')
     .eq('user_id', userId)
     .gte('started_at', eightWeeksAgoStr + 'T00:00:00')
-    .order('started_at', { ascending: true });
+    .order('started_at', { ascending: true })
+    .limit(200);
 
   const workouts = rawWorkouts ?? [];
 

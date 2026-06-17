@@ -137,7 +137,8 @@ export async function RpgCharacter({ userId }: { userId: string }) {
       .from('xp_transactions')
       .select('amount, source_type')
       .eq('user_id', userId)
-      .gte('created_at', fourWeeksAgo),
+      .gte('created_at', fourWeeksAgo)
+      .limit(2000),
   ]);
 
   const profile = profileRes.data;

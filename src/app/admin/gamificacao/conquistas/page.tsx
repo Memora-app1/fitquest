@@ -30,7 +30,7 @@ export default async function AchievementsPage() {
   const db = createServiceClient();
 
   const [achievementsRes, unlocksCountRes] = await Promise.all([
-    db.from('achievements').select('*').order('category').order('xp_reward', { ascending: false }),
+    db.from('achievements').select('*').order('category').order('xp_reward', { ascending: false }).limit(500),
     db.from('user_achievements').select('achievement_id').limit(10000),
   ]);
 

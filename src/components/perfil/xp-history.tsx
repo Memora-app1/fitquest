@@ -27,7 +27,8 @@ export async function XpHistory({ userId }: { userId: string }) {
     .select('amount, source_type, created_at')
     .eq('user_id', userId)
     .gte('created_at', thirtyDaysAgoStr + 'T00:00:00')
-    .order('created_at', { ascending: true });
+    .order('created_at', { ascending: true })
+    .limit(1000);
 
   const transactions = txns ?? [];
 

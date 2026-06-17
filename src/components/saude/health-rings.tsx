@@ -32,7 +32,7 @@ export async function HealthRings({ userId }: { userId: string }) {
   const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString().split('T')[0]!;
 
   const [waterRes, sleepRes, workoutsRes, sleepAvgRes] = await Promise.all([
-    supabase.from('water_logs').select('amount_ml').eq('user_id', userId).eq('date', today),
+    supabase.from('water_logs').select('amount_ml').eq('user_id', userId).eq('date', today).limit(100),
     supabase
       .from('sleep_logs')
       .select('duration_hours, quality')
@@ -43,12 +43,14 @@ export async function HealthRings({ userId }: { userId: string }) {
       .from('workouts')
       .select('started_at')
       .eq('user_id', userId)
-      .gte('started_at', `${threeDaysAgo}T00:00:00`),
+      .gte('started_at', `${threeDaysAgo}T00:00:00`)
+      .limit(20),
     supabase
       .from('sleep_logs')
       .select('duration_hours')
       .eq('user_id', userId)
-      .gte('date', sevenDaysAgo),
+      .gte('date', sevenDaysAgo)
+      .limit(7),
   ]);
 
   // ── Água ──────────────────────────────────────────────────────────
@@ -75,7 +77,8 @@ export async function HealthRings({ userId }: { userId: string }) {
     .from('water_logs')
     .select('amount_ml')
     .eq('user_id', userId)
-    .eq('date', yesterday);
+    .eq('date', yesterday)
+    .limit(100);
   const waterYest = (waterYesterdayRes.data ?? []).reduce((s, r) => s + (r.amount_ml as number), 0);
   const waterScore =
     waterYest > 0 ? Math.min(100, Math.round((waterYest / WATER_GOAL_ML) * 100)) : 0;

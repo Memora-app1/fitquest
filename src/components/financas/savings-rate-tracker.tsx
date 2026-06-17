@@ -55,7 +55,8 @@ export async function SavingsRateTracker({ userId }: { userId: string }) {
     .select('amount, type, transaction_date')
     .eq('user_id', userId)
     .gte('transaction_date', sixMonthsAgo)
-    .order('transaction_date', { ascending: true });
+    .order('transaction_date', { ascending: true })
+    .limit(3000);
 
   const rows = (raw ?? []) as TxRow[];
   if (rows.length === 0) return null;

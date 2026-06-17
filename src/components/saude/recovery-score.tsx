@@ -25,19 +25,21 @@ export async function RecoveryScore({ userId }: { userId: string }) {
       .eq('user_id', userId)
       .eq('date', yesterday)
       .maybeSingle(),
-    supabase.from('water_logs').select('amount_ml').eq('user_id', userId).eq('date', yesterday),
+    supabase.from('water_logs').select('amount_ml').eq('user_id', userId).eq('date', yesterday).limit(100),
     supabase
       .from('workouts')
       .select('started_at')
       .eq('user_id', userId)
       .gte('started_at', `${threeDaysAgo}T00:00:00`)
-      .order('started_at', { ascending: false }),
+      .order('started_at', { ascending: false })
+      .limit(20),
     supabase
       .from('sleep_logs')
       .select('duration_hours, quality')
       .eq('user_id', userId)
       .gte('date', sevenDaysAgo)
-      .lte('date', today),
+      .lte('date', today)
+      .limit(7),
   ]);
 
   // ── Sleep factor ──────────────────────────────────────────────────

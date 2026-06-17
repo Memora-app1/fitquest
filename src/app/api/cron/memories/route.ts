@@ -27,7 +27,8 @@ export async function GET() {
   const { data: habitLogs } = await supabase
     .from('habit_logs')
     .select('user_id, habit_id')
-    .eq('logged_date', oneYearAgoStr);
+    .eq('logged_date', oneYearAgoStr)
+    .limit(100000);
 
   if (!habitLogs || habitLogs.length === 0) {
     return NextResponse.json({ ok: true, sent: 0, date: oneYearAgoStr });
@@ -49,7 +50,8 @@ export async function GET() {
     .eq('type', 'coach_insight')
     .gte('created_at', `${todayStr}T00:00:00`)
     .ilike('title', `%${oneYearAgoStr}%`)
-    .in('user_id', userIds);
+    .in('user_id', userIds)
+    .limit(50000);
 
   const sentSet = new Set((alreadySent ?? []).map((n) => n.user_id as string));
 
@@ -61,7 +63,8 @@ export async function GET() {
   const { data: allSubs } = await supabase
     .from('push_subscriptions')
     .select('id, user_id, endpoint, keys_p256dh, keys_auth')
-    .in('user_id', toNotify);
+    .in('user_id', toNotify)
+    .limit(50000);
 
   const subsByUser = new Map<string, typeof allSubs>();
   for (const sub of allSubs ?? []) {

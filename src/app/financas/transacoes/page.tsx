@@ -38,11 +38,13 @@ export default async function TransacoesPage() {
       .from('finance_accounts')
       .select('id, name, icon, color')
       .eq('user_id', user.id)
-      .eq('is_active', true),
+      .eq('is_active', true)
+      .limit(50),
     supabase
       .from('finance_categories')
       .select('id, name, icon, color, type, is_global')
-      .or(`user_id.eq.${user.id},is_global.eq.true`),
+      .or(`user_id.eq.${user.id},is_global.eq.true`)
+      .limit(500),
   ]);
 
   const transactions = txRes.data ?? [];

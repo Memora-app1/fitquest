@@ -48,7 +48,8 @@ export async function DailyActivityMap({ userId }: { userId: string }) {
       .from('habit_logs')
       .select('logged_date')
       .eq('user_id', userId)
-      .gte('logged_date', startStr),
+      .gte('logged_date', startStr)
+      .limit(3000),
     // Tasks completed
     supabase
       .from('tasks')
@@ -68,7 +69,8 @@ export async function DailyActivityMap({ userId }: { userId: string }) {
       .from('xp_transactions')
       .select('amount, created_at')
       .eq('user_id', userId)
-      .gte('created_at', startStr + 'T00:00:00'),
+      .gte('created_at', startStr + 'T00:00:00')
+      .limit(3000),
   ]);
 
   // Build per-day sets

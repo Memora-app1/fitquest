@@ -25,7 +25,8 @@ export async function GET() {
   const { data: atRiskUsers } = await supabase
     .from('profiles')
     .select('id, name, streak_current')
-    .gt('streak_current', 0);
+    .gt('streak_current', 0)
+    .limit(100000);
 
   if (!atRiskUsers || atRiskUsers.length === 0) {
     return NextResponse.json({ ok: true, sent: 0, skipped: 0 });
@@ -35,20 +36,22 @@ export async function GET() {
 
   // ── 2. Batch: quem já teve atividade hoje? (3 queries para TODOS) ────────────
   const [habitLogs, workoutLogs, taskLogs] = await Promise.all([
-    supabase.from('habit_logs').select('user_id').eq('logged_date', today).in('user_id', userIds),
+    supabase.from('habit_logs').select('user_id').eq('logged_date', today).in('user_id', userIds).limit(100000),
     supabase
       .from('workouts')
       .select('user_id')
       .gte('finished_at', `${today}T00:00:00`)
       .lte('finished_at', `${today}T23:59:59`)
-      .in('user_id', userIds),
+      .in('user_id', userIds)
+      .limit(100000),
     supabase
       .from('tasks')
       .select('user_id')
       .eq('status', 'done')
       .gte('completed_at', `${today}T00:00:00`)
       .lte('completed_at', `${today}T23:59:59`)
-      .in('user_id', userIds),
+      .in('user_id', userIds)
+      .limit(100000),
   ]);
 
   const activeToday = new Set([
@@ -63,7 +66,8 @@ export async function GET() {
     .select('user_id')
     .eq('type', 'streak_alert')
     .gte('created_at', `${today}T00:00:00`)
-    .in('user_id', userIds);
+    .in('user_id', userIds)
+    .limit(50000);
 
   const alertedToday = new Set((alreadyAlerted ?? []).map((r) => r.user_id));
 
@@ -84,7 +88,8 @@ export async function GET() {
   const { data: allSubs } = await supabase
     .from('push_subscriptions')
     .select('id, user_id, endpoint, keys_p256dh, keys_auth')
-    .in('user_id', needsAlertIds);
+    .in('user_id', needsAlertIds)
+    .limit(50000);
 
   // Agrupar subscriptions por user_id para acesso O(1)
   const subsByUser = new Map<string, typeof allSubs>();

@@ -40,7 +40,8 @@ export default async function TarefasPage() {
       .eq('user_id', user.id)
       .not('status', 'eq', 'archived')
       .order('display_order')
-      .order('created_at', { ascending: false }),
+      .order('created_at', { ascending: false })
+      .limit(2000),
     supabase
       .from('tasks')
       .select('id', { count: 'exact', head: true })
@@ -52,7 +53,8 @@ export default async function TarefasPage() {
       .select('amount')
       .eq('user_id', user.id)
       .eq('source_type', 'task')
-      .gte('created_at', sevenDaysAgo),
+      .gte('created_at', sevenDaysAgo)
+      .limit(500),
     supabase
       .from('tasks')
       .select('id', { count: 'exact', head: true })
@@ -62,7 +64,8 @@ export default async function TarefasPage() {
       .from('task_lists')
       .select('id, name, color, icon')
       .eq('user_id', user.id)
-      .order('display_order'),
+      .order('display_order')
+      .limit(50),
   ]);
 
   const tasks = tasksRes.data ?? [];

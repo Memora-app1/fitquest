@@ -159,7 +159,8 @@ export async function GET() {
   const { data: users } = await supabase
     .from('profiles')
     .select('id, name, streak_current, level')
-    .in('subscription_status', ['trial', 'active', 'lifetime']);
+    .in('subscription_status', ['trial', 'active', 'lifetime'])
+    .limit(100000);
 
   if (!users || users.length === 0) {
     return NextResponse.json({ ok: true, processed: 0, granted: 0 });
@@ -184,47 +185,54 @@ export async function GET() {
       .select('user_id, habit_id')
       .in('user_id', userIds)
       .gte('logged_date', weekStart)
-      .lte('logged_date', weekEnd),
-    supabase.from('habits').select('user_id').in('user_id', userIds).eq('is_active', true),
+      .lte('logged_date', weekEnd)
+      .limit(500000),
+    supabase.from('habits').select('user_id').in('user_id', userIds).eq('is_active', true).limit(200000),
     supabase
       .from('workouts')
       .select('user_id')
       .in('user_id', userIds)
       .gte('created_at', weekStart + 'T00:00:00')
-      .lte('created_at', weekEnd + 'T23:59:59'),
+      .lte('created_at', weekEnd + 'T23:59:59')
+      .limit(200000),
     supabase
       .from('tasks')
       .select('user_id')
       .in('user_id', userIds)
       .eq('status', 'done')
       .gte('updated_at', weekStart + 'T00:00:00')
-      .lte('updated_at', weekEnd + 'T23:59:59'),
-    supabase.from('tasks').select('user_id').in('user_id', userIds).neq('status', 'archived'),
+      .lte('updated_at', weekEnd + 'T23:59:59')
+      .limit(500000),
+    supabase.from('tasks').select('user_id').in('user_id', userIds).neq('status', 'archived').limit(2000000),
     supabase
       .from('xp_transactions')
       .select('user_id, amount')
       .in('user_id', userIds)
       .gte('created_at', weekStart + 'T00:00:00')
-      .lte('created_at', weekEnd + 'T23:59:59'),
+      .lte('created_at', weekEnd + 'T23:59:59')
+      .limit(1000000),
     supabase
       .from('transactions')
       .select('user_id')
       .in('user_id', userIds)
       .gte('transaction_date', weekStart)
-      .lte('transaction_date', weekEnd),
+      .lte('transaction_date', weekEnd)
+      .limit(200000),
     supabase
       .from('water_logs')
       .select('user_id, date, amount_ml')
       .in('user_id', userIds)
       .gte('date', weekStart)
-      .lte('date', weekEnd),
+      .lte('date', weekEnd)
+      .limit(500000),
     // Idempotência: quais source_ids já foram concedidos esta semana para esses usuários?
     supabase
       .from('xp_transactions')
       .select('user_id, source_id')
       .in('user_id', userIds)
       .eq('source_type', 'bonus')
-      .ilike('source_id', `wc_${year}w${weekNum}_%`),
+      .ilike('source_id', `wc_${year}w${weekNum}_%`)
+      .limit(100000),
   ]);
 
   // ── 3. Agrega em memória por user_id ─────────────────────────────────────────
@@ -345,7 +353,8 @@ export async function GET() {
     const { data: allSubs } = await supabase
       .from('push_subscriptions')
       .select('id, user_id, endpoint, keys_p256dh, keys_auth')
-      .in('user_id', granteeIds);
+      .in('user_id', granteeIds)
+      .limit(100000);
 
     const subsByUser = new Map<string, typeof allSubs>();
     for (const sub of allSubs ?? []) {

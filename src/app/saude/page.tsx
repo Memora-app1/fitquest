@@ -53,13 +53,15 @@ export default async function SaudePage() {
       .select('id, amount_ml, created_at')
       .eq('user_id', user.id)
       .eq('date', todayStr)
-      .order('created_at', { ascending: false }),
+      .order('created_at', { ascending: false })
+      .limit(100),
     supabase
       .from('water_logs')
       .select('date, amount_ml')
       .eq('user_id', user.id)
       .gte('date', sevenDaysAgoStr)
-      .order('date', { ascending: false }),
+      .order('date', { ascending: false })
+      .limit(500),
     supabase
       .from('sleep_logs')
       .select('id, date, bed_time, wake_time, duration_hours, quality, xp_earned')

@@ -40,7 +40,7 @@ export default async function ReceitaPage() {
   const [activeSubsRes, lifetimeRes, trialRes, expiredRes, cancelledRes, snapshotsRes] =
     await Promise.all([
       // Assinantes ativos por plano
-      db.from('profiles').select('subscription_plan').eq('subscription_status', 'active'),
+      db.from('profiles').select('subscription_plan').eq('subscription_status', 'active').limit(100000),
       // Lifetimes
       db
         .from('profiles')
@@ -69,7 +69,8 @@ export default async function ReceitaPage() {
         .from('metrics_daily')
         .select('date, mrr_cents, new_subs, churned_subs')
         .gte('date', new Date(Date.now() - 30 * 86400000).toISOString().split('T')[0]!)
-        .order('date', { ascending: true }),
+        .order('date', { ascending: true })
+        .limit(30),
     ]);
 
   const activeSubs = activeSubsRes.data ?? [];

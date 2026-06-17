@@ -68,7 +68,8 @@ export async function GoalsOverview({ userId }: { userId: string }) {
     )
     .eq('user_id', userId)
     .not('status', 'eq', 'cancelled')
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .limit(100);
 
   const goals: GoalRow[] = raw ?? [];
 

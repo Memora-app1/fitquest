@@ -80,7 +80,8 @@ export async function WorkoutRestDayAdvisor({ userId }: { userId: string }) {
     .eq('user_id', userId)
     .eq('is_warmup', false)
     .gte('created_at', fourteenDaysAgo)
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .limit(1000);
 
   const rows = (raw ?? []) as unknown as SetRow[];
   if (rows.length === 0) return null;

@@ -37,7 +37,8 @@ export async function WorkoutHeatmap({ userId }: { userId: string }) {
     .select('started_at, total_volume_kg, total_sets')
     .eq('user_id', userId)
     .gte('started_at', startStr + 'T00:00:00')
-    .order('started_at', { ascending: true });
+    .order('started_at', { ascending: true })
+    .limit(365);
 
   if (!raw || raw.length === 0) return null;
 

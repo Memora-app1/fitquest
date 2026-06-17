@@ -52,7 +52,8 @@ export async function WorkoutMuscleBalance({ userId }: { userId: string }) {
     .select('weight_kg, reps, is_warmup, created_at, exercises(name, muscle_group)')
     .eq('user_id', userId)
     .gte('created_at', eightWeeksAgo + 'T00:00:00')
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .limit(2000);
 
   const rows = (raw ?? []) as unknown as SetRow[];
   if (rows.length === 0) return null;
