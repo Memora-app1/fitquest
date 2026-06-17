@@ -21,6 +21,7 @@ import {
   Store,
   MoreHorizontal,
   X,
+  Swords,
 } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 
@@ -44,6 +45,7 @@ const MORE_ITEMS: Array<{ href: string; label: string; icon: React.ElementType; 
   { href: '/ranking', label: 'Ranking', icon: Medal, color: '#7C3AED' },
   { href: '/guilds', label: 'Guilds', icon: Shield, color: '#3B82F6' },
   { href: '/seasons', label: 'Temporada', icon: Sparkles, color: '#00FF88' },
+  { href: '/desafios', label: 'Desafios', icon: Swords, color: '#FF4D00' },
   { href: '/saude', label: 'Saúde', icon: Heart, color: '#EC4899' },
   { href: '/financas', label: 'Finanças', icon: Wallet, color: '#00D9FF' },
   { href: '/habitos', label: 'Hábitos', icon: Target, color: '#FF4D00' },

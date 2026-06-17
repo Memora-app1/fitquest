@@ -238,7 +238,13 @@ export async function proxy(request: NextRequest) {
     pathname.startsWith('/calendario') ||
     pathname.startsWith('/metas') ||
     pathname.startsWith('/saude') ||
-    pathname.startsWith('/conquistas');
+    pathname.startsWith('/conquistas') ||
+    pathname.startsWith('/ranking') ||
+    pathname.startsWith('/guilds') ||
+    pathname.startsWith('/seasons') ||
+    pathname.startsWith('/notificacoes') ||
+    pathname.startsWith('/loja') ||
+    pathname.startsWith('/desafios');
 
   if (isAppRoute) {
     // 1. Tentar ler do cache (evita query ao banco)
