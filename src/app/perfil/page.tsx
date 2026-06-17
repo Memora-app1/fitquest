@@ -13,6 +13,7 @@ import { DailyActivityMap } from '@/components/perfil/daily-activity-map';
 import { RpgCharacter } from '@/components/perfil/rpg-character';
 import { ReferralWidget } from '@/components/perfil/referral-widget';
 import { CosmeticsLoader } from '@/components/perfil/cosmetics-loader';
+import { ProfileSetupCard } from '@/components/perfil/profile-setup-card';
 import {
   Trophy,
   Flame,
@@ -113,7 +114,7 @@ export default async function PerfilPage() {
     supabase
       .from('profiles')
       .select(
-        'name, avatar_url, bio, subscription_status, subscription_plan, trial_end, subscription_end, created_at, xp_total, level, streak_current, streak_longest, perfect_days, stripe_customer_id, equipped_title, equipped_frame'
+        'name, avatar_url, bio, subscription_status, subscription_plan, trial_end, subscription_end, created_at, xp_total, level, streak_current, streak_longest, perfect_days, stripe_customer_id, equipped_title, equipped_frame, onboarding_completed, referral_count, primary_goal'
       )
       .eq('id', user.id)
       .single(),
@@ -258,6 +259,17 @@ export default async function PerfilPage() {
             </div>
           </div>
         </div>
+
+        {/* Setup Progress — mostra se perfil não está 100% completo */}
+        <ProfileSetupCard
+          avatarSet={!!profile.avatar_url}
+          bioSet={!!profile.bio && (profile.bio as string).length > 0}
+          habitsCreated={(habitsRes.count ?? 0) > 0}
+          taskCompleted={(tasksRes.count ?? 0) > 0}
+          workoutDone={(workoutsRes.count ?? 0) > 0}
+          onboardingCompleted={!!(profile.onboarding_completed as boolean)}
+          referralCount={(profile.referral_count as number) ?? 0}
+        />
 
         {/* Edit Forms */}
         <PerfilForm
