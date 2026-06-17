@@ -106,6 +106,33 @@ export default async function HabitosPage({
   const streak = profile?.streak_current ?? 0;
   const isPerfectToday = totalHabits > 0 && loggedTodayCount === totalHabits;
 
+  // ── At-risk habit detection: não feito há 3+ dias ─────────────────
+  const loggedTodaySet = new Set((logsRes.data ?? []).map((l) => l.habit_id));
+  const lastLoggedMap = new Map<string, string>();
+  for (const log of monthLogs) {
+    const current = lastLoggedMap.get(log.habit_id);
+    if (!current || log.logged_date > current) {
+      lastLoggedMap.set(log.habit_id, log.logged_date);
+    }
+  }
+  const atRiskHabits = habits
+    .filter((h) => {
+      if (loggedTodaySet.has(h.id)) return false;
+      const last = lastLoggedMap.get(h.id);
+      if (!last) return false; // hábito nunca logado = novo, não em risco
+      const daysSince = Math.floor((Date.now() - new Date(last).getTime()) / 86400000);
+      return daysSince >= 3;
+    })
+    .map((h) => ({
+      id: h.id,
+      name: h.name as string,
+      icon: h.icon as string,
+      daysSince: Math.floor(
+        (Date.now() - new Date(lastLoggedMap.get(h.id)!).getTime()) / 86400000
+      ),
+    }));
+  const atRiskIds = new Set(atRiskHabits.map((h) => h.id));
+
   // Today's accent color based on completion
   const todayAccent =
     todayCompletionRate === 100 ? '#00FF88' : todayCompletionRate >= 50 ? '#F5C842' : '#FF4D00';
@@ -355,11 +382,52 @@ export default async function HabitosPage({
           </Suspense>
         </div>
 
+        {/* ── At-risk habits banner ───────────────────────────────────── */}
+        {atRiskHabits.length > 0 && (
+          <div
+            className="rounded-2xl p-4"
+            style={{
+              background: 'linear-gradient(135deg, rgba(245,200,66,0.07) 0%, rgba(13,24,41,0.98) 100%)',
+              border: '1px solid rgba(245,200,66,0.2)',
+            }}
+          >
+            <div className="mb-3 flex items-center gap-2">
+              <span className="text-base">⚠️</span>
+              <span className="text-sm font-bold text-brand-gold">
+                {atRiskHabits.length === 1
+                  ? '1 hábito em risco de abandono'
+                  : `${atRiskHabits.length} hábitos em risco de abandono`}
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {atRiskHabits.map((h) => (
+                <div
+                  key={h.id}
+                  className="flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold"
+                  style={{
+                    background: 'rgba(245,200,66,0.1)',
+                    border: '1px solid rgba(245,200,66,0.2)',
+                    color: '#F5C842',
+                  }}
+                >
+                  <span>{h.icon}</span>
+                  <span>{h.name}</span>
+                  <span className="text-text-muted">· {h.daysSince}d</span>
+                </div>
+              ))}
+            </div>
+            <p className="mt-3 text-xs text-text-muted">
+              Complete esses hábitos hoje para manter a consistência e não perder o progresso.
+            </p>
+          </div>
+        )}
+
         <HabitsList
           habits={habits}
           loggedToday={new Set((logsRes.data ?? []).map((l) => l.habit_id))}
           weekLogs={monthLogs}
           initialShowCreate={openNew === '1'}
+          atRiskIds={atRiskIds}
         />
       </div>
     </AppShell>

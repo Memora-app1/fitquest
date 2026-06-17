@@ -45,11 +45,13 @@ export function HabitsList({
   loggedToday,
   weekLogs,
   initialShowCreate = false,
+  atRiskIds = new Set(),
 }: {
   habits: Habit[];
   loggedToday: Set<string>;
   weekLogs: HabitLog[];
   initialShowCreate?: boolean;
+  atRiskIds?: Set<string>;
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -372,6 +374,14 @@ export function HabitsList({
                           style={{ background: `${h.color}20`, color: h.color }}
                         >
                           ✓ Feito hoje
+                        </span>
+                      )}
+                      {!done && atRiskIds.has(h.id) && (
+                        <span
+                          className="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider"
+                          style={{ background: 'rgba(245,200,66,0.15)', color: '#F5C842', border: '1px solid rgba(245,200,66,0.3)' }}
+                        >
+                          ⚠️ Em risco
                         </span>
                       )}
                     </div>
