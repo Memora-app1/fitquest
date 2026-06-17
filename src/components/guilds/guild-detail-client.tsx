@@ -16,6 +16,7 @@ import {
   Trophy,
   Medal,
   ArrowLeft,
+  ThumbsUp,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -89,6 +90,8 @@ export function GuildDetailClient({ data, feed }: Props) {
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [cheeringId, setCheeringId] = useState<string | null>(null);
+  const [cheeredIds, setCheeredIds] = useState<Set<string>>(new Set());
 
   function copyInvite() {
     navigator.clipboard.writeText(guild.invite_code).then(() => {
@@ -122,6 +125,34 @@ export function GuildDetailClient({ data, feed }: Props) {
         return;
       }
       router.push('/guilds');
+    });
+  }
+
+  function handleCheer(targetUserId: string) {
+    if (cheeringId || cheeredIds.has(targetUserId)) return;
+    setError('');
+    setSuccess('');
+    setCheeringId(targetUserId);
+    startTransition(async () => {
+      try {
+        const res = await fetch(`/api/guilds/${guild.id}/cheer`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ targetUserId }),
+        });
+        const d = (await res.json()) as { ok?: boolean; message?: string; error?: string };
+        if (res.ok && d.ok) {
+          setCheeredIds((prev) => new Set(prev).add(targetUserId));
+          setSuccess(d.message ?? 'Aplauso enviado! 👏');
+          if (navigator.vibrate) navigator.vibrate([20, 15, 30]);
+        } else {
+          setError(d.message ?? d.error ?? 'Não foi possível aplaudir agora.');
+        }
+      } catch {
+        setError('Não foi possível aplaudir agora.');
+      } finally {
+        setCheeringId(null);
+      }
     });
   }
 
@@ -359,6 +390,30 @@ export function GuildDetailClient({ data, feed }: Props) {
                   </div>
                   <div className="text-[10px] text-text-muted">XP/sem</div>
                 </div>
+
+                {/* Aplaudir (só membros, em outros membros) */}
+                {isMember && !member.isCurrentUser && (
+                  <button
+                    type="button"
+                    onClick={() => handleCheer(member.user_id)}
+                    disabled={cheeringId === member.user_id || cheeredIds.has(member.user_id)}
+                    aria-label={`Aplaudir ${member.profile?.name ?? 'membro'}`}
+                    title="Aplaudir membro"
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-all hover:scale-110 active:scale-95 disabled:cursor-default"
+                    style={{
+                      background: cheeredIds.has(member.user_id)
+                        ? 'rgba(0,255,136,0.12)'
+                        : 'rgba(124,58,237,0.1)',
+                      border: cheeredIds.has(member.user_id)
+                        ? '1px solid rgba(0,255,136,0.35)'
+                        : '1px solid rgba(124,58,237,0.25)',
+                      color: cheeredIds.has(member.user_id) ? '#00FF88' : '#9F5AF7',
+                      opacity: cheeringId === member.user_id ? 0.6 : 1,
+                    }}
+                  >
+                    {cheeredIds.has(member.user_id) ? <Check size={15} /> : <ThumbsUp size={15} />}
+                  </button>
+                )}
               </div>
             );
           })}
