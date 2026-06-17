@@ -44,7 +44,7 @@ export default async function PublicProfilePage({ params }: Props) {
   const { data: profile } = await supabase
     .from('profiles')
     .select(
-      'id, name, level, xp_total, streak_current, streak_longest, perfect_days, avatar_url, equipped_title'
+      'id, name, level, xp_total, streak_current, streak_longest, perfect_days, avatar_url, equipped_title, referral_code'
     )
     .ilike('name', nameQuery)
     .maybeSingle();
@@ -85,6 +85,9 @@ export default async function PublicProfilePage({ params }: Props) {
     .select('id', { count: 'exact', head: true });
   const division = getLeagueDivision(position, totalPlayers ?? 1);
 
+  const refCode = profile.referral_code as string | null;
+  const signupHref = refCode ? `/signup?ref=${refCode}` : '/signup';
+
   const levelColors: Record<number, string> = {
     1: '#8899BB',
     2: '#7C3AED',
@@ -117,7 +120,7 @@ export default async function PublicProfilePage({ params }: Props) {
           ⚡ Ascendia
         </Link>
         <Link
-          href="/signup"
+          href={signupHref}
           className="rounded-xl px-4 py-2 text-sm font-bold transition-all hover:scale-105"
           style={{ background: 'linear-gradient(135deg, #7C3AED, #FF4D00)', color: '#fff' }}
         >
@@ -300,7 +303,7 @@ export default async function PublicProfilePage({ params }: Props) {
             </p>
           </div>
           <Link
-            href="/signup"
+            href={signupHref}
             className="inline-block rounded-2xl px-8 py-3.5 text-base font-black transition-all hover:scale-105 active:scale-95"
             style={{
               background: 'linear-gradient(135deg, #7C3AED, #FF4D00)',
