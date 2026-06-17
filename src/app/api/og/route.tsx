@@ -54,6 +54,24 @@ export async function GET(req: NextRequest) {
     } catch {
       /* usa defaults */
     }
+  } else {
+    // Overrides via query params (ex.: meta OG do perfil público /u/username,
+    // que passa name/level/xp/streak sem fazer round-trip ao banco).
+    const nameParam = searchParams.get('name');
+    const levelParam = Number(searchParams.get('level'));
+    const xpParam = Number(searchParams.get('xp'));
+    const streakParam = Number(searchParams.get('streak'));
+    const achParam = Number(searchParams.get('achievements'));
+
+    if (nameParam) name = nameParam.split(' ')[0] ?? nameParam;
+    if (Number.isFinite(levelParam) && levelParam > 0) level = levelParam;
+    if (Number.isFinite(xpParam) && xpParam >= 0) xpTotal = xpParam;
+    if (Number.isFinite(streakParam) && streakParam >= 0) streak = streakParam;
+    if (Number.isFinite(achParam) && achParam >= 0) achievements = achParam;
+
+    const info = getLevelInfo(level);
+    levelTitle = info.title;
+    levelEmoji = info.emoji;
   }
 
   const levelColors: Record<number, string> = {
