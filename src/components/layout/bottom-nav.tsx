@@ -22,6 +22,7 @@ import {
   MoreHorizontal,
   X,
   Swords,
+  Timer,
 } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 
@@ -53,6 +54,7 @@ const MORE_ITEMS: Array<{ href: string; label: string; icon: React.ElementType; 
   { href: '/calendario', label: 'Calendário', icon: Calendar, color: '#7C3AED' },
   { href: '/notificacoes', label: 'Notificações', icon: Bell, color: '#FF4D00' },
   { href: '/loja',         label: 'Loja XP',       icon: Store, color: '#F5C842' },
+  { href: '/foco',         label: 'Modo Foco',     icon: Timer, color: '#00FF88' },
 ];
 
 function haptic(pattern: number | number[] = 8) {

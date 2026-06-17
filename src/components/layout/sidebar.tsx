@@ -30,6 +30,7 @@ import {
   Bell,
   Store,
   Swords,
+  Timer,
 } from 'lucide-react';
 import { NotificationBell } from './notification-bell';
 
@@ -60,6 +61,7 @@ const NAV_SECTIONS = [
     label: 'Organização',
     items: [
       { href: '/tarefas', label: 'Tarefas', icon: CheckSquare },
+      { href: '/foco', label: 'Modo Foco', icon: Timer },
       { href: '/financas', label: 'Finanças', icon: Wallet },
       { href: '/calendario', label: 'Calendário', icon: Calendar },
     ],
