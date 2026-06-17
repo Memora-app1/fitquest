@@ -1,9 +1,7 @@
 ﻿'use client';
 
-export const dynamic = 'force-dynamic';
-
 import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { Eye, EyeOff, CheckCircle2, Zap, Trophy, Flame, Target, Shield, Gift } from 'lucide-react';
@@ -74,7 +72,6 @@ const MILESTONES = [
 
 export default function SignupPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -86,11 +83,12 @@ export default function SignupPage() {
   const [oauthLoading, setOauthLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Auto-fill referral code from URL param ?ref=CODE
+  // Auto-fill referral code from URL param ?ref=CODE (client-only, sem useSearchParams)
   useEffect(() => {
-    const ref = searchParams.get('ref');
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get('ref');
     if (ref) setReferralCode(ref.toUpperCase());
-  }, [searchParams]);
+  }, []);
 
   async function handleGoogleSignup() {
     setOauthLoading(true);
