@@ -114,10 +114,15 @@ export function HabitsList({
           leveledUp?: boolean;
           newLevel?: number;
           criticalHit?: boolean;
+          comebackBonus?: boolean;
           achievementsUnlocked?: string[];
         };
         if (data.criticalHit) {
           if (navigator.vibrate) navigator.vibrate([15, 8, 30, 8, 60, 15, 100]);
+        }
+        if (data.comebackBonus) {
+          if (navigator.vibrate) navigator.vibrate([30, 20, 60, 20, 100, 30, 150]);
+          window.dispatchEvent(new CustomEvent('ascendia:comeback'));
         }
         showXp(data.xpEarned ?? 0, {
           perfectDay: data.perfectDay,

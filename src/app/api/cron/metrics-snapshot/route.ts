@@ -26,6 +26,5 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'rpc_failed' }, { status: 500 });
   }
 
-  console.log(`[metrics-snapshot] Snapshot criado para ${yesterday}`);
   return NextResponse.json({ ok: true, date: yesterday });
 }

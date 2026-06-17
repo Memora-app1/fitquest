@@ -33,13 +33,20 @@ export async function POST(req: NextRequest) {
   const { habitId, value, note } = parsed.data;
   const today = todayString();
 
-  // Buscar hábito (e validar dono)
-  const { data: habit, error: habitError } = await supabase
-    .from('habits')
-    .select('id, name, xp_per_completion, user_id')
-    .eq('id', habitId)
-    .eq('user_id', user.id)
-    .single();
+  // Buscar hábito + perfil em paralelo (perfil necessário para Bônus de Volta)
+  const [{ data: habit, error: habitError }, { data: profile }] = await Promise.all([
+    supabase
+      .from('habits')
+      .select('id, name, xp_per_completion, user_id')
+      .eq('id', habitId)
+      .eq('user_id', user.id)
+      .single(),
+    supabase
+      .from('profiles')
+      .select('streak_current, streak_longest, last_activity_date')
+      .eq('id', user.id)
+      .single(),
+  ]);
 
   if (habitError || !habit) {
     return NextResponse.json({ error: 'habit_not_found' }, { status: 404 });
@@ -75,6 +82,29 @@ export async function POST(req: NextRequest) {
     'habit',
     habitId
   );
+
+  // Bônus de Volta — premia o retorno após 2+ dias de ausência (idempotente via source_id)
+  let comebackBonusXp = 0;
+  if (
+    profile &&
+    (profile.streak_current as number) === 0 &&
+    (profile.streak_longest as number) > 0
+  ) {
+    const lastActivity = profile.last_activity_date as string | null;
+    const daysSinceActivity = lastActivity
+      ? Math.floor((Date.now() - new Date(lastActivity).getTime()) / 86400000)
+      : 999;
+    if (daysSinceActivity >= 2) {
+      const comebackResult = await grantXP(
+        user.id,
+        100,
+        `🎉 Bônus de Volta! Bem-vindo de volta após ${daysSinceActivity} dias`,
+        'bonus',
+        `comeback_bonus_${today}`
+      );
+      comebackBonusXp = comebackResult.xpEarned;
+    }
+  }
 
   // Conquistas first-time + count milestones
   const { count } = await supabase
@@ -130,11 +160,12 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({
     success: true,
-    xpEarned: xpResult.xpEarned + perfectDayBonus,
+    xpEarned: xpResult.xpEarned + perfectDayBonus + comebackBonusXp,
     leveledUp: xpResult.leveledUp,
     newLevel: xpResult.newLevel,
     perfectDay: perfectDayBonus > 0,
     criticalHit: criticalHit,
+    comebackBonus: comebackBonusXp > 0,
     achievementsUnlocked: xpResult.achievementsUnlocked,
   });
 }

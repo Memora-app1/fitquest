@@ -1,10 +1,12 @@
 /**
  * API de Referral
- * GET  /api/referral         — retorna o código do usuário autenticado
- * POST /api/referral         — registra uso de código de referral (ao criar conta)
+ * GET  /api/referral — retorna o código do usuário autenticado
+ * POST /api/referral — registra uso de código de referral (ao criar conta)
  *
  * Requer migration 006-referral-system.sql executada no banco.
  * Ambos os usuários (referido + referenciador) recebem +200 XP.
+ *
+ * Race condition corrigida via RPC use_referral_code_atomic (migration 012).
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -54,25 +56,8 @@ export async function POST(req: NextRequest) {
 
   const { code } = parsed.data;
 
-  // Verifica se o usuário já foi referenciado
-  const { data: myProfile } = await supabase
-    .from('profiles')
-    .select('referred_by, referral_code')
-    .eq('id', user.id)
-    .single();
-
-  if (!myProfile) return NextResponse.json({ error: 'profile_not_found' }, { status: 404 });
-
-  if (myProfile.referred_by) {
-    return NextResponse.json({ error: 'already_referred' }, { status: 409 });
-  }
-
-  // Não pode usar o próprio código
-  if (myProfile.referral_code === code) {
-    return NextResponse.json({ error: 'own_code' }, { status: 400 });
-  }
-
-  // Busca o referenciador pelo código
+  // Busca o referenciador ANTES do lock para evitar deadlock se o referenciador
+  // tentar usar o próprio código ao mesmo tempo.
   const { data: referrer } = await supabase
     .from('profiles')
     .select('id')
@@ -83,13 +68,32 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'code_not_found' }, { status: 404 });
   }
 
-  // Marca o usuário como referenciado
-  await supabase.from('profiles').update({ referred_by: code }).eq('id', user.id);
+  // RPC atômica: lê referred_by + seta atomicamente com FOR UPDATE.
+  // Garante que 2 requests simultâneos não consigam ambos aplicar o referral.
+  const { data: result, error: rpcError } = await supabase.rpc('use_referral_code_atomic', {
+    p_user_id: user.id,
+    p_code: code,
+    p_referrer_id: referrer.id,
+  });
 
-  // Incremento atômico — evita read-modify-write com registros simultâneos
+  if (rpcError) {
+    console.error('[referral] use_referral_code_atomic error:', rpcError.message);
+    return NextResponse.json({ error: 'internal_error' }, { status: 500 });
+  }
+
+  const rpcResult = result as { ok?: boolean; error?: string };
+
+  if (rpcResult.error === 'already_referred') {
+    return NextResponse.json({ error: 'already_referred' }, { status: 409 });
+  }
+  if (rpcResult.error === 'own_code') {
+    return NextResponse.json({ error: 'own_code' }, { status: 400 });
+  }
+
+  // Incremento atômico do contador do referenciador
   await supabase.rpc('increment_referral_count', { p_user_id: referrer.id });
 
-  // Concede XP para ambos em paralelo
+  // Concede XP para ambos em paralelo (grant_xp_atomic garante idempotência via source_id)
   await Promise.all([
     grantXP(
       user.id,

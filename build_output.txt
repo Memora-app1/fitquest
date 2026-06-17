@@ -1,0 +1,175 @@
+﻿
+> ascendia@1.0.0 prebuild
+> node -e "try{require('fs').unlinkSync('src/middleware.ts')}catch(e){}"
+
+
+> ascendia@1.0.0 build
+> next build
+
+▲ Next.js 16.2.6 (Turbopack)
+- Environments: .env.local
+- Experiments (use with caution):
+  ✓ viewTransition
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 22.1s
+  Running TypeScript ...
+  Finished TypeScript in 37.3s ...
+  Collecting page data using 7 workers ...
+node.exe : ⚠ Using edge runtime on a page currently disables static generation for that page
+No linha:1 caractere:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (⚠ Using edge ru...n for that page:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  Generating static pages using 7 workers (0/76) ...
+  Generating static pages using 7 workers (19/76) 
+  Generating static pages using 7 workers (38/76) 
+  Generating static pages using 7 workers (57/76) 
+✓ Generating static pages using 7 workers (76/76) in 1349ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ƒ /admin
+├ ƒ /admin/analytics
+├ ƒ /admin/analytics/crescimento
+├ ƒ /admin/analytics/engajamento
+├ ƒ /admin/analytics/receita
+├ ƒ /admin/analytics/retencao
+├ ƒ /admin/gamificacao
+├ ƒ /admin/gamificacao/conquistas
+├ ƒ /admin/gamificacao/guilds
+├ ƒ /admin/gamificacao/temporadas
+├ ƒ /admin/gamificacao/xp
+├ ƒ /admin/operacoes
+├ ƒ /admin/operacoes/banners
+├ ƒ /admin/operacoes/feature-flags
+├ ƒ /admin/operacoes/notificacoes
+├ ƒ /admin/seguranca
+├ ƒ /admin/seguranca/audit-log
+├ ƒ /admin/seguranca/denuncias
+├ ƒ /admin/seguranca/suspensoes
+├ ƒ /admin/sistema
+├ ƒ /admin/sistema/crons
+├ ƒ /admin/sistema/saude
+├ ƒ /admin/usuarios
+├ ƒ /admin/usuarios/[id]
+├ ƒ /api/admin/banners
+├ ƒ /api/admin/banners/[id]/toggle
+├ ƒ /api/admin/broadcasts
+├ ƒ /api/admin/broadcasts/[id]/send
+├ ƒ /api/admin/debug
+├ ƒ /api/admin/feature-flags
+├ ƒ /api/admin/reports/[id]
+├ ƒ /api/admin/seasons
+├ ƒ /api/admin/sistema/trigger-cron
+├ ƒ /api/admin/users/[id]/actions
+├ ƒ /api/admin/users/[id]/note
+├ ƒ /api/admin/users/export
+├ ƒ /api/admin/xp-grant
+├ ƒ /api/auth/logout
+├ ƒ /api/billing-portal
+├ ƒ /api/calendario
+├ ƒ /api/checkout
+├ ƒ /api/coach
+├ ƒ /api/coach/conversations
+├ ƒ /api/cron/calendar-sync
+├ ƒ /api/cron/daily-recap
+├ ƒ /api/cron/goal-reminders
+├ ƒ /api/cron/habit-reminders
+├ ƒ /api/cron/league-reset
+├ ƒ /api/cron/memories
+├ ƒ /api/cron/metrics-snapshot
+├ ƒ /api/cron/notifications
+├ ƒ /api/cron/perfect-day-reminder
+├ ƒ /api/cron/streak-alerts
+├ ƒ /api/cron/streaks
+├ ƒ /api/cron/task-reminders
+├ ƒ /api/cron/trial-emails
+├ ƒ /api/cron/weekly-challenges
+├ ƒ /api/cron/weekly-digest
+├ ƒ /api/daily-reward
+├ ƒ /api/finance-accounts
+├ ƒ /api/finance-categories
+├ ƒ /api/finance-goals
+├ ƒ /api/goals
+├ ƒ /api/guilds
+├ ƒ /api/guilds/[id]
+├ ƒ /api/guilds/[id]/join
+├ ƒ /api/habits
+├ ƒ /api/habits/log
+├ ƒ /api/health/mood
+├ ƒ /api/health/sleep
+├ ƒ /api/health/water
+├ ƒ /api/login-checkin
+├ ƒ /api/loot
+├ ƒ /api/notifications
+├ ƒ /api/notifications/read-all
+├ ƒ /api/og
+├ ƒ /api/onboarding
+├ ƒ /api/perfil
+├ ƒ /api/push
+├ ƒ /api/ranking
+├ ƒ /api/recovery-mode
+├ ƒ /api/referral
+├ ƒ /api/search
+├ ƒ /api/seasons
+├ ƒ /api/shop
+├ ƒ /api/streak-freeze
+├ ƒ /api/subtasks
+├ ƒ /api/task-lists
+├ ƒ /api/tasks
+├ ƒ /api/transactions
+├ ƒ /api/treinos
+├ ƒ /api/webhook/stripe
+├ ƒ /apple-icon
+├ ƒ /auth/callback
+├ ƒ /calendario
+├ ƒ /coach
+├ ƒ /conquistas
+├ ƒ /dashboard
+├ ƒ /financas
+├ ƒ /financas/contas
+├ ƒ /financas/metas
+├ ƒ /financas/transacoes
+├ ƒ /guilds
+├ ƒ /guilds/[id]
+├ ƒ /habitos
+├ ƒ /icon
+├ ○ /login
+├ ○ /manifest.webmanifest
+├ ƒ /metas
+├ ƒ /notificacoes
+├ ○ /nova-senha
+├ ○ /offline
+├ ○ /onboarding
+├ ƒ /opengraph-image
+├ ƒ /perfil
+├ ƒ /planos
+├ ○ /privacidade
+├ ƒ /ranking
+├ ○ /recuperar-senha
+├ ○ /robots.txt
+├ ƒ /saude
+├ ƒ /score
+├ ○ /season
+├ ƒ /seasons
+├ ○ /signup
+├ ○ /sitemap.xml
+├ ƒ /tarefas
+├ ƒ /tarefas/eisenhower
+├ ○ /termos
+├ ƒ /treinos
+├ ƒ /treinos/[id]
+├ ƒ /treinos/novo
+└ ƒ /u/[username]
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

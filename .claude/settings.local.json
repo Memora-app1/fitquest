@@ -1,6 +1,16 @@
 {
   "permissions": {
     "allow": [
+      "Bash(*)",
+      "PowerShell(*)",
+      "Write(*)",
+      "Edit(*)",
+      "Read(*)",
+      "Glob(*)",
+      "Grep(*)",
+      "WebFetch(*)",
+      "WebSearch(*)",
+      "Agent(*)",
       "Bash(ls \"c:\\\\Users\\\\SURFACE\\\\Downloads\\\\fitquest_2\" 2>&1)",
       "Read(//c/Users/SURFACE/Downloads/fitquest_2/**)",
       "Bash(npm install *)",
@@ -157,13 +167,24 @@
       "Bash(dir /s /b src\\\\app\\\\api\\\\cron\\\\*.ts)",
       "Bash(node -e \"const wp = require\\('web-push'\\); const keys = wp.generateVAPIDKeys\\(\\); console.log\\('PUBLIC:', keys.publicKey\\); console.log\\('PRIVATE:', keys.privateKey\\);\")",
       "Bash(find src/app/api/recovery-mode -name \"*.ts\")",
-      "Bash(dir /s /b src\\\\app\\\\api\\\\recovery-mode\\\\*.ts)"
+      "Bash(dir /s /b src\\\\app\\\\api\\\\recovery-mode\\\\*.ts)",
+      "Bash(taskkill /f /im node.exe)",
+      "PowerShell(Stop-Process -Name \"node\" -Force -ErrorAction SilentlyContinue)",
+      "Bash(rm -f .next/BUILD_ID)",
+      "Bash(rm -f /tmp/next-build-lock)",
+      "Bash(pkill -f \"next build\")",
+      "Skill(loop)",
+      "Skill(loop:*)",
+      "Bash(mkdir -p \"c:/Users/SURFACE/Downloads/fitquest_2/fitquest/.vscode\" 2>/dev/null || true; ls \"c:/Users/SURFACE/Downloads/fitquest_2/fitquest/.vscode\" 2>/dev/null && echo \"exists\" || echo \"created\")",
+      "Bash(mkdir -p ~/.claude/skills/editor-imagens-pro)",
+      "Bash(cp \"/c/Users/SURFACE/AppData/Roaming/Claude/local-agent-mode-sessions/skills-plugin/23048f0b-594e-4fb8-8810-55ae4f326a7b/a09fa676-981c-45cb-9504-506eae8df97e/skills/editor-imagens-pro/SKILL.md\" ~/.claude/skills/editor-imagens-pro/SKILL.md)"
     ],
     "additionalDirectories": [
       "c:\\Users\\SURFACE\\Downloads\\fitquest_2\\fitquest\\src\\app\\treinos",
       "c:\\Users\\SURFACE\\Downloads\\fitquest_2\\fitquest\\.claude",
       "c:\\Users\\SURFACE\\Downloads\\fitquest_2\\fitquest\\src\\app\\u",
-      "c:\\Users\\SURFACE\\Downloads\\fitquest_2\\fitquest\\src\\app\\guilds\\[id]"
+      "c:\\Users\\SURFACE\\Downloads\\fitquest_2\\fitquest\\src\\app\\guilds\\[id]",
+      "c:\\Users\\SURFACE\\Downloads\\fitquest_2\\fitquest"
     ]
   }
 }

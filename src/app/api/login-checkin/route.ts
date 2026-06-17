@@ -6,6 +6,8 @@
  * Ciclo de 7 dias:
  *   Dia 1: +20 XP   Dia 2: +30 XP   Dia 3: +50 XP   Dia 4: +75 XP
  *   Dia 5: +100 XP  Dia 6: +150 XP  Dia 7: +300 XP + Loot Box
+ *
+ * Race condition corrigida via RPC claim_login_atomic (migration 012).
  */
 
 import { NextResponse } from 'next/server';
@@ -25,50 +27,38 @@ export async function POST() {
   const today = new Date().toISOString().split('T')[0]!;
   const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0]!;
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('login_streak, last_login_date')
-    .eq('id', user.id)
-    .single();
+  // RPC atômica: lê + atualiza last_login_date e login_streak em 1 round-trip.
+  // FOR UPDATE no banco garante que 2 requests simultâneos não concedam XP duplo.
+  const { data: claim, error: claimError } = await supabase.rpc('claim_login_atomic', {
+    p_user_id: user.id,
+    p_today: today,
+    p_yesterday: yesterday,
+  });
 
-  if (!profile) return NextResponse.json({ error: 'profile_not_found' }, { status: 404 });
+  if (claimError) {
+    console.error('[login-checkin] claim_login_atomic error:', claimError.message);
+    return NextResponse.json({ error: 'internal_error' }, { status: 500 });
+  }
 
-  const lastLoginDate = profile.last_login_date as string | null;
-  const currentLoginStreak = (profile.login_streak as number) ?? 0;
+  const result = claim as {
+    already_claimed: boolean;
+    login_streak: number;
+    day_in_cycle: number;
+    is_week_complete?: boolean;
+  };
 
-  // Já fez check-in hoje
-  if (lastLoginDate === today) {
+  if (result.already_claimed) {
     return NextResponse.json({
       alreadyDone: true,
-      loginStreak: currentLoginStreak,
-      dayInCycle: ((currentLoginStreak - 1) % 7) + 1,
+      loginStreak: result.login_streak,
+      dayInCycle: result.day_in_cycle,
     });
   }
 
-  // Calcula novo streak
-  let newLoginStreak: number;
-  if (lastLoginDate === yesterday) {
-    newLoginStreak = currentLoginStreak + 1;
-  } else {
-    newLoginStreak = 1;
-  }
+  const { login_streak: newStreak, day_in_cycle: dayInCycle, is_week_complete: isDay7 } = result;
+  const xpReward = getLoginReward(newStreak);
 
-  const dayInCycle = ((newLoginStreak - 1) % 7) + 1;
-  const xpReward = getLoginReward(newLoginStreak);
-  const isDay7 = dayInCycle === 7;
-
-  const serviceSupabase = createServiceClient();
-
-  // Atualiza streak de login e data
-  await serviceSupabase
-    .from('profiles')
-    .update({
-      login_streak: newLoginStreak,
-      last_login_date: today,
-    })
-    .eq('id', user.id);
-
-  // Concede XP
+  // Concede XP (já é atômico via grant_xp_atomic — migration 008)
   const xpResult = await grantXP(
     user.id,
     xpReward,
@@ -77,13 +67,14 @@ export async function POST() {
     `login_${today}`
   );
 
-  // Dia 7 → gera loot box (idempotente)
+  // Dia 7 → gera loot box (idempotente via UNIQUE constraint)
   let lootCreated = false;
   if (isDay7) {
     lootCreated = await createDailyLoot(user.id, today, 'login_streak');
   }
 
   // Notificação in-app de check-in
+  const serviceSupabase = createServiceClient();
   await serviceSupabase.from('notifications').insert({
     user_id: user.id,
     type: 'daily_login_reward',
@@ -98,13 +89,13 @@ export async function POST() {
 
   return NextResponse.json({
     alreadyDone: false,
-    loginStreak: newLoginStreak,
+    loginStreak: newStreak,
     dayInCycle,
     xpEarned: xpResult.xpEarned,
     leveledUp: xpResult.leveledUp,
     newLevel: xpResult.newLevel,
     lootBox: lootCreated,
-    isDay7,
+    isDay7: isDay7 ?? false,
   });
 }
 

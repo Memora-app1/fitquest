@@ -151,6 +151,41 @@ export default async function ScorePage() {
 
   const arcPath = buildArcPath(60, 60, 50, progress.percentage);
 
+  // ── Level Forecast ──────────────────────────────────────────────────
+  const xpToNextLevel = progress.needed - progress.current;
+  const activeDays = dailyXp.filter((d) => d.xp > 0).length;
+  const avgDailyXp = activeDays > 0 ? Math.round(xpThisWeek / activeDays) : 0;
+  const daysToLevelUp =
+    avgDailyXp > 0 && xpToNextLevel > 0 ? Math.ceil(xpToNextLevel / avgDailyXp) : null;
+
+  // Trend: compare first half vs second half of the week
+  const half = Math.floor(dailyXp.length / 2);
+  const firstHalfXp = dailyXp.slice(0, half).reduce((s, d) => s + d.xp, 0);
+  const secondHalfXp = dailyXp.slice(half).reduce((s, d) => s + d.xp, 0);
+  const trend: 'up' | 'down' | 'stable' =
+    secondHalfXp > firstHalfXp * 1.1
+      ? 'up'
+      : secondHalfXp < firstHalfXp * 0.9
+        ? 'down'
+        : 'stable';
+
+  // Best day of the week
+  const bestDay = dailyXp.reduce(
+    (best, d) => (d.xp > best.xp ? d : best),
+    { day: '', xp: 0 }
+  );
+
+  const forecastLabel =
+    profile.level >= 8
+      ? null
+      : daysToLevelUp === null
+        ? null
+        : daysToLevelUp <= 1
+          ? 'Hoje você pode subir de nível!'
+          : daysToLevelUp <= 7
+            ? `Previsão: nível ${profile.level + 1} em ~${daysToLevelUp} dias`
+            : `No ritmo atual, nível ${profile.level + 1} em ~${daysToLevelUp} dias`;
+
   return (
     <AppShell>
       <div className="mx-auto max-w-5xl space-y-8 p-4 md:p-8">
@@ -303,6 +338,83 @@ export default async function ScorePage() {
             </div>
           </div>
         </div>
+
+        {/* Level Forecast Banner */}
+        {forecastLabel && (
+          <div
+            className="relative overflow-hidden rounded-2xl p-5"
+            style={{
+              background: 'linear-gradient(135deg, rgba(245,200,66,0.08) 0%, rgba(13,24,41,0.98) 100%)',
+              border: '1px solid rgba(245,200,66,0.2)',
+            }}
+          >
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-xl"
+                  style={{ background: 'rgba(245,200,66,0.15)', border: '1px solid rgba(245,200,66,0.3)' }}
+                >
+                  {daysToLevelUp !== null && daysToLevelUp <= 1 ? '🚀' : '🔮'}
+                </div>
+                <div>
+                  <div className="font-black text-brand-gold">{forecastLabel}</div>
+                  <div className="mt-0.5 flex items-center gap-3 text-xs text-text-muted">
+                    {avgDailyXp > 0 && (
+                      <span>
+                        Média:{' '}
+                        <span className="font-bold text-text-primary">
+                          +{avgDailyXp.toLocaleString('pt-BR')} XP/dia
+                        </span>
+                      </span>
+                    )}
+                    {bestDay.xp > 0 && (
+                      <span>
+                        Melhor dia:{' '}
+                        <span className="font-bold text-text-primary">
+                          {bestDay.day} (+{bestDay.xp.toLocaleString('pt-BR')} XP)
+                        </span>
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div
+                className="flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-sm font-bold"
+                style={{
+                  background:
+                    trend === 'up'
+                      ? 'rgba(0,255,136,0.12)'
+                      : trend === 'down'
+                        ? 'rgba(255,68,68,0.12)'
+                        : 'rgba(136,153,187,0.1)',
+                  color: trend === 'up' ? '#00FF88' : trend === 'down' ? '#FF4444' : '#8899BB',
+                  border: `1px solid ${trend === 'up' ? 'rgba(0,255,136,0.25)' : trend === 'down' ? 'rgba(255,68,68,0.25)' : 'rgba(136,153,187,0.15)'}`,
+                }}
+              >
+                {trend === 'up' ? '↑ Em alta' : trend === 'down' ? '↓ Em queda' : '→ Estável'}
+              </div>
+            </div>
+            {/* Progress to next level mini-bar */}
+            {xpToNextLevel > 0 && (
+              <div className="mt-4">
+                <div className="mb-1.5 flex justify-between text-[11px] text-text-muted">
+                  <span>{progress.current.toLocaleString('pt-BR')} XP neste nível</span>
+                  <span>Faltam {xpToNextLevel.toLocaleString('pt-BR')} XP</span>
+                </div>
+                <div className="h-1.5 overflow-hidden rounded-full bg-bg-elevated">
+                  <div
+                    className="h-full rounded-full transition-all duration-700"
+                    style={{
+                      width: `${progress.percentage}%`,
+                      background: 'linear-gradient(90deg, #F5C842, #FF4D00)',
+                      boxShadow: '0 0 8px rgba(245,200,66,0.4)',
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Stats grid */}
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">

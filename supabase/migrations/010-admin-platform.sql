@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS admin_roles (
 
 ALTER TABLE admin_roles ENABLE ROW LEVEL SECURITY;
 
--- Apenas super_admin pode ler — verificado via service role nas API routes
+DROP POLICY IF EXISTS "admin_roles_service_only" ON admin_roles;
 CREATE POLICY "admin_roles_service_only" ON admin_roles
   FOR ALL USING (false);
 
@@ -43,6 +43,7 @@ CREATE TABLE IF NOT EXISTS audit_logs (
 );
 
 ALTER TABLE audit_logs ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "audit_logs_service_only" ON audit_logs;
 CREATE POLICY "audit_logs_service_only" ON audit_logs FOR ALL USING (false);
 
 CREATE INDEX IF NOT EXISTS idx_audit_logs_admin    ON audit_logs(admin_id, created_at DESC);
@@ -69,7 +70,8 @@ CREATE TABLE IF NOT EXISTS feature_flags (
 );
 
 ALTER TABLE feature_flags ENABLE ROW LEVEL SECURITY;
--- Flags são lidas por todos os usuários autenticados (necessário para client-side checks)
+DROP POLICY IF EXISTS "feature_flags_read"  ON feature_flags;
+DROP POLICY IF EXISTS "feature_flags_admin" ON feature_flags;
 CREATE POLICY "feature_flags_read" ON feature_flags FOR SELECT TO authenticated USING (true);
 CREATE POLICY "feature_flags_admin" ON feature_flags FOR ALL USING (false);
 
@@ -118,10 +120,12 @@ CREATE TABLE IF NOT EXISTS banner_dismissals (
 ALTER TABLE app_banners ENABLE ROW LEVEL SECURITY;
 ALTER TABLE banner_dismissals ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "banners_read_active"   ON app_banners;
+DROP POLICY IF EXISTS "banners_admin"          ON app_banners;
+DROP POLICY IF EXISTS "banner_dismissals_own"  ON banner_dismissals;
 CREATE POLICY "banners_read_active" ON app_banners FOR SELECT TO authenticated
   USING (is_active = true AND (starts_at IS NULL OR starts_at <= now()) AND (ends_at IS NULL OR ends_at >= now()));
 CREATE POLICY "banners_admin" ON app_banners FOR ALL USING (false);
-
 CREATE POLICY "banner_dismissals_own" ON banner_dismissals
   FOR ALL USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
 
@@ -153,6 +157,7 @@ CREATE TABLE IF NOT EXISTS broadcast_campaigns (
 );
 
 ALTER TABLE broadcast_campaigns ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "broadcast_service_only" ON broadcast_campaigns;
 CREATE POLICY "broadcast_service_only" ON broadcast_campaigns FOR ALL USING (false);
 
 CREATE INDEX IF NOT EXISTS idx_broadcast_status ON broadcast_campaigns(status, scheduled_for);
@@ -169,6 +174,7 @@ CREATE TABLE IF NOT EXISTS user_admin_notes (
 );
 
 ALTER TABLE user_admin_notes ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "user_admin_notes_service_only" ON user_admin_notes;
 CREATE POLICY "user_admin_notes_service_only" ON user_admin_notes FOR ALL USING (false);
 
 CREATE INDEX IF NOT EXISTS idx_admin_notes_user ON user_admin_notes(user_id, created_at DESC);
@@ -189,6 +195,7 @@ CREATE TABLE IF NOT EXISTS user_suspensions (
 );
 
 ALTER TABLE user_suspensions ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "suspensions_service_only" ON user_suspensions;
 CREATE POLICY "suspensions_service_only" ON user_suspensions FOR ALL USING (false);
 
 -- Campo na tabela profiles para suspension_status rápido
@@ -220,13 +227,13 @@ CREATE TABLE IF NOT EXISTS user_reports (
 
 ALTER TABLE user_reports ENABLE ROW LEVEL SECURITY;
 
--- Usuários podem criar reports
+DROP POLICY IF EXISTS "reports_insert"   ON user_reports;
+DROP POLICY IF EXISTS "reports_read_own" ON user_reports;
+DROP POLICY IF EXISTS "reports_service"  ON user_reports;
 CREATE POLICY "reports_insert" ON user_reports FOR INSERT TO authenticated
   WITH CHECK (reporter_id = auth.uid());
--- Usuários só veem seus próprios reports
 CREATE POLICY "reports_read_own" ON user_reports FOR SELECT TO authenticated
   USING (reporter_id = auth.uid());
--- Service role gerencia tudo
 CREATE POLICY "reports_service" ON user_reports FOR ALL USING (false);
 
 CREATE INDEX IF NOT EXISTS idx_reports_status    ON user_reports(status, created_at DESC);
@@ -263,6 +270,7 @@ CREATE TABLE IF NOT EXISTS metrics_daily (
 );
 
 ALTER TABLE metrics_daily ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "metrics_service_only" ON metrics_daily;
 CREATE POLICY "metrics_service_only" ON metrics_daily FOR ALL USING (false);
 
 CREATE INDEX IF NOT EXISTS idx_metrics_date ON metrics_daily(date DESC);

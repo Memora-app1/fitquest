@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS daily_loot (
 );
 
 ALTER TABLE daily_loot ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "daily_loot_own" ON daily_loot;
 CREATE POLICY "daily_loot_own" ON daily_loot
   FOR ALL USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
 
@@ -74,11 +75,17 @@ CREATE TABLE IF NOT EXISTS guild_members (
 ALTER TABLE guilds ENABLE ROW LEVEL SECURITY;
 ALTER TABLE guild_members ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "guilds_read"   ON guilds;
+DROP POLICY IF EXISTS "guilds_insert" ON guilds;
+DROP POLICY IF EXISTS "guilds_update" ON guilds;
+DROP POLICY IF EXISTS "guilds_delete" ON guilds;
 CREATE POLICY "guilds_read"   ON guilds FOR SELECT TO authenticated USING (true);
 CREATE POLICY "guilds_insert" ON guilds FOR INSERT WITH CHECK (created_by = auth.uid());
 CREATE POLICY "guilds_update" ON guilds FOR UPDATE USING (created_by = auth.uid());
 CREATE POLICY "guilds_delete" ON guilds FOR DELETE USING (created_by = auth.uid());
 
+DROP POLICY IF EXISTS "guild_members_read" ON guild_members;
+DROP POLICY IF EXISTS "guild_members_own"  ON guild_members;
 CREATE POLICY "guild_members_read" ON guild_members FOR SELECT TO authenticated USING (true);
 CREATE POLICY "guild_members_own"  ON guild_members FOR ALL
   USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
@@ -111,6 +118,8 @@ CREATE TABLE IF NOT EXISTS season_progress (
 ALTER TABLE seasons ENABLE ROW LEVEL SECURITY;
 ALTER TABLE season_progress ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "seasons_read"        ON seasons;
+DROP POLICY IF EXISTS "season_progress_own" ON season_progress;
 CREATE POLICY "seasons_read"        ON seasons FOR SELECT TO authenticated USING (true);
 CREATE POLICY "season_progress_own" ON season_progress
   FOR ALL USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
@@ -142,6 +151,8 @@ CREATE TABLE IF NOT EXISTS user_cosmetics (
 ALTER TABLE cosmetics ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_cosmetics ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "cosmetics_read"     ON cosmetics;
+DROP POLICY IF EXISTS "user_cosmetics_own" ON user_cosmetics;
 CREATE POLICY "cosmetics_read"     ON cosmetics FOR SELECT TO authenticated USING (true);
 CREATE POLICY "user_cosmetics_own" ON user_cosmetics
   FOR ALL USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
