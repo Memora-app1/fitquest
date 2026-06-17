@@ -7,7 +7,23 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { X, Bell, Flame, Trophy, Zap, Shield, Target, CheckCircle, Clock } from 'lucide-react';
+import {
+  X,
+  Bell,
+  Flame,
+  Trophy,
+  Zap,
+  Shield,
+  Target,
+  CheckCircle,
+  Clock,
+  ThumbsUp,
+  Sparkles,
+  Star,
+  Gift,
+  Award,
+  TrendingUp,
+} from 'lucide-react';
 import Link from 'next/link';
 import { useScrollLock } from '@/hooks/use-scroll-lock';
 
@@ -31,6 +47,18 @@ const TYPE_CONFIG: Record<string, { color: string; rgb: string; Icon: React.Elem
   task_reminder: { color: '#7C3AED', rgb: '124,58,237', Icon: CheckCircle },
   coach_insight: { color: '#00FF88', rgb: '0,255,136', Icon: Bell },
   finance_due: { color: '#F5C842', rgb: '245,200,66', Icon: Clock },
+  // Social / guild
+  guild_cheer: { color: '#9F5AF7', rgb: '124,58,237', Icon: ThumbsUp },
+  // Resumos e lembretes
+  daily_recap: { color: '#00FF88', rgb: '0,255,136', Icon: Sparkles },
+  perfect_day_reminder: { color: '#F5C842', rgb: '245,200,66', Icon: Star },
+  goal: { color: '#00FF88', rgb: '0,255,136', Icon: Award },
+  finance_goal: { color: '#F5C842', rgb: '245,200,66', Icon: TrendingUp },
+  // Recompensas
+  daily_login_reward: { color: '#00FF88', rgb: '0,255,136', Icon: Gift },
+  loot_box: { color: '#7C3AED', rgb: '124,58,237', Icon: Gift },
+  streak_record: { color: '#FF4D00', rgb: '255,77,0', Icon: Flame },
+  recovery: { color: '#00D9FF', rgb: '0,217,255', Icon: Shield },
 };
 
 function formatRelative(dateStr: string): string {
