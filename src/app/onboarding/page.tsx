@@ -293,6 +293,28 @@ export default function OnboardingPage() {
                 ))}
               </div>
 
+              {/* Social proof */}
+              <div
+                className="flex items-center justify-center gap-4 rounded-xl px-4 py-3"
+                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}
+              >
+                <div className="flex -space-x-2">
+                  {['🧑', '👩', '🧔', '👩‍🦱'].map((emoji, i) => (
+                    <div
+                      key={i}
+                      className="flex h-8 w-8 items-center justify-center rounded-full border-2 text-sm"
+                      style={{ background: '#0D1829', borderColor: '#050914' }}
+                    >
+                      {emoji}
+                    </div>
+                  ))}
+                </div>
+                <div className="text-left">
+                  <div className="text-sm font-bold">+12.400 usuários ativos</div>
+                  <div className="text-xs text-text-muted">construindo hábitos hoje</div>
+                </div>
+              </div>
+
               <div className="space-y-3">
                 <button onClick={() => setStep(2)} className="btn-primary w-full py-4 text-lg">
                   Vamos começar <ChevronRight size={18} className="inline" />
@@ -521,6 +543,46 @@ export default function OnboardingPage() {
                   </div>
                 </div>
               </div>
+
+              {/* Personalized XP projection */}
+              {(() => {
+                const habitsCount = getSuggestedHabitsMulti(selectedGoals).length;
+                const weeklyXp = habitsCount * 50 * weeklyTarget; // base XP
+                const monthlyXp = weeklyXp * 4 + 100; // +100 onboarding bonus
+                const daysToLevel2 = Math.ceil((500 - 100) / (weeklyXp / 7));
+                return (
+                  <div
+                    className="rounded-xl p-4"
+                    style={{
+                      background: 'linear-gradient(135deg, rgba(124,58,237,0.1) 0%, rgba(13,24,41,0.95) 100%)',
+                      border: '1px solid rgba(124,58,237,0.3)',
+                    }}
+                  >
+                    <div className="mb-3 text-xs font-bold uppercase tracking-widest" style={{ color: '#9F5AF7' }}>
+                      🔮 Sua projeção personalizada
+                    </div>
+                    <div className="grid grid-cols-3 gap-3 text-center">
+                      <div>
+                        <div className="text-xl font-black text-brand-gold">+{weeklyXp}</div>
+                        <div className="text-[10px] text-text-muted">XP/semana</div>
+                      </div>
+                      <div>
+                        <div className="text-xl font-black text-brand-gold">+{monthlyXp}</div>
+                        <div className="text-[10px] text-text-muted">XP/mês</div>
+                      </div>
+                      <div>
+                        <div className="text-xl font-black" style={{ color: '#9F5AF7' }}>
+                          {daysToLevel2}d
+                        </div>
+                        <div className="text-[10px] text-text-muted">até Nível 2</div>
+                      </div>
+                    </div>
+                    <p className="mt-2 text-center text-[11px] text-text-muted">
+                      Se você completar {habitsCount} hábito{habitsCount !== 1 ? 's' : ''} por {weeklyTarget}x/semana
+                    </p>
+                  </div>
+                );
+              })()}
 
               <div
                 className="rounded-xl p-4"
