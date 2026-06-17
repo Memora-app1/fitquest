@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { AppShell } from '@/components/layout/app-shell';
+import { AchievementShareButton } from '@/components/conquistas/achievement-share-button';
 import {
   Trophy,
   Star,
@@ -437,6 +438,17 @@ export default async function ConquistasPage() {
                         >
                           <Zap size={9} />+{achievement.xp_reward}XP
                         </span>
+                        {unlocked && (
+                          <AchievementShareButton
+                            slug={achievement.slug as string}
+                            name={achievement.name as string}
+                            emoji={achievement.icon as string}
+                            rarity={rarity}
+                            userId={user.id}
+                            color={rc.color}
+                            rgb={rc.rgb}
+                          />
+                        )}
                       </div>
                     </div>
                   </div>

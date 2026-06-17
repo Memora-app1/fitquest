@@ -19,11 +19,21 @@ export async function GET(req: NextRequest) {
   const slug = searchParams.get('slug') ?? '';
   const uid = searchParams.get('uid');
 
-  const meta = ACHIEVEMENT_MAP[slug] ?? {
-    name: 'Conquista Desbloqueada',
-    emoji: '🏆',
-    xp: 0,
-    rarity: 'epic' as const,
+  // Overrides opcionais (página de conquistas passa dados reais do banco).
+  // Fallback: lookup pela lib via slug → genérico.
+  const fromLib = ACHIEVEMENT_MAP[slug];
+  const nameParam = searchParams.get('name');
+  const emojiParam = searchParams.get('emoji');
+  const rarityParam = searchParams.get('rarity');
+  const validRarity =
+    rarityParam && rarityParam in RARITY_STYLE
+      ? (rarityParam as keyof typeof RARITY_STYLE)
+      : undefined;
+
+  const meta = {
+    name: nameParam ?? fromLib?.name ?? 'Conquista Desbloqueada',
+    emoji: emojiParam ?? fromLib?.emoji ?? '🏆',
+    rarity: validRarity ?? fromLib?.rarity ?? ('epic' as const),
   };
   const rarity = RARITY_STYLE[meta.rarity];
   const accent = rarity.color;
