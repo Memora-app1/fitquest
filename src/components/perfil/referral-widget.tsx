@@ -28,7 +28,8 @@ export function ReferralWidget() {
 
   async function handleCopy() {
     if (!code) return;
-    const text = `Entre no Ascendia com meu código ${code} e ganhe +200 XP de bônus! 🚀 ascendia.app`;
+    const signupUrl = `${window.location.origin}/signup?ref=${code}`;
+    const text = `Entre no Ascendia com meu link e ganhe +200 XP de bônus! 🚀\n${signupUrl}`;
     try {
       if (navigator.share) {
         await navigator.share({ title: 'Ascendia — Life OS Gamificado', text });

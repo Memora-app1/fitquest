@@ -1,10 +1,10 @@
 ﻿'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
-import { Eye, EyeOff, CheckCircle2, Zap, Trophy, Flame, Target, Shield } from 'lucide-react';
+import { Eye, EyeOff, CheckCircle2, Zap, Trophy, Flame, Target, Shield, Gift } from 'lucide-react';
 
 function friendlyError(message: string): string {
   if (message.includes('already registered') || message.includes('already been registered')) {
@@ -72,15 +72,23 @@ const MILESTONES = [
 
 export default function SignupPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [referralCode, setReferralCode] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Auto-fill referral code from URL param ?ref=CODE
+  useEffect(() => {
+    const ref = searchParams.get('ref');
+    if (ref) setReferralCode(ref.toUpperCase());
+  }, [searchParams]);
 
   async function handleGoogleSignup() {
     setOauthLoading(true);
@@ -133,6 +141,15 @@ export default function SignupPage() {
       setError(friendlyError(signUpError.message));
       setLoading(false);
       return;
+    }
+
+    // Aplica código de indicação se foi informado (fire-and-forget, não bloqueia redirect)
+    if (referralCode.trim()) {
+      fetch('/api/referral', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: referralCode.trim().toUpperCase() }),
+      }).catch(() => null);
     }
 
     router.push('/onboarding');
@@ -388,6 +405,38 @@ export default function SignupPage() {
                 {confirmPassword.length > 0 && passwordsMatch && (
                   <p className="mt-1 flex items-center gap-1 text-xs text-brand-green">
                     <CheckCircle2 size={10} /> Senhas coincidem
+                  </p>
+                )}
+              </div>
+
+              {/* Referral code (optional) */}
+              <div>
+                <label className="mb-2 flex items-center gap-1.5 text-sm font-medium text-text-secondary">
+                  <Gift size={13} style={{ color: '#F5C842' }} />
+                  Código de indicação
+                  <span className="text-[11px] text-text-muted">(opcional)</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={referralCode}
+                    onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+                    className="input w-full font-mono uppercase tracking-widest"
+                    placeholder="EX: ABC123"
+                    maxLength={12}
+                    autoComplete="off"
+                  />
+                  {referralCode.length >= 4 && (
+                    <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-xs font-bold" style={{ color: '#F5C842' }}>
+                      <Zap size={10} fill="currentColor" />
+                      +200 XP
+                    </div>
+                  )}
+                </div>
+                {referralCode.length >= 4 && (
+                  <p className="mt-1 flex items-center gap-1 text-xs" style={{ color: '#00FF88' }}>
+                    <CheckCircle2 size={10} />
+                    Você e seu amigo recebem +200 XP de bônus!
                   </p>
                 )}
               </div>
