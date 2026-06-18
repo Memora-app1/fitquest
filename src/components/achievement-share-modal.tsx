@@ -86,6 +86,7 @@ export function AchievementShareModal({ userId }: Props) {
           const file = new File([blob], 'ascendia-conquista.png', { type: 'image/png' });
           if (navigator.canShare?.({ files: [file] })) {
             await navigator.share({ title: `Conquista: ${meta.name}`, text: shareText, files: [file] });
+            if (navigator.vibrate) navigator.vibrate(15);
             setShareState('idle');
             return;
           }

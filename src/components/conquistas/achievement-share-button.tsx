@@ -51,6 +51,7 @@ export function AchievementShareButton({ slug, name, emoji, rarity, userId, colo
           const file = new File([blob], 'ascendia-conquista.png', { type: 'image/png' });
           if (navigator.canShare?.({ files: [file] })) {
             await navigator.share({ title: `Conquista: ${name}`, text: shareText, files: [file] });
+            if (navigator.vibrate) navigator.vibrate(15);
             setState('idle');
             return;
           }

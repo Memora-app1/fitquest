@@ -40,6 +40,7 @@ export function StreakShareButton({ userId, days, title, color, rgb }: Props) {
           const file = new File([blob], 'ascendia-streak.png', { type: 'image/png' });
           if (navigator.canShare?.({ files: [file] })) {
             await navigator.share({ title: `${days} dias de streak!`, text: shareText, files: [file] });
+            if (navigator.vibrate) navigator.vibrate(15);
             setState('idle');
             return;
           }

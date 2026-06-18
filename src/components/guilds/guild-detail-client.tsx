@@ -153,6 +153,7 @@ export function GuildDetailClient({ data, feed }: Props) {
           const file = new File([blob], 'ascendia-guild.png', { type: 'image/png' });
           if (navigator.canShare?.({ files: [file] })) {
             await navigator.share({ title: `Guild ${guild.name}`, text: shareText, files: [file] });
+            if (navigator.vibrate) navigator.vibrate(15);
             setSharingGuild(false);
             return;
           }
