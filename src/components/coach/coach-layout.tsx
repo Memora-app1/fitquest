@@ -145,6 +145,7 @@ export function CoachLayout({
           </button>
           <button
             onClick={() => setShowSidebar(false)}
+            aria-label="Fechar conversas"
             className="rounded-lg p-2 transition-colors hover:bg-bg-elevated md:hidden"
           >
             <X size={16} />
