@@ -11,7 +11,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { Flame, X, Clock, Zap, Shield, CheckCircle } from 'lucide-react';
+import { Flame, X, Clock, Zap, Shield, CheckCircle, ShoppingBag } from 'lucide-react';
 
 interface StreakRiskBannerProps {
   streakCurrent: number;
@@ -296,7 +296,7 @@ export function StreakRiskBanner({
             </Link>
 
             {/* Freeze button — só aparece se tem freezes disponíveis */}
-            {freezesLeft > 0 && (
+            {freezesLeft > 0 ? (
               <button
                 onClick={handleUseFreeze}
                 disabled={freezeLoading}
@@ -310,6 +310,20 @@ export function StreakRiskBanner({
                 <Shield size={12} fill="currentColor" />
                 {freezeLoading ? 'Ativando...' : `Usar freeze (${freezesLeft})`}
               </button>
+            ) : (
+              /* Sem freeze: nudge pra loja (protege streak + gira economia de XP) */
+              <Link
+                href="/loja"
+                className="flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold transition-all hover:scale-105"
+                style={{
+                  background: 'rgba(0,217,255,0.08)',
+                  border: '1px solid rgba(0,217,255,0.25)',
+                  color: '#00D9FF',
+                }}
+              >
+                <ShoppingBag size={12} />
+                Conseguir freeze
+              </Link>
             )}
 
             <Link
