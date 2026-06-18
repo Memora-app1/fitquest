@@ -160,10 +160,11 @@ export async function PATCH(req: NextRequest) {
   };
   if (!body.id) return NextResponse.json({ error: 'missing_id' }, { status: 400 });
 
-  // Fetch current state to detect is_paid change
+  // Fetch current state to detect is_paid change (inclui amount/type/account_id
+  // para manter o saldo da conta sincronizado ao alternar pago/não-pago).
   const { data: current } = await supabase
     .from('transactions')
-    .select('is_paid, transaction_date')
+    .select('is_paid, transaction_date, amount, type, account_id')
     .eq('id', body.id)
     .eq('user_id', user.id)
     .single();
@@ -190,6 +191,32 @@ export async function PATCH(req: NextRequest) {
 
   if (error || !data)
     return NextResponse.json({ error: 'internal_error' }, { status: 500 });
+
+  // Mantém o saldo da conta sincronizado quando o status de pagamento muda.
+  // Paridade com o POST (o saldo é gerido no app, não há trigger no banco).
+  // Aditivo: não altera nenhum comportamento existente.
+  if (
+    current &&
+    body.is_paid !== undefined &&
+    body.is_paid !== current.is_paid &&
+    current.account_id
+  ) {
+    const amt = Number(current.amount);
+    const signed = current.type === 'expense' ? -amt : amt;
+    const delta = body.is_paid ? signed : -signed; // pagou → aplica; despagou → reverte
+    const { data: acc } = await supabase
+      .from('finance_accounts')
+      .select('current_balance')
+      .eq('id', current.account_id)
+      .eq('user_id', user.id)
+      .single();
+    if (acc) {
+      await supabase
+        .from('finance_accounts')
+        .update({ current_balance: Number(acc.current_balance) + delta })
+        .eq('id', current.account_id);
+    }
+  }
 
   // Grant XP when marking as paid (first time)
   let xpEarned = 0;
@@ -237,6 +264,14 @@ export async function DELETE(req: NextRequest) {
   const id = req.nextUrl.searchParams.get('id');
   if (!id) return NextResponse.json({ error: 'missing_id' }, { status: 400 });
 
+  // Busca a transação antes de deletar para reverter o saldo se estava paga.
+  const { data: txToDelete } = await supabase
+    .from('transactions')
+    .select('is_paid, amount, type, account_id')
+    .eq('id', id)
+    .eq('user_id', user.id)
+    .single();
+
   const { error } = await supabase
     .from('transactions')
     .delete()
@@ -244,5 +279,24 @@ export async function DELETE(req: NextRequest) {
     .eq('user_id', user.id);
 
   if (error) return NextResponse.json({ error: 'internal_error' }, { status: 500 });
+
+  // Reverte o saldo da conta se a transação deletada estava paga (paridade com POST/PATCH).
+  if (txToDelete?.is_paid && txToDelete.account_id) {
+    const amt = Number(txToDelete.amount);
+    const signed = txToDelete.type === 'expense' ? -amt : amt;
+    const { data: acc } = await supabase
+      .from('finance_accounts')
+      .select('current_balance')
+      .eq('id', txToDelete.account_id)
+      .eq('user_id', user.id)
+      .single();
+    if (acc) {
+      await supabase
+        .from('finance_accounts')
+        .update({ current_balance: Number(acc.current_balance) - signed })
+        .eq('id', txToDelete.account_id);
+    }
+  }
+
   return NextResponse.json({ success: true });
 }
