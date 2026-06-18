@@ -447,6 +447,7 @@ function CreateGoalModal({
                 <input
                   required
                   type="number"
+                  inputMode="decimal"
                   step="0.01"
                   min="1"
                   value={targetAmount}
@@ -459,6 +460,7 @@ function CreateGoalModal({
                 <label className="mb-2 block text-sm text-text-secondary">Já tenho (R$)</label>
                 <input
                   type="number"
+                  inputMode="decimal"
                   step="0.01"
                   min="0"
                   value={currentAmount}
@@ -483,6 +485,7 @@ function CreateGoalModal({
                 <label className="mb-2 block text-sm text-text-secondary">Meta mensal (R$)</label>
                 <input
                   type="number"
+                  inputMode="decimal"
                   step="0.01"
                   min="1"
                   value={monthlyTarget}
@@ -620,6 +623,7 @@ function ContributeModal({
                 required
                 autoFocus
                 type="number"
+                inputMode="decimal"
                 step="0.01"
                 min="0.01"
                 value={amount}

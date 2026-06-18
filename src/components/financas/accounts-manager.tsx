@@ -565,6 +565,7 @@ function AccountModal({
                 )}
                 <input
                   type="number"
+                  inputMode="decimal"
                   step="0.01"
                   min="0"
                   placeholder="0,00"
@@ -586,6 +587,7 @@ function AccountModal({
                   <label className="mb-2 block text-sm text-text-secondary">Limite (R$)</label>
                   <input
                     type="number"
+                    inputMode="decimal"
                     step="0.01"
                     min="0"
                     placeholder="5000"
@@ -598,6 +600,7 @@ function AccountModal({
                   <label className="mb-2 block text-sm text-text-secondary">Fecha dia</label>
                   <input
                     type="number"
+                    inputMode="numeric"
                     min="1"
                     max="31"
                     placeholder="10"
@@ -610,6 +613,7 @@ function AccountModal({
                   <label className="mb-2 block text-sm text-text-secondary">Vence dia</label>
                   <input
                     type="number"
+                    inputMode="numeric"
                     min="1"
                     max="31"
                     placeholder="17"
