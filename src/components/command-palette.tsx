@@ -464,6 +464,7 @@ export function CommandPalette({ variant = 'bar' }: CommandPaletteProps) {
             {query && (
               <button
                 onClick={() => setQuery('')}
+                aria-label="Limpar busca"
                 className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-text-muted transition-all hover:bg-white/10 hover:text-white"
               >
                 <X size={13} />

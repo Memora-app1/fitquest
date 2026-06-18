@@ -245,6 +245,7 @@ function EventModal({ prefillDate, prefillEvent, onClose, onSaved }: EventModalP
           </div>
           <button
             onClick={onClose}
+            aria-label="Fechar"
             className="flex h-8 w-8 items-center justify-center rounded-lg text-text-muted transition-all hover:bg-white/10 hover:text-white"
           >
             <X size={16} />
