@@ -38,6 +38,7 @@ export function CosmeticsPanel({ cosmetics, equippedTitle, equippedFrame }: Prop
   const [currentFrame, setCurrentFrame] = useState(equippedFrame);
   const [isPending, startTransition] = useTransition();
   const [activeTab, setActiveTab] = useState<'title' | 'frame'>('title');
+  const [equipError, setEquipError] = useState<string | null>(null);
 
   const titles = cosmetics.filter((c) => c.type === 'title');
   const frames = cosmetics.filter((c) => c.type === 'frame');
@@ -45,16 +46,23 @@ export function CosmeticsPanel({ cosmetics, equippedTitle, equippedFrame }: Prop
   if (titles.length === 0 && frames.length === 0) return null;
 
   async function equip(type: 'title' | 'frame', value: string | null) {
+    setEquipError(null);
     startTransition(async () => {
       const body = type === 'title' ? { equipped_title: value } : { equipped_frame: value };
-      const res = await fetch('/api/perfil', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
-      if (res.ok) {
-        if (type === 'title') setCurrentTitle(value);
-        else setCurrentFrame(value);
+      try {
+        const res = await fetch('/api/perfil', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        if (res.ok) {
+          if (type === 'title') setCurrentTitle(value);
+          else setCurrentFrame(value);
+        } else {
+          setEquipError('Não foi possível equipar. Tente novamente.');
+        }
+      } catch {
+        setEquipError('Erro de conexão. Tente novamente.');
       }
     });
   }
@@ -218,6 +226,11 @@ export function CosmeticsPanel({ cosmetics, equippedTitle, equippedFrame }: Prop
 
       {isPending && (
         <p className="mt-3 text-center text-xs text-text-muted">Salvando...</p>
+      )}
+      {equipError && (
+        <p className="mt-3 text-center text-xs font-medium" style={{ color: '#FF4D00' }}>
+          {equipError}
+        </p>
       )}
     </div>
   );
