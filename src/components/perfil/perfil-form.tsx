@@ -35,12 +35,14 @@ export function PerfilForm({
   const [name, setName] = useState(initialName);
   const [savingName, setSavingName] = useState(false);
   const [nameSuccess, setNameSuccess] = useState(false);
+  const [nameError, setNameError] = useState<string | null>(null);
 
   // Bio
   const [editingBio, setEditingBio] = useState(false);
   const [bio, setBio] = useState(initialBio ?? '');
   const [savingBio, setSavingBio] = useState(false);
   const [bioSuccess, setBioSuccess] = useState(false);
+  const [bioError, setBioError] = useState<string | null>(null);
 
   // Password
   const [showPasswordForm, setShowPasswordForm] = useState(false);
@@ -110,33 +112,49 @@ export function PerfilForm({
       return;
     }
     setSavingName(true);
-    const res = await fetch('/api/perfil', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: name.trim() }),
-    });
-    setSavingName(false);
-    if (res.ok) {
-      setNameSuccess(true);
-      setEditingName(false);
-      setTimeout(() => setNameSuccess(false), 2000);
-      startTransition(() => router.refresh());
+    setNameError(null);
+    try {
+      const res = await fetch('/api/perfil', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name.trim() }),
+      });
+      if (res.ok) {
+        setNameSuccess(true);
+        setEditingName(false);
+        setTimeout(() => setNameSuccess(false), 2000);
+        startTransition(() => router.refresh());
+      } else {
+        setNameError('Não foi possível salvar o nome. Tente novamente.');
+      }
+    } catch {
+      setNameError('Erro de conexão. Verifique sua internet.');
+    } finally {
+      setSavingName(false);
     }
   }
 
   async function saveBio() {
     setSavingBio(true);
-    const res = await fetch('/api/perfil', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ bio: bio.trim() }),
-    });
-    setSavingBio(false);
-    if (res.ok) {
-      setBioSuccess(true);
-      setEditingBio(false);
-      setTimeout(() => setBioSuccess(false), 2000);
-      startTransition(() => router.refresh());
+    setBioError(null);
+    try {
+      const res = await fetch('/api/perfil', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bio: bio.trim() }),
+      });
+      if (res.ok) {
+        setBioSuccess(true);
+        setEditingBio(false);
+        setTimeout(() => setBioSuccess(false), 2000);
+        startTransition(() => router.refresh());
+      } else {
+        setBioError('Não foi possível salvar a bio. Tente novamente.');
+      }
+    } catch {
+      setBioError('Erro de conexão. Verifique sua internet.');
+    } finally {
+      setSavingBio(false);
     }
   }
 
@@ -332,6 +350,11 @@ export function PerfilForm({
               </button>
             </div>
           )}
+          {nameError && (
+            <p className="mt-2 text-xs" style={{ color: '#FF4D00' }}>
+              {nameError}
+            </p>
+          )}
         </div>
       </div>
 
@@ -405,6 +428,11 @@ export function PerfilForm({
                 {bio ? 'Editar' : 'Adicionar'}
               </button>
             </div>
+          )}
+          {bioError && (
+            <p className="mt-2 text-xs" style={{ color: '#FF4D00' }}>
+              {bioError}
+            </p>
           )}
         </div>
       </div>
