@@ -559,6 +559,7 @@ function CreateGoalModal({
               <input
                 required
                 type="number"
+                inputMode="decimal"
                 min="0.1"
                 step="0.1"
                 value={targetValue}
@@ -684,6 +685,7 @@ function UpdateProgressModal({
             </label>
             <input
               type="number"
+              inputMode="decimal"
               min="0"
               max={goal.target_value * 2}
               step="0.1"

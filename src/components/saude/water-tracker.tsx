@@ -284,6 +284,7 @@ export function WaterTracker({
               <div className="flex gap-2">
                 <input
                   type="number"
+                  inputMode="numeric"
                   placeholder="Quantidade em ml (ex: 750)"
                   value={customAmount}
                   onChange={(e) => setCustomAmount(e.target.value)}
