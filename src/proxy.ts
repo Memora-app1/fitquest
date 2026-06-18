@@ -186,7 +186,11 @@ export async function proxy(request: NextRequest) {
   if (
     PUBLIC_ROUTES.includes(pathname) ||
     pathname.startsWith('/api/webhook/') ||
-    pathname.startsWith('/auth/')
+    pathname.startsWith('/auth/') ||
+    // OG images precisam ser públicas: scrapers sociais (WhatsApp/Twitter/etc)
+    // e previews de links compartilhados buscam sem autenticação.
+    pathname.startsWith('/api/og') ||
+    pathname.startsWith('/u/')
   ) {
     return response;
   }
