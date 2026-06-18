@@ -77,11 +77,25 @@ Ideias validadas por research mas que NÃO devem entrar antes do lançamento:
 | 23 | Loading skeleton perfil público | e788049 |
 | 24 | Haptic ao concluir share | addd37a |
 | 25 | 🔴🔴 Fix CRÍTICO: proxy bloqueava /u e /api/og | 4b2b7c0 |
+| 26 | Docs: ROADMAP + scripts/smoke-test.sh | (docs) |
+| 27 | Auditoria (console.log/as any/XSS/divs) — tudo limpo | (sem deploy) |
+| 28 | a11y: aria-label nav + modais core (9 botões) | c003ef1 |
+| 29 | a11y finanças/eisenhower + check SEO/OG | 0a8ad44 |
+| 30 | 📱 inputMode transações/água/metas | 1f075ac |
+| 31 | 📱 inputMode finanças (backlog fechado) | 517bc37 |
+| 32 | 🐛 Fix save silencioso nome/bio (perfil) | 689327c |
+| 33 | 🐛 Fix delete silencioso de treino | 1fd9330 |
+| 34 | 🐛 Fix feedback equip cosmético | aadd786 |
+
+### Resumo da madrugada (ciclos 21-34, modo hardening)
+Foco em qualidade real, não features: **mobile** (touch targets, scroll lock, inputMode 100%, loading skeletons), **a11y** (aria-labels), **error handling** (varredura completa de falhas silenciosas: perfil/treino/cosméticos), **perf** (cache OG), e o **fix crítico do proxy** (perfil público + OG estavam bloqueados em prod). Tudo com tsc + build + smoke test verde.
 
 ---
 
 ## 🎯 RECOMENDAÇÃO DE PRIORIDADE PRA AMANHÃ
 
-1. Fazer o checklist 🔴 (ops manual) — é o que destrava o lançamento real.
+1. Fazer o checklist 🔴 (ops manual) — é o que destrava o lançamento real. **É o gargalo do "100%".**
 2. QA mobile em celular real (🟠).
 3. Só depois pensar em features novas (🟢).
+
+> **Nota honesta:** o código está em saturação de polish (~88-90%). Os ciclos da madrugada entregaram correções reais (bugs de UX, fix crítico do proxy), mas daqui pra frente o ganho por ciclo é marginal. O que de fato leva ao lançamento agora é o checklist 🔴 + QA em dispositivo real.
