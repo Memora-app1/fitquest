@@ -14,6 +14,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Share2, Check, X, Sparkles } from 'lucide-react';
 import { ACHIEVEMENT_MAP, RARITY_STYLE, isShareWorthy, type AchievementMeta } from '@/lib/achievements';
+import { useScrollLock } from '@/hooks/use-scroll-lock';
 
 interface Props {
   userId: string;
@@ -23,6 +24,9 @@ export function AchievementShareModal({ userId }: Props) {
   const [slug, setSlug] = useState<string | null>(null);
   const [shareState, setShareState] = useState<'idle' | 'sharing' | 'copied'>('idle');
   const [visible, setVisible] = useState(false);
+
+  // Trava o scroll do body enquanto o modal está aberto (evita scroll-behind no iOS)
+  useScrollLock(!!slug);
 
   // Escuta conquistas e abre apenas para épicas/lendárias
   useEffect(() => {
@@ -110,7 +114,7 @@ export function AchievementShareModal({ userId }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-[60] flex items-center justify-center p-4"
+      className="fixed inset-0 z-[60] flex items-center justify-center overflow-y-auto p-4"
       style={{
         background: 'rgba(5,9,20,0.82)',
         backdropFilter: 'blur(6px)',
@@ -120,7 +124,7 @@ export function AchievementShareModal({ userId }: Props) {
       onClick={close}
     >
       <div
-        className="relative w-full max-w-sm overflow-hidden rounded-3xl text-center"
+        className="relative my-auto w-full max-w-sm overflow-hidden rounded-3xl text-center"
         onClick={(e) => e.stopPropagation()}
         style={{
           background: `linear-gradient(160deg, rgba(${style.rgb},0.16) 0%, #0D1829 55%)`,
