@@ -11,7 +11,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createServiceClient } from '@/lib/supabase/server';
 import { grantXP } from '@/lib/xp-server';
 
 const XP_REFERRAL = 200;
@@ -70,7 +70,12 @@ export async function POST(req: NextRequest) {
 
   // RPC atômica: lê referred_by + seta atomicamente com FOR UPDATE.
   // Garante que 2 requests simultâneos não consigam ambos aplicar o referral.
-  const { data: result, error: rpcError } = await supabase.rpc('use_referral_code_atomic', {
+  // use_referral_code_atomic / increment_referral_count são SECURITY DEFINER e só
+  // podem ser chamadas pelo service_role (EXECUTE revogado de authenticated na
+  // migration 015). increment_referral_count ainda atualiza o perfil do
+  // referenciador (outro usuário), o que também exige o service client.
+  const db = createServiceClient();
+  const { data: result, error: rpcError } = await db.rpc('use_referral_code_atomic', {
     p_user_id: user.id,
     p_code: code,
     p_referrer_id: referrer.id,
@@ -91,7 +96,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Incremento atômico do contador do referenciador
-  await supabase.rpc('increment_referral_count', { p_user_id: referrer.id });
+  await db.rpc('increment_referral_count', { p_user_id: referrer.id });
 
   // Concede XP para ambos em paralelo (grant_xp_atomic garante idempotência via source_id)
   await Promise.all([

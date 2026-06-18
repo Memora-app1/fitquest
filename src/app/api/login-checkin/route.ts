@@ -24,12 +24,17 @@ export async function POST() {
   } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
 
+  // claim_login_atomic é SECURITY DEFINER e só pode ser chamada pelo service_role
+  // (EXECUTE revogado de authenticated na migration 015). Criamos o service client
+  // após validar o usuário e reusamos para a notificação mais abaixo.
+  const serviceSupabase = createServiceClient();
+
   const today = new Date().toISOString().split('T')[0]!;
   const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0]!;
 
   // RPC atômica: lê + atualiza last_login_date e login_streak em 1 round-trip.
   // FOR UPDATE no banco garante que 2 requests simultâneos não concedam XP duplo.
-  const { data: claim, error: claimError } = await supabase.rpc('claim_login_atomic', {
+  const { data: claim, error: claimError } = await serviceSupabase.rpc('claim_login_atomic', {
     p_user_id: user.id,
     p_today: today,
     p_yesterday: yesterday,
@@ -73,8 +78,7 @@ export async function POST() {
     lootCreated = await createDailyLoot(user.id, today, 'login_streak');
   }
 
-  // Notificação in-app de check-in
-  const serviceSupabase = createServiceClient();
+  // Notificação in-app de check-in (reusa o service client criado acima)
   await serviceSupabase.from('notifications').insert({
     user_id: user.id,
     type: 'daily_login_reward',

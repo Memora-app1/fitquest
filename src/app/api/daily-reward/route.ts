@@ -11,7 +11,7 @@
  */
 
 import { NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createServiceClient } from '@/lib/supabase/server';
 import { grantXP, createDailyLoot } from '@/lib/xp-server';
 import { getLoginReward } from '@/lib/xp';
 
@@ -37,7 +37,11 @@ export async function POST() {
 
   // RPC atômica: lê + atualiza last_login_date e login_streak em 1 round-trip.
   // FOR UPDATE no banco garante que 2 requests simultâneos não concedam XP duplo.
-  const { data: claim, error: claimError } = await supabase.rpc('claim_login_atomic', {
+  // claim_login_atomic é SECURITY DEFINER e só pode ser chamada pelo service_role
+  // (EXECUTE revogado de authenticated na migration 015) — usamos o service client
+  // após validar o usuário logado acima.
+  const db = createServiceClient();
+  const { data: claim, error: claimError } = await db.rpc('claim_login_atomic', {
     p_user_id: user.id,
     p_today: today,
     p_yesterday: yesterday,
