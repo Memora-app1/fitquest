@@ -25,17 +25,24 @@ export function WorkoutDetailActions({
   const router = useRouter();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   useScrollLock(showDeleteConfirm);
 
   async function deleteWorkout() {
     setDeleting(true);
-    const res = await fetch(`/api/treinos?id=${workoutId}`, { method: 'DELETE' });
-    if (res.ok) {
-      router.push('/treinos');
-      router.refresh();
-    } else {
+    setDeleteError(null);
+    try {
+      const res = await fetch(`/api/treinos?id=${workoutId}`, { method: 'DELETE' });
+      if (res.ok) {
+        router.push('/treinos');
+        router.refresh();
+      } else {
+        setDeleting(false);
+        setDeleteError('Não foi possível excluir o treino. Tente novamente.');
+      }
+    } catch {
       setDeleting(false);
-      setShowDeleteConfirm(false);
+      setDeleteError('Erro de conexão. Verifique sua internet.');
     }
   }
 
@@ -119,9 +126,17 @@ export function WorkoutDetailActions({
                 <strong className="text-white">{workoutTitle}</strong> e todos os seus sets serão
                 removidos permanentemente.
               </p>
+              {deleteError && (
+                <p className="mt-3 text-sm font-medium" style={{ color: '#EF4444' }}>
+                  {deleteError}
+                </p>
+              )}
               <div className="mt-5 flex gap-3">
                 <button
-                  onClick={() => setShowDeleteConfirm(false)}
+                  onClick={() => {
+                    setShowDeleteConfirm(false);
+                    setDeleteError(null);
+                  }}
                   disabled={deleting}
                   className="btn-ghost flex-1 disabled:opacity-50"
                 >
