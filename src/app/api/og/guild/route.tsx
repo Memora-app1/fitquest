@@ -255,6 +255,10 @@ export async function GET(req: NextRequest) {
     {
       width: 1200,
       height: 630,
+      headers: {
+        // Stats da guild mudam devagar — cacheia no CDN/scrapers sociais.
+        'Cache-Control': 'public, max-age=300, s-maxage=86400, stale-while-revalidate=604800',
+      },
     }
   );
 }

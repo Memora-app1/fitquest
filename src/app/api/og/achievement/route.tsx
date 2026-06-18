@@ -205,6 +205,10 @@ export async function GET(req: NextRequest) {
     {
       width: 1200,
       height: 630,
+      headers: {
+        // Conquista é imutável após desbloqueio — cache longo no CDN/scrapers.
+        'Cache-Control': 'public, max-age=3600, s-maxage=604800, stale-while-revalidate=2592000',
+      },
     }
   );
 }
