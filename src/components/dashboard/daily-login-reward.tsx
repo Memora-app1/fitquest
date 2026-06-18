@@ -124,6 +124,7 @@ export function DailyLoginReward() {
           {/* Close */}
           <button
             onClick={handleClose}
+            aria-label="Fechar"
             className="absolute right-4 top-4 z-10 flex h-8 w-8 items-center justify-center rounded-full text-text-muted transition-colors hover:text-white"
             style={{ background: 'rgba(255,255,255,0.06)' }}
           >

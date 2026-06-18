@@ -109,6 +109,7 @@ export function PwaInstallPrompt() {
         {/* Close */}
         <button
           onClick={dismiss}
+          aria-label="Dispensar"
           className="absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-full active:scale-90"
           style={{ background: 'rgba(255,255,255,0.07)' }}
         >

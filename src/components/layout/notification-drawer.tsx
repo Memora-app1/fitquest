@@ -199,6 +199,7 @@ export function NotificationDrawer({
             )}
             <button
               onClick={onClose}
+              aria-label="Fechar"
               className="hover:bg-white/06 flex h-8 w-8 items-center justify-center rounded-full text-text-muted transition-colors hover:text-white"
             >
               <X size={16} />

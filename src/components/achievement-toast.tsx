@@ -148,6 +148,7 @@ function AchievementItem({ item, onDismiss }: { item: AchievementItem; onDismiss
             setExiting(true);
             setTimeout(onDismiss, 400);
           }}
+          aria-label="Dispensar"
           className="mt-0.5 shrink-0 rounded-lg p-1 transition-all hover:bg-white/10"
           style={{ color: '#5A6B85' }}
         >

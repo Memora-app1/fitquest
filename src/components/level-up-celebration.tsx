@@ -314,6 +314,7 @@ export function LevelUpCelebration() {
         {/* Close button */}
         <button
           onClick={dismiss}
+          aria-label="Fechar"
           className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full transition-all hover:bg-white/10"
           style={{ color: '#8899BB' }}
         >
