@@ -242,6 +242,7 @@ export function TransactionsView({
           {search && (
             <button
               onClick={() => setSearch('')}
+              aria-label="Limpar busca"
               className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-white"
             >
               <X size={14} />
@@ -643,7 +644,12 @@ function NewTransactionModal({
         />
         <div className="relative z-10 flex items-center justify-between">
           <h2 className="text-xl font-bold">Nova transação</h2>
-          <button type="button" onClick={onClose} className="text-text-muted hover:text-white">
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Fechar"
+            className="text-text-muted hover:text-white"
+          >
             <X size={20} />
           </button>
         </div>

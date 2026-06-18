@@ -594,6 +594,7 @@ function EisenhowerSubtasks({ taskId, isDone }: { taskId: string; isDone: boolea
                   setAdding(false);
                   setNewTitle('');
                 }}
+                aria-label="Cancelar"
                 className="text-text-muted transition-colors hover:text-white"
               >
                 <X size={11} />
@@ -680,7 +681,12 @@ function NewTaskModal({
               {quadrant.emoji} {quadrant.title} — {quadrant.subtitle}
             </div>
           </div>
-          <button type="button" onClick={onClose} className="text-text-muted transition-colors hover:text-white">
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Fechar"
+            className="text-text-muted transition-colors hover:text-white"
+          >
             <X size={20} />
           </button>
         </div>
