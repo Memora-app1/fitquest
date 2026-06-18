@@ -338,6 +338,7 @@ export function KanbanBoard({
               {isSelected && (
                 <button
                   onClick={() => requestDeleteList(list.id)}
+                  aria-label="Excluir lista"
                   className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-brand-red opacity-0 transition-opacity active:scale-90 group-hover/list:opacity-100"
                 >
                   <X size={9} className="text-white" />
@@ -394,6 +395,7 @@ export function KanbanBoard({
                 setShowNewList(false);
                 setNewListName('');
               }}
+              aria-label="Cancelar"
               className="flex h-9 w-9 items-center justify-center rounded-lg text-text-muted transition-transform active:scale-90"
               style={{ background: 'rgba(255,255,255,0.06)' }}
             >
@@ -875,6 +877,7 @@ function SubtaskPanel({ taskId, isDone }: { taskId: string; isDone: boolean }) {
                 </span>
                 <button
                   onClick={() => deleteSubtask(s.id)}
+                  aria-label="Remover subtarefa"
                   className="shrink-0 text-text-muted opacity-0 transition-all hover:text-brand-red group-hover/sub:opacity-100"
                 >
                   <X size={10} />
@@ -911,6 +914,7 @@ function SubtaskPanel({ taskId, isDone }: { taskId: string; isDone: boolean }) {
                     setAdding(false);
                     setNewTitle('');
                   }}
+                  aria-label="Cancelar"
                   className="text-text-muted transition-colors hover:text-white"
                 >
                   <X size={12} />
@@ -1005,6 +1009,7 @@ function NewTaskModal({
           <h2 className="text-xl font-bold">Nova tarefa</h2>
           <button
             onClick={onClose}
+            aria-label="Fechar"
             className="flex h-10 w-10 items-center justify-center rounded-lg text-text-muted transition-all active:scale-90 active:text-white"
             style={{ background: 'rgba(255,255,255,0.05)' }}
           >

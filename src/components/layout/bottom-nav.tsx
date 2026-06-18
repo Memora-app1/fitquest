@@ -174,7 +174,12 @@ export function BottomNav({ criticalTasks = 0 }: BottomNavProps) {
             <span className="text-xs font-bold uppercase tracking-widest text-text-muted">
               Explorar
             </span>
-            <button type="button" onClick={() => setShowMore(false)} className="p-1 text-text-muted">
+            <button
+              type="button"
+              onClick={() => setShowMore(false)}
+              className="p-1 text-text-muted"
+              aria-label="Fechar menu"
+            >
               <X size={16} />
             </button>
           </div>

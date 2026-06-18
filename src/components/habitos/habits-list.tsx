@@ -680,6 +680,7 @@ function CreateHabitModal({
           <h2 className="text-xl font-bold">Novo hábito</h2>
           <button
             onClick={onClose}
+            aria-label="Fechar"
             className="flex h-10 w-10 items-center justify-center rounded-lg text-text-muted transition-all active:scale-90 active:text-white"
             style={{ background: 'rgba(255,255,255,0.05)' }}
           >
@@ -917,6 +918,7 @@ function EditHabitModal({
           <h2 className="text-xl font-bold">Editar hábito</h2>
           <button
             onClick={onClose}
+            aria-label="Fechar"
             className="flex h-10 w-10 items-center justify-center rounded-lg text-text-muted transition-all active:scale-90 active:text-white"
             style={{ background: 'rgba(255,255,255,0.05)' }}
           >

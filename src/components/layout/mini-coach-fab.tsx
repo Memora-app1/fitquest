@@ -147,7 +147,8 @@ export function MiniCoachFab() {
               : `0 4px 20px rgba(124,58,237,0.4), 0 0 ${pulse ? '30px' : '0px'} rgba(124,58,237,0.3)`,
             transform: pulse && !open ? 'scale(1.1)' : 'scale(1)',
           }}
-          aria-label="Abrir Coach IA"
+          aria-label={open ? 'Fechar Coach IA' : 'Abrir Coach IA'}
+          aria-expanded={open}
         >
           {open ? (
             <X size={20} style={{ color: '#EF4444' }} />
