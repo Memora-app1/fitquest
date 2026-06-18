@@ -141,7 +141,7 @@ export function AchievementShareModal({ userId }: Props) {
         <button
           type="button"
           onClick={close}
-          className="absolute right-3 top-3 z-10 rounded-full p-2 transition-all hover:bg-white/10"
+          className="absolute right-2 top-2 z-10 flex h-10 w-10 items-center justify-center rounded-full transition-all hover:bg-white/10"
           style={{ color: '#5A6B85' }}
           aria-label="Fechar"
         >

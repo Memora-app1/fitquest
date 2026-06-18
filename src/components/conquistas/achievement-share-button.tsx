@@ -81,14 +81,14 @@ export function AchievementShareButton({ slug, name, emoji, rarity, userId, colo
       disabled={state === 'sharing'}
       aria-label={`Compartilhar conquista ${name}`}
       title="Compartilhar conquista"
-      className="flex h-7 w-7 items-center justify-center rounded-lg transition-all hover:scale-110 active:scale-95 disabled:opacity-60"
+      className="flex h-9 w-9 items-center justify-center rounded-lg transition-all hover:scale-110 active:scale-95 disabled:opacity-60"
       style={{
         background: state === 'copied' ? 'rgba(0,255,136,0.15)' : `rgba(${rgb},0.12)`,
         border: `1px solid ${state === 'copied' ? 'rgba(0,255,136,0.4)' : `rgba(${rgb},0.3)`}`,
         color: state === 'copied' ? '#00FF88' : color,
       }}
     >
-      {state === 'copied' ? <Check size={13} /> : <Share2 size={13} />}
+      {state === 'copied' ? <Check size={15} /> : <Share2 size={15} />}
     </button>
   );
 }
