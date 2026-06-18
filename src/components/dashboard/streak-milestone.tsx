@@ -6,6 +6,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { Flame, Star, Crown, Zap } from 'lucide-react';
+import { StreakShareButton } from './streak-share-button';
 
 const MILESTONES = [
   {
@@ -209,6 +210,17 @@ export async function StreakMilestone({ userId }: { userId: string }) {
               </div>
             ))}
           </div>
+        </div>
+
+        {/* Compartilhar marco — virality num pico emocional */}
+        <div className="mt-4 flex justify-center">
+          <StreakShareButton
+            userId={userId}
+            days={milestone.days}
+            title={milestone.title}
+            color={milestone.color}
+            rgb={milestone.rgb}
+          />
         </div>
       </div>
     </div>
