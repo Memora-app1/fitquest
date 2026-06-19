@@ -336,7 +336,7 @@ export async function POST(req: NextRequest) {
 
       try {
         const stream = await anthropic.beta.messages.create({
-          model: 'claude-sonnet-4-6',
+          model: 'claude-opus-4-8',
           max_tokens: 1024,
           system: [
             { type: 'text', text: STATIC_COACH_PROMPT, cache_control: { type: 'ephemeral' } },

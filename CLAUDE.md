@@ -28,7 +28,7 @@ Tudo unificado pelo sistema de **XP/Level/Streak** — cada ação concede XP.
 | Banco | Supabase (PostgreSQL + RLS) |
 | Auth | Supabase Auth (email/password) |
 | Pagamento | Stripe (Subscriptions + Checkout) |
-| IA | Anthropic API (claude-sonnet-4-6) |
+| IA | Anthropic API (claude-opus-4-8) |
 | Hosting | Vercel (Edge runtime + Cron) |
 | Realtime | Supabase Realtime (futuro: live updates) |
 
