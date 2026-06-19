@@ -301,3 +301,121 @@ Contém:
 - ✅ **SEMPRE** use `Promise.all()` para queries paralelas
 - ✅ **SEMPRE** registre erros via `console.error` (Vercel captura)
 - ✅ **SEMPRE** retorne tipos explícitos em funções públicas
+
+---
+
+# 📚 Base de Conhecimento — Boas Práticas 2026
+
+> Pesquisa web consolidada (jun/2026) das melhores práticas atuais aplicadas à stack do Ascendia. Use como referência ao implementar, revisar ou otimizar. Versão expandida no Obsidian: `Ascendia/📚 Base de Conhecimento Dev.md`.
+
+## ⚛️ Next.js 16 + React Server Components
+
+- **Server Components por padrão.** Só marque `"use client"` quando precisar de `useState`/`useEffect`/event handlers/APIs do browser. Erro comum: client component grande demais — empurra ~70% de JS extra pro cliente.
+- **Mantenha a fronteira `"use client"` na folha da árvore.** Busque dados no server e passe como props pro client component (não suba o `"use client"` pra layouts inteiros).
+- **`params` e `searchParams` são `Promise`** no Next 15/16 — sempre `await`. Habilita streaming e fetch paralelo.
+- **Turbopack é o bundler padrão** no 16. Dados em paralelo com `Promise.all`, nunca em waterfall.
+- **Streaming com `<Suspense>`** para partes lentas da página — o resto renderiza na hora.
+- Checklist oficial de produção: cache, imagens, fontes, bundle. Rodar antes de cada launch.
+- Fontes: [Next.js production checklist](https://nextjs.org/docs/app/guides/production-checklist) · [Server/Client Components](https://nextjs.org/docs/app/getting-started/server-and-client-components)
+
+## 🗄️ Supabase RLS — Performance & Segurança
+
+- **Indexe TODA coluna usada em `USING`/`WITH CHECK`.** É o ganho #1 de performance em RLS. (Já fizemos isso nas migrations 013-015.)
+- **Envolva chamadas de função em `select`:** `(select auth.uid())` em vez de `auth.uid()` direto — o Postgres avalia 1x por query em vez de 1x por linha (`auth_rls_initplan`). Feito nas 36 policies da migration 014.
+- **Sempre adicione `to authenticated`** nas policies — não confie só em `auth.uid()` pra barrar o role `anon`.
+- **Funções `SECURITY DEFINER`** que o cliente não deve chamar: `REVOKE EXECUTE FROM public, anon, authenticated` + `GRANT TO service_role`. Lição da brecha do `grant_xp_atomic` (migrations 013→015). EXECUTE no role `PUBLIC` é herdado por anon/authenticated.
+- **Evite subqueries correlacionadas por linha** dentro de policies — prefira join ou `security definer function` indexada.
+- **Valide com `EXPLAIN ANALYZE`** com e sem RLS pra medir o custo real da policy.
+- Fontes: [Supabase RLS performance](https://supabase.com/docs/guides/troubleshooting/rls-performance-and-best-practices-Z5Jjwv) · [MakerKit RLS patterns](https://makerkit.dev/blog/tutorials/supabase-rls-best-practices)
+
+## 📊 Core Web Vitals (mobile-first — 90% do público)
+
+| Métrica | Meta | Foco |
+|---|---|---|
+| **LCP** (carregamento) | ≤ 2,5s | maior fix de impacto |
+| **INP** (responsividade) | ≤ 200ms | métrica mais reprovada em 2026 |
+| **CLS** (estabilidade) | ≤ 0,1 | reservar espaço |
+
+- **LCP:** preload da imagem LCP com `fetchpriority="high"`, CSS crítico inline, preload de fontes com `display: swap`, formatos WebP/AVIF, SSR. Usar `next/image` com `priority` no above-the-fold.
+- **INP:** quebrar tarefas longas de JS, `useTransition`/`startTransition` para updates não urgentes, debounce em handlers pesados, evitar re-renders (memo/useCallback). É hoje sinal de ranking igual a LCP.
+- **CLS:** `width`/`height` explícitos em toda imagem/vídeo/iframe, `font-display: swap`, espaço reservado pra conteúdo dinâmico (skeletons com mesma altura).
+- **Sempre teste com throttling de rede/CPU** — mobile real é muito mais lento. Métrica oficial = p75 do campo (CrUX), não lab.
+- Só ~48% dos sites mobile passam nos 3 CWV — passar já é vantagem competitiva.
+- Fontes: [Core Web Vitals 2026](https://www.corewebvitals.io/core-web-vitals) · [digitalapplied CWV 2026](https://www.digitalapplied.com/blog/core-web-vitals-2026-inp-lcp-cls-optimization-guide)
+
+## 💳 Stripe — Subscriptions & Webhooks
+
+- **Webhook é a fonte da verdade**, NUNCA a página de sucesso do front. Sincronize subscription no banco via webhook.
+- **Idempotência obrigatória:** guarde cada `event.id` numa tabela com `UNIQUE` e dê short-circuit se já processado (evita dupla cobrança/email em retries). Use idempotency keys em toda escrita na API Stripe.
+- **Verifique a assinatura** do webhook, responda **200 rápido**; se o processamento for lento, enfileire e processe async.
+- **Eventos fora de ordem:** cheque o `created` timestamp.
+- Stack Next.js + Supabase + Stripe é o padrão de SaaS em 2026 — Checkout Session em Route Handler, sync via webhook.
+- ⚠️ Ao integrar: apagar env vars `MERCADO_PAGO_*` e usar chaves live + webhook configurado.
+- Fontes: [Stripe idempotent requests](https://docs.stripe.com/api/idempotent_requests) · [Stripe webhooks 2026](https://www.hooklistener.com/learn/stripe-webhooks-implementation)
+
+## 📱 PWA (app instalável + offline)
+
+- **3 pilares:** `manifest.json` (name, icons 192+512, start_url, display), service worker (stale-while-revalidate p/ HTML, cache-first p/ assets hasheados) e página offline de fallback.
+- Service worker **na raiz** (o scope é definido pela localização do arquivo). HTTPS obrigatório.
+- **Install prompt:** capture `beforeinstallprompt` e dispare manualmente no momento certo (ex: depois do 1º hábito logado).
+- iOS/Safari tem limitações (push restrito) — testar separado. Meta de load < 3s.
+- Fontes: [PWA 2026 guide](https://www.iloveblogs.blog/post/progressive-web-apps-complete-guide-2026) · [PWA iOS limits](https://www.magicbell.com/blog/pwa-ios-limitations-safari-support-complete-guide)
+
+## 🎮 Gamificação & Retenção (o coração do Ascendia)
+
+- **Streak + milestone juntos** = +40-60% DAU vs. só um deles. Streaks sozinhos = +22% engajamento diário.
+- **Loss aversion** (medo de perder o streak) = +35% DAU vs. só pontos. Usuário com streak 7+ dias = 2,3x mais propenso a voltar diariamente (dado Duolingo).
+- **"Meaningful play":** cada ação reforça uma meta do usuário, não só acumula pontos. Combine recompensa extrínseca (XP) com motivador intrínseco (sensação de domínio/progresso).
+- **Hiper-personalização > blast genérico:** desafios contextuais por domínio (fitness/finanças/tarefas) batem notificação genérica.
+- Aplicar: lembrete de streak em risco, celebração de milestone, "freeze"/proteção de streak como recompensa.
+- Fontes: [Streaks gamification (Plotline)](https://www.plotline.so/blog/streaks-for-gamification-in-mobile-apps) · [Duolingo gamification](https://www.strivecloud.io/blog/gamification-examples-boost-user-retention-duolingo)
+
+## 💰 Conversão — Landing & Pricing (Meta Ads → trial → pago)
+
+- **3 tiers** é o ponto ótimo (98% dos SaaS usam). Temos monthly/annual/lifetime — ok.
+- **Default no anual** com equivalente mensal exibido ("R$ 25,55/mês") — planos anuais geram +25-30% de receita e churnam menos. Já fazemos R$ 306,60/ano = R$ 25,55/mês.
+- **Plano "herói"** destacado combate paralisia de decisão.
+- **Prova social** (depoimentos +34% performance; notificações de social proof até +98% conversão). Considerar contador de usuários/conquistas reais.
+- Benchmark: landing SaaS mediana ~3,8%; top performers 10-15%.
+- Demos interativos convertem 2x mais que screenshot estático.
+- Evitar: homepage entulhada de features, tabela de preço que esconde custo real, CTA único forçado.
+- Fontes: [SaaS pricing 2026](https://fungies.io/saas-pricing-page-best-practices-2026/) · [SaaS CRO 2026](https://www.thethunderclap.com/blog/saas-cro-best-practices-for-conversions)
+
+## ♿ Acessibilidade (WCAG 2.2 — quick wins)
+
+- **Touch targets ≥ 24×24px CSS** (ideal 44×44 mobile) ou espaçamento suficiente. (Já aumentamos alvos em sessão anterior.)
+- **Foco de teclado sempre visível** — não escondido atrás de header/sticky/modal.
+- **`aria-label` em botões icon-only** (X de modais, FAB, nav). Já cobrimos boa parte.
+- **Não force re-digitar** dado que o device pode autofill (`autocomplete`, `inputMode` correto). Já aplicamos `inputMode` nos forms.
+- **Ajuda/contato em posição consistente** entre telas.
+- Meta legal: WCAG 2.1 AA (deadline abr/2026) + fixes fáceis do 2.2.
+- Fontes: [WCAG 2.2 checklist 2026](https://line25.com/articles/web-accessibility-checklist-2026/) · [WCAG 2.2 guide](https://www.allaccessible.org/blog/wcag-22-complete-guide-2025)
+
+## 📲 Criação de Apps Mobile (caminho futuro do Ascendia)
+
+### Qual abordagem escolher
+- **PWA (onde estamos):** 1 codebase, mais barato/rápido, instalável, offline via service worker. Limite: hardware/push restrito no iOS. Browsers modernos já expõem muitas APIs antes nativas — PWA virou alternativa real, não só "gambiarra". **Melhor 1º passo pro Ascendia** (já é web Next.js).
+- **React Native / Expo:** experiência mais nativa, acesso total a hardware, push confiável no iOS. Expo empurra updates na hora (OTA), builda binários e distribui preview sem Xcode/Android Studio. **Recomendado pra MVP mobile** quando a PWA não bastar (ex: push iOS, widgets, performance de animação).
+- **Estratégia pragmática:** lançar PWA agora → medir retenção → migrar/duplicar pra Expo se o push iOS e a presença nas lojas virarem gargalo de crescimento.
+- Fontes: [PWA vs Native 2026](https://topflightapps.com/ideas/native-vs-progressive-web-app/) · [PWA vs React Native](https://mediusware.com/blog/progressive-webapp-vs-react-native-app)
+
+### Onboarding (1ª experiência define retenção)
+- **Guest mode / value-first:** deixe o usuário sentir o valor antes de exigir conta. Pro Ascendia: deixar logar o 1º hábito / criar 1ª tarefa antes do paywall.
+- **Onboarding ≤ 3 telas.** Progressive profiling: peça o mínimo pra começar, colete o resto conforme usa.
+- **Peça permissão em contexto, NUNCA no 1º launch.** Push: pedir só depois que o usuário viu valor (ex: após 1º streak). Aumenta muito o opt-in.
+- Fontes: [Mobile onboarding 2026 (VWO)](https://vwo.com/blog/mobile-app-onboarding-guide/) · [Appcues onboarding](https://www.appcues.com/blog/mobile-onboarding-best-practices)
+
+### Push Notifications (retenção)
+- **Push é produto, não spam:** "se o usuário não agradeceria por receber, não envie."
+- **Triggered, segmentado:** usuário que não ativou uma feature 3-5 dias pós-install recebe push com *benefício específico*, não descrição de feature.
+- Pro Ascendia: lembrete de streak em risco, celebração de level up, recap semanal de XP. Sempre com benefício claro e respeitando frequência.
+- Fontes: [Push best practices 2026 (Pushwoosh)](https://www.pushwoosh.com/blog/push-notification-best-practices/) · [Reteno push 2026](https://reteno.com/blog/push-notification-best-practices-ultimate-guide-for-2026)
+
+### Publicar nas lojas (quando for nativo) — prazos 2026
+- **iOS:** submissões precisam do **SDK iOS 26+ a partir de 28/abr/2026**. Review 24-48h (1ª pode levar 1 semana). Rejeições comuns: falta de privacy policy, `PrivacyInfo.xcprivacy` ausente, credenciais de demo faltando, crash no review, "minimal functionality".
+- **Android:** a partir de **31/ago/2026, `targetSdkVersion` 36 (Android 16)+** obrigatório. Tem **closed testing obrigatório** que pega indie de surpresa. Review 1-3h.
+- **ASO:** nome iOS ≤ 30 chars / Google ≤ 50; keyword primária no nome+subtítulo (não enterrada na descrição); 3-5 screenshots, as 2 primeiras convertem o install.
+- **Cronograma típico:** 5 fases em ~5 semanas (metadata → TestFlight/closed beta → submit com buffer de 2 semanas pra rejeição).
+- Fontes: [App launch checklist 2026](https://getlaunchlist.com/checklists/app-launch) · [Submission guide 2026](https://primocys.com/blog/submit-app-to-app-store-google-play/)
+
+> **Como usar esta base:** ao criar/revisar código, cheque a seção relevante. Ao otimizar, comece pelos quick wins de maior impacto (CWV mobile, RLS indexada, streak/retenção). Mantenha atualizada conforme a stack evoluir.
