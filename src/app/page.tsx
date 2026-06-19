@@ -438,6 +438,26 @@ export default function LandingPage() {
         </div>
         <p>© {new Date().getFullYear()} Ascendia · Feito no Brasil 🇧🇷</p>
       </footer>
+
+      {/* Espaçador p/ o CTA sticky não cobrir o footer no mobile */}
+      <div className="h-20 md:hidden" aria-hidden />
+
+      {/* ─── CTA sticky (mobile) — sempre visível no thumb zone ────────── */}
+      <div
+        className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 p-3 md:hidden"
+        style={{
+          background: 'rgba(5,9,20,0.92)',
+          backdropFilter: 'blur(12px)',
+          paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))',
+        }}
+      >
+        <Link
+          href="/signup"
+          className="btn-primary flex w-full items-center justify-center px-6 py-3.5 text-base font-bold"
+        >
+          Começar grátis — 7 dias →
+        </Link>
+      </div>
     </main>
   );
 }

@@ -10,6 +10,11 @@ interface Props {
   params: Promise<{ username: string }>;
 }
 
+// ISR: perfil público é cacheado por 5 min (stale-while-revalidate).
+// Página pública, sem dados sensíveis — resposta rápida (<200ms) e menos
+// carga no banco. Dados de XP/streak toleram alguns minutos de defasagem.
+export const revalidate = 300;
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { username } = await params;
   const supabase = createServiceClient();
