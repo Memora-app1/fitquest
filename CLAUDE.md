@@ -419,3 +419,152 @@ Contém:
 - Fontes: [App launch checklist 2026](https://getlaunchlist.com/checklists/app-launch) · [Submission guide 2026](https://primocys.com/blog/submit-app-to-app-store-google-play/)
 
 > **Como usar esta base:** ao criar/revisar código, cheque a seção relevante. Ao otimizar, comece pelos quick wins de maior impacto (CWV mobile, RLS indexada, streak/retenção). Mantenha atualizada conforme a stack evoluir.
+
+---
+
+# 📚 Base de Conhecimento — Parte 2: Fundamentos, Engenharia & Growth
+
+> Continuação da pesquisa (jun/2026), incluindo princípios de livros de referência. Mesmo espelho no Obsidian.
+
+## 🏛️ Fundamentos de Engenharia (livros de referência)
+
+**Clean Architecture & SOLID (Robert C. Martin):**
+- Objetivo da arquitetura: código **fácil de mudar, testar e evoluir**, não só "que funciona".
+- **SRP** (uma responsabilidade por módulo) · **Open/Closed** (aberto a extensão, fechado a modificação) · **Dependency Inversion** (pilar — dependa de abstrações). Arquitetura boa é **independente de framework/tecnologia**.
+- Aplicação no Ascendia: regras de negócio (XP, streak, subscription) isoladas em `lib/` (ex: `xp-server.ts`), não espalhadas em componentes/rotas. 🔗 [resumo](https://reflectoring.io/book-review-clean-architecture/)
+
+**Designing Data-Intensive Applications (Kleppmann):**
+- 3 pilares: **confiabilidade, escalabilidade, manutenibilidade**.
+- Scale-up (máquina maior) vs scale-out (shared-nothing). Blocos: banco, **cache** (acelera leitura), índices de busca, processamento stream/batch.
+- Aplicação: cache de subscription em cookie HMAC (já temos), `Promise.all`, e futuramente cache de leituras quentes. 🔗 [o que aprendi](https://newsletter.techworld-with-milan.com/p/what-i-learned-from-the-book-designing)
+
+**Effective TypeScript (Dan Vanderkam) — itens-chave:**
+- `strict: true` é o passo nº1 (já usamos). `noImplicitAny`, `strictNullChecks`.
+- Item 28: **tipos que só representam estados válidos**. Item 29: liberal no que aceita, estrito no que produz. Item 31: empurre `null` pra borda dos tipos. Item 42: **`unknown` em vez de `any`** (já é regra nossa). `never` para exhaustiveness check em `switch`. 🔗 [effectivetypescript.com](https://effectivetypescript.com/)
+
+## 🧠 Habit Formation (livros — coração do produto)
+
+**Hooked (Nir Eyal) — Hook Model, 4 passos em loop:**
+1. **Trigger** (gatilho) — externo (push/ícone) evolui pra **interno** (emoção: "quero progredir hoje").
+2. **Action** (ação) — o mais simples e sem fricção possível (logar hábito em 1 toque).
+3. **Variable Reward** (recompensa variável) — XP/conquistas com elemento de surpresa.
+4. **Investment** (investimento) — usuário investe (streak, histórico, metas) → aumenta valor de voltar.
+
+**Atomic Habits (James Clear):** loop cue → routine → reward. Tornar o bom hábito **óbvio, atraente, fácil e satisfatório**.
+- Aplicação Ascendia: o ciclo XP/streak JÁ é um Hook Model — reforçar o **trigger interno** (notificação contextual) e o **investment** (quanto mais o user usa, mais perde se sair). 🔗 [Hooked + Atomic Habits](https://samjayneburden.medium.com/designing-for-habitual-engagement-lessons-from-hooked-and-atomic-habits-1f919569798)
+
+## 🤖 Anthropic Claude API (Coach IA — custo & performance)
+
+- **Prompt caching = -90% no custo de input em cache reads.** O 1º request (cache write) é mais caro — normal. Ganho vem dos hits repetidos (50-80% típico em produção).
+- **Cache os blocos estáticos grandes** (system prompt do Coach) e **mova conteúdo dinâmico pra fora do prefixo cacheável**. Já usamos `cache_control: ephemeral` no `STATIC_COACH_PROMPT` — manter assim.
+- **Batch API = -50%** onde latência não é visível ao usuário (ex: jobs de análise). Não usar no chat (é streaming ao vivo).
+- Roteie o modelo certo pro caso: Coach usa `claude-opus-4-8`. 🔗 [prompt caching](https://platform.claude.com/docs/en/build-with-claude/prompt-caching) · [pricing/otimização 2026](https://www.finout.io/blog/anthropic-api-pricing)
+
+## 🧪 Testes (Vitest + Playwright)
+
+- **Pirâmide 2026:** ~70% unit (ms) · 20% integração (s) · 10% E2E (min).
+- **Vitest + React Testing Library:** unit em Server Actions, schemas Zod, componentes síncronos. 5-10x mais rápido que Jest, compartilha config do Vite.
+- **Playwright** (substituiu Cypress): 3-5 fluxos E2E críticos no CI — **auth, Stripe checkout, Server Components async** (Vitest não renderiza async RSC).
+- Aplicação: começar com Playwright nos fluxos de dinheiro/auth + Vitest no `xp.ts`/`calculate_level`/Zod. 🔗 [Next.js testing 2026](https://medium.com/@securestartkit/next-js-testing-in-2026-vitest-playwright-0caf6dd1f829)
+
+## 🚨 Observabilidade (Sentry)
+
+- **Sentry** = padrão de mercado; free tier 5K erros/mês. Instrumenta **client + server + edge** (os 3 runtimes do Next) e mostra a exceção completa (Server Actions "engolem" erro sem isso).
+- Setup 2026: Sentry (erros + traces) + log estruturado (Pino) + uptime (Better Stack/Checkly).
+- Sempre **source maps em produção**; use `correlationId` pra rastrear request. 🔗 [Sentry Next.js gaps](https://blog.sentry.io/next-js-observability-gaps-how-to-close-them/)
+
+## 🛡️ Segurança de API & Rate Limiting
+
+- **Proteja primeiro:** login, reset de senha, OTP, endpoints que expõem estado de conta (alvo de brute-force — OWASP).
+- **In-memory NÃO funciona na Vercel** (multi-instância). Use **`@upstash/ratelimit` + Upstash Redis** (serverless, edge-compatible).
+- **Onde:** `proxy.ts`/middleware pro caso geral (roda no edge antes da rota); Route Handler quando precisa de contexto de auth/plano.
+- Limites por papel: anon < authenticated < premium. 🔗 [Next.js security 2026](https://www.authgear.com/post/nextjs-security-best-practices/) · [Upstash rate limit](https://upstash.com/blog/nextjs-ratelimiting)
+
+## ⚡ Caching / ISR / Edge (Vercel + Next 16)
+
+- Next 16 **pré-renderiza tudo por padrão**. Novo modelo: **`"use cache"`** + `cacheLife` (tempo) + `cacheTag`/`revalidateTag` (invalidação por mutação).
+- **ISR** = stale-while-revalidate: resposta cacheada rápida + regeneração em background. Vercel sugere revalidate alto (ex: 1h) p/ conteúdo semi-estático.
+- No Edge Runtime, prefira `fetch()` com `cache`/`next.revalidate` em vez de `"use cache"`.
+- Metas: cache HIT >85% (assets estáticos), 50-70% (ISR), <200ms global p/ páginas cacheadas.
+- Aplicação: páginas públicas (landing, `/u/[username]`, `/planos`) com ISR; dashboard fica dinâmico. 🔗 [ISR Vercel](https://vercel.com/docs/incremental-static-regeneration)
+
+## 🗃️ PostgreSQL — Índices a fundo
+
+- **`EXPLAIN ANALYZE` antes e depois** de criar índice — confirme que está sendo usado.
+- **Índice composto:** ordem importa (leftmost prefix rule). Coluna mais **seletiva primeiro**. `(user_id, created_at)` serve queries por `user_id` e por `user_id + data`.
+- **Índice parcial** pra subconjunto quente: `CREATE INDEX ... WHERE status='pending'` — menor e mais rápido.
+- **5-10 índices bem escolhidos por tabela** (não indexe tudo — penaliza escrita). `CREATE INDEX CONCURRENTLY` em tabela grande (sem downtime).
+- Aplicação: índices em `habit_logs(user_id, log_date)`, `transactions(user_id, date)`, `xp_transactions(user_id, created_at)`. 🔗 [índices PG](https://www.mydbops.com/blog/postgresql-indexing-best-practices-guide)
+
+---
+
+# 🇧🇷 Base de Conhecimento — Parte 3: Mercado Brasil & Growth
+
+## 🔐 LGPD (obrigatório no Brasil)
+
+- **Consentimento específico, livre e granular** — aceite genérico de "termos" NÃO vale; consentimento condicionado ao acesso ao serviço presume-se não-livre. Dado sensível: opt-in por finalidade.
+- **Checklist dev:** mapear dados coletados (o quê/por quê/onde/quem acessa) · política de uso, retenção e descarte · registro de consentimento com **revogação fácil** · logs de acesso · criptografia/pseudonimização.
+- **Direitos do titular:** acesso, correção, exclusão, portabilidade — precisa ter fluxo pra atender.
+- Aplicação Ascendia: tela de exclusão de conta + export de dados, política de privacidade, consentimento no cadastro. 🔗 [LGPD p/ devs](https://dponet.com.br/lgpd-para-desenvolvedores-de-softwares/) · [LGPD p/ SaaS](https://www.iugu.com/blog/lgpd-para-saas)
+
+## 💸 Pix & Pagamentos no Brasil
+
+- **Pix = +40% das transações online no Brasil** — método nº1. Essencial oferecer.
+- **Stripe + Pix:** desde 2026 suporta **Pix Automático (recorrente via mandato)** — cliente autoriza no app do banco, cobranças futuras automáticas. Ideal pra assinatura mensal/anual.
+- One-time Pix → adicionar mandate options em PaymentIntent/SetupIntent/Checkout pra virar recorrente.
+- Boleto: aceito mas na parceria Stripe×EBANX só Pix está habilitado.
+- Aplicação: oferecer **Pix Automático** ao lado do cartão no `/planos` — reduz fricção do público BR. 🔗 [Pix Automático Stripe](https://docs.stripe.com/payments/pix/pix-automatico) · [pagamentos no Brasil](https://stripe.com/resources/more/payments-in-brazil)
+
+## 🔎 SEO Técnico (Next.js 16)
+
+- **Metadata API:** objeto `metadata` estático ou `generateMetadata` dinâmico (por rota/params). Definir **`metadataBase`**.
+- **`sitemap.ts` e `robots.ts`** file-based (ficam no versionamento). Canonical links sempre.
+- **JSON-LD structured data** (Article/Product/FAQ) — mas **NUNCA `aggregateRating` falso** (penalidade manual do Google).
+- Páginas públicas: **não usar CSR**, usar SSR/ISR. Validar no Google Search Console.
+- Aplicação: metadata + OG em landing/`/planos`/perfil público; sitemap dinâmico dos perfis públicos. 🔗 [Next.js metadata](https://nextjs.org/docs/app/getting-started/metadata-and-og-images) · [SEO 2026](https://www.modernwebseo.com/en/blog/nextjs-seo-guide-2026)
+
+## 📧 Email Deliverability (Resend)
+
+- **SPF + DKIM + DMARC são não-negociáveis** — sem os 3, Gmail/Yahoo filtram/bloqueiam. DMARC `p=quarantine` ou `p=reject`. DKIM **2048-bit**, rotacionar 1x/ano.
+- **Separe streams:** subdomínio/IP pool diferente pra **transacional** vs **marketing** (não contamina reputação).
+- **Taxa de spam < 0,3%** (Gmail/Yahoo) + **one-click unsubscribe** em bulk. Higiene de lista antes de cada envio.
+- Diagnóstico: Google Postmaster Tools + Microsoft SNDS. 🔗 [SPF/DKIM/DMARC 2026](https://www.getmailbird.com/email-authentication-spf-dkim-dmarc-guide/)
+
+## 📈 Product Analytics (PostHog)
+
+- **Instrumente eventos-chave manualmente** — o erro nº1 é confiar só em autocapture e não ter `user_signed_up`, o que quebra ativação/retenção/LTV.
+- **Funil signup → first_value_event** = taxa de ativação e time-to-value. Pro Ascendia: signup → 1º hábito logado / 1ª tarefa.
+- **Retenção por cohort** (ex: "ativou semana passada" → quantos voltam) + **stickiness** (DAU/MAU). Comparar cohort por plano/origem/feature.
+- Path analysis revela fluxos inesperados que o funil estruturado não vê. 🔗 [PostHog best practices](https://posthog.com/docs/product-analytics/best-practices)
+
+## 💲 Pricing Psychology (conversão de planos)
+
+- **Anchoring:** mostrar plano caro perto faz o alvo parecer barato (ex: lifetime R$597 ao lado do anual valoriza o anual).
+- **Charm pricing:** preços terminados em 9 convertem ~24% melhor (R$37 já está bom; testar R$36,90/ R$ X9).
+- **Decoy effect:** plano do meio precificado perto do premium empurra pro premium (Netflix: +13% no top tier).
+- Ganho típico: **+10-25% de conversão sem mudar o produto**. 🔗 [pricing psychology SaaS](https://dodopayments.com/blogs/pricing-psychology) · [anchoring](https://www.getmonetizely.com/articles/how-does-anchoring-psychology-shape-customer-decisions-on-your-saas-pricing-page)
+
+## 📢 Meta Ads — CAC/LTV (aquisição, 90% vem de Meta Ads)
+
+- **Otimize pra evento de assinatura/trial, NÃO purchase.** Janela de atribuição longa: **7-day view + 28/30-day click** (o default subconta).
+- **Métricas:** `CAC = gasto / novos clientes` · `LTV = (ARPU × margem) / churn` · `CAC payback = CAC / (MRR × margem)`. **Alvo LTV:CAC > 3**; payback < 8 meses (top: 2,5-5).
+- **Benchmarks bootstrapped 2026:** CPC ~R$0,90 (~$0.90), CTR 1,5-3%, CPA $40-80, ROAS 2,5-4x.
+- **Algoritmo Andromeda** favorece **targeting amplo** + lista de LTV (Pixel + Conversions API + CSV de clientes auto-sync). Poucas campanhas escalam melhor que muitas.
+- Aplicação: enviar evento de trial/subscription via Conversions API; subir lista de pagantes pra lookalike. 🔗 [Meta Ads funnel 2026](https://www.stackmatix.com/blog/meta-ads-funnel-strategy) · [SaaS FB benchmarks](https://www.saashero.net/strategy/saas-facebook-ads-benchmarks-2026/)
+
+## ✍️ Copywriting de Conversão (landing/planos)
+
+- **Headline responde "o que eu ganho?" em 5s.** Teste 4U: **Útil, Urgente, Único, Ultra-específico**. Framework PAS: dor → amplifica → solução.
+- **80/20:** headline + subheadline + CTA carregam 80% do resultado.
+- **CTA único e repetido** (hero, meio, fim) + **CTA sticky no mobile**.
+- **Hero com 6 elementos:** headline de proposta de valor, subheadline de apoio, CTA primário, visual, sinais de confiança (prova social), nav mínima → +35% conversão.
+- Aplicação: revisar hero da landing do Ascendia com PAS ("Sua vida desorganizada em 4 apps? Unifique tudo e seja recompensado por evoluir."). 🔗 [copy que converte 2026](https://www.getresponse.com/blog/copywriting-landing-page-conversions) · [hero section](https://www.landy-ai.com/blog/landing-page-hero-section)
+
+## 📐 UI/UX Mobile (90% do público)
+
+- **Thumb zone:** ações primárias nos **2/3 inferiores** da tela (alcance natural do polegar). Bottom nav > hamburger (+20-30% velocidade de navegação) — 3-5 destinos. (Já temos bottom nav com 5.)
+- **Touch target ≥ 44×44px (iOS) / 48dp (Android).**
+- **Gestos nativos** (swipe) + **haptic feedback** (já usamos haptic em share). Drag-to-scroll é desktop, não mobile.
+- Tendência: interfaces **limpas, rápidas, purpose-driven** > densas/decorativas. 🔗 [mobile UX 2026](https://uxcam.com/blog/mobile-ux/) · [thumb zone](https://parachutedesign.ca/blog/thumb-zone-ux/)
+
+> **Total:** esta base cobre 28 áreas pesquisadas (eng. + fundamentos de livros + mercado BR + growth). Mantida em sync com `📚 Base de Conhecimento Dev.md` no Obsidian.
